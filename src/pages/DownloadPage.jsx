@@ -10,7 +10,7 @@ const DownloadPage = () => {
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
             <Navbar />
-            <div className="flex-grow flex flex-col items-center justify-center px-6 mt-32 mb-20 md:mt-0 md:mb-0">
+            <div className="flex-grow flex flex-col items-center justify-center px-6 pt-32 pb-20 md:pt-40 md:pb-20">
                 <div className="max-w-3xl bg-white border-4 border-brand-black p-10 md:p-16 shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] text-center relative overflow-hidden">
                     {/* Decorative elements */}
                     <div className="absolute top-0 left-0 w-full h-2 bg-brand-orange"></div>
@@ -19,7 +19,7 @@ const DownloadPage = () => {
                     </div>
 
                     <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-6 text-brand-black">
-                        You're Awesome! 🎉
+                        You're Awesome!
                     </h1>
                     <p className="text-xl md:text-2xl font-medium text-brand-black/80 mb-10 leading-relaxed max-w-2xl mx-auto">
                         Payment successful! Thank you so much for investing in your startup's future.
@@ -27,11 +27,14 @@ const DownloadPage = () => {
                     </p>
                     <a
                         href="https://drive.google.com/uc?export=download&id=1D-CiILMVbGL0cB5yoNL8rgzuOU7LwixD"
-                        className="inline-block w-full md:w-auto px-10 py-5 bg-brand-orange text-white text-2xl font-black uppercase tracking-tight border-4 border-brand-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(26,26,26,1)] transition-all group"
+                        className="inline-block w-full md:w-auto px-10 py-5 bg-brand-orange text-white text-2xl font-black uppercase tracking-tight border-4 border-brand-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(26,26,26,1)] transition-all"
                     >
                         Download the Model Now
-                        <span className="inline-block transition-transform group-hover:translate-y-1 group-hover:scale-110 ml-2">⬇️</span>
                     </a>
+
+                    <p className="mt-8 text-sm font-bold text-brand-black/60 uppercase tracking-widest">
+                        In case the download link doesn't work, please reach out to <a href="mailto:ayushpoojary1@gmail.com" className="text-brand-orange hover:text-brand-black transition-colors underline hover:no-underline">ayushpoojary1@gmail.com</a>
+                    </p>
                 </div>
             </div>
             <Footer />
