@@ -13,7 +13,7 @@ const About = () => {
             <Navbar />
 
             {/* Elegant Minimalist Header */}
-            <div className="w-full bg-brand-cream border-b-4 border-brand-black pt-40 pb-20 px-6 md:px-12">
+            <div className="w-full bg-brand-cream border-b-4 border-brand-black pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12">
                 <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
                     <h1 className="text-6xl md:text-8xl font-black text-brand-black tracking-tighter uppercase mb-6">
                         Meet the Founder

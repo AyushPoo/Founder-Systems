@@ -56,7 +56,7 @@ const ProductDetail = () => {
             <Navbar />
 
             {/* Product Header */}
-            <div className="w-full bg-brand-cream border-b-4 border-brand-black pt-40 pb-12 px-6 md:px-12">
+            <div className="w-full bg-brand-cream border-b-4 border-brand-black pt-32 md:pt-40 pb-10 md:pb-12 px-6 md:px-12">
                 <div className="max-w-7xl mx-auto">
                     <Link to="/products" className="inline-block mb-8 text-brand-orange font-bold text-sm tracking-widest uppercase hover:text-brand-black transition-colors">
                         &larr; Back to Catalog
