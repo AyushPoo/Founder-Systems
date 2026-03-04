@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
 import About from './pages/About';
+import DownloadPage from './pages/DownloadPage';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
+          <Route path="/download-fs-82h3k" element={<DownloadPage />} />
         </Routes>
       </div>
     </Router>

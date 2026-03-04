@@ -27,14 +27,14 @@ const ProductDetail = () => {
             { name: "OpEx Planner", desc: "Simple hiring and team growth planning." },
             { name: "Valuation Engine", desc: "ARR Multiples + DCF for the finance nerds." }
         ],
-        whyTitle: "Why invest ₹1999 ($14.99)?",
+        whyTitle: "Why invest ₹1499 ($14.99)?",
         whyPoints: [
             { title: "Save 20+ Hours", desc: "Your time is worth more than $1.50/hour. Spend it selling instead." },
             { title: "No \"Broken Formula\" Panic", desc: "Every cell is linked, protected, and sanity-checked by an accountant who actually likes this stuff (me)." },
             { title: "Look Like a Pro", desc: "Stop sending messy CSVs. Send a structured model that proves you know your numbers." }
         ],
         footerSummaryTitle: "The Price",
-        footerSummaryDetails: "₹1999 (About three cups of decent coffee).",
+        footerSummaryDetails: "₹1499 (About three cups of decent coffee).",
         footerResultTitle: "The Result",
         footerResultDetails: "Total clarity on your startup's future.",
         image: "/images/products/saas-thumbnail.jpg"
@@ -127,26 +127,31 @@ const ProductDetail = () => {
                     {/* Right Column: Imagery and Links */}
                     <div className="lg:col-span-5 flex flex-col gap-12 sticky top-32">
                         {/* Main Thumbnail */}
-                        <div className="border-4 border-brand-black p-2 bg-white shadow-soft">
+                        <div className="border-4 border-brand-black p-2 bg-white shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] mb-4">
                             <img
                                 src={product.image}
                                 alt={product.title}
-                                className="w-full h-auto object-cover"
+                                className="w-full h-auto object-cover border-2 border-brand-black"
                             />
                         </div>
 
-                        {/* Purchase Links Section */}
-                        <div className="flex flex-col border-4 border-brand-black p-8 bg-brand-black text-white shadow-soft">
-                            <h3 className="font-black text-xl uppercase tracking-widest mb-8 text-center">You can find them on:</h3>
-                            <div className="flex flex-col gap-4">
-                                <a href="https://ayushpoojary.gumroad.com/l/saas-investor-model" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center p-4 bg-white hover:bg-brand-cream border-2 border-transparent transition-all hover:scale-[1.02]">
-                                    <img src="/images/products/logo-gumroad.png" alt="Gumroad" className="h-10 object-contain mix-blend-multiply" />
+                        {/* Primary Purchase Button (Razorpay) */}
+                        <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full py-5 bg-brand-orange text-white text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all">
+                            Get it now - ₹1499
+                        </a>
+
+                        {/* Alternate Purchase Links Section */}
+                        <div className="flex flex-col items-center mt-4">
+                            <p className="font-bold text-sm uppercase tracking-widest mb-6 text-brand-black/70">You can also get it through here</p>
+                            <div className="flex flex-row justify-center gap-6">
+                                <a href="https://ayushpoojary.gumroad.com/l/saas-investor-model" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] transition-all overflow-hidden p-2">
+                                    <img src="/images/products/logo-gumroad.png" alt="Gumroad" className="w-full h-full object-contain mix-blend-multiply" />
                                 </a>
-                                <a href="#" className="flex items-center justify-center p-4 bg-white hover:bg-brand-cream border-2 border-transparent transition-all hover:scale-[1.02]">
-                                    <img src="/images/products/logo-instamojo.png" alt="Instamojo" className="h-10 object-contain mix-blend-multiply" />
+                                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] transition-all overflow-hidden p-2">
+                                    <img src="/images/products/logo-instamojo.png" alt="Instamojo" className="w-full h-full object-contain mix-blend-multiply" />
                                 </a>
-                                <a href="#" className="flex items-center justify-center p-4 bg-white hover:bg-brand-cream border-2 border-transparent transition-all hover:scale-[1.02]">
-                                    <img src="/images/products/logo-lemonsqueezy.jpg" alt="Lemon Squeezy" className="h-10 object-contain mix-blend-multiply" />
+                                <a href="https://ayushpoojary.lemonsqueezy.com/checkout/buy/c7374cc3-7922-4202-9bec-7a0f90b433ee" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-16 h-16 rounded-full bg-white border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] transition-all overflow-hidden p-2">
+                                    <img src="/images/products/logo-lemonsqueezy.jpg" alt="Lemon Squeezy" className="w-full h-full object-contain mix-blend-multiply rounded-full" />
                                 </a>
                             </div>
                         </div>
