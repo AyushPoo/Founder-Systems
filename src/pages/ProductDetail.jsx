@@ -57,7 +57,7 @@ const ProductDetail = () => {
     const handlePayment = () => {
         const price = 1499 * 100;
         const options = {
-            key: "RAZORPAY_KEY_ID",
+            key: "rzp_live_SNdUB2ZDVSnOgi",
             amount: price,
             currency: "INR",
             name: "Founder Systems",
