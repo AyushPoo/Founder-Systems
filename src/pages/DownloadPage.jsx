@@ -32,9 +32,25 @@ const DownloadPage = () => {
                         Download the Model Now
                     </a>
 
-                    <p className="mt-8 text-sm font-bold text-brand-black/60 uppercase tracking-widest">
+                    <p className="mb-4 mt-6 text-sm font-bold text-brand-black/60 uppercase tracking-widest">
                         In case the download link doesn't work, please reach out to <a href="mailto:ayushpoojary1@gmail.com" className="text-brand-orange hover:text-brand-black transition-colors underline hover:no-underline">ayushpoojary1@gmail.com</a>
                     </p>
+
+                    {/* Feedback Section */}
+                    <div className="mt-12 pt-10 border-t-4 border-brand-black/10">
+                        <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-brand-black mb-4">Enjoying Founder Systems?</h2>
+                        <p className="text-lg md:text-xl font-medium text-brand-black/80 mb-8 max-w-lg mx-auto">
+                            If Founder Systems helped you, we'd really appreciate a quick review.
+                        </p>
+                        <a
+                            href="https://docs.google.com/forms/d/e/1FAIpQLSfU90bJxNNb5hSXJFoVgCI3m-9zIrY_se8CM26RmN7z2yr1ng/viewform?usp=dialog"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block px-8 py-4 bg-white text-brand-black text-xl font-black uppercase tracking-tight border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] transition-all"
+                        >
+                            Leave Feedback
+                        </a>
+                    </div>
                 </div>
             </div>
             <Footer />

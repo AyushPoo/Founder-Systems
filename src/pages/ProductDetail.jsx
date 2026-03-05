@@ -117,6 +117,32 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
+                        {/* Testimonials */}
+                        <div className="py-4">
+                            <div className="mb-6">
+                                <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-2">Trusted by Early Founders</h3>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-brand-orange text-xl leading-none -mt-1">★★★★★</span>
+                                    <span className="font-bold text-brand-black/70 text-sm uppercase tracking-widest">Early founder feedback</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex flex-col justify-between">
+                                    <p className="font-medium text-brand-black/90 mb-6 italic">"Founder Systems helped me organize how I think about building a startup."</p>
+                                    <p className="font-black text-sm uppercase text-brand-black">— Early-stage founder</p>
+                                </div>
+                                <div className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex flex-col justify-between">
+                                    <p className="font-medium text-brand-black/90 mb-6 italic">"Clear frameworks and practical execution systems."</p>
+                                    <p className="font-black text-sm uppercase text-brand-black">— SaaS founder</p>
+                                </div>
+                                <div className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex flex-col justify-between md:col-span-2 lg:col-span-1">
+                                    <p className="font-medium text-brand-black/90 mb-6 italic">"Helped me structure startup execution in one weekend."</p>
+                                    <p className="font-black text-sm uppercase text-brand-black">— Builder</p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Bottom line summary */}
                         <div className="border-t-4 border-brand-black pt-8">
                             <div className="text-xl md:text-2xl mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -143,19 +169,25 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Primary Purchase Button (Razorpay) */}
-                        <div className="relative w-full">
-                            <div className="absolute -top-4 -right-2 md:-right-4 z-10">
-                                <span className="bg-yellow-400 text-brand-black text-xs md:text-sm font-black uppercase tracking-widest py-1 px-3 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rotate-6 inline-block animate-pulse">
-                                    ⭐ Steal Deal
-                                </span>
+                        <div className="flex flex-col items-center w-full">
+                            <div className="flex items-center gap-2 mb-4">
+                                <span className="text-brand-orange text-lg leading-none -mt-1">★★★★★</span>
+                                <span className="font-bold text-brand-black/70 text-xs uppercase tracking-widest">Early founder feedback</span>
                             </div>
-                            <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
-                                <div className="flex items-center gap-3 flex-wrap justify-center">
-                                    <span>Get it now -</span>
-                                    <span className="text-white/60 line-through decoration-brand-black decoration-4 relative text-lg md:text-xl font-bold">₹1999</span>
-                                    <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
+                            <div className="relative w-full">
+                                <div className="absolute -top-4 -right-2 md:-right-4 z-10">
+                                    <span className="bg-yellow-400 text-brand-black text-xs md:text-sm font-black uppercase tracking-widest py-1 px-3 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rotate-6 inline-block animate-pulse">
+                                        ⭐ Steal Deal
+                                    </span>
                                 </div>
-                            </a>
+                                <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                    <div className="flex items-center gap-3 flex-wrap justify-center">
+                                        <span>Get it now -</span>
+                                        <span className="text-white/60 line-through decoration-brand-black decoration-4 relative text-lg md:text-xl font-bold">₹1999</span>
+                                        <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
 
                         {/* Alternate Purchase Links Section */}
