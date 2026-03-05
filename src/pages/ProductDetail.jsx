@@ -197,11 +197,11 @@ const ProductDetail = () => {
                         {/* Main Thumbnail Carousel */}
                         <div className="border-4 border-brand-black p-2 bg-white shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] mb-4 flex flex-col gap-2">
                             {/* Main Image */}
-                            <div className="relative w-full aspect-[4/3] border-2 border-brand-black bg-brand-cream/30 flex items-center justify-center overflow-hidden group">
+                            <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[400px] border-2 border-brand-black bg-white flex items-center justify-center overflow-hidden group">
                                 <img
                                     src={product.images[currentImageIndex]}
                                     alt={`${product.title} - Preview ${currentImageIndex + 1}`}
-                                    className="w-full h-full object-cover transition-opacity duration-300"
+                                    className="w-full h-full max-h-[500px] object-contain transition-opacity duration-300 p-2 md:p-4"
                                 />
 
                                 {/* Navigation Arrows */}
