@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 const ProductDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
 
     // Scroll to top on mount
     useEffect(() => {
@@ -50,6 +51,32 @@ const ProductDetail = () => {
             </div>
         );
     }
+
+    const productId = "FS001";
+
+    const handlePayment = () => {
+        const price = 1499 * 100;
+        const options = {
+            key: "RAZORPAY_KEY_ID",
+            amount: price,
+            currency: "INR",
+            name: "Founder Systems",
+            notes: {
+                product_id: productId
+            },
+            handler: function (response) {
+                navigate('/download');
+            }
+        };
+
+        if (window.Razorpay) {
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } else {
+            console.error("Razorpay SDK not loaded");
+            window.open("https://rzp.io/rzp/aig9tmBT", "_blank");
+        }
+    };
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
@@ -180,13 +207,13 @@ const ProductDetail = () => {
                                         ⭐ Steal Deal
                                     </span>
                                 </div>
-                                <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                <button onClick={handlePayment} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
                                     <div className="flex items-center gap-3 flex-wrap justify-center">
                                         <span>Get it now -</span>
                                         <span className="text-white/60 line-through decoration-brand-black decoration-4 relative text-lg md:text-xl font-bold">₹1999</span>
                                         <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
                                     </div>
-                                </a>
+                                </button>
                             </div>
                         </div>
 
