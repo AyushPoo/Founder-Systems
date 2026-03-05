@@ -7,6 +7,7 @@ import DownloadPage from './pages/DownloadPage';
 import Terms from './pages/Terms';
 import RefundPolicy from './pages/RefundPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Access from './pages/Access';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/access" element={<Access />} />
         </Routes>
       </div>
     </Router>

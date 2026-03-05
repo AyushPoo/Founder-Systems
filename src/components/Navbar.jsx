@@ -29,6 +29,7 @@ const Navbar = () => {
                     }`}>
                     <a href="/#toolkit" className="hover:text-brand-orange transition-colors">Toolkit</a>
                     <Link to="/products" className="hover:text-brand-orange transition-colors">Products</Link>
+                    <Link to="/access" className="hover:text-brand-orange transition-colors">Access Purchase</Link>
                     <Link to="/about" className="hover:text-brand-orange transition-colors">About</Link>
                 </div>
             </div>
