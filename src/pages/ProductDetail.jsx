@@ -40,6 +40,7 @@ const ProductDetail = () => {
         footerResultTitle: "The Result",
         footerResultDetails: "Total clarity on your startup's future.",
         images: [
+            "/images/products/saas-model/saas-thumbnail.jpg",
             "/images/products/saas-model/saas-model-1.png",
             "/images/products/saas-model/saas-model-2.png",
             "/images/products/saas-model/saas-model-3.png",
@@ -227,8 +228,8 @@ const ProductDetail = () => {
                                         key={idx}
                                         onClick={() => setCurrentImageIndex(idx)}
                                         className={`flex-shrink-0 w-20 md:w-24 aspect-video border-2 transition-all duration-200 snap-center overflow-hidden ${currentImageIndex === idx
-                                                ? 'border-brand-orange opacity-100 scale-100 shadow-[2px_2px_0px_0px_rgba(255,107,53,1)]'
-                                                : 'border-brand-black opacity-50 hover:opacity-100 hover:scale-105 scale-95'
+                                            ? 'border-brand-orange opacity-100 scale-100 shadow-[2px_2px_0px_0px_rgba(255,107,53,1)]'
+                                            : 'border-brand-black opacity-50 hover:opacity-100 hover:scale-105 scale-95'
                                             }`}
                                         aria-label={`View image ${idx + 1}`}
                                     >
