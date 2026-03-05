@@ -102,7 +102,11 @@ const ProductDetail = () => {
 
                         {/* Value Proposition */}
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight mb-6">{product.whyTitle}</h3>
+                            <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                                Why invest
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">₹1999</span>
+                                <span className="bg-brand-orange text-white px-3 py-1 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] -rotate-2 transform">₹1499 ($14.99)?</span>
+                            </h3>
                             <div className="space-y-6">
                                 {product.whyPoints.map((point, idx) => (
                                     <div key={idx}>
@@ -115,9 +119,12 @@ const ProductDetail = () => {
 
                         {/* Bottom line summary */}
                         <div className="border-t-4 border-brand-black pt-8">
-                            <p className="text-xl md:text-2xl mb-2">
-                                <span className="font-black">The Price:</span> {product.footerSummaryDetails}
-                            </p>
+                            <div className="text-xl md:text-2xl mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+                                <span className="font-black">The Price:</span>
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">₹1999</span>
+                                <span className="font-bold bg-brand-orange text-white px-2 py-0.5 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -rotate-1 transform">₹1499</span>
+                                <span className="text-brand-black/80 text-lg md:text-xl">(About three cups of decent coffee).</span>
+                            </div>
                             <p className="text-xl md:text-2xl">
                                 <span className="font-black text-brand-orange">The Result:</span> <span className="font-bold">{product.footerResultDetails}</span>
                             </p>
@@ -136,9 +143,20 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Primary Purchase Button (Razorpay) */}
-                        <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full py-5 bg-brand-orange text-white text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all">
-                            Get it now - ₹1499
-                        </a>
+                        <div className="relative w-full">
+                            <div className="absolute -top-4 -right-2 md:-right-4 z-10">
+                                <span className="bg-yellow-400 text-brand-black text-xs md:text-sm font-black uppercase tracking-widest py-1 px-3 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rotate-6 inline-block animate-pulse">
+                                    ⭐ Steal Deal
+                                </span>
+                            </div>
+                            <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                <div className="flex items-center gap-3 flex-wrap justify-center">
+                                    <span>Get it now -</span>
+                                    <span className="text-white/60 line-through decoration-brand-black decoration-4 relative text-lg md:text-xl font-bold">₹1999</span>
+                                    <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
+                                </div>
+                            </a>
+                        </div>
 
                         {/* Alternate Purchase Links Section */}
                         <div className="flex flex-col items-center mt-4">
