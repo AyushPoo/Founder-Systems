@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -6,6 +6,7 @@ import Footer from '../components/Footer';
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -38,7 +39,13 @@ const ProductDetail = () => {
         footerSummaryDetails: "₹1499 (About three cups of decent coffee).",
         footerResultTitle: "The Result",
         footerResultDetails: "Total clarity on your startup's future.",
-        image: "/images/products/saas-thumbnail.jpg"
+        images: [
+            "/images/products/saas-model/saas-model-1.png",
+            "/images/products/saas-model/saas-model-2.png",
+            "/images/products/saas-model/saas-model-3.png",
+            "/images/products/saas-model/saas-model-4.png",
+            "/images/products/saas-model/saas-model-5.png"
+        ]
     };
 
     // If a different ID is passed that we don't have hardcoded data for yet, show a 404 UI.
@@ -186,13 +193,49 @@ const ProductDetail = () => {
 
                     {/* Right Column: Imagery and Links */}
                     <div className="lg:col-span-5 flex flex-col gap-12 sticky top-32">
-                        {/* Main Thumbnail */}
-                        <div className="border-4 border-brand-black p-2 bg-white shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] mb-4">
-                            <img
-                                src={product.image}
-                                alt={product.title}
-                                className="w-full h-auto object-cover border-2 border-brand-black"
-                            />
+                        {/* Main Thumbnail Carousel */}
+                        <div className="border-4 border-brand-black p-2 bg-white shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] mb-4 flex flex-col gap-2">
+                            {/* Main Image */}
+                            <div className="relative w-full aspect-[4/3] border-2 border-brand-black bg-brand-cream/30 flex items-center justify-center overflow-hidden group">
+                                <img
+                                    src={product.images[currentImageIndex]}
+                                    alt={`${product.title} - Preview ${currentImageIndex + 1}`}
+                                    className="w-full h-full object-cover transition-opacity duration-300"
+                                />
+
+                                {/* Navigation Arrows */}
+                                <button
+                                    onClick={() => setCurrentImageIndex((prev) => prev === 0 ? product.images.length - 1 : prev - 1)}
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white border-2 border-brand-black w-10 h-10 flex items-center justify-center text-brand-black font-black text-xl shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:bg-brand-orange hover:text-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+                                    aria-label="Previous image"
+                                >
+                                    &larr;
+                                </button>
+                                <button
+                                    onClick={() => setCurrentImageIndex((prev) => prev === product.images.length - 1 ? 0 : prev + 1)}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white border-2 border-brand-black w-10 h-10 flex items-center justify-center text-brand-black font-black text-xl shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] hover:bg-brand-orange hover:text-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
+                                    aria-label="Next image"
+                                >
+                                    &rarr;
+                                </button>
+                            </div>
+
+                            {/* Thumbnails Row */}
+                            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide w-full snap-x">
+                                {product.images.map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`flex-shrink-0 w-20 md:w-24 aspect-video border-2 transition-all duration-200 snap-center overflow-hidden ${currentImageIndex === idx
+                                                ? 'border-brand-orange opacity-100 scale-100 shadow-[2px_2px_0px_0px_rgba(255,107,53,1)]'
+                                                : 'border-brand-black opacity-50 hover:opacity-100 hover:scale-105 scale-95'
+                                            }`}
+                                        aria-label={`View image ${idx + 1}`}
+                                    >
+                                        <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
                         {/* Primary Purchase Button (Razorpay) */}
