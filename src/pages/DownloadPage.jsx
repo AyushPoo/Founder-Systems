@@ -26,7 +26,7 @@ const DownloadPage = () => {
                         Your <span className="font-bold text-brand-black border-b-2 border-brand-orange">10-Minute SaaS Financial Model</span> is ready.
                     </p>
                     <a
-                        href="https://drive.google.com/uc?export=download&id=1D-CiILMVbGL0cB5yoNL8rgzuOU7LwixD"
+                        href="https://drive.google.com/uc?export=download&id=14SMKHdu5GJBBTyyyde9Or9ef0aNigRC5"
                         className="inline-block w-full md:w-auto px-10 py-5 bg-brand-orange text-white text-2xl font-black uppercase tracking-tight border-4 border-brand-black shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(26,26,26,1)] transition-all"
                     >
                         Download the Model Now
