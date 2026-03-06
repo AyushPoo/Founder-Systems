@@ -186,6 +186,21 @@ const ProductDetail = () => {
                             </ul>
                         </div>
 
+                        {/* Try the Model Preview */}
+                        <div className="bg-white border-4 border-brand-black p-8 shadow-[8px_8px_0px_0px_rgba(26,26,26,1)]">
+                            <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Try the Model</h3>
+                            <p className="text-lg text-brand-black/80 font-medium mb-6">Explore a limited preview of the SaaS financial model before purchasing.</p>
+                            <div className="w-full">
+                                <iframe
+                                    src="https://docs.google.com/spreadsheets/d/1XQ8S4NaUcjgLMcBQhTUTsaF1D5iMwjj9rXNWLCJJBgo/edit?usp=sharing"
+                                    width="100%"
+                                    height="600"
+                                    style={{ border: "1px solid #ddd", borderRadius: "8px" }}
+                                    title="SaaS Financial Model Preview"
+                                ></iframe>
+                            </div>
+                        </div>
+
                         {/* Value Proposition */}
                         <div>
                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
