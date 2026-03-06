@@ -201,7 +201,7 @@ const ProductDetail = () => {
                                 <img
                                     src={product.images[currentImageIndex]}
                                     alt={`${product.title} - Preview ${currentImageIndex + 1}`}
-                                    className="w-full h-full max-h-[500px] object-contain transition-opacity duration-300 p-2 md:p-4"
+                                    className="w-full h-full max-h-[500px] object-contain transition-all duration-300 group-hover:scale-105 p-2 md:p-4"
                                 />
 
                                 {/* Navigation Arrows */}
