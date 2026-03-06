@@ -186,21 +186,6 @@ const ProductDetail = () => {
                             </ul>
                         </div>
 
-                        {/* Try the Model Preview */}
-                        <div className="bg-white border-4 border-brand-black p-8 shadow-[8px_8px_0px_0px_rgba(26,26,26,1)]">
-                            <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Try the Model</h3>
-                            <p className="text-lg text-brand-black/80 font-medium mb-6">Explore a limited preview of the SaaS financial model before purchasing.</p>
-                            <div className="w-full">
-                                <iframe
-                                    src="https://docs.google.com/spreadsheets/d/1XQ8S4NaUcjgLMcBQhTUTsaF1D5iMwjj9rXNWLCJJBgo/edit?usp=sharing"
-                                    width="100%"
-                                    height="600"
-                                    style={{ border: "1px solid #ddd", borderRadius: "8px" }}
-                                    title="SaaS Financial Model Preview"
-                                ></iframe>
-                            </div>
-                        </div>
-
                         {/* Value Proposition */}
                         <div>
                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -316,6 +301,23 @@ const ProductDetail = () => {
                                     </button>
                                 ))}
                             </div>
+                        </div>
+
+                        {/* Try the Model Section */}
+                        <div className="bg-white border-4 border-brand-black p-6 shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] flex flex-col items-center">
+                            <h3 className="text-xl md:text-2xl font-black uppercase tracking-tight mb-2 text-center">Try the Model</h3>
+                            <p className="text-center text-brand-black/80 font-medium mb-6 text-sm md:text-base">Explore a limited interactive preview of the SaaS financial model before purchasing.</p>
+                            <a
+                                href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSImf5JunEk7FAZAVd8SfBWYbQJBtPVd9Z6eF4zrtnsdZHg22Ey0Sd8jhsxOV5W09kgDrajZjF4QWIJ/pubhtml?widget=true&headers=false"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full flex items-center justify-center py-4 bg-brand-cream text-brand-black text-lg md:text-xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(26,26,26,1)] transition-all"
+                            >
+                                Preview the Model &rarr;
+                            </a>
+                            <p className="text-center text-xs text-brand-black/60 mt-4 font-medium italic">
+                                This preview shows only a limited version of the model. The full version includes additional sheets, formulas, and automation.
+                            </p>
                         </div>
 
                         {/* Primary Purchase Button (Razorpay) */}
