@@ -39,6 +39,26 @@ const ProductDetail = () => {
         footerSummaryDetails: "₹1499 (About three cups of decent coffee).",
         footerResultTitle: "The Result",
         footerResultDetails: "Total clarity on your startup's future.",
+        whatYouGet: [
+            "Investor-ready SaaS financial model",
+            "Automatic ARR / MRR / CAC dashboards",
+            "Valuation calculator",
+            "3-year projections",
+            "Fully editable model",
+            "Instant download"
+        ],
+        whoThisIsFor: [
+            "SaaS founders raising a seed round",
+            "Indie hackers planning pricing",
+            "Startup operators building projections",
+            "MBA / VC analysts modeling SaaS startups"
+        ],
+        faq: [
+            { q: "Is this Excel or Google Sheets?", a: "The model works in Excel and can be imported into Google Sheets." },
+            { q: "Can I modify the model?", a: "Yes, the model is fully editable." },
+            { q: "Do I get lifetime access?", a: "Yes, one purchase gives you lifetime access." },
+            { q: "Is this suitable for early-stage startups?", a: "Yes, it is designed for founders building SaaS financial projections." }
+        ],
         images: [
             "/images/products/saas-model/saas-thumbnail.jpg",
             "/images/products/saas-model/saas-model-1.png",
@@ -111,6 +131,11 @@ const ProductDetail = () => {
                     {/* Left Column: Extensive Copy */}
                     <div className="lg:col-span-7 flex flex-col space-y-12">
 
+                        {/* Product Positioning Line */}
+                        <div className="text-xl md:text-2xl font-bold text-brand-black -mb-8">
+                            <p>The fastest way to build an investor-ready SaaS financial model.</p>
+                        </div>
+
                         {/* Intro description */}
                         <div className="text-lg md:text-xl font-medium leading-relaxed text-brand-black/90">
                             <p>{product.descriptionBody}</p>
@@ -130,6 +155,32 @@ const ProductDetail = () => {
                                     <li key={idx} className="flex flex-col md:flex-row md:items-baseline gap-2">
                                         <span className="font-bold text-brand-orange min-w-48">{feature.name}:</span>
                                         <span className="text-brand-black/80">{feature.desc}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* What You Get */}
+                        <div className="bg-brand-cream border-4 border-brand-black p-8 shadow-[8px_8px_0px_0px_rgba(26,26,26,1)]">
+                            <h3 className="text-2xl font-black uppercase tracking-tight mb-6">What You Get</h3>
+                            <ul className="space-y-3">
+                                {product.whatYouGet.map((item, idx) => (
+                                    <li key={idx} className="flex items-start gap-3">
+                                        <span className="text-brand-orange font-bold text-xl leading-none">✔</span>
+                                        <span className="text-brand-black/90 font-medium">{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        {/* Who This Is For */}
+                        <div className="bg-white border-4 border-brand-black p-8 shadow-[8px_8px_0px_0px_rgba(26,26,26,1)]">
+                            <h3 className="text-2xl font-black uppercase tracking-tight mb-6">Who This Is For</h3>
+                            <ul className="space-y-3">
+                                {product.whoThisIsFor.map((item, idx) => (
+                                    <li key={idx} className="flex items-start gap-3">
+                                        <span className="text-brand-orange font-bold text-xl leading-none">✔</span>
+                                        <span className="text-brand-black/90 font-medium">{item}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -190,6 +241,19 @@ const ProductDetail = () => {
                                 <span className="font-black text-brand-orange">The Result:</span> <span className="font-bold">{product.footerResultDetails}</span>
                             </p>
                         </div>
+
+                        {/* FAQ Section */}
+                        <div className="mt-8 border-t-4 border-brand-black pt-12">
+                            <h3 className="text-3xl font-black uppercase tracking-tight mb-8">FAQ</h3>
+                            <div className="space-y-6">
+                                {product.faq.map((item, idx) => (
+                                    <div key={idx} className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)]">
+                                        <h4 className="font-bold text-lg mb-2 text-brand-black">Q: {item.q}</h4>
+                                        <p className="text-brand-black/80 font-medium">A: {item.a}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Right Column: Imagery and Links */}
@@ -241,10 +305,11 @@ const ProductDetail = () => {
 
                         {/* Primary Purchase Button (Razorpay) */}
                         <div className="flex flex-col items-center w-full">
-                            <div className="flex items-center gap-2 mb-4">
+                            <div className="flex items-center gap-2 mb-2">
                                 <span className="text-brand-orange text-lg leading-none -mt-1">★★★★★</span>
                                 <span className="font-bold text-brand-black/70 text-xs uppercase tracking-widest">Early founder feedback</span>
                             </div>
+                            <p className="text-sm font-bold text-brand-orange uppercase tracking-widest mb-4 text-center">Launch price — early adopter offer</p>
                             <div className="relative w-full">
                                 <div className="absolute -top-4 -right-2 md:-right-4 z-10">
                                     <span className="bg-yellow-400 text-brand-black text-xs md:text-sm font-black uppercase tracking-widest py-1 px-3 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] rotate-6 inline-block animate-pulse">
@@ -253,11 +318,18 @@ const ProductDetail = () => {
                                 </div>
                                 <button onClick={handlePayment} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
                                     <div className="flex items-center gap-3 flex-wrap justify-center">
-                                        <span>Get it now -</span>
-                                        <span className="text-white/60 line-through decoration-brand-black decoration-4 relative text-lg md:text-xl font-bold">₹1999</span>
+                                        <span>Download the Model &rarr;</span>
                                         <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
                                     </div>
                                 </button>
+                                <p className="text-center text-xs text-brand-black/60 mt-4 font-medium">Instant download &bull; One-time purchase &bull; Lifetime access</p>
+                                <div className="flex flex-col items-center gap-2 mt-4 text-xs font-medium text-brand-black/70">
+                                    <div className="flex flex-wrap items-center justify-center gap-4">
+                                        <span className="flex items-center gap-1">🔒 Secure checkout via Razorpay</span>
+                                        <span className="flex items-center gap-1">📥 Instant delivery</span>
+                                    </div>
+                                    <span className="flex items-center justify-center gap-1">💳 All major payment methods supported</span>
+                                </div>
                             </div>
                         </div>
 
