@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
-const API_URL = "https://script.google.com/macros/s/AKfycbya0kjtUEUlHvdSK4svuXElQP5ljpFFW_a5ZjifXv0xwzV-7QSaJ4M47nncx-hXkUlg8w/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz2L8mFZLt5Kh0oTlCbmYRNC8CD5kn84RDrQvUTuZRifAWWN6pWtB8k_d97rDyLuxoCUA/exec";
 
 const Access = () => {
     const [email, setEmail] = useState('');
@@ -80,8 +80,8 @@ const Access = () => {
                             type="submit"
                             disabled={isLoading}
                             className={`w-full text-white text-xl font-black uppercase tracking-tight py-4 border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all rounded-md ${isLoading
-                                    ? 'bg-brand-black/50 cursor-not-allowed translate-y-1 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
-                                    : 'bg-brand-orange hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
+                                ? 'bg-brand-black/50 cursor-not-allowed translate-y-1 shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
+                                : 'bg-brand-orange hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)]'
                                 }`}
                         >
                             {isLoading ? 'Loading...' : 'View Purchases'}
@@ -113,19 +113,18 @@ const Access = () => {
                                 {purchases.map((purchase, index) => (
                                     <div key={index} className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex flex-col sm:flex-row justify-between items-center gap-4 rounded-xl">
                                         <div className="font-bold text-xl uppercase tracking-tight">
-                                            {purchase.itemName || purchase.productName || purchase.name || 'Founder Systems Product'}
+                                            {purchase.productName || purchase.ProductName || purchase.name || 'Founder Systems Product'}
                                         </div>
-                                        {purchase.downloadUrl && (
+                                        {purchase.downloadUrl || purchase.DownloadUrl || purchase.url ? (
                                             <a
-                                                href={purchase.downloadUrl}
+                                                href={purchase.downloadUrl || purchase.DownloadUrl || purchase.url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="bg-brand-black text-white px-6 py-2 pb-1.5 uppercase tracking-widest text-sm font-bold border-2 border-brand-black hover:bg-white hover:text-brand-black transition-colors rounded"
                                             >
                                                 Download
                                             </a>
-                                        )}
-                                        {!purchase.downloadUrl && (
+                                        ) : (
                                             <button className="bg-brand-black/50 text-white px-6 py-2 pb-1.5 uppercase tracking-widest text-sm font-bold border-2 border-brand-black/50 cursor-not-allowed rounded shrink-0">
                                                 No Link
                                             </button>
