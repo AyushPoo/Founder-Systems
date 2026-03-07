@@ -80,32 +80,6 @@ const ProductDetail = () => {
         );
     }
 
-    const productId = "FS001";
-
-    const handlePayment = () => {
-        const price = 1499 * 100;
-        const options = {
-            key: "rzp_live_SNdUB2ZDVSnOgi",
-            amount: price,
-            currency: "INR",
-            name: "Founder Systems",
-            notes: {
-                product_id: productId
-            },
-            handler: function (response) {
-                navigate('/download');
-            }
-        };
-
-        if (window.Razorpay) {
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-        } else {
-            console.error("Razorpay SDK not loaded");
-            window.open("https://rzp.io/rzp/aig9tmBT", "_blank");
-        }
-    };
-
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
             <Navbar />
@@ -333,12 +307,12 @@ const ProductDetail = () => {
                                         ⭐ Steal Deal
                                     </span>
                                 </div>
-                                <button onClick={handlePayment} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                <a href="https://rzp.io/rzp/aig9tmBT" target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
                                     <div className="flex items-center gap-3 flex-wrap justify-center">
                                         <span>Download the Model &rarr;</span>
                                         <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">₹1499</span>
                                     </div>
-                                </button>
+                                </a>
                                 <p className="text-center text-xs text-brand-black/60 mt-4 font-medium">Instant download &bull; One-time purchase &bull; Lifetime access</p>
                                 <div className="flex flex-col items-center gap-2 mt-4 text-xs font-medium text-brand-black/70">
                                     <div className="flex flex-wrap items-center justify-center gap-4">
