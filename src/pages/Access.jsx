@@ -113,11 +113,11 @@ const Access = () => {
                                 {purchases.map((purchase, index) => (
                                     <div key={index} className="bg-white border-4 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] flex flex-col sm:flex-row justify-between items-center gap-4 rounded-xl">
                                         <div className="font-bold text-xl uppercase tracking-tight">
-                                            {purchase.productName || purchase.ProductName || purchase.name || 'Founder Systems Product'}
+                                            {purchase.product || purchase.productName || purchase.name || 'Founder Systems Product'}
                                         </div>
-                                        {purchase.downloadUrl || purchase.DownloadUrl || purchase.url ? (
+                                        {purchase.download ? (
                                             <a
-                                                href={purchase.downloadUrl || purchase.DownloadUrl || purchase.url}
+                                                href={purchase.download}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="bg-brand-black text-white px-6 py-2 pb-1.5 uppercase tracking-widest text-sm font-bold border-2 border-brand-black hover:bg-white hover:text-brand-black transition-colors rounded"
@@ -126,7 +126,7 @@ const Access = () => {
                                             </a>
                                         ) : (
                                             <button className="bg-brand-black/50 text-white px-6 py-2 pb-1.5 uppercase tracking-widest text-sm font-bold border-2 border-brand-black/50 cursor-not-allowed rounded shrink-0">
-                                                No Link
+                                                NO LINK
                                             </button>
                                         )}
                                     </div>
