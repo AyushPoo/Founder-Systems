@@ -257,6 +257,7 @@ const ProductDetail = () => {
     const [customerEmail, setCustomerEmail] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [emailError, setEmailError] = useState('');
+    const [selectedCheckoutCurrency, setSelectedCheckoutCurrency] = useState('INR');
 
     // Scroll to top on mount
     useEffect(() => {
@@ -284,7 +285,8 @@ const ProductDetail = () => {
         );
     }
 
-    const handleBuyClick = () => {
+    const handleBuyClick = (currency) => {
+        setSelectedCheckoutCurrency(currency);
         setIsModalOpen(true);
     };
 
@@ -300,16 +302,26 @@ const ProductDetail = () => {
             navigate(`/download?payment=${response.razorpay_payment_id}`);
         };
 
-        initCheckout(
-            product.title,
-            product.productId,
-            id,
-            product.priceInr,
-            product.priceUsd,
+        const config = {
+            productName: product.title,
+            productId: product.productId,
+            productSlug: id,
             customerEmail,
             customerName,
-            successHandler
-        );
+            onSuccess: successHandler
+        };
+
+        if (selectedCheckoutCurrency === 'INR') {
+            openINRCheckout({
+                ...config,
+                amount: product.priceInr * 100
+            });
+        } else {
+            openUSDCheckout({
+                ...config,
+                amount: product.priceUsd * 100
+            });
+        }
     };
 
     return (
@@ -396,8 +408,8 @@ const ProductDetail = () => {
                         <div>
                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
                                 {product.whyTitle}
-                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{pricing.originalDisplayPrice}</span>
-                                <span className="bg-brand-orange text-white px-3 py-1 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] -rotate-2 transform">{pricing.displayPrice}?</span>
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">₹{product.originalPriceInr} / ${product.originalPriceUsd}</span>
+                                <span className="bg-brand-orange text-white px-3 py-1 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] -rotate-2 transform">₹{product.priceInr} / ${product.priceUsd}?</span>
                             </h3>
                             <div className="space-y-6">
                                 {product.whyPoints.map((point, idx) => (
@@ -439,8 +451,8 @@ const ProductDetail = () => {
                         <div className="border-t-4 border-brand-black pt-8">
                             <div className="text-xl md:text-2xl mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <span className="font-black">The Price:</span>
-                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{pricing.originalDisplayPrice}</span>
-                                <span className="font-bold bg-brand-orange text-white px-2 py-0.5 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -rotate-1 transform">{pricing.displayPrice}</span>
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">₹{product.originalPriceInr} / ${product.originalPriceUsd}</span>
+                                <span className="font-bold bg-brand-orange text-white px-2 py-0.5 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -rotate-1 transform">₹{product.priceInr} / ${product.priceUsd}</span>
                                 <span className="text-brand-black/80 text-lg md:text-xl">{product.footerSummaryDetails}</span>
                             </div>
                             <p className="text-xl md:text-2xl">
@@ -539,12 +551,18 @@ const ProductDetail = () => {
                                         ⭐ Steal Deal
                                     </span>
                                 </div>
-                                <button onClick={handleBuyClick} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
-                                    <div className="flex items-center gap-3 flex-wrap justify-center">
-                                        <span>Download the Model &rarr;</span>
-                                        <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">{pricing.displayPrice}</span>
-                                    </div>
-                                </button>
+                                <div className="flex flex-col gap-4 w-full">
+                                    <button onClick={() => handleBuyClick('INR')} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                        <div className="flex items-center gap-3 flex-wrap justify-center">
+                                            <span>Buy for ₹{product.priceInr} (India) &rarr;</span>
+                                        </div>
+                                    </button>
+                                    <button onClick={() => handleBuyClick('USD')} className="w-full flex items-center justify-center py-3 bg-white text-brand-black text-lg md:text-xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] transition-all group">
+                                        <div className="flex items-center gap-3 flex-wrap justify-center">
+                                            <span>Buy for ${product.priceUsd} (International) &rarr;</span>
+                                        </div>
+                                    </button>
+                                </div>
                                 <p className="text-center text-xs text-brand-black/60 mt-4 font-medium">Instant download &bull; One-time purchase &bull; Lifetime access</p>
                                 <div className="flex flex-col items-center gap-2 mt-4 text-xs font-medium text-brand-black/70">
                                     <div className="flex flex-wrap items-center justify-center gap-4">

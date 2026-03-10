@@ -41,39 +41,28 @@ export const getLocalizedPrice = (inrPrice, usdPrice, inrOriginalPrice = null, u
 };
 
 /**
- * Encapsulates the core Razorpay checkout execution logic. Automatically splits standard INR and international Paypal/USD options.
- * 
- * @param {string} productName - Display name on the checkout terminal.
- * @param {string} productId - Razorpay string representing the slug item mapping.
- * @param {string} productSlug - Application's slug representing the object internally.
- * @param {number} inrAmount - Core price in original rupees currency format without trailing paise.
- * @param {number} usdAmount - Localized dollar exchange value.
- * @param {string} customerEmail - Filled from checkout input modals.
- * @param {string} customerName - Filled from checkout input modals.
- * @param {Function} onSuccess - Callback with access to the full checkout receipt payload.
+ * Base function to open Razorpay checkout with a specific currency and amount.
  */
-export const initCheckout = (
+const openCheckout = ({
     productName,
     productId,
     productSlug,
-    inrAmount,
-    usdAmount,
+    amount,
+    currency,
     customerEmail,
     customerName,
     onSuccess
-) => {
+}) => {
     // Basic validation
     if (!customerEmail || !/^\S+@\S+\.\S+$/.test(customerEmail)) {
-        console.error('initCheckout called without valid email');
+        console.error('Checkout called without valid email');
         return false;
     }
 
-    const pricing = getLocalizedPrice(inrAmount, usdAmount);
-
     const options = {
-        key: "rzp_live_SNdUB2ZDVSnOgi", // Matches existing integrations across Founder Systems logic map
-        amount: pricing.checkoutAmount,
-        currency: pricing.currency,
+        key: "rzp_live_SNdUB2ZDVSnOgi",
+        amount: amount,
+        currency: currency,
         name: "Founder Systems",
         description: productName,
         prefill: {
@@ -85,7 +74,6 @@ export const initCheckout = (
             product: productSlug,
             customer_email: customerEmail
         },
-
         handler: function (response) {
             if (onSuccess) {
                 onSuccess(response);
@@ -95,18 +83,65 @@ export const initCheckout = (
 
     if (window.Razorpay) {
         const rzp = new window.Razorpay(options);
-
-        // Error interception callback bindings
         rzp.on('payment.failed', function (response) {
             console.error("Payment failed:", response.error);
         });
-
         rzp.open();
         return true;
     } else {
-        console.error("Razorpay SDK not loaded on front-end.");
-        // Redirect logic to standard gateway UI as safety net
+        console.error("Razorpay SDK not loaded.");
         window.open("https://rzp.io/rzp/aig9tmBT", "_blank");
         return false;
     }
+};
+
+/**
+ * Opens Razorpay checkout in INR.
+ */
+export const openINRCheckout = (config) => {
+    return openCheckout({
+        ...config,
+        currency: 'INR',
+        amount: config.amount // Expected in paise already if passing raw 149900
+    });
+};
+
+/**
+ * Opens Razorpay checkout in USD.
+ */
+export const openUSDCheckout = (config) => {
+    return openCheckout({
+        ...config,
+        currency: 'USD',
+        amount: config.amount // Expected in cents already if passing raw 1500
+    });
+};
+
+/**
+ * Legacy wrapper or helper for dynamic detection if still needed elsewhere.
+ */
+export const initCheckout = (
+    productName,
+    productId,
+    productSlug,
+    inrAmount,
+    usdAmount,
+    customerEmail,
+    customerName,
+    onSuccess
+) => {
+    const isIndia = isUserInIndia();
+    const currency = isIndia ? 'INR' : 'USD';
+    const amount = isIndia ? (inrAmount * 100) : (usdAmount * 100);
+
+    return openCheckout({
+        productName,
+        productId,
+        productSlug,
+        amount,
+        currency,
+        customerEmail,
+        customerName,
+        onSuccess
+    });
 };
