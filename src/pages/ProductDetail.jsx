@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { initCheckout, getLocalizedPrice } from '../utils/checkout';
+import { openINRCheckout, openUSDCheckout, getLocalizedPrice } from '../utils/checkout';
 
 const PRODUCTS_DATA = {
     'saas-financial-model': {
@@ -59,9 +59,9 @@ const PRODUCTS_DATA = {
         ],
         productId: "FS001",
         priceInr: 1499,
-        priceUsd: 15,
+        priceUsd: 20,
         originalPriceInr: 1999,
-        originalPriceUsd: 20,
+        originalPriceUsd: 25,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/saas-investor-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/9509df15-9420-4761-a668-bdb525b4b838",
@@ -119,9 +119,9 @@ const PRODUCTS_DATA = {
         ],
         productId: "FS002",
         priceInr: 2499,
-        priceUsd: 25,
+        priceUsd: 30,
         originalPriceInr: 2999,
-        originalPriceUsd: 30,
+        originalPriceUsd: 35,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/aac3b6c7-fbbc-435d-a02c-c5297adf37d1",
@@ -179,9 +179,9 @@ const PRODUCTS_DATA = {
         ],
         productId: "FS003",
         priceInr: 1999,
-        priceUsd: 19,
+        priceUsd: 25,
         originalPriceInr: 2499,
-        originalPriceUsd: 25,
+        originalPriceUsd: 30,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout",
@@ -239,9 +239,9 @@ const PRODUCTS_DATA = {
         ],
         productId: "FS004",
         priceInr: 1999,
-        priceUsd: 19,
+        priceUsd: 25,
         originalPriceInr: 2499,
-        originalPriceUsd: 25,
+        originalPriceUsd: 30,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/sbdyuh",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/673d59d1-6f5a-48fc-adde-d939a8ee1d6a",
@@ -257,7 +257,11 @@ const ProductDetail = () => {
     const [customerEmail, setCustomerEmail] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [emailError, setEmailError] = useState('');
-    const [selectedCheckoutCurrency, setSelectedCheckoutCurrency] = useState('INR');
+
+    // Store selected checkout params in state (acts as global variables for this session)
+    const [currentAmount, setCurrentAmount] = useState(0);
+    const [currentCurrency, setCurrentCurrency] = useState('');
+    const [currentProduct, setCurrentProduct] = useState('');
 
     // Scroll to top on mount
     useEffect(() => {
@@ -286,7 +290,10 @@ const ProductDetail = () => {
     }
 
     const handleBuyClick = (currency) => {
-        setSelectedCheckoutCurrency(currency);
+        const isInr = currency === 'INR';
+        setCurrentAmount(isInr ? product.priceInr * 100 : product.priceUsd * 100);
+        setCurrentCurrency(currency);
+        setCurrentProduct(product.title);
         setIsModalOpen(true);
     };
 
@@ -303,24 +310,19 @@ const ProductDetail = () => {
         };
 
         const config = {
-            productName: product.title,
+            productName: currentProduct,
             productId: product.productId,
             productSlug: id,
             customerEmail,
             customerName,
+            amount: currentAmount,
             onSuccess: successHandler
         };
 
-        if (selectedCheckoutCurrency === 'INR') {
-            openINRCheckout({
-                ...config,
-                amount: product.priceInr * 100
-            });
+        if (currentCurrency === 'INR') {
+            openINRCheckout(config);
         } else {
-            openUSDCheckout({
-                ...config,
-                amount: product.priceUsd * 100
-            });
+            openUSDCheckout(config);
         }
     };
 
