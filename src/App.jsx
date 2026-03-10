@@ -18,7 +18,7 @@ function App() {
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/about" element={<About />} />
-          <Route path="/download-fs-82h3k" element={<DownloadPage />} />
+          <Route path="/download" element={<DownloadPage />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />

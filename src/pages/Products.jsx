@@ -11,6 +11,24 @@ const ACTIVE_PRODUCTS = [
         name: 'SaaS Financial Model Template',
         description: 'A professional-grade financial forecasting instrument designed specifically for SaaS founders.',
         category: 'Finance'
+    },
+    {
+        id: 'advanced-saas-model',
+        name: 'Advanced B2B SaaS Model',
+        description: 'Stop guessing your unit economics. An investor-grade SaaS model featuring automated cohort analysis, industry benchmarks, and dual-method valuation.',
+        category: 'Finance'
+    },
+    {
+        id: 'marketplace-financial-model',
+        name: 'Marketplace Financial Model',
+        description: 'Stop guessing your marketplace metrics. This model features dual-sided supply & demand growth, GMV waterfalls, industry benchmarks & 3-method valuation.',
+        category: 'Finance'
+    },
+    {
+        id: 'd2c-ecommerce-model',
+        name: 'D2C & Ecommerce Financial Model',
+        description: 'Stop guessing ROAS. This $D2C model features automated cohort retention, multi-channel growth forecasting, and an inventory cash flow planner.',
+        category: 'Finance'
     }
 ];
 
