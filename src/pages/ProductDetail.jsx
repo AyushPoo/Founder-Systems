@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { initCheckout } from '../utils/checkout';
+import { initCheckout, getLocalizedPrice } from '../utils/checkout';
 
 const PRODUCTS_DATA = {
     'saas-financial-model': {
@@ -26,7 +26,7 @@ const PRODUCTS_DATA = {
             { title: "Look Like a Pro", desc: "Stop sending messy CSVs. Send a structured model that proves you know your numbers." }
         ],
         footerSummaryTitle: "The Price",
-        footerSummaryDetails: "₹1499 (About three cups of decent coffee).",
+        footerSummaryDetails: "(About three cups of decent coffee).",
         footerResultTitle: "The Result",
         footerResultDetails: "Total clarity on your startup's future.",
         whatYouGet: [
@@ -58,11 +58,10 @@ const PRODUCTS_DATA = {
             "/images/products/saas-model/saas-model-5.png"
         ],
         productId: "FS001",
-        price: 1499,
-        originalPrice: "₹1999",
-        priceDisplay: "₹1499",
-        priceUsdValue: 15,
-        priceUsd: "($14.99)",
+        priceInr: 1499,
+        priceUsd: 15,
+        originalPriceInr: 1999,
+        originalPriceUsd: 20,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/saas-investor-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/9509df15-9420-4761-a668-bdb525b4b838",
@@ -89,7 +88,7 @@ const PRODUCTS_DATA = {
             { title: "Total Peace of Mind", desc: "Every cell is linked, color-coded, and sanity-checked by someone who actually enjoys financial modeling." }
         ],
         footerSummaryTitle: "The Price",
-        footerSummaryDetails: "₹2499 (Cheaper than one hour with an outsourced accountant).",
+        footerSummaryDetails: "(Cheaper than one hour with an outsourced accountant).",
         footerResultTitle: "The Result",
         footerResultDetails: "Complete command over your startup's financial future.",
         whatYouGet: [
@@ -119,11 +118,10 @@ const PRODUCTS_DATA = {
             "/images/products/advanced-saas-model/preview-5.png"
         ],
         productId: "FS002",
-        price: 2499,
-        originalPrice: "₹2999",
-        priceDisplay: "₹2499",
-        priceUsdValue: 25,
-        priceUsd: "($24.99)",
+        priceInr: 2499,
+        priceUsd: 25,
+        originalPriceInr: 2999,
+        originalPriceUsd: 30,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/aac3b6c7-fbbc-435d-a02c-c5297adf37d1",
@@ -180,11 +178,10 @@ const PRODUCTS_DATA = {
             "/images/products/marketplace-model/preview-5.png"
         ],
         productId: "FS003",
-        price: 1999,
-        originalPrice: "₹2499",
-        priceDisplay: "₹1999",
-        priceUsdValue: 19,
-        priceUsd: "($19)",
+        priceInr: 1999,
+        priceUsd: 19,
+        originalPriceInr: 2499,
+        originalPriceUsd: 25,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout",
@@ -241,11 +238,10 @@ const PRODUCTS_DATA = {
             "/images/products/d2c-model/preview-5.png"
         ],
         productId: "FS004",
-        price: 1999,
-        originalPrice: "₹2499",
-        priceDisplay: "₹1999",
-        priceUsdValue: 19,
-        priceUsd: "($19)",
+        priceInr: 1999,
+        priceUsd: 19,
+        originalPriceInr: 2499,
+        originalPriceUsd: 25,
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/sbdyuh",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
         lemonSqueezyUrl: "https://ayushpoojary.lemonsqueezy.com/checkout/buy/673d59d1-6f5a-48fc-adde-d939a8ee1d6a",
@@ -268,6 +264,14 @@ const ProductDetail = () => {
     }, [id]);
 
     const product = PRODUCTS_DATA[id];
+
+    // Get localized pricing details if product exists
+    const pricing = product ? getLocalizedPrice(
+        product.priceInr,
+        product.priceUsd,
+        product.originalPriceInr,
+        product.originalPriceUsd
+    ) : null;
 
     // If a different ID is passed that we don't have data for, show a 404 UI.
     if (!product) {
@@ -300,8 +304,8 @@ const ProductDetail = () => {
             product.title,
             product.productId,
             id,
-            product.price,
-            product.priceUsdValue,
+            product.priceInr,
+            product.priceUsd,
             customerEmail,
             customerName,
             successHandler
@@ -392,8 +396,8 @@ const ProductDetail = () => {
                         <div>
                             <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
                                 {product.whyTitle}
-                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{product.originalPrice}</span>
-                                <span className="bg-brand-orange text-white px-3 py-1 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] -rotate-2 transform">{product.priceDisplay} {product.priceUsd}?</span>
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{pricing.originalDisplayPrice}</span>
+                                <span className="bg-brand-orange text-white px-3 py-1 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] -rotate-2 transform">{pricing.displayPrice}?</span>
                             </h3>
                             <div className="space-y-6">
                                 {product.whyPoints.map((point, idx) => (
@@ -435,8 +439,8 @@ const ProductDetail = () => {
                         <div className="border-t-4 border-brand-black pt-8">
                             <div className="text-xl md:text-2xl mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                                 <span className="font-black">The Price:</span>
-                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{product.originalPrice}</span>
-                                <span className="font-bold bg-brand-orange text-white px-2 py-0.5 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -rotate-1 transform">{product.priceDisplay}</span>
+                                <span className="line-through text-brand-black/40 decoration-brand-orange decoration-4">{pricing.originalDisplayPrice}</span>
+                                <span className="font-bold bg-brand-orange text-white px-2 py-0.5 border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(26,26,26,1)] -rotate-1 transform">{pricing.displayPrice}</span>
                                 <span className="text-brand-black/80 text-lg md:text-xl">{product.footerSummaryDetails}</span>
                             </div>
                             <p className="text-xl md:text-2xl">
@@ -538,7 +542,7 @@ const ProductDetail = () => {
                                 <button onClick={handleBuyClick} className="w-full flex items-center justify-center py-4 md:py-5 bg-brand-orange text-white text-xl md:text-2xl font-black uppercase tracking-tight text-center border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(26,26,26,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] transition-all group">
                                     <div className="flex items-center gap-3 flex-wrap justify-center">
                                         <span>Download the Model &rarr;</span>
-                                        <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">{product.priceDisplay}</span>
+                                        <span className="bg-white text-brand-orange px-2 py-1 md:px-3 border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(26,26,26,1)] rotate-3 transform group-hover:-rotate-1 transition-transform font-black">{pricing.displayPrice}</span>
                                     </div>
                                 </button>
                                 <p className="text-center text-xs text-brand-black/60 mt-4 font-medium">Instant download &bull; One-time purchase &bull; Lifetime access</p>

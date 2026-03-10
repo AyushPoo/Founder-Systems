@@ -13,6 +13,34 @@ export const isUserInIndia = () => {
 };
 
 /**
+ * Returns localized pricing based on the user's location.
+ * @param {number} inrPrice - The price in INR (e.g. 1499)
+ * @param {number} usdPrice - The price in USD (e.g. 15)
+ * @param {number|string} [inrOriginalPrice] - Optional, the original price in INR
+ * @param {number|string} [usdOriginalPrice] - Optional, the original price in USD
+ * @returns {Object} Pricing details with currencies, display strings, and checkout amount.
+ */
+export const getLocalizedPrice = (inrPrice, usdPrice, inrOriginalPrice = null, usdOriginalPrice = null) => {
+    const isIndia = isUserInIndia();
+
+    if (isIndia) {
+        return {
+            displayPrice: `₹${inrPrice}`,
+            originalDisplayPrice: inrOriginalPrice ? `₹${inrOriginalPrice}` : null,
+            currency: 'INR',
+            checkoutAmount: inrPrice * 100 // Razorpay expects paise for INR
+        };
+    } else {
+        return {
+            displayPrice: `$${usdPrice}`,
+            originalDisplayPrice: usdOriginalPrice ? `$${usdOriginalPrice}` : null,
+            currency: 'USD',
+            checkoutAmount: usdPrice * 100 // Razorpay expects cents for USD
+        };
+    }
+};
+
+/**
  * Encapsulates the core Razorpay checkout execution logic. Automatically splits standard INR and international Paypal/USD options.
  * 
  * @param {string} productName - Display name on the checkout terminal.
@@ -40,16 +68,12 @@ export const initCheckout = (
         return false;
     }
 
-    const isIndia = isUserInIndia();
-    const currency = isIndia ? 'INR' : 'USD';
-
-    // Razorpay operates in the smallest currency sub-unit strings
-    const configuredAmount = isIndia ? (inrAmount * 100) : (usdAmount * 100);
+    const pricing = getLocalizedPrice(inrAmount, usdAmount);
 
     const options = {
         key: "rzp_live_SNdUB2ZDVSnOgi", // Matches existing integrations across Founder Systems logic map
-        amount: configuredAmount,
-        currency: currency,
+        amount: pricing.checkoutAmount,
+        currency: pricing.currency,
         name: "Founder Systems",
         description: productName,
         prefill: {
