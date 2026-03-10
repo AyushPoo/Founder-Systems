@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { initCheckout } from '../utils/checkout';
 
 const PRODUCTS_DATA = {
     'saas-financial-model': {
@@ -60,6 +61,7 @@ const PRODUCTS_DATA = {
         price: 1499,
         originalPrice: "₹1999",
         priceDisplay: "₹1499",
+        priceUsdValue: 15,
         priceUsd: "($14.99)",
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/saas-investor-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
@@ -120,6 +122,7 @@ const PRODUCTS_DATA = {
         price: 2499,
         originalPrice: "₹2999",
         priceDisplay: "₹2499",
+        priceUsdValue: 25,
         priceUsd: "($24.99)",
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
@@ -180,6 +183,7 @@ const PRODUCTS_DATA = {
         price: 1999,
         originalPrice: "₹2499",
         priceDisplay: "₹1999",
+        priceUsdValue: 19,
         priceUsd: "($19)",
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
@@ -240,6 +244,7 @@ const PRODUCTS_DATA = {
         price: 1999,
         originalPrice: "₹2499",
         priceDisplay: "₹1999",
+        priceUsdValue: 19,
         priceUsd: "($19)",
         gumroadUrl: "https://ayushpoojary.gumroad.com/l/sbdyuh",
         instamojoUrl: "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
@@ -287,33 +292,20 @@ const ProductDetail = () => {
         setEmailError('');
         setIsModalOpen(false);
 
-        const amount = product.price * 100;
-        const options = {
-            key: "rzp_live_SNdUB2ZDVSnOgi",
-            amount: amount,
-            currency: "INR",
-            name: "Founder Systems",
-            prefill: {
-                email: customerEmail,
-                name: customerName || undefined
-            },
-            notes: {
-                product_id: product.productId,
-                product: id,
-                customer_email: customerEmail
-            },
-            handler: function (response) {
-                navigate(`/download?payment=${response.razorpay_payment_id}`);
-            }
+        const successHandler = (response) => {
+            navigate(`/download?payment=${response.razorpay_payment_id}`);
         };
 
-        if (window.Razorpay) {
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-        } else {
-            console.error("Razorpay SDK not loaded");
-            window.open("https://rzp.io/rzp/aig9tmBT", "_blank");
-        }
+        initCheckout(
+            product.title,
+            product.productId,
+            id,
+            product.price,
+            product.priceUsdValue,
+            customerEmail,
+            customerName,
+            successHandler
+        );
     };
 
     return (
