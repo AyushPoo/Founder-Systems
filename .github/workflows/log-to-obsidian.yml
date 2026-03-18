@@ -1,0 +1,40 @@
+name: Log Deploy to Obsidian
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  log-to-obsidian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get commit info
+        id: info
+        run: |
+          echo "date=$(date -u '+%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
+          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ github.event.head_commit.message }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+          FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -10 | tr '
+' ', ' || echo "unknown")
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+
+      - name: Update Obsidian vault
+        run: |
+          curl -s -X POST \
+            -H "Content-Type: application/json" \
+            -d '{
+              "file": "06 - Logs/deployments/Website Deploys.md",
+              "action": "append",
+              "content": "| ${{ steps.info.outputs.date }} | ${{ steps.info.outputs.author }} | ${{ steps.info.outputs.message }} | ${{ steps.info.outputs.files }} |",
+              "section": "## Deploy History",
+              "commit_message": "auto: log website deploy ${{ steps.info.outputs.sha }}"
+            }' \
+            "https://34.14.219.64.nip.io/webhook/update-obsidian"
