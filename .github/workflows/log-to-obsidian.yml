@@ -13,28 +13,52 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Get commit info
-        id: info
+      - name: Build and send deploy log
+        env:
+          WEBHOOK_URL: https://34.14.219.64.nip.io/webhook/update-obsidian
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          ACTOR: ${{ github.actor }}
         run: |
-          echo "date=$(date -u '+%Y-%m-%d %H:%M')" >> $GITHUB_OUTPUT
-          echo "author=${{ github.actor }}" >> $GITHUB_OUTPUT
-          echo "message<<EOF" >> $GITHUB_OUTPUT
-          echo "${{ github.event.head_commit.message }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
-          FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -10 | tr '
-' ', ' || echo "unknown")
-          echo "files=$FILES" >> $GITHUB_OUTPUT
-
-      - name: Update Obsidian vault
-        run: |
-          curl -s -X POST \
+          DATE=$(date -u '+%Y-%m-%d %H:%M')
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          
+          # Get changed files (safely)
+          FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | head -5 | tr '\n' ',' | sed 's/,$//' || echo "unknown")
+          
+          # Clean commit message — strip newlines, escape for JSON
+          CLEAN_MSG=$(echo "$COMMIT_MSG" | head -1 | sed 's/"/\\"/g')
+          
+          # Build row
+          ROW="| ${DATE} UTC | ${ACTOR} | ${CLEAN_MSG} | \`${SHORT_SHA}\` | ${FILES} |"
+          
+          # Build JSON payload safely with python
+          PAYLOAD=$(python3 -c "
+          import json, sys
+          row = sys.argv[1]
+          payload = {
+            'file': '06 - Logs/deployments/Website Deploys.md',
+            'action': 'append',
+            'content': row,
+            'section': '## Deploy History'
+          }
+          print(json.dumps(payload))
+          " "$ROW")
+          
+          # Send to Obsidian webhook
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
             -H "Content-Type: application/json" \
-            -d '{
-              "file": "06 - Logs/deployments/Website Deploys.md",
-              "action": "append",
-              "content": "| ${{ steps.info.outputs.date }} | ${{ steps.info.outputs.author }} | ${{ steps.info.outputs.message }} | ${{ steps.info.outputs.files }} |",
-              "section": "## Deploy History",
-              "commit_message": "auto: log website deploy ${{ steps.info.outputs.sha }}"
-            }' \
-            "https://34.14.219.64.nip.io/webhook/update-obsidian"
+            -d "$PAYLOAD" \
+            "$WEBHOOK_URL")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          
+          echo "Webhook response: $BODY (HTTP $HTTP_CODE)"
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "⚠️ Webhook returned non-200 status: $HTTP_CODE"
+            exit 1
+          fi
+          
+          echo "✅ Deploy logged to Obsidian vault"
