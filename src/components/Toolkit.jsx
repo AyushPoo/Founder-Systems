@@ -1,47 +1,119 @@
+import { Link } from 'react-router-dom';
+import useReveal from '../hooks/useReveal';
 
+const CATEGORIES = [
+    {
+        title: 'SaaS Financial Models',
+        description:
+            'Plug-and-play templates for forecasting revenue, burn rate, runway, and investor-ready projections.',
+        image: '/images/finance.png',
+        accent: '#FF5F15',
+        features: ['Revenue forecasting', 'Burn & runway analysis', 'Cap table modeling'],
+    },
+    {
+        title: 'Operations Systems',
+        description:
+            'Workflows and automations to structure your team, hiring, and day-to-day operations at scale.',
+        image: '/images/systems.png',
+        accent: '#a93800',
+        features: ['Team org charts', 'Hiring pipelines', 'OKR tracking'],
+    },
+    {
+        title: 'Strategy Frameworks',
+        description:
+            'Investor CRM templates, pitch deck structures, and go-to-market playbooks for founders.',
+        image: '/images/strategy.png',
+        accent: '#1A1A1A',
+        features: ['Investor CRM', 'Pitch deck templates', 'GTM playbooks'],
+    },
+];
 
 const Toolkit = () => {
+    const ref = useReveal();
+
     return (
-        <section id="toolkit" className="bg-brand-cream w-full">
-            <div className="w-full bg-brand-orange py-8">
-                <div className="max-w-7xl mx-auto px-6 md:px-12">
-                    <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter uppercase">THE TOOLKIT</h2>
+        <section id="toolkit" ref={ref} className="py-24 md:py-32">
+            <div className="max-w-7xl mx-auto px-6 md:px-12">
+                {/* Header */}
+                <div className="reveal text-center mb-16 md:mb-20">
+                    <span className="inline-block text-sm font-semibold text-brand-orange uppercase tracking-widest mb-4">
+                        The Toolkit
+                    </span>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight-brand text-brand-black mb-6">
+                        Everything you need to{' '}
+                        <span className="text-transparent bg-clip-text bg-gradient-cta">
+                            operate
+                        </span>
+                    </h2>
+                    <p className="text-lg text-brand-black/50 max-w-2xl mx-auto leading-relaxed">
+                        Professional-grade templates across finance, operations, and strategy — built by founders, for founders.
+                    </p>
                 </div>
-            </div>
 
-            <div className="max-w-7xl mx-auto px-6 md:px-12 py-24">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
+                {/* Category cards */}
+                <div className="stagger grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {CATEGORIES.map((cat, i) => (
+                        <div
+                            key={i}
+                            className="reveal card-elevated group overflow-hidden"
+                        >
+                            {/* Image area */}
+                            <div className="relative h-52 bg-surface-container flex items-center justify-center overflow-hidden">
+                                <img
+                                    src={cat.image}
+                                    alt={cat.title}
+                                    className="h-36 object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+                                />
+                                {/* Accent bar */}
+                                <div
+                                    className="absolute bottom-0 left-0 right-0 h-1"
+                                    style={{ background: cat.accent }}
+                                />
+                            </div>
 
-                    <div className="flex flex-col items-start">
-                        <div className="h-48 mb-8 flex justify-center w-full">
-                            <img src="/images/finance.png" alt="Finance icon" className="h-full object-contain mix-blend-multiply" />
+                            {/* Content */}
+                            <div className="p-8">
+                                <h3 className="text-2xl font-bold text-brand-black mb-3">
+                                    {cat.title}
+                                </h3>
+                                <p className="text-brand-black/50 leading-relaxed mb-6 text-[15px]">
+                                    {cat.description}
+                                </p>
+
+                                {/* Feature chips */}
+                                <div className="flex flex-wrap gap-2 mb-6">
+                                    {cat.features.map((f, j) => (
+                                        <span
+                                            key={j}
+                                            className="px-3 py-1 text-xs font-semibold rounded-full bg-surface-container text-brand-black/60"
+                                        >
+                                            {f}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <Link
+                                    to="/products"
+                                    className="inline-flex items-center text-sm font-bold text-brand-orange group/link hover:gap-3 transition-all duration-300"
+                                >
+                                    View templates
+                                    <svg
+                                        className="ml-1 w-4 h-4 transition-transform duration-300 group-hover/link:translate-x-1"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                                        />
+                                    </svg>
+                                </Link>
+                            </div>
                         </div>
-                        <h3 className="text-3xl font-bold mb-4">SaaS Financial Models</h3>
-                        <p className="text-lg text-brand-black/70 mb-8">
-                            Plug-and-play templates for forecasting revenue, burn, and runway
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col items-start">
-                        <div className="h-48 mb-8 flex justify-center w-full">
-                            <img src="/images/systems.png" alt="Operations icon" className="h-full object-contain mix-blend-multiply" />
-                        </div>
-                        <h3 className="text-3xl font-bold mb-4">Operations</h3>
-                        <p className="text-lg text-brand-black/70">
-                            Workflows to make your life easier and 10x efficiency
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col items-start">
-                        <div className="h-48 mb-8 flex justify-center w-full">
-                            <img src="/images/strategy.png" alt="Strategy icon" className="h-full object-contain mix-blend-multiply" />
-                        </div>
-                        <h3 className="text-3xl font-bold mb-4">Strategy</h3>
-                        <p className="text-lg text-brand-black/70">
-                            Investor CRM templates and pitch deck structures for founders.
-                        </p>
-                    </div>
-
+                    ))}
                 </div>
             </div>
         </section>

@@ -7,7 +7,6 @@
 @layer base {
   body {
     @apply font-sans bg-brand-cream text-brand-black antialiased overflow-x-hidden;
-    cursor: url('data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%20fill%3D%22none%22%20stroke%3D%22%231A1A1A%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E'), auto;
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -18,8 +17,79 @@
   /* Hide scrollbar for IE, Edge and Firefox */
   .scrollbar-hide {
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
+  }
+}
+
+@layer components {
+  /* Glassmorphism utility */
+  .glass {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Gradient CTA button */
+  .btn-cta {
+    @apply inline-flex items-center justify-center px-8 py-4 text-white font-bold text-lg rounded-full transition-all duration-300;
+    background: linear-gradient(135deg, #ff5f15 0%, #a93800 100%);
+    box-shadow: 0 8px 24px rgba(255, 95, 21, 0.3);
+  }
+  .btn-cta:hover {
+    background: linear-gradient(135deg, #ff7a3d 0%, #c44500 100%);
+    box-shadow: 0 12px 32px rgba(255, 95, 21, 0.4);
+    transform: translateY(-2px);
+  }
+  .btn-cta:active {
+    transform: translateY(0);
+  }
+
+  /* Outlined button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-8 py-4 font-bold text-lg rounded-full border-2 border-brand-black text-brand-black transition-all duration-300;
+  }
+  .btn-outline:hover {
+    @apply bg-brand-black text-white;
+    transform: translateY(-2px);
+  }
+
+  /* Card with hover elevation */
+  .card-elevated {
+    @apply bg-surface-lowest rounded-2xl transition-all duration-300;
+    box-shadow: 0 4px 16px rgba(27, 28, 26, 0.04);
+  }
+  .card-elevated:hover {
+    box-shadow: 0 25px 50px rgba(27, 28, 26, 0.1);
+    transform: translateY(-4px);
+  }
+}
+
+@layer utilities {
+  /* Scroll-driven reveal: attach to elements via JS IntersectionObserver */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger children */
+  .stagger > *:nth-child(1) { transition-delay: 0ms; }
+  .stagger > *:nth-child(2) { transition-delay: 100ms; }
+  .stagger > *:nth-child(3) { transition-delay: 200ms; }
+  .stagger > *:nth-child(4) { transition-delay: 300ms; }
+
+  /* Ghost border */
+  .ghost-border {
+    border: 1px solid rgba(227, 191, 178, 0.15);
   }
 }
