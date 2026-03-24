@@ -5,6 +5,7 @@ const NAV_LINKS = [
     { label: 'Toolkit', href: '/#toolkit' },
     { label: 'Products', href: '/products' },
     { label: 'About', href: '/about' },
+    { label: 'Access Purchases', href: '/access' },
 ];
 
 const Navbar = () => {
@@ -65,7 +66,7 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <Link
-                        to="/access"
+                        to="/products"
                         className="btn-cta !py-2.5 !px-6 !text-sm"
                     >
                         Get Started
@@ -114,7 +115,7 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <Link
-                        to="/access"
+                        to="/products"
                         className="btn-cta !text-sm text-center mt-2"
                     >
                         Get Started
