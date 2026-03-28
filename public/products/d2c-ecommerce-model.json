@@ -1,0 +1,61 @@
+{
+  "id": "d2c-ecommerce-model",
+  "title": "The Investor-Ready D2C & Ecommerce Financial Model",
+  "subtitle": "Stop Guessing Your ROAS. Start Scaling Profitably.",
+  "descriptionBody": "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS template—a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
+  "section1Title": "The Multi-Channel Ecommerce Engine",
+  "section1Body": "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
+  "featuresTitle": "The Good Stuff:",
+  "features": [
+    { "name": "The Multi-Channel Growth Engine", "desc": "Not all revenue is equal. Forecast your sales across standard D2C, Subscriptions, Bundles, and Wholesale channels, complete with different Average Order Values (AOVs) for each." },
+    { "name": "The Cohort & Retention Tracker", "desc": "A fully automated 36-month cohort table. Watch exactly how your repeat purchase rates stack up by acquisition month to calculate your true Lifetime Value (LTV)." },
+    { "name": "The Inventory & Cash Flow Planner", "desc": "Stop stocking out. Input your starting inventory, safety stock, and lead times, and the model will automatically tell you exactly when to reorder and how much cash it will cost." },
+    { "name": "Live D2C Industry Benchmarks", "desc": "Automatically compare your Website Conversion Rate, Gross Margin, Contribution Margin, and Blended CAC against top-tier ecommerce industry standards." },
+    { "name": "The \"What-If\" Sensitivity Engine", "desc": "Toggle your conversion rates, AOV, and marketing spend levers by +/- 20% and watch your 3-year runway and profitability update instantly." }
+  ],
+  "whyTitle": "Why invest",
+  "whyPoints": [
+    { "title": "Save 40+ Hours", "desc": "Building an accurate inventory forecast and repeat-purchase cohort model from scratch is a massive headache. Skip the broken formulas and get back to growing your brand." },
+    { "title": "Pass Due Diligence", "desc": "When an investor or lender asks for your financials, you won't send a messy CSV. You'll send a structured, professional model that shows you deeply understand your margins." },
+    { "title": "Total Peace of Mind", "desc": "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting." }
+  ],
+  "footerSummaryTitle": "The Price",
+  "footerSummaryDetails": "(Cheaper than stocking out of your hero product).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "Total clarity on your brand's financial future and inventory needs.",
+  "whatYouGet": [
+    "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
+    "Traffic & Conversion Tracker to automatically calculate your Blended CAC.",
+    "Fully automated 36-month cohort retention matrix to track repeat purchases.",
+    "Inventory Cash Flow Planner with automated reorder forecasting.",
+    "Two-Method Valuation Engine (Revenue Multiples & DCF).",
+    "Step-by-step \"Start Here\" manual to plug in your numbers in under 30 minutes."
+  ],
+  "whoThisIsFor": [
+    "D2C and ecommerce founders preparing for VC due diligence or debt financing.",
+    "Scaling consumer brands managing complex physical inventory and supply chains.",
+    "Founders who need clear visibility into their contribution margins and blended ROAS."
+  ],
+  "faq": [
+    { "q": "Does this work for dropshipping, or just for brands holding inventory?", "a": "Both! If you hold physical inventory, the built-in Inventory Cash Flow Planner will track your reorder points and cash burn. If you dropship, you can simply zero out the inventory lead times and just use the multi-channel growth and cohort retention engines." },
+    { "q": "I'm not a finance person. Is this too complex?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting." },
+    { "q": "Can I forecast subscriptions and standard purchases at the same time?", "a": "Yes. The Multi-Channel Growth Engine lets you separate and forecast standard one-off D2C orders, recurring subscriptions, product bundles, and even wholesale orders all in one place." }
+  ],
+  "images": [
+    "/images/products/d2c-model/thumbnail.jpg",
+    "/images/products/d2c-model/preview-1.png",
+    "/images/products/d2c-model/preview-2.png",
+    "/images/products/d2c-model/preview-3.png",
+    "/images/products/d2c-model/preview-4.png",
+    "/images/products/d2c-model/preview-5.png"
+  ],
+  "productId": "FS004",
+  "priceInr": 1999,
+  "priceUsd": 25,
+  "originalPriceInr": 2499,
+  "originalPriceUsd": 30,
+  "gumroadUrl": "https://ayushpoojary.gumroad.com/l/sbdyuh",
+  "instamojoUrl": "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
+  "lemonSqueezyUrl": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/673d59d1-6f5a-48fc-adde-d939a8ee1d6a",
+  "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTJXUYZ6YCXv64pIKuy6lu1jT6V8qwKQaDRg-4lFdduArl8avhuVlWCk-68GP54LXHy56CfuGfUUBM/pubhtml"
+}
