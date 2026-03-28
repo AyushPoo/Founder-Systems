@@ -1,291 +1,426 @@
-[
-  {
-    "slug": "saas-financial-model",
-    "productId": "FS001",
-    "catalogName": "SaaS Financial Model Template",
-    "catalogDescription": "A professional-grade financial forecasting instrument designed specifically for SaaS founders.",
-    "catalogCategory": "Finance",
-    "title": "The 10-Minute SaaS Financial Model",
-    "subtitle": "Stop Guessing Your Runway. Start Winning Your Pitch.",
-    "descriptionBody": "\"How much cash do we have left?\" \"What's our CAC Payback if we hire two devs?\" If these questions keep you up at 3:00 AM, welcome to the club. Most founders treat their financial models like a scary basement, terrified of what they'll find or lost in a sea of broken formulas.",
-    "section1Title": "The Investor-Ready SaaS Model (B2B Edition)",
-    "section1Body": "A battle-tested, \"clean-code\" version of the exact spreadsheets used by venture-backed startups to track growth, burn, and valuation.",
-    "featuresTitle": "The Good Stuff:",
-    "features": [
-      { "name": "The Vibe Check Dashboard", "desc": "One-page summary of MRR, ARR, LTV/CAC, and Runway." },
-      { "name": "The Growth Engine", "desc": "No \"magic\" numbers—input your pricing and churn to see the waterfall." },
-      { "name": "The Crystal Ball", "desc": "Instant sensitivity analysis—toggle one cell and see your 3-year valuation update." },
-      { "name": "OpEx Planner", "desc": "Simple hiring and team growth planning." },
-      { "name": "Valuation Engine", "desc": "ARR Multiples + DCF for the finance nerds." }
-    ],
-    "whyTitle": "Why invest",
-    "whyPoints": [
-      { "title": "Save 20+ Hours", "desc": "Your time is worth more than $1.50/hour. Spend it selling instead." },
-      { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by an accountant who actually likes this stuff (me)." },
-      { "title": "Look Like a Pro", "desc": "Stop sending messy CSVs. Send a structured model that proves you know your numbers." }
-    ],
-    "footerSummaryTitle": "The Price",
-    "footerSummaryDetails": "(About three cups of decent coffee).",
-    "footerResultTitle": "The Result",
-    "footerResultDetails": "Total clarity on your startup's future.",
-    "whatYouGet": [
-      "Investor-ready SaaS financial model",
-      "Automatic ARR / MRR / CAC dashboards",
-      "Valuation calculator",
-      "3-year projections",
-      "Fully editable model",
-      "Instant download"
-    ],
-    "whoThisIsFor": [
-      "SaaS founders raising a seed round",
-      "Indie hackers planning pricing",
-      "Startup operators building projections",
-      "MBA / VC analysts modeling SaaS startups"
-    ],
-    "faq": [
-      { "q": "Is this Excel or Google Sheets?", "a": "The model works in Excel and can be imported into Google Sheets." },
-      { "q": "Can I modify the model?", "a": "Yes, the model is fully editable." },
-      { "q": "Do I get lifetime access?", "a": "Yes, one purchase gives you lifetime access." },
-      { "q": "Is this suitable for early-stage startups?", "a": "Yes, it is designed for founders building SaaS financial projections." }
-    ],
-    "images": [
-      "/images/products/saas-model/saas-thumbnail.jpg",
-      "/images/products/saas-model/saas-model-1.png",
-      "/images/products/saas-model/saas-model-2.png",
-      "/images/products/saas-model/saas-model-3.png",
-      "/images/products/saas-model/saas-model-4.png",
-      "/images/products/saas-model/saas-model-5.png"
-    ],
-    "priceInr": 1499,
-    "priceUsd": 20,
-    "originalPriceInr": 1999,
-    "originalPriceUsd": 25,
-    "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSImf5JunEk7FAZAVd8SfBWYbQJBtPVd9Z6eF4zrtnsdZHg22Ey0Sd8jhsxOV5W09kgDrajZjF4QWIJ/pubhtml?widget=true&headers=false",
-    "platformUrls": {
-      "gumroad": "https://ayushpoojary.gumroad.com/l/saas-investor-model",
-      "instamojo": "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
-      "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/9509df15-9420-4761-a668-bdb525b4b838"
+﻿[
+    {
+        "slug":  "saas-financial-model",
+        "productId":  "FS001",
+        "catalogName":  "SaaS Financial Model Template",
+        "catalogDescription":  "A professional-grade financial forecasting instrument designed specifically for SaaS founders.",
+        "catalogCategory":  "Finance",
+        "title":  "The 10-Minute SaaS Financial Model",
+        "subtitle":  "Stop Guessing Your Runway. Start Winning Your Pitch.",
+        "descriptionBody":  "\"How much cash do we have left?\" \"What\u0027s our CAC Payback if we hire two devs?\" If these questions keep you up at 3:00 AM, welcome to the club. Most founders treat their financial models like a scary basement, terrified of what they\u0027ll find or lost in a sea of broken formulas.",
+        "section1Title":  "The Investor-Ready SaaS Model (B2B Edition)",
+        "section1Body":  "A battle-tested, \"clean-code\" version of the exact spreadsheets used by venture-backed startups to track growth, burn, and valuation.",
+        "featuresTitle":  "The Good Stuff:",
+        "features":  [
+                         {
+                             "name":  "The Vibe Check Dashboard",
+                             "desc":  "One-page summary of MRR, ARR, LTV/CAC, and Runway."
+                         },
+                         {
+                             "name":  "The Growth Engine",
+                             "desc":  "No \"magic\" numbersâ€”input your pricing and churn to see the waterfall."
+                         },
+                         {
+                             "name":  "The Crystal Ball",
+                             "desc":  "Instant sensitivity analysisâ€”toggle one cell and see your 3-year valuation update."
+                         },
+                         {
+                             "name":  "OpEx Planner",
+                             "desc":  "Simple hiring and team growth planning."
+                         },
+                         {
+                             "name":  "Valuation Engine",
+                             "desc":  "ARR Multiples + DCF for the finance nerds."
+                         }
+                     ],
+        "whyTitle":  "Why invest",
+        "whyPoints":  [
+                          {
+                              "title":  "Save 20+ Hours",
+                              "desc":  "Your time is worth more than $1.50/hour. Spend it selling instead."
+                          },
+                          {
+                              "title":  "No \"Broken Formula\" Panic",
+                              "desc":  "Every cell is linked, protected, and sanity-checked by an accountant who actually likes this stuff (me)."
+                          },
+                          {
+                              "title":  "Look Like a Pro",
+                              "desc":  "Stop sending messy CSVs. Send a structured model that proves you know your numbers."
+                          }
+                      ],
+        "footerSummaryTitle":  "The Price",
+        "footerSummaryDetails":  "(About three cups of decent coffee).",
+        "footerResultTitle":  "The Result",
+        "footerResultDetails":  "Total clarity on your startup\u0027s future.",
+        "whatYouGet":  [
+                           "Investor-ready SaaS financial model",
+                           "Automatic ARR / MRR / CAC dashboards",
+                           "Valuation calculator",
+                           "3-year projections",
+                           "Fully editable model",
+                           "Instant download"
+                       ],
+        "whoThisIsFor":  [
+                             "SaaS founders raising a seed round",
+                             "Indie hackers planning pricing",
+                             "Startup operators building projections",
+                             "MBA / VC analysts modeling SaaS startups"
+                         ],
+        "faq":  [
+                    {
+                        "q":  "Is this Excel or Google Sheets?",
+                        "a":  "The model works in Excel and can be imported into Google Sheets."
+                    },
+                    {
+                        "q":  "Can I modify the model?",
+                        "a":  "Yes, the model is fully editable."
+                    },
+                    {
+                        "q":  "Do I get lifetime access?",
+                        "a":  "Yes, one purchase gives you lifetime access."
+                    },
+                    {
+                        "q":  "Is this suitable for early-stage startups?",
+                        "a":  "Yes, it is designed for founders building SaaS financial projections."
+                    }
+                ],
+        "images":  [
+                       "/images/products/saas-model/saas-thumbnail.jpg",
+                       "/images/products/saas-model/saas-model-1.png",
+                       "/images/products/saas-model/saas-model-2.png",
+                       "/images/products/saas-model/saas-model-3.png",
+                       "/images/products/saas-model/saas-model-4.png",
+                       "/images/products/saas-model/saas-model-5.png"
+                   ],
+        "priceInr":  1499,
+        "priceUsd":  20,
+        "originalPriceInr":  1999,
+        "originalPriceUsd":  25,
+        "previewUrl":  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSImf5JunEk7FAZAVd8SfBWYbQJBtPVd9Z6eF4zrtnsdZHg22Ey0Sd8jhsxOV5W09kgDrajZjF4QWIJ/pubhtml?widget=true\u0026headers=false",
+        "platformUrls":  {
+                             "gumroad":  "https://ayushpoojary.gumroad.com/l/saas-investor-model",
+                             "instamojo":  "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
+                             "lemonSqueezy":  "https://ayushpoojary.lemonsqueezy.com/checkout/buy/9509df15-9420-4761-a668-bdb525b4b838"
+                         },
+        "platformIds":  {
+                            "gumroadProductId":  "71Let9tm9Jy2-ONYZhTtlw==",
+                            "lemonSqueezyProductId":  "871408",
+                            "lemonSqueezyVariantId":  "1372316",
+                            "instamojoProductId":  ""
+                        }
     },
-    "platformIds": {
-      "gumroadProductId": "",
-      "lemonSqueezyProductId": "",
-      "lemonSqueezyVariantId": "",
-      "instamojoProductId": ""
-    }
-  },
-  {
-    "slug": "advanced-saas-model",
-    "productId": "FS002",
-    "catalogName": "Advanced B2B SaaS Model",
-    "catalogDescription": "Stop guessing your unit economics. An investor-grade SaaS model featuring automated cohort analysis, industry benchmarks, and dual-method valuation.",
-    "catalogCategory": "Finance",
-    "title": "The Pro-Grade B2B SaaS Financial Model (Advanced Edition)",
-    "subtitle": "Stop Guessing Your Unit Economics. Start Raising Like a Pro.",
-    "descriptionBody": "\"What's our Net Revenue Retention?\" \"How does our Burn Multiple compare to top-quartile startups?\" If investors are asking these questions and your answer is \"Let me get back to you,\" you're leaving money on the table. You've graduated from the \"scary basement\" of basic runway calculation—now you need to prove your growth engine actually works without paying a fractional CFO $500/hour.",
-    "section1Title": "The Investor-Ready SaaS Engine",
-    "section1Body": "This is a heavy-duty, clean-code financial engine designed specifically for seed and Series A startups. It handles the heavy lifting on unit economics, industry benchmarking, and advanced valuation so you can focus on building.",
-    "featuresTitle": "The Good Stuff:",
-    "features": [
-      { "name": "The Cohort X-Ray", "desc": "A fully automated Monthly Cohort Analysis. Watch exactly how your retention stacks up by acquisition month—this is the exact chart VCs want to see before writing a check." },
-      { "name": "The \"Top-Quartile\" Benchmarks", "desc": "Stop wondering if your numbers are good. Your outputs automatically compare your Gross Margin, LTV/CAC, and Burn Multiple against top-tier B2B SaaS industry benchmarks." },
-      { "name": "The SaaS Metrics Command Center", "desc": "It doesn't just track MRR. It automatically calculates your Magic Number, Burn Multiple, Net Revenue Retention (NRR), and CAC Payback Period." },
-      { "name": "The \"What If\" Sensitivity Engine", "desc": "Toggle your growth rate, churn, and pricing levers by +/- 20% and watch your 3-year valuation and runway update instantly in a clean matrix." },
-      { "name": "The Two-Method Valuation Engine", "desc": "Why choose? Get your Pre-Money Valuation estimated using both ARR Multiples and a rigorous Discounted Cash Flow (DCF) method." }
-    ],
-    "whyTitle": "Why spend",
-    "whyPoints": [
-      { "title": "Save 40+ Hours", "desc": "Building an accurate cohort retention and MRR waterfall model from scratch is a nightmare. Skip the broken formulas and use that time to talk to customers." },
-      { "title": "Pass Due Diligence", "desc": "When a VC asks to see your model, you won't send a messy CSV. You'll send an investor-grade engine with built-in scenario planning." },
-      { "title": "Total Peace of Mind", "desc": "Every cell is linked, color-coded, and sanity-checked by someone who actually enjoys financial modeling." }
-    ],
-    "footerSummaryTitle": "The Price",
-    "footerSummaryDetails": "(Cheaper than one hour with an outsourced accountant).",
-    "footerResultTitle": "The Result",
-    "footerResultDetails": "Complete command over your startup's financial future.",
-    "whatYouGet": [
-      "A heavy-duty 3-year financial engine in a fully unlocked Excel format.",
-      "Automated cohort heatmaps to track retention by acquisition month.",
-      "Live top-quartile industry SaaS benchmarks baked directly into your dashboard.",
-      "Advanced SaaS metrics tracking (Burn Multiple, NRR, Magic Number).",
-      "A dual-method valuation engine (ARR Multiples & DCF).",
-      "Step-by-Step \"Start Here\" manual to plug in your numbers and get out of the spreadsheet fast."
-    ],
-    "whoThisIsFor": [
-      "Seed and Series A SaaS founders preparing for VC due diligence.",
-      "Scaling startups that need to track cohort retention and advanced unit economics.",
-      "Founders who want CFO-level insights without paying $500/hour."
-    ],
-    "faq": [
-      { "q": "I'm not a finance person. Is this too complex for me?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model handles the rest." },
-      { "q": "Does this work for B2C SaaS?", "a": "It's heavily optimized for B2B (with tiered pricing, hiring planners, and B2B benchmarks), but the core mechanics of MRR, cohorts, and metrics can absolutely be adapted for B2C if you know your way around a spreadsheet." },
-      { "q": "What software do I need to run this?", "a": "Microsoft Excel. It's built with advanced formulas that work perfectly natively. You can import it to Google Sheets, but some of the heavy-duty formatting and charts might shift slightly." }
-    ],
-    "images": [
-      "/images/products/advanced-saas-model/thumbnail.jpg",
-      "/images/products/advanced-saas-model/preview-1.png",
-      "/images/products/advanced-saas-model/preview-2.png",
-      "/images/products/advanced-saas-model/preview-3.png",
-      "/images/products/advanced-saas-model/preview-4.png",
-      "/images/products/advanced-saas-model/preview-5.png"
-    ],
-    "priceInr": 2499,
-    "priceUsd": 30,
-    "originalPriceInr": 2999,
-    "originalPriceUsd": 35,
-    "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhC8El28gqnrpEI2ZwS6dQnqBcvWJB4h114942pct5K7CVvLBl_eNXGiG9WiHyonxmk7M4w6r02dav/pubhtml?widget=true&headers=false",
-    "platformUrls": {
-      "gumroad": "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
-      "instamojo": "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
-      "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/aac3b6c7-fbbc-435d-a02c-c5297adf37d1"
+    {
+        "slug":  "advanced-saas-model",
+        "productId":  "FS002",
+        "catalogName":  "Advanced B2B SaaS Model",
+        "catalogDescription":  "Stop guessing your unit economics. An investor-grade SaaS model featuring automated cohort analysis, industry benchmarks, and dual-method valuation.",
+        "catalogCategory":  "Finance",
+        "title":  "The Pro-Grade B2B SaaS Financial Model (Advanced Edition)",
+        "subtitle":  "Stop Guessing Your Unit Economics. Start Raising Like a Pro.",
+        "descriptionBody":  "\"What\u0027s our Net Revenue Retention?\" \"How does our Burn Multiple compare to top-quartile startups?\" If investors are asking these questions and your answer is \"Let me get back to you,\" you\u0027re leaving money on the table. You\u0027ve graduated from the \"scary basement\" of basic runway calculationâ€”now you need to prove your growth engine actually works without paying a fractional CFO $500/hour.",
+        "section1Title":  "The Investor-Ready SaaS Engine",
+        "section1Body":  "This is a heavy-duty, clean-code financial engine designed specifically for seed and Series A startups. It handles the heavy lifting on unit economics, industry benchmarking, and advanced valuation so you can focus on building.",
+        "featuresTitle":  "The Good Stuff:",
+        "features":  [
+                         {
+                             "name":  "The Cohort X-Ray",
+                             "desc":  "A fully automated Monthly Cohort Analysis. Watch exactly how your retention stacks up by acquisition monthâ€”this is the exact chart VCs want to see before writing a check."
+                         },
+                         {
+                             "name":  "The \"Top-Quartile\" Benchmarks",
+                             "desc":  "Stop wondering if your numbers are good. Your outputs automatically compare your Gross Margin, LTV/CAC, and Burn Multiple against top-tier B2B SaaS industry benchmarks."
+                         },
+                         {
+                             "name":  "The SaaS Metrics Command Center",
+                             "desc":  "It doesn\u0027t just track MRR. It automatically calculates your Magic Number, Burn Multiple, Net Revenue Retention (NRR), and CAC Payback Period."
+                         },
+                         {
+                             "name":  "The \"What If\" Sensitivity Engine",
+                             "desc":  "Toggle your growth rate, churn, and pricing levers by +/- 20% and watch your 3-year valuation and runway update instantly in a clean matrix."
+                         },
+                         {
+                             "name":  "The Two-Method Valuation Engine",
+                             "desc":  "Why choose? Get your Pre-Money Valuation estimated using both ARR Multiples and a rigorous Discounted Cash Flow (DCF) method."
+                         }
+                     ],
+        "whyTitle":  "Why spend",
+        "whyPoints":  [
+                          {
+                              "title":  "Save 40+ Hours",
+                              "desc":  "Building an accurate cohort retention and MRR waterfall model from scratch is a nightmare. Skip the broken formulas and use that time to talk to customers."
+                          },
+                          {
+                              "title":  "Pass Due Diligence",
+                              "desc":  "When a VC asks to see your model, you won\u0027t send a messy CSV. You\u0027ll send an investor-grade engine with built-in scenario planning."
+                          },
+                          {
+                              "title":  "Total Peace of Mind",
+                              "desc":  "Every cell is linked, color-coded, and sanity-checked by someone who actually enjoys financial modeling."
+                          }
+                      ],
+        "footerSummaryTitle":  "The Price",
+        "footerSummaryDetails":  "(Cheaper than one hour with an outsourced accountant).",
+        "footerResultTitle":  "The Result",
+        "footerResultDetails":  "Complete command over your startup\u0027s financial future.",
+        "whatYouGet":  [
+                           "A heavy-duty 3-year financial engine in a fully unlocked Excel format.",
+                           "Automated cohort heatmaps to track retention by acquisition month.",
+                           "Live top-quartile industry SaaS benchmarks baked directly into your dashboard.",
+                           "Advanced SaaS metrics tracking (Burn Multiple, NRR, Magic Number).",
+                           "A dual-method valuation engine (ARR Multiples \u0026 DCF).",
+                           "Step-by-Step \"Start Here\" manual to plug in your numbers and get out of the spreadsheet fast."
+                       ],
+        "whoThisIsFor":  [
+                             "Seed and Series A SaaS founders preparing for VC due diligence.",
+                             "Scaling startups that need to track cohort retention and advanced unit economics.",
+                             "Founders who want CFO-level insights without paying $500/hour."
+                         ],
+        "faq":  [
+                    {
+                        "q":  "I\u0027m not a finance person. Is this too complex for me?",
+                        "a":  "Not at all. I survived the trenches of CA prep so you don\u0027t have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model handles the rest."
+                    },
+                    {
+                        "q":  "Does this work for B2C SaaS?",
+                        "a":  "It\u0027s heavily optimized for B2B (with tiered pricing, hiring planners, and B2B benchmarks), but the core mechanics of MRR, cohorts, and metrics can absolutely be adapted for B2C if you know your way around a spreadsheet."
+                    },
+                    {
+                        "q":  "What software do I need to run this?",
+                        "a":  "Microsoft Excel. It\u0027s built with advanced formulas that work perfectly natively. You can import it to Google Sheets, but some of the heavy-duty formatting and charts might shift slightly."
+                    }
+                ],
+        "images":  [
+                       "/images/products/advanced-saas-model/thumbnail.jpg",
+                       "/images/products/advanced-saas-model/preview-1.png",
+                       "/images/products/advanced-saas-model/preview-2.png",
+                       "/images/products/advanced-saas-model/preview-3.png",
+                       "/images/products/advanced-saas-model/preview-4.png",
+                       "/images/products/advanced-saas-model/preview-5.png"
+                   ],
+        "priceInr":  2499,
+        "priceUsd":  30,
+        "originalPriceInr":  2999,
+        "originalPriceUsd":  35,
+        "previewUrl":  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhC8El28gqnrpEI2ZwS6dQnqBcvWJB4h114942pct5K7CVvLBl_eNXGiG9WiHyonxmk7M4w6r02dav/pubhtml?widget=true\u0026headers=false",
+        "platformUrls":  {
+                             "gumroad":  "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
+                             "instamojo":  "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
+                             "lemonSqueezy":  "https://ayushpoojary.lemonsqueezy.com/checkout/buy/aac3b6c7-fbbc-435d-a02c-c5297adf37d1"
+                         },
+        "platformIds":  {
+                            "gumroadProductId":  "t3lsFwf_jEcztd2UFnkp2w==",
+                            "lemonSqueezyProductId":  "879264",
+                            "lemonSqueezyVariantId":  "1384375",
+                            "instamojoProductId":  ""
+                        }
     },
-    "platformIds": {
-      "gumroadProductId": "",
-      "lemonSqueezyProductId": "",
-      "lemonSqueezyVariantId": "",
-      "instamojoProductId": ""
-    }
-  },
-  {
-    "slug": "marketplace-financial-model",
-    "productId": "FS003",
-    "catalogName": "Marketplace Financial Model",
-    "catalogDescription": "Stop guessing your marketplace metrics. This model features dual-sided supply & demand growth, GMV waterfalls, industry benchmarks & 3-method valuation.",
-    "catalogCategory": "Finance",
-    "title": "The Investor-Ready Marketplace Financial Model",
-    "subtitle": "Stop Mixing Up GMV and Net Revenue. Start Raising Like a Pro.",
-    "descriptionBody": "If you are building a two-sided marketplace, you already have the hardest job in the startup world: solving the chicken-and-egg problem. You shouldn't also have to spend 40 hours building a custom spreadsheet to figure out if your unit economics actually make sense. Most templates out there treat marketplaces like standard SaaS companies, which is a guaranteed way to get laughed out of a VC pitch.",
-    "section1Title": "The Dual-Sided Growth Engine",
-    "section1Body": "This is a battle-tested, clean-code 3-year projection engine built specifically for horizontal two-sided marketplaces. It handles the heavy lifting of dual-sided acquisition, GMV waterfalls, and marketplace-specific valuation so you can stop wrestling with formulas and get back to matching supply and demand.",
-    "featuresTitle": "The Good Stuff:",
-    "features": [
-      { "name": "The Dual-Sided Growth Engine", "desc": "Buyers and Sellers are not the same. This model lets you project supply growth, demand growth, and churn entirely separately to see exactly how your network effects scale." },
-      { "name": "The GMV to Revenue Waterfall", "desc": "No more confusion. Input your Average Order Value (AOV), transaction frequency, and Take Rate, and watch your Gross Merchandise Value (GMV) cleanly translate into actual Net Revenue." },
-      { "name": "The Marketplace Benchmarks", "desc": "Automatically compare your outputs—like your Buyer-to-Seller Ratio, Take Rate, and Contribution Margin—against top-tier marketplace industry standards." },
-      { "name": "The \"Base / Bull / Bear\" Scenarios", "desc": "Instantly switch your entire model between Conservative, Base, and Optimistic cases with one click to show investors exactly what happens if growth accelerates." },
-      { "name": "The Triple-Method Valuation Engine", "desc": "Marketplaces are valued differently. Get your Pre-Money Valuation estimated using GMV Multiples, Net Revenue Multiples, and a Discounted Cash Flow (DCF)." }
-    ],
-    "whyTitle": "Why invest",
-    "whyPoints": [
-      { "title": "Save 40+ Hours", "desc": "Modeling two-sided acquisition costs from scratch is a massive headache. Skip the broken formulas and get back to growing your network." },
-      { "title": "Look Like a Pro", "desc": "When an investor asks to see your metrics, you won't send a messy CSV that accidentally double-counts revenue. You'll send a structured, professional model." },
-      { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting." }
-    ],
-    "footerSummaryTitle": "The Price",
-    "footerSummaryDetails": "(Cheaper than outsourcing your headache).",
-    "footerResultTitle": "The Result",
-    "footerResultDetails": "Total clarity on your marketplace's financial future.",
-    "whatYouGet": [
-      "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
-      "Dual-Sided Growth Models to independently forecast Supply (Sellers) and Demand (Buyers).",
-      "Automated GMV & Net Revenue waterfalls based on your specific take rate.",
-      "The \"Vibe Check\" Dashboard summarizing your GMV, Contribution Margin, and Runway.",
-      "A Triple-Method Valuation Engine (GMV Multiples, Net Rev Multiples, and DCF).",
-      "Step-by-step \"Start Here\" guide to populate the model in under 30 minutes."
-    ],
-    "whoThisIsFor": [
-      "Two-sided marketplace founders (B2B or B2C) raising a seed or Series A round.",
-      "Startups struggling to balance buyer CAC against seller acquisition costs (SAC).",
-      "Founders who need to prove their network effects and unit economics actually scale."
-    ],
-    "faq": [
-      { "q": "Does this work for both B2B and B2C marketplaces?", "a": "Yes! Whether you are matching freelancers with enterprises (B2B) or individuals selling used sneakers (B2C), the core dual-sided mechanics (supply vs. demand, GMV, take rate) remain exactly the same." },
-      { "q": "I'm not a finance person. Is this too complex?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting." },
-      { "q": "Can I run different growth scenarios for my pitch deck?", "a": "Absolutely. There is a built-in Scenario Selector tab. You can plug in your conservative, base, and optimistic assumptions, and flip the entire model between them with a single drop-down menu." }
-    ],
-    "images": [
-      "/images/products/marketplace-model/thumbnail.jpg",
-      "/images/products/marketplace-model/preview-1.png",
-      "/images/products/marketplace-model/preview-2.png",
-      "/images/products/marketplace-model/preview-3.png",
-      "/images/products/marketplace-model/preview-4.png",
-      "/images/products/marketplace-model/preview-5.png"
-    ],
-    "priceInr": 1999,
-    "priceUsd": 25,
-    "originalPriceInr": 2499,
-    "originalPriceUsd": 30,
-    "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWleDtmSNCxhyI_Z6lRJP-rLg-KjDSVfejApCtlYUWeBaOWzwWnvnZAkB05-z0vx02uq0mgwL6uCac/pubhtml",
-    "platformUrls": {
-      "gumroad": "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
-      "instamojo": "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
-      "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/checkout"
+    {
+        "slug":  "marketplace-financial-model",
+        "productId":  "FS003",
+        "catalogName":  "Marketplace Financial Model",
+        "catalogDescription":  "Stop guessing your marketplace metrics. This model features dual-sided supply \u0026 demand growth, GMV waterfalls, industry benchmarks \u0026 3-method valuation.",
+        "catalogCategory":  "Finance",
+        "title":  "The Investor-Ready Marketplace Financial Model",
+        "subtitle":  "Stop Mixing Up GMV and Net Revenue. Start Raising Like a Pro.",
+        "descriptionBody":  "If you are building a two-sided marketplace, you already have the hardest job in the startup world: solving the chicken-and-egg problem. You shouldn\u0027t also have to spend 40 hours building a custom spreadsheet to figure out if your unit economics actually make sense. Most templates out there treat marketplaces like standard SaaS companies, which is a guaranteed way to get laughed out of a VC pitch.",
+        "section1Title":  "The Dual-Sided Growth Engine",
+        "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for horizontal two-sided marketplaces. It handles the heavy lifting of dual-sided acquisition, GMV waterfalls, and marketplace-specific valuation so you can stop wrestling with formulas and get back to matching supply and demand.",
+        "featuresTitle":  "The Good Stuff:",
+        "features":  [
+                         {
+                             "name":  "The Dual-Sided Growth Engine",
+                             "desc":  "Buyers and Sellers are not the same. This model lets you project supply growth, demand growth, and churn entirely separately to see exactly how your network effects scale."
+                         },
+                         {
+                             "name":  "The GMV to Revenue Waterfall",
+                             "desc":  "No more confusion. Input your Average Order Value (AOV), transaction frequency, and Take Rate, and watch your Gross Merchandise Value (GMV) cleanly translate into actual Net Revenue."
+                         },
+                         {
+                             "name":  "The Marketplace Benchmarks",
+                             "desc":  "Automatically compare your outputsâ€”like your Buyer-to-Seller Ratio, Take Rate, and Contribution Marginâ€”against top-tier marketplace industry standards."
+                         },
+                         {
+                             "name":  "The \"Base / Bull / Bear\" Scenarios",
+                             "desc":  "Instantly switch your entire model between Conservative, Base, and Optimistic cases with one click to show investors exactly what happens if growth accelerates."
+                         },
+                         {
+                             "name":  "The Triple-Method Valuation Engine",
+                             "desc":  "Marketplaces are valued differently. Get your Pre-Money Valuation estimated using GMV Multiples, Net Revenue Multiples, and a Discounted Cash Flow (DCF)."
+                         }
+                     ],
+        "whyTitle":  "Why invest",
+        "whyPoints":  [
+                          {
+                              "title":  "Save 40+ Hours",
+                              "desc":  "Modeling two-sided acquisition costs from scratch is a massive headache. Skip the broken formulas and get back to growing your network."
+                          },
+                          {
+                              "title":  "Look Like a Pro",
+                              "desc":  "When an investor asks to see your metrics, you won\u0027t send a messy CSV that accidentally double-counts revenue. You\u0027ll send a structured, professional model."
+                          },
+                          {
+                              "title":  "No \"Broken Formula\" Panic",
+                              "desc":  "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting."
+                          }
+                      ],
+        "footerSummaryTitle":  "The Price",
+        "footerSummaryDetails":  "(Cheaper than outsourcing your headache).",
+        "footerResultTitle":  "The Result",
+        "footerResultDetails":  "Total clarity on your marketplace\u0027s financial future.",
+        "whatYouGet":  [
+                           "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
+                           "Dual-Sided Growth Models to independently forecast Supply (Sellers) and Demand (Buyers).",
+                           "Automated GMV \u0026 Net Revenue waterfalls based on your specific take rate.",
+                           "The \"Vibe Check\" Dashboard summarizing your GMV, Contribution Margin, and Runway.",
+                           "A Triple-Method Valuation Engine (GMV Multiples, Net Rev Multiples, and DCF).",
+                           "Step-by-step \"Start Here\" guide to populate the model in under 30 minutes."
+                       ],
+        "whoThisIsFor":  [
+                             "Two-sided marketplace founders (B2B or B2C) raising a seed or Series A round.",
+                             "Startups struggling to balance buyer CAC against seller acquisition costs (SAC).",
+                             "Founders who need to prove their network effects and unit economics actually scale."
+                         ],
+        "faq":  [
+                    {
+                        "q":  "Does this work for both B2B and B2C marketplaces?",
+                        "a":  "Yes! Whether you are matching freelancers with enterprises (B2B) or individuals selling used sneakers (B2C), the core dual-sided mechanics (supply vs. demand, GMV, take rate) remain exactly the same."
+                    },
+                    {
+                        "q":  "I\u0027m not a finance person. Is this too complex?",
+                        "a":  "Not at all. I survived the trenches of CA prep so you don\u0027t have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting."
+                    },
+                    {
+                        "q":  "Can I run different growth scenarios for my pitch deck?",
+                        "a":  "Absolutely. There is a built-in Scenario Selector tab. You can plug in your conservative, base, and optimistic assumptions, and flip the entire model between them with a single drop-down menu."
+                    }
+                ],
+        "images":  [
+                       "/images/products/marketplace-model/thumbnail.jpg",
+                       "/images/products/marketplace-model/preview-1.png",
+                       "/images/products/marketplace-model/preview-2.png",
+                       "/images/products/marketplace-model/preview-3.png",
+                       "/images/products/marketplace-model/preview-4.png",
+                       "/images/products/marketplace-model/preview-5.png"
+                   ],
+        "priceInr":  1999,
+        "priceUsd":  25,
+        "originalPriceInr":  2499,
+        "originalPriceUsd":  30,
+        "previewUrl":  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWleDtmSNCxhyI_Z6lRJP-rLg-KjDSVfejApCtlYUWeBaOWzwWnvnZAkB05-z0vx02uq0mgwL6uCac/pubhtml",
+        "platformUrls":  {
+                             "gumroad":  "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
+                             "instamojo":  "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
+                             "lemonSqueezy":  "https://ayushpoojary.lemonsqueezy.com/checkout"
+                         },
+        "platformIds":  {
+                            "gumroadProductId":  "LxgKcNK7VsJ5TG2DWl7S3Q==",
+                            "lemonSqueezyProductId":  "879421",
+                            "lemonSqueezyVariantId":  "1384616",
+                            "instamojoProductId":  ""
+                        }
     },
-    "platformIds": {
-      "gumroadProductId": "",
-      "lemonSqueezyProductId": "",
-      "lemonSqueezyVariantId": "",
-      "instamojoProductId": ""
+    {
+        "slug":  "d2c-ecommerce-model",
+        "productId":  "FS004",
+        "catalogName":  "D2C \u0026 Ecommerce Financial Model",
+        "catalogDescription":  "Stop guessing ROAS. This D2C model features automated cohort retention, multi-channel growth forecasting, and an inventory cash flow planner.",
+        "catalogCategory":  "Finance",
+        "title":  "The Investor-Ready D2C \u0026 Ecommerce Financial Model",
+        "subtitle":  "Stop Guessing Your ROAS. Start Scaling Profitably.",
+        "descriptionBody":  "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS templateâ€”a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
+        "section1Title":  "The Multi-Channel Ecommerce Engine",
+        "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
+        "featuresTitle":  "The Good Stuff:",
+        "features":  [
+                         {
+                             "name":  "The Multi-Channel Growth Engine",
+                             "desc":  "Not all revenue is equal. Forecast your sales across standard D2C, Subscriptions, Bundles, and Wholesale channels, complete with different Average Order Values (AOVs) for each."
+                         },
+                         {
+                             "name":  "The Cohort \u0026 Retention Tracker",
+                             "desc":  "A fully automated 36-month cohort table. Watch exactly how your repeat purchase rates stack up by acquisition month to calculate your true Lifetime Value (LTV)."
+                         },
+                         {
+                             "name":  "The Inventory \u0026 Cash Flow Planner",
+                             "desc":  "Stop stocking out. Input your starting inventory, safety stock, and lead times, and the model will automatically tell you exactly when to reorder and how much cash it will cost."
+                         },
+                         {
+                             "name":  "Live D2C Industry Benchmarks",
+                             "desc":  "Automatically compare your Website Conversion Rate, Gross Margin, Contribution Margin, and Blended CAC against top-tier ecommerce industry standards."
+                         },
+                         {
+                             "name":  "The \"What-If\" Sensitivity Engine",
+                             "desc":  "Toggle your conversion rates, AOV, and marketing spend levers by +/- 20% and watch your 3-year runway and profitability update instantly."
+                         }
+                     ],
+        "whyTitle":  "Why invest",
+        "whyPoints":  [
+                          {
+                              "title":  "Save 40+ Hours",
+                              "desc":  "Building an accurate inventory forecast and repeat-purchase cohort model from scratch is a massive headache. Skip the broken formulas and get back to growing your brand."
+                          },
+                          {
+                              "title":  "Pass Due Diligence",
+                              "desc":  "When an investor or lender asks for your financials, you won\u0027t send a messy CSV. You\u0027ll send a structured, professional model that shows you deeply understand your margins."
+                          },
+                          {
+                              "title":  "Total Peace of Mind",
+                              "desc":  "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting."
+                          }
+                      ],
+        "footerSummaryTitle":  "The Price",
+        "footerSummaryDetails":  "(Cheaper than stocking out of your hero product).",
+        "footerResultTitle":  "The Result",
+        "footerResultDetails":  "Total clarity on your brand\u0027s financial future and inventory needs.",
+        "whatYouGet":  [
+                           "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
+                           "Traffic \u0026 Conversion Tracker to automatically calculate your Blended CAC.",
+                           "Fully automated 36-month cohort retention matrix to track repeat purchases.",
+                           "Inventory Cash Flow Planner with automated reorder forecasting.",
+                           "Two-Method Valuation Engine (Revenue Multiples \u0026 DCF).",
+                           "Step-by-step \"Start Here\" manual to plug in your numbers in under 30 minutes."
+                       ],
+        "whoThisIsFor":  [
+                             "D2C and ecommerce founders preparing for VC due diligence or debt financing.",
+                             "Scaling consumer brands managing complex physical inventory and supply chains.",
+                             "Founders who need clear visibility into their contribution margins and blended ROAS."
+                         ],
+        "faq":  [
+                    {
+                        "q":  "Does this work for dropshipping, or just for brands holding inventory?",
+                        "a":  "Both! If you hold physical inventory, the built-in Inventory Cash Flow Planner will track your reorder points and cash burn. If you dropship, you can simply zero out the inventory lead times and just use the multi-channel growth and cohort retention engines."
+                    },
+                    {
+                        "q":  "I\u0027m not a finance person. Is this too complex?",
+                        "a":  "Not at all. I survived the trenches of CA prep so you don\u0027t have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting."
+                    },
+                    {
+                        "q":  "Can I forecast subscriptions and standard purchases at the same time?",
+                        "a":  "Yes. The Multi-Channel Growth Engine lets you separate and forecast standard one-off D2C orders, recurring subscriptions, product bundles, and even wholesale orders all in one place."
+                    }
+                ],
+        "images":  [
+                       "/images/products/d2c-model/thumbnail.jpg",
+                       "/images/products/d2c-model/preview-1.png",
+                       "/images/products/d2c-model/preview-2.png",
+                       "/images/products/d2c-model/preview-3.png",
+                       "/images/products/d2c-model/preview-4.png"
+                   ],
+        "priceInr":  1999,
+        "priceUsd":  25,
+        "originalPriceInr":  2499,
+        "originalPriceUsd":  30,
+        "previewUrl":  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTJXUYZ6YCXv64pIKuy6lu1jT6V8qwKQaDRg-4lFdduArl8avhuVlWCk-68GP54LXHy56CfuGfUUBM/pubhtml",
+        "platformUrls":  {
+                             "gumroad":  "https://ayushpoojary.gumroad.com/l/sbdyuh",
+                             "instamojo":  "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
+                             "lemonSqueezy":  "https://ayushpoojary.lemonsqueezy.com/checkout/buy/673d59d1-6f5a-48fc-adde-d939a8ee1d6a"
+                         },
+        "platformIds":  {
+                            "gumroadProductId":  "LJ5Uy-hGQqHsT5socW_R0g==",
+                            "lemonSqueezyProductId":  "879372",
+                            "lemonSqueezyVariantId":  "1384533",
+                            "instamojoProductId":  ""
+                        }
     }
-  },
-  {
-    "slug": "d2c-ecommerce-model",
-    "productId": "FS004",
-    "catalogName": "D2C & Ecommerce Financial Model",
-    "catalogDescription": "Stop guessing ROAS. This D2C model features automated cohort retention, multi-channel growth forecasting, and an inventory cash flow planner.",
-    "catalogCategory": "Finance",
-    "title": "The Investor-Ready D2C & Ecommerce Financial Model",
-    "subtitle": "Stop Guessing Your ROAS. Start Scaling Profitably.",
-    "descriptionBody": "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS template—a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
-    "section1Title": "The Multi-Channel Ecommerce Engine",
-    "section1Body": "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
-    "featuresTitle": "The Good Stuff:",
-    "features": [
-      { "name": "The Multi-Channel Growth Engine", "desc": "Not all revenue is equal. Forecast your sales across standard D2C, Subscriptions, Bundles, and Wholesale channels, complete with different Average Order Values (AOVs) for each." },
-      { "name": "The Cohort & Retention Tracker", "desc": "A fully automated 36-month cohort table. Watch exactly how your repeat purchase rates stack up by acquisition month to calculate your true Lifetime Value (LTV)." },
-      { "name": "The Inventory & Cash Flow Planner", "desc": "Stop stocking out. Input your starting inventory, safety stock, and lead times, and the model will automatically tell you exactly when to reorder and how much cash it will cost." },
-      { "name": "Live D2C Industry Benchmarks", "desc": "Automatically compare your Website Conversion Rate, Gross Margin, Contribution Margin, and Blended CAC against top-tier ecommerce industry standards." },
-      { "name": "The \"What-If\" Sensitivity Engine", "desc": "Toggle your conversion rates, AOV, and marketing spend levers by +/- 20% and watch your 3-year runway and profitability update instantly." }
-    ],
-    "whyTitle": "Why invest",
-    "whyPoints": [
-      { "title": "Save 40+ Hours", "desc": "Building an accurate inventory forecast and repeat-purchase cohort model from scratch is a massive headache. Skip the broken formulas and get back to growing your brand." },
-      { "title": "Pass Due Diligence", "desc": "When an investor or lender asks for your financials, you won't send a messy CSV. You'll send a structured, professional model that shows you deeply understand your margins." },
-      { "title": "Total Peace of Mind", "desc": "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting." }
-    ],
-    "footerSummaryTitle": "The Price",
-    "footerSummaryDetails": "(Cheaper than stocking out of your hero product).",
-    "footerResultTitle": "The Result",
-    "footerResultDetails": "Total clarity on your brand's financial future and inventory needs.",
-    "whatYouGet": [
-      "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
-      "Traffic & Conversion Tracker to automatically calculate your Blended CAC.",
-      "Fully automated 36-month cohort retention matrix to track repeat purchases.",
-      "Inventory Cash Flow Planner with automated reorder forecasting.",
-      "Two-Method Valuation Engine (Revenue Multiples & DCF).",
-      "Step-by-step \"Start Here\" manual to plug in your numbers in under 30 minutes."
-    ],
-    "whoThisIsFor": [
-      "D2C and ecommerce founders preparing for VC due diligence or debt financing.",
-      "Scaling consumer brands managing complex physical inventory and supply chains.",
-      "Founders who need clear visibility into their contribution margins and blended ROAS."
-    ],
-    "faq": [
-      { "q": "Does this work for dropshipping, or just for brands holding inventory?", "a": "Both! If you hold physical inventory, the built-in Inventory Cash Flow Planner will track your reorder points and cash burn. If you dropship, you can simply zero out the inventory lead times and just use the multi-channel growth and cohort retention engines." },
-      { "q": "I'm not a finance person. Is this too complex?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting." },
-      { "q": "Can I forecast subscriptions and standard purchases at the same time?", "a": "Yes. The Multi-Channel Growth Engine lets you separate and forecast standard one-off D2C orders, recurring subscriptions, product bundles, and even wholesale orders all in one place." }
-    ],
-    "images": [
-      "/images/products/d2c-model/thumbnail.jpg",
-      "/images/products/d2c-model/preview-1.png",
-      "/images/products/d2c-model/preview-2.png",
-      "/images/products/d2c-model/preview-3.png",
-      "/images/products/d2c-model/preview-4.png"
-    ],
-    "priceInr": 1999,
-    "priceUsd": 25,
-    "originalPriceInr": 2499,
-    "originalPriceUsd": 30,
-    "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSTJXUYZ6YCXv64pIKuy6lu1jT6V8qwKQaDRg-4lFdduArl8avhuVlWCk-68GP54LXHy56CfuGfUUBM/pubhtml",
-    "platformUrls": {
-      "gumroad": "https://ayushpoojary.gumroad.com/l/sbdyuh",
-      "instamojo": "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-d2c-ecommerce-financial-m/",
-      "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/673d59d1-6f5a-48fc-adde-d939a8ee1d6a"
-    },
-    "platformIds": {
-      "gumroadProductId": "",
-      "lemonSqueezyProductId": "",
-      "lemonSqueezyVariantId": "",
-      "instamojoProductId": ""
-    }
-  }
 ]
