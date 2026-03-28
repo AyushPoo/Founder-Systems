@@ -1,0 +1,61 @@
+{
+  "id": "advanced-saas-model",
+  "title": "The Pro-Grade B2B SaaS Financial Model (Advanced Edition)",
+  "subtitle": "Stop Guessing Your Unit Economics. Start Raising Like a Pro.",
+  "descriptionBody": "\"What's our Net Revenue Retention?\" \"How does our Burn Multiple compare to top-quartile startups?\" If investors are asking these questions and your answer is \"Let me get back to you,\" you're leaving money on the table. You've graduated from the \"scary basement\" of basic runway calculation—now you need to prove your growth engine actually works without paying a fractional CFO $500/hour.",
+  "section1Title": "The Investor-Ready SaaS Engine",
+  "section1Body": "This is a heavy-duty, clean-code financial engine designed specifically for seed and Series A startups. It handles the heavy lifting on unit economics, industry benchmarking, and advanced valuation so you can focus on building.",
+  "featuresTitle": "The Good Stuff:",
+  "features": [
+    { "name": "The Cohort X-Ray", "desc": "A fully automated Monthly Cohort Analysis. Watch exactly how your retention stacks up by acquisition month—this is the exact chart VCs want to see before writing a check." },
+    { "name": "The \"Top-Quartile\" Benchmarks", "desc": "Stop wondering if your numbers are good. Your outputs automatically compare your Gross Margin, LTV/CAC, and Burn Multiple against top-tier B2B SaaS industry benchmarks." },
+    { "name": "The SaaS Metrics Command Center", "desc": "It doesn't just track MRR. It automatically calculates your Magic Number, Burn Multiple, Net Revenue Retention (NRR), and CAC Payback Period." },
+    { "name": "The \"What If\" Sensitivity Engine", "desc": "Toggle your growth rate, churn, and pricing levers by +/- 20% and watch your 3-year valuation and runway update instantly in a clean matrix." },
+    { "name": "The Two-Method Valuation Engine", "desc": "Why choose? Get your Pre-Money Valuation estimated using both ARR Multiples and a rigorous Discounted Cash Flow (DCF) method." }
+  ],
+  "whyTitle": "Why spend",
+  "whyPoints": [
+    { "title": "Save 40+ Hours", "desc": "Building an accurate cohort retention and MRR waterfall model from scratch is a nightmare. Skip the broken formulas and use that time to talk to customers." },
+    { "title": "Pass Due Diligence", "desc": "When a VC asks to see your model, you won't send a messy CSV. You'll send an investor-grade engine with built-in scenario planning." },
+    { "title": "Total Peace of Mind", "desc": "Every cell is linked, color-coded, and sanity-checked by someone who actually enjoys financial modeling." }
+  ],
+  "footerSummaryTitle": "The Price",
+  "footerSummaryDetails": "(Cheaper than one hour with an outsourced accountant).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "Complete command over your startup's financial future.",
+  "whatYouGet": [
+    "A heavy-duty 3-year financial engine in a fully unlocked Excel format.",
+    "Automated cohort heatmaps to track retention by acquisition month.",
+    "Live top-quartile industry SaaS benchmarks baked directly into your dashboard.",
+    "Advanced SaaS metrics tracking (Burn Multiple, NRR, Magic Number).",
+    "A dual-method valuation engine (ARR Multiples & DCF).",
+    "Step-by-Step \"Start Here\" manual to plug in your numbers and get out of the spreadsheet fast."
+  ],
+  "whoThisIsFor": [
+    "Seed and Series A SaaS founders preparing for VC due diligence.",
+    "Scaling startups that need to track cohort retention and advanced unit economics.",
+    "Founders who want CFO-level insights without paying $500/hour."
+  ],
+  "faq": [
+    { "q": "I'm not a finance person. Is this too complex for me?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model handles the rest." },
+    { "q": "Does this work for B2C SaaS?", "a": "It's heavily optimized for B2B (with tiered pricing, hiring planners, and B2B benchmarks), but the core mechanics of MRR, cohorts, and metrics can absolutely be adapted for B2C if you know your way around a spreadsheet." },
+    { "q": "What software do I need to run this?", "a": "Microsoft Excel. It's built with advanced formulas that work perfectly natively. You can import it to Google Sheets, but some of the heavy-duty formatting and charts might shift slightly." }
+  ],
+  "images": [
+    "/images/products/advanced-saas-model/thumbnail.jpg",
+    "/images/products/advanced-saas-model/preview-1.png",
+    "/images/products/advanced-saas-model/preview-2.png",
+    "/images/products/advanced-saas-model/preview-3.png",
+    "/images/products/advanced-saas-model/preview-4.png",
+    "/images/products/advanced-saas-model/preview-5.png"
+  ],
+  "productId": "FS002",
+  "priceInr": 2499,
+  "priceUsd": 30,
+  "originalPriceInr": 2999,
+  "originalPriceUsd": 35,
+  "gumroadUrl": "https://ayushpoojary.gumroad.com/l/advanced-saas-financial-model",
+  "instamojoUrl": "https://ayushpoojary.myinstamojo.com/product/the-founder-grade-saas-financial-model/",
+  "lemonSqueezyUrl": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/aac3b6c7-fbbc-435d-a02c-c5297adf37d1",
+  "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQhC8El28gqnrpEI2ZwS6dQnqBcvWJB4h114942pct5K7CVvLBl_eNXGiG9WiHyonxmk7M4w6r02dav/pubhtml?widget=true&headers=false"
+}
