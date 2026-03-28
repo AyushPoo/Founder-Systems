@@ -2,8 +2,16 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import productsArray from '../data/products.json';
 
 const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy'];
+
+const ACTIVE_PRODUCTS = productsArray.map(p => ({
+    id: p.slug,
+    name: p.catalogName,
+    description: p.catalogDescription,
+    category: p.catalogCategory
+}));
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
@@ -14,21 +22,12 @@ const COMING_SOON_PRODUCTS = [
 
 const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        fetch('/products/index.json')
-            .then(res => res.json())
-            .then(data => {
-                setProducts(data);
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
     }, []);
 
-    const filteredProducts = products.filter(product =>
+    const filteredProducts = ACTIVE_PRODUCTS.filter(product =>
         activeTab === 'All' || product.category === activeTab
     );
 
@@ -55,11 +54,7 @@ const Products = () => {
                     <h2 className="text-2xl font-black tracking-tight-brand mb-8 text-brand-black flex items-center gap-3">
                         <span className="w-2 h-8 bg-brand-orange rounded-full" />Available Now
                     </h2>
-                    {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {[1,2,3].map(i => (<div key={i} className="rounded-2xl border border-brand-black/5 bg-white/60 p-6 h-48 animate-pulse" />))}
-                        </div>
-                    ) : filteredProducts.length > 0 ? (
+                    {filteredProducts.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {filteredProducts.map(product => (<ProductCard key={product.id} id={product.id} name={product.name} description={product.description} />))}
                         </div>
