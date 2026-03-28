@@ -1,0 +1,61 @@
+{
+  "id": "marketplace-financial-model",
+  "title": "The Investor-Ready Marketplace Financial Model",
+  "subtitle": "Stop Mixing Up GMV and Net Revenue. Start Raising Like a Pro.",
+  "descriptionBody": "If you are building a two-sided marketplace, you already have the hardest job in the startup world: solving the chicken-and-egg problem. You shouldn't also have to spend 40 hours building a custom spreadsheet to figure out if your unit economics actually make sense. Most templates out there treat marketplaces like standard SaaS companies, which is a guaranteed way to get laughed out of a VC pitch.",
+  "section1Title": "The Dual-Sided Growth Engine",
+  "section1Body": "This is a battle-tested, clean-code 3-year projection engine built specifically for horizontal two-sided marketplaces. It handles the heavy lifting of dual-sided acquisition, GMV waterfalls, and marketplace-specific valuation so you can stop wrestling with formulas and get back to matching supply and demand.",
+  "featuresTitle": "The Good Stuff:",
+  "features": [
+    { "name": "The Dual-Sided Growth Engine", "desc": "Buyers and Sellers are not the same. This model lets you project supply growth, demand growth, and churn entirely separately to see exactly how your network effects scale." },
+    { "name": "The GMV to Revenue Waterfall", "desc": "No more confusion. Input your Average Order Value (AOV), transaction frequency, and Take Rate, and watch your Gross Merchandise Value (GMV) cleanly translate into actual Net Revenue." },
+    { "name": "The Marketplace Benchmarks", "desc": "Automatically compare your outputs—like your Buyer-to-Seller Ratio, Take Rate, and Contribution Margin—against top-tier marketplace industry standards." },
+    { "name": "The \"Base / Bull / Bear\" Scenarios", "desc": "Instantly switch your entire model between Conservative, Base, and Optimistic cases with one click to show investors exactly what happens if growth accelerates." },
+    { "name": "The Triple-Method Valuation Engine", "desc": "Marketplaces are valued differently. Get your Pre-Money Valuation estimated using GMV Multiples, Net Revenue Multiples, and a Discounted Cash Flow (DCF)." }
+  ],
+  "whyTitle": "Why invest",
+  "whyPoints": [
+    { "title": "Save 40+ Hours", "desc": "Modeling two-sided acquisition costs from scratch is a massive headache. Skip the broken formulas and get back to growing your network." },
+    { "title": "Look Like a Pro", "desc": "When an investor asks to see your metrics, you won't send a messy CSV that accidentally double-counts revenue. You'll send a structured, professional model." },
+    { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting." }
+  ],
+  "footerSummaryTitle": "The Price",
+  "footerSummaryDetails": "(Cheaper than outsourcing your headache).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "Total clarity on your marketplace's financial future.",
+  "whatYouGet": [
+    "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
+    "Dual-Sided Growth Models to independently forecast Supply (Sellers) and Demand (Buyers).",
+    "Automated GMV & Net Revenue waterfalls based on your specific take rate.",
+    "The \"Vibe Check\" Dashboard summarizing your GMV, Contribution Margin, and Runway.",
+    "A Triple-Method Valuation Engine (GMV Multiples, Net Rev Multiples, and DCF).",
+    "Step-by-step \"Start Here\" guide to populate the model in under 30 minutes."
+  ],
+  "whoThisIsFor": [
+    "Two-sided marketplace founders (B2B or B2C) raising a seed or Series A round.",
+    "Startups struggling to balance buyer CAC against seller acquisition costs (SAC).",
+    "Founders who need to prove their network effects and unit economics actually scale."
+  ],
+  "faq": [
+    { "q": "Does this work for both B2B and B2C marketplaces?", "a": "Yes! Whether you are matching freelancers with enterprises (B2B) or individuals selling used sneakers (B2C), the core dual-sided mechanics (supply vs. demand, GMV, take rate) remain exactly the same." },
+    { "q": "I'm not a finance person. Is this too complex?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting." },
+    { "q": "Can I run different growth scenarios for my pitch deck?", "a": "Absolutely. There is a built-in Scenario Selector tab. You can plug in your conservative, base, and optimistic assumptions, and flip the entire model between them with a single drop-down menu." }
+  ],
+  "images": [
+    "/images/products/marketplace-model/thumbnail.jpg",
+    "/images/products/marketplace-model/preview-1.png",
+    "/images/products/marketplace-model/preview-2.png",
+    "/images/products/marketplace-model/preview-3.png",
+    "/images/products/marketplace-model/preview-4.png",
+    "/images/products/marketplace-model/preview-5.png"
+  ],
+  "productId": "FS003",
+  "priceInr": 1999,
+  "priceUsd": 25,
+  "originalPriceInr": 2499,
+  "originalPriceUsd": 30,
+  "gumroadUrl": "https://ayushpoojary.gumroad.com/l/marketplace-financial-model",
+  "instamojoUrl": "https://ayushpoojary.myinstamojo.com/product/the-investor-ready-marketplace-financial-mod/",
+  "lemonSqueezyUrl": "https://ayushpoojary.lemonsqueezy.com/checkout",
+  "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWleDtmSNCxhyI_Z6lRJP-rLg-KjDSVfejApCtlYUWeBaOWzwWnvnZAkB05-z0vx02uq0mgwL6uCac/pubhtml"
+}
