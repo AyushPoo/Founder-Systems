@@ -1,11 +1,8 @@
-import { useEffect, useState } from 'react';
+mport { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { openINRCheckout, openUSDCheckout, getLocalizedPrice } from '../utils/checkout';
-import productsArray from '../data/products.json';
-
-const PRODUCTS_DATA = Object.fromEntries(productsArray.map(p => [p.slug, p]));
 
 
 /* ── Accordion Item ────────────────────────────────────────────── */
@@ -43,11 +40,23 @@ const ProductDetail = () => {
     const [currentCurrency, setCurrentCurrency] = useState('');
     const [currentProduct, setCurrentProduct] = useState('');
 
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         window.scrollTo(0, 0);
+        setLoading(true);
+        fetch(`/products/${id}.json`)
+            .then(r => { if (!r.ok) throw new Error('Not found'); return r.json(); })
+            .then(data => { setProduct(data); setLoading(false); })
+            .catch(() => { setProduct(null); setLoading(false); });
     }, [id]);
 
-    const product = PRODUCTS_DATA[id];
+    const platformUrls = product ? (product.platformUrls || {
+        gumroad: product.gumroadUrl,
+        instamojo: product.instamojoUrl,
+        lemonSqueezy: product.lemonSqueezyUrl,
+    }) : {};
 
     const pricing = product ? getLocalizedPrice(
         product.priceInr,
@@ -55,6 +64,15 @@ const ProductDetail = () => {
         product.originalPriceInr,
         product.originalPriceUsd
     ) : null;
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-surface flex flex-col items-center justify-center">
+                <Navbar />
+                <div className="mt-32 text-brand-black/40 text-lg font-medium animate-pulse">Loading product...</div>
+            </div>
+        );
+    }
 
     if (!product) {
         return (
@@ -365,9 +383,9 @@ const ProductDetail = () => {
                             <p className="font-semibold text-xs uppercase tracking-widest mb-5 text-brand-black/45">Also available on</p>
                             <div className="flex flex-row justify-center gap-4">
                                 {[
-                                    { url: product.platformUrls.gumroad, img: "/images/products/logo-gumroad.png", alt: "Gumroad" },
-                                    { url: product.platformUrls.instamojo, img: "/images/products/logo-instamojo.png", alt: "Instamojo" },
-                                    { url: product.platformUrls.lemonSqueezy, img: "/images/products/logo-lemonsqueezy.jpg", alt: "Lemon Squeezy" }
+                                    { url: platformUrls.gumroad, img: "/images/products/logo-gumroad.png", alt: "Gumroad" },
+                                    { url: platformUrls.instamojo, img: "/images/products/logo-instamojo.png", alt: "Instamojo" },
+                                    { url: platformUrls.lemonSqueezy, img: "/images/products/logo-lemonsqueezy.jpg", alt: "Lemon Squeezy" }
                                 ].map((link, idx) => (
                                     <a
                                         key={idx}
