@@ -2,16 +2,16 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import productsArray from '../data/products.json';
+
 
 const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy'];
 
-const ACTIVE_PRODUCTS = productsArray.map(p => ({
-    id: p.slug,
-    name: p.catalogName,
-    description: p.catalogDescription,
-    category: p.catalogCategory
-}));
+const [activeProducts, setActiveProducts] = useState([]);
+
+// Products loaded dynamically from /products/index.json
+
+
+
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
@@ -25,9 +25,14 @@ const Products = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        fetch('/products/index.json')
+            .then(r => r.json())
+            .then(data => setActiveProducts(data))
+            .catch(() => {});
     }, []);
 
-    const filteredProducts = ACTIVE_PRODUCTS.filter(product =>
+
+    const filteredProducts = activeProducts.filter(product =>
         activeTab === 'All' || product.category === activeTab
     );
 
