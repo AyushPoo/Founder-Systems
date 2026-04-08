@@ -1,0 +1,63 @@
+{
+  "id": "saas-financial-model",
+  "title": "The 10-Minute SaaS Financial Model",
+  "subtitle": "Stop Guessing Your Runway. Start Winning Your Pitch.",
+  "descriptionBody": "\"How much cash do we have left?\" \"What's our CAC Payback if we hire two devs?\" If these questions keep you up at 3:00 AM, welcome to the club. Most founders treat their financial models like a scary basement, terrified of what they'll find or lost in a sea of broken formulas.",
+  "section1Title": "The Investor-Ready SaaS Model (B2B Edition)",
+  "section1Body": "A battle-tested, \"clean-code\" version of the exact spreadsheets used by venture-backed startups to track growth, burn, and valuation.",
+  "featuresTitle": "The Good Stuff:",
+  "features": [
+    { "name": "The Vibe Check Dashboard", "desc": "One-page summary of MRR, ARR, LTV/CAC, and Runway." },
+    { "name": "The Growth Engine", "desc": "No \"magic\" numbers—input your pricing and churn to see the waterfall." },
+    { "name": "The Crystal Ball", "desc": "Instant sensitivity analysis—toggle one cell and see your 3-year valuation update." },
+    { "name": "OpEx Planner", "desc": "Simple hiring and team growth planning." },
+    { "name": "Valuation Engine", "desc": "ARR Multiples + DCF for the finance nerds." }
+  ],
+  "whyTitle": "Why invest",
+  "whyPoints": [
+    { "title": "Save 20+ Hours", "desc": "Your time is worth more than $1.50/hour. Spend it selling instead." },
+    { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by an accountant who actually likes this stuff (me)." },
+    { "title": "Look Like a Pro", "desc": "Stop sending messy CSVs. Send a structured model that proves you know your numbers." }
+  ],
+  "footerSummaryTitle": "The Price",
+  "footerSummaryDetails": "(About three cups of decent coffee).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "Total clarity on your startup's future.",
+  "whatYouGet": [
+    "Investor-ready SaaS financial model",
+    "Automatic ARR / MRR / CAC dashboards",
+    "Valuation calculator",
+    "3-year projections",
+    "Fully editable model",
+    "Instant download"
+  ],
+  "whoThisIsFor": [
+    "SaaS founders raising a seed round",
+    "Indie hackers planning pricing",
+    "Startup operators building projections",
+    "MBA / VC analysts modeling SaaS startups"
+  ],
+  "faq": [
+    { "q": "Is this Excel or Google Sheets?", "a": "The model works in Excel and can be imported into Google Sheets." },
+    { "q": "Can I modify the model?", "a": "Yes, the model is fully editable." },
+    { "q": "Do I get lifetime access?", "a": "Yes, one purchase gives you lifetime access." },
+    { "q": "Is this suitable for early-stage startups?", "a": "Yes, it is designed for founders building SaaS financial projections." }
+  ],
+  "images": [
+    "/images/products/saas-model/saas-thumbnail.jpg",
+    "/images/products/saas-model/saas-model-1.png",
+    "/images/products/saas-model/saas-model-2.png",
+    "/images/products/saas-model/saas-model-3.png",
+    "/images/products/saas-model/saas-model-4.png",
+    "/images/products/saas-model/saas-model-5.png"
+  ],
+  "productId": "FS001",
+  "priceInr": 1499,
+  "priceUsd": 20,
+  "originalPriceInr": 1999,
+  "originalPriceUsd": 25,
+  "gumroadUrl": "https://ayushpoojary.gumroad.com/l/saas-investor-model",
+  "instamojoUrl": "https://ayushpoojary.myinstamojo.com/product/the-10-minute-saas-financial-model/",
+  "lemonSqueezyUrl": "https://ayushpoojary.lemonsqueezy.com/checkout/buy/9509df15-9420-4761-a668-bdb525b4b838",
+  "previewUrl": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSImf5JunEk7FAZAVd8SfBWYbQJBtPVd9Z6eF4zrtnsdZHg22Ey0Sd8jhsxOV5W09kgDrajZjF4QWIJ/pubhtml?widget=true&headers=false"
+}

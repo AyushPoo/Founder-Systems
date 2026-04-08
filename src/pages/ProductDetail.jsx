@@ -34,6 +34,9 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
 
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         window.scrollTo(0, 0);
         setLoading(true); setNotFound(false); setProduct(null);

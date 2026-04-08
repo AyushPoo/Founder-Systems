@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 
+
 const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy'];
 
 const COMING_SOON_PRODUCTS = [
