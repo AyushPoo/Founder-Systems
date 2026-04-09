@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 
@@ -35,6 +36,11 @@ const Products = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Products" 
+                description="Explore our toolkit of AI-powered systems and financial models designed for founders to turn chaos into clarity." 
+                canonical="/products"
+            />
             <Navbar />
             <div className="w-full pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b-2 border-brand-black bg-white">
                 <div className="max-w-7xl mx-auto flex flex-col items-center text-center">

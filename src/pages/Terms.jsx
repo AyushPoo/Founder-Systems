@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const Terms = () => {
@@ -10,6 +11,11 @@ const Terms = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Terms of Service" 
+                description="Read our terms of service to understand the rules and guidelines for using Founder Systems." 
+                canonical="/terms"
+            />
             <Navbar />
 
             {/* Elegant Minimalist Header */}

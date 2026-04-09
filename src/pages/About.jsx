@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const About = () => {
@@ -9,6 +10,11 @@ const About = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="About" 
+                description="Meet Ayush, the founder of Founder Systems, building professional-grade models and AI co-pilots for startups." 
+                canonical="/about"
+            />
             <Navbar />
 
             {/* Page header */}

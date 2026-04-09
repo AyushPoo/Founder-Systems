@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const PrivacyPolicy = () => {
@@ -10,6 +11,11 @@ const PrivacyPolicy = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Privacy Policy" 
+                description="Our privacy policy details how we collect, use, and protect your information at Founder Systems." 
+                canonical="/privacy-policy"
+            />
             <Navbar />
 
             {/* Elegant Minimalist Header */}

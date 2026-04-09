@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const RefundPolicy = () => {
@@ -10,6 +11,11 @@ const RefundPolicy = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Refund Policy" 
+                description="Our refund policy explains the terms for returns and refunds for Founder Systems products." 
+                canonical="/refund-policy"
+            />
             <Navbar />
 
             {/* Elegant Minimalist Header */}

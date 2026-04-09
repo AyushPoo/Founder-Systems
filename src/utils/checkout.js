@@ -88,9 +88,6 @@ const openCheckout = ({
         });
         rzp.open();
         return true;
-    } else {
-        console.error("Razorpay SDK not loaded.");
-        window.open("https://rzp.io/rzp/aig9tmBT", "_blank");
         return false;
     }
 };

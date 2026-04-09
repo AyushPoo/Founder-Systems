@@ -35,15 +35,15 @@ const Hero = () => {
                     </div>
 
                     <h1 className="reveal text-5xl md:text-6xl lg:text-7xl font-black tracking-tight-brand text-brand-black leading-[1.05]">
-                        Systems that{' '}
+                        Build, Automate &{' '}
                         <span className="text-brand-orange">
-                            scale
+                            Scale
                         </span>{' '}
-                        your startup.
+                        Agentic Workflows.
                     </h1>
 
                     <p className="reveal text-lg md:text-xl text-brand-black/70 max-w-lg leading-relaxed font-bold">
-                        Professional-grade financial models, operations toolkits, and strategy frameworks — designed to save founders hundreds of hours.
+                        Founder Systems is an AI infrastructure platform that helps founders build, automate, and scale operations with professional-grade models and logic.
                     </p>
 
                     {/* CTAs */}
