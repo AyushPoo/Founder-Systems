@@ -130,7 +130,7 @@ const ProductDetail = () => {
             <Navbar />
 
             {/* ── Hero Header ──────────────────────────────────────────── */}
-            <div className="w-full bg-surface pt-32 md:pt-40 pb-12 md:pb-16 px-6 md:px-12 border-b border-brand-black/8">
+            <div className="w-full bg-white pt-32 md:pt-40 pb-12 md:pb-16 px-6 md:px-12 border-b-2 border-brand-black">
                 <div className="max-w-7xl mx-auto">
                     <Link
                         to="/products"
@@ -170,12 +170,12 @@ const ProductDetail = () => {
 
                         {/* Features */}
                         {product.features && product.features.length > 0 && (
-                            <div className="bg-surface-lowest rounded-2xl border border-brand-black/8 p-8 md:p-10 shadow-ambient">
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-8 md:p-10 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]">
                                 <h3 className="text-xl md:text-2xl font-black tracking-tight-brand mb-8">{product.featuresTitle || "The Good Stuff:"}</h3>
                                 <ul className="space-y-6">
                                     {product.features.map((feature, idx) => (
                                         <li key={idx} className="flex gap-4">
-                                            <span className="flex-shrink-0 w-8 h-8 rounded-xl bg-brand-orange/10 text-brand-orange flex items-center justify-center font-black text-sm mt-0.5">
+                                            <span className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-orange border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-white flex items-center justify-center font-black text-sm mt-0.5">
                                                 {idx + 1}
                                             </span>
                                             <div>
@@ -190,12 +190,12 @@ const ProductDetail = () => {
 
                         {/* What You Get */}
                         {product.whatYouGet && product.whatYouGet.length > 0 && (
-                            <div className="bg-surface-low rounded-2xl border border-brand-black/8 p-8 md:p-10">
+                            <div className="bg-brand-cream rounded-xl border-2 border-brand-black border-dashed p-8 md:p-10">
                                 <h3 className="text-xl md:text-2xl font-black tracking-tight-brand mb-8">What You Get</h3>
                                 <ul className="space-y-4">
                                     {product.whatYouGet.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-3">
-                                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-orange/15 text-brand-orange flex items-center justify-center text-xs mt-0.5">✓</span>
+                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-brand-black flex items-center justify-center text-xs mt-0.5 font-black">✓</span>
                                             <span className="text-brand-black/80">{item}</span>
                                         </li>
                                     ))}
@@ -205,13 +205,13 @@ const ProductDetail = () => {
 
                         {/* Who This Is For */}
                         {product.whoThisIsFor && product.whoThisIsFor.length > 0 && (
-                            <div className="bg-surface-lowest rounded-2xl border border-brand-black/8 p-8 md:p-10 shadow-ambient">
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-8 md:p-10 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]">
                                 <h3 className="text-xl md:text-2xl font-black tracking-tight-brand mb-8">Who This Is For</h3>
                                 <ul className="space-y-4">
                                     {product.whoThisIsFor.map((item, idx) => (
                                         <li key={idx} className="flex items-start gap-3">
-                                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-brand-orange/15 text-brand-orange flex items-center justify-center text-xs mt-0.5">→</span>
-                                            <span className="text-brand-black/80">{item}</span>
+                                            <span className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-orange border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-white flex items-center justify-center text-xs mt-0.5 font-black">→</span>
+                                            <span className="text-brand-black/80 font-bold">{item}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -224,11 +224,11 @@ const ProductDetail = () => {
                                 <h3 className="text-2xl md:text-3xl font-black tracking-tight-brand mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                                     {product.whyTitle || "Why invest"}
                                     {product.originalPriceInr && product.originalPriceUsd && (
-                                        <span className="line-through text-brand-black/30 decoration-brand-orange/50 decoration-2 font-semibold text-xl">
+                                        <span className="line-through text-brand-black/30 decoration-brand-orange decoration-2 font-bold text-xl">
                                             ₹{product.originalPriceInr} / ${product.originalPriceUsd}
                                         </span>
                                     )}
-                                    <span className="bg-gradient-cta text-white px-4 py-1.5 rounded-full text-lg font-black shadow-sm -rotate-1 transform">
+                                    <span className="bg-brand-orange border-2 border-brand-black text-white px-4 py-1.5 rounded-sm text-lg font-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] -rotate-1 transform">
                                         ₹{product.priceInr} / ${product.priceUsd}?
                                     </span>
                                 </h3>
@@ -259,24 +259,24 @@ const ProductDetail = () => {
                                     { quote: "Clear frameworks and practical execution systems.", author: "SaaS founder" },
                                     { quote: "Helped me structure startup execution in one weekend.", author: "Builder" }
                                 ].map((t, idx) => (
-                                    <div key={idx} className="bg-surface-lowest rounded-xl border border-brand-black/8 p-6 shadow-ambient flex flex-col justify-between">
-                                        <p className="text-brand-black/80 mb-5 italic leading-relaxed">"{t.quote}"</p>
-                                        <p className="font-bold text-sm text-brand-black/50 uppercase tracking-wider">— {t.author}</p>
+                                    <div key={idx} className="bg-white rounded-xl border-2 border-brand-black p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] flex flex-col justify-between">
+                                        <p className="text-brand-black/90 font-bold mb-5 italic leading-relaxed">"{t.quote}"</p>
+                                        <p className="font-black text-sm text-brand-black/60 uppercase tracking-wider">— {t.author}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* Bottom Line Summary */}
-                        <div className="border-t border-brand-black/10 pt-10">
-                            <div className="text-lg md:text-xl mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <div className="border-t-2 border-brand-black pt-10">
+                            <div className="text-lg md:text-xl mb-3 flex flex-wrap items-center gap-x-3 gap-y-3">
                                 <span className="font-black">{product.footerSummaryTitle || "The Price:"}</span>
                                 {product.originalPriceInr && product.originalPriceUsd && (
-                                    <span className="line-through text-brand-black/30 decoration-brand-orange/50 decoration-2">
+                                    <span className="line-through text-brand-black/30 decoration-brand-orange decoration-2 font-bold">
                                         ₹{product.originalPriceInr} / ${product.originalPriceUsd}
                                     </span>
                                 )}
-                                <span className="font-bold bg-gradient-cta text-white px-3 py-1 rounded-full text-base shadow-sm">
+                                <span className="font-black bg-brand-orange border-2 border-brand-black text-white px-3 py-1 rounded-sm text-base shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
                                     ₹{product.priceInr} / ${product.priceUsd}
                                 </span>
                                 <span className="text-brand-black/60">{product.footerSummaryDetails}</span>
@@ -289,9 +289,9 @@ const ProductDetail = () => {
 
                         {/* FAQ Section */}
                         {product.faq && product.faq.length > 0 && (
-                            <div className="border-t border-brand-black/10 pt-12">
+                            <div className="border-t-2 border-brand-black pt-12">
                                 <h3 className="text-2xl md:text-3xl font-black tracking-tight-brand mb-8">Frequently Asked Questions</h3>
-                                <div className="bg-surface-lowest rounded-2xl border border-brand-black/8 p-6 md:p-8 shadow-ambient">
+                                <div className="bg-white rounded-xl border-2 border-brand-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]">
                                     {product.faq.map((item, idx) => (
                                         <FaqItem key={idx} q={item.q} a={item.a} />
                                     ))}
@@ -305,9 +305,9 @@ const ProductDetail = () => {
 
                         {/* Image Carousel */}
                         {product.images && product.images.length > 0 && (
-                            <div className="bg-surface-lowest rounded-2xl border border-brand-black/8 p-3 shadow-ambient-lg flex flex-col gap-3">
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-3 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] flex flex-col gap-3">
                                 {/* Main Image */}
-                                <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[380px] rounded-xl bg-white flex items-center justify-center overflow-hidden group border border-brand-black/5">
+                                <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[380px] rounded-lg bg-surface-lowest flex items-center justify-center overflow-hidden group border-2 border-brand-black">
                                     <img
                                         src={product.images[currentImageIndex]}
                                         alt={`${product.title} - Preview ${currentImageIndex + 1}`}
@@ -341,8 +341,8 @@ const ProductDetail = () => {
                                                 key={idx}
                                                 onClick={() => setCurrentImageIndex(idx)}
                                                 className={`flex-shrink-0 w-[72px] aspect-video rounded-lg overflow-hidden border-2 transition-all duration-200 snap-center ${currentImageIndex === idx
-                                                    ? 'border-brand-orange opacity-100 ring-2 ring-brand-orange/30'
-                                                    : 'border-transparent opacity-50 hover:opacity-100'
+                                                    ? 'border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] opacity-100'
+                                                    : 'border-brand-black/20 opacity-50 hover:opacity-100 focus:border-brand-black'
                                                     }`}
                                                 aria-label={`View image ${idx + 1}`}
                                             >
@@ -356,14 +356,14 @@ const ProductDetail = () => {
 
                         {/* Try the Model */}
                         {product.previewUrl && (
-                            <div className="bg-surface-lowest rounded-2xl border border-brand-black/8 p-6 md:p-8 shadow-ambient flex flex-col items-center">
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] flex flex-col items-center">
                                 <h3 className="text-lg md:text-xl font-black tracking-tight-brand mb-2 text-center">Try the Model</h3>
-                                <p className="text-center text-brand-black/60 text-sm mb-6">Explore a limited interactive preview before purchasing.</p>
+                                <p className="text-center text-brand-black/60 font-bold text-sm mb-6">Explore a limited interactive preview before purchasing.</p>
                                 <a
                                     href={product.previewUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="w-full flex items-center justify-center py-3.5 bg-surface-low text-brand-black text-base font-bold rounded-xl border border-brand-black/10 hover:bg-surface-container hover:shadow-ambient transition-all duration-300"
+                                    className="btn-outline w-full"
                                 >
                                     Preview the Model &rarr;
                                 </a>
@@ -383,21 +383,21 @@ const ProductDetail = () => {
 
                             <div className="relative w-full">
                                 <div className="absolute -top-3.5 -right-2 md:-right-3 z-10">
-                                    <span className="bg-yellow-400 text-brand-black text-xs font-black uppercase tracking-wider py-1 px-3 rounded-full border border-yellow-500/30 shadow-sm rotate-3 inline-block animate-pulse">
+                                    <span className="bg-yellow-400 text-brand-black text-xs font-black uppercase tracking-wider py-1.5 px-3 rounded-sm border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] rotate-3 inline-block animate-pulse">
                                         ⭐ Steal Deal
                                     </span>
                                 </div>
 
-                                <div className="flex flex-col gap-3 w-full">
+                                <div className="flex flex-col gap-4 w-full">
                                     <button
                                         onClick={() => handleBuyClick('INR')}
-                                        className="w-full flex items-center justify-center py-4 md:py-[18px] bg-gradient-cta hover:bg-gradient-cta-hover text-white text-lg md:text-xl font-black rounded-xl shadow-ambient-lg hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300 group"
+                                        className="btn-cta w-full !text-lg !py-5"
                                     >
                                         Buy for ₹{product.priceInr} (India) &rarr;
                                     </button>
                                     <button
                                         onClick={() => handleBuyClick('USD')}
-                                        className="w-full flex items-center justify-center py-3.5 bg-surface-lowest text-brand-black text-base md:text-lg font-bold rounded-xl border border-brand-black/10 shadow-ambient hover:shadow-ambient-lg hover:-translate-y-0.5 transition-all duration-300 group"
+                                        className="btn-outline w-full !py-4"
                                     >
                                         Buy for ${product.priceUsd} (International) &rarr;
                                     </button>
@@ -416,22 +416,21 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        {/* Alternate Purchase Links */}
-                        <div className="flex flex-col items-center">
-                            <p className="font-semibold text-xs uppercase tracking-widest mb-5 text-brand-black/45">Also available on</p>
+                        <div className="flex flex-col items-center mt-6">
+                            <p className="font-black text-xs uppercase tracking-widest mb-5 text-brand-black/60">Also available on</p>
                             <div className="flex flex-row justify-center gap-4 max-w-full flex-wrap">
                                 {product.gumroadUrl && (
-                                    <a href={product.gumroadUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-surface-lowest border border-brand-black/8 shadow-ambient hover:-translate-y-1 hover:shadow-ambient-lg transition-all duration-300 overflow-hidden p-2">
+                                    <a href={product.gumroadUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:-translate-y-1 transition-all duration-200 overflow-hidden p-2">
                                         <img src="/images/products/logo-gumroad.png" alt="Gumroad" className="w-full h-full object-contain mix-blend-multiply" />
                                     </a>
                                 )}
                                 {product.instamojoUrl && (
-                                    <a href={product.instamojoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-surface-lowest border border-brand-black/8 shadow-ambient hover:-translate-y-1 hover:shadow-ambient-lg transition-all duration-300 overflow-hidden p-2">
+                                    <a href={product.instamojoUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:-translate-y-1 transition-all duration-200 overflow-hidden p-2">
                                         <img src="/images/products/logo-instamojo.png" alt="Instamojo" className="w-full h-full object-contain mix-blend-multiply" />
                                     </a>
                                 )}
                                 {product.lemonSqueezyUrl && (
-                                    <a href={product.lemonSqueezyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-surface-lowest border border-brand-black/8 shadow-ambient hover:-translate-y-1 hover:shadow-ambient-lg transition-all duration-300 overflow-hidden p-2">
+                                    <a href={product.lemonSqueezyUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-14 h-14 rounded-xl bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:-translate-y-1 transition-all duration-200 overflow-hidden p-2">
                                         <img src="/images/products/logo-lemonsqueezy.jpg" alt="Lemon Squeezy" className="w-full h-full object-contain mix-blend-multiply" />
                                     </a>
                                 )}
@@ -445,30 +444,30 @@ const ProductDetail = () => {
             {/* ── Email Capture Modal ──────────────────────────────────── */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-black/40 backdrop-blur-sm p-4">
-                    <div className="bg-surface-lowest rounded-2xl border border-brand-black/10 p-8 shadow-ambient-lg max-w-md w-full relative animate-fade-up">
+                    <div className="bg-white rounded-xl border-4 border-brand-black p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] max-w-md w-full relative animate-fade-up">
                         <button
                             onClick={() => setIsModalOpen(false)}
-                            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-brand-black/50 hover:text-brand-orange hover:bg-brand-orange/10 transition-all"
+                            className="absolute top-5 right-5 w-8 h-8 rounded-full border-2 border-brand-black bg-brand-cream shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] flex items-center justify-center text-brand-black font-black hover:bg-brand-orange hover:text-white transition-all"
                             aria-label="Close modal"
                         >
                             ✕
                         </button>
                         <h3 className="text-2xl font-black tracking-tight-brand mb-2">Where should we send it?</h3>
-                        <p className="text-brand-black/60 mb-7">Enter your details to receive the download link directly to your inbox.</p>
+                        <p className="text-brand-black/70 font-bold mb-7">Enter your details to receive the download link directly to your inbox.</p>
 
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                             <div>
-                                <label className="block font-semibold text-sm text-brand-black/70 mb-1.5">Name (Optional)</label>
+                                <label className="block font-black text-sm text-brand-black mb-1.5">Name (Optional)</label>
                                 <input
                                     type="text"
                                     value={customerName}
                                     onChange={(e) => setCustomerName(e.target.value)}
                                     placeholder="Jane Doe"
-                                    className="w-full border border-brand-black/15 rounded-xl p-3.5 bg-white focus:outline-none focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20 transition-all"
+                                    className="w-full border-2 border-brand-black rounded-lg p-3.5 bg-brand-cream/50 focus:outline-none focus:bg-white shadow-[inset_2px_2px_0px_rgba(27,28,26,0.1)] transition-all"
                                 />
                             </div>
                             <div>
-                                <label className="block font-semibold text-sm text-brand-black/70 mb-1.5">Email (Required)*</label>
+                                <label className="block font-black text-sm text-brand-black mb-1.5">Email (Required)*</label>
                                 <input
                                     type="email"
                                     value={customerEmail}
@@ -477,15 +476,15 @@ const ProductDetail = () => {
                                         setEmailError('');
                                     }}
                                     placeholder="jane@startup.com"
-                                    className={`w-full border rounded-xl p-3.5 bg-white focus:outline-none transition-all ${emailError ? 'border-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-400/20' : 'border-brand-black/15 focus:border-brand-orange focus:ring-2 focus:ring-brand-orange/20'}`}
+                                    className={`w-full border-2 rounded-lg p-3.5 bg-brand-cream/50 focus:outline-none focus:bg-white shadow-[inset_2px_2px_0px_rgba(27,28,26,0.1)] transition-all ${emailError ? 'border-red-500' : 'border-brand-black'}`}
                                 />
-                                {emailError && <p className="text-red-500 text-sm font-medium mt-1.5">{emailError}</p>}
+                                {emailError && <p className="text-red-600 text-sm font-black mt-1.5">{emailError}</p>}
                             </div>
                         </div>
 
                         <button
                             onClick={proceedToPayment}
-                            className="w-full mt-7 flex items-center justify-center py-4 bg-gradient-cta hover:bg-gradient-cta-hover text-white text-lg font-black rounded-xl shadow-ambient-lg hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300"
+                            className="btn-cta w-full mt-8 !text-base"
                         >
                             Continue to Payment &rarr;
                         </button>

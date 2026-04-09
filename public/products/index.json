@@ -6,7 +6,8 @@
     "category": "Finance",
     "productId": "FS001",
     "priceInr": 1499,
-    "priceUsd": 20
+    "priceUsd": 20,
+    "thumbnail": "/images/products/saas-model/saas-thumbnail.jpg"
   },
   {
     "id": "advanced-saas-model",
@@ -15,7 +16,8 @@
     "category": "Finance",
     "productId": "FS002",
     "priceInr": 2499,
-    "priceUsd": 30
+    "priceUsd": 30,
+    "thumbnail": "/images/products/advanced-saas-model/thumbnail.jpg"
   },
   {
     "id": "marketplace-financial-model",
@@ -24,7 +26,8 @@
     "category": "Finance",
     "productId": "FS003",
     "priceInr": 1999,
-    "priceUsd": 25
+    "priceUsd": 25,
+    "thumbnail": "/images/products/marketplace-model/thumbnail.jpg"
   },
   {
     "id": "d2c-ecommerce-model",
@@ -33,6 +36,7 @@
     "category": "Finance",
     "productId": "FS004",
     "priceInr": 1999,
-    "priceUsd": 25
+    "priceUsd": 25,
+    "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
   }
 ]

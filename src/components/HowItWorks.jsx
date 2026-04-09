@@ -41,7 +41,7 @@ const HowItWorks = () => {
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
                 <div className="reveal text-center mb-16 md:mb-20">
-                    <span className="inline-block text-sm font-semibold text-brand-orange uppercase tracking-widest mb-4">
+                    <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">
                         How it works
                     </span>
                     <h2 className="text-4xl md:text-5xl font-black tracking-tight-brand text-brand-black">
@@ -52,22 +52,22 @@ const HowItWorks = () => {
                 {/* Steps grid */}
                 <div className="stagger grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
                     {/* Connecting line (desktop only) */}
-                    <div className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] h-px bg-surface-high z-0" />
+                    <div className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-brand-black z-0" />
 
                     {STEPS.map((step, i) => (
                         <div key={i} className="reveal relative z-10 flex flex-col items-center text-center">
                             {/* Number circle */}
-                            <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-6 text-brand-orange">
+                            <div className="w-16 h-16 rounded-full bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] flex items-center justify-center mb-6 text-brand-black">
                                 {step.icon}
                             </div>
                             {/* Step number */}
-                            <span className="text-xs font-bold text-brand-orange/50 uppercase tracking-widest mb-2">
+                            <span className="text-xs font-black text-brand-black uppercase tracking-widest mb-2 border border-brand-black px-2 py-1 rounded-sm">
                                 {step.number}
                             </span>
-                            <h3 className="text-xl font-bold text-brand-black mb-3">
+                            <h3 className="text-xl font-black text-brand-black mb-3">
                                 {step.title}
                             </h3>
-                            <p className="text-brand-black/50 leading-relaxed max-w-xs">
+                            <p className="text-brand-black/70 font-bold leading-relaxed max-w-xs">
                                 {step.description}
                             </p>
                         </div>

@@ -13,7 +13,7 @@ const RefundPolicy = () => {
             <Navbar />
 
             {/* Elegant Minimalist Header */}
-            <div className="w-full bg-brand-cream border-b-4 border-brand-black pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12">
+            <div className="w-full bg-white border-b-2 border-brand-black pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12">
                 <div className="max-w-7xl mx-auto flex flex-col items-center justify-center text-center">
                     <h1 className="text-5xl md:text-7xl font-black text-brand-black tracking-tighter uppercase mb-6">
                         Refund Policy

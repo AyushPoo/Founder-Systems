@@ -12,7 +12,7 @@ const About = () => {
             <Navbar />
 
             {/* Page header */}
-            <div className="w-full pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b ghost-border">
+            <div className="w-full bg-white pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b-2 border-brand-black">
                 <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
                     <span className="inline-block text-sm font-semibold text-brand-orange uppercase tracking-widest mb-4">
                         About

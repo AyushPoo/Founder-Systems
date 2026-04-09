@@ -1,0 +1,10 @@
+﻿dde0f12 Fix duplicate states from previous merge conflict
+0cf24ee Merge branch 'main' of https://github.com/AyushPoo/Founder-Systems
+fa86b7f Update product details and products.json
+bc5d1f7 fix: restore missing i in import (BOM artifact) [Phase 3B]
+1ed87c6 feat: Phase 3B - ProductDetail fetches from /products/{id}.json dynamically [Phase 3B]
+a9f53e2 feat(phase-3c): ProductDetail.jsx reads from products.json (static import)
+a55cc44 feat: ProductDetail.jsx now fetches from /products/{id}.json [Phase 3B]
+78a4838 feat: revamp Products, About, Access, and ProductDetail pages with premium design system
+c16cbf7 fix(checkout): fix email modal redirection and update USD prices
+2a884e7 feat: implement dual INR/USD purchase buttons and dual pricing display

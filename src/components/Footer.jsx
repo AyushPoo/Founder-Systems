@@ -10,7 +10,7 @@ const FOOTER_LINKS = [
 
 const Footer = () => {
     return (
-        <footer className="border-t ghost-border bg-surface-low">
+        <footer className="border-t-2 border-brand-black bg-white">
             <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
                     {/* Brand column */}
@@ -80,11 +80,11 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom bar */}
-                <div className="mt-12 pt-8 border-t ghost-border flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs text-brand-black/30">
+                <div className="mt-12 pt-8 border-t-2 border-brand-black flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p className="text-xs text-brand-black/40 font-bold">
                         &copy; {new Date().getFullYear()} Founder Systems. All rights reserved.
                     </p>
-                    <p className="text-xs text-brand-black/30">
+                    <p className="text-xs text-brand-black/40 font-bold">
                         Built with 🔥 for ambitious founders
                     </p>
                 </div>

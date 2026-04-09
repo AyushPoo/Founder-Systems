@@ -28,11 +28,11 @@ const Testimonials = () => {
     const ref = useReveal();
 
     return (
-        <section ref={ref} className="py-24 md:py-32 bg-surface-low">
+        <section ref={ref} className="py-24 md:py-32 bg-white border-y-2 border-brand-black">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
                 <div className="reveal text-center mb-16">
-                    <span className="inline-block text-sm font-semibold text-brand-orange uppercase tracking-widest mb-4">
+                    <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">
                         Testimonials
                     </span>
                     <h2 className="text-4xl md:text-5xl font-black tracking-tight-brand text-brand-black">
@@ -61,21 +61,21 @@ const Testimonials = () => {
                                 ))}
                             </div>
 
-                            <blockquote className="text-brand-black/70 leading-relaxed mb-8 flex-grow text-[15px]">
+                            <blockquote className="text-brand-black/90 font-bold leading-relaxed mb-8 flex-grow text-[15px]">
                                 "{t.quote}"
                             </blockquote>
 
                             {/* Author */}
                             <div className="flex items-center gap-3">
                                 <div
-                                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-black border-2 border-brand-black"
                                     style={{ background: t.color }}
                                 >
                                     {t.initials}
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-brand-black">{t.name}</p>
-                                    <p className="text-xs text-brand-black/40">{t.role}</p>
+                                    <p className="text-sm font-black text-brand-black">{t.name}</p>
+                                    <p className="text-xs font-bold text-brand-black/60">{t.role}</p>
                                 </div>
                             </div>
                         </div>

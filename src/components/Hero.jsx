@@ -28,7 +28,7 @@ const Hero = () => {
                 <div className="flex flex-col gap-8">
                     {/* Badge */}
                     <div className="reveal">
-                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container text-sm font-semibold text-brand-black/70">
+                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-sm font-black text-brand-black">
                             <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
                             Built for ambitious founders
                         </span>
@@ -36,13 +36,13 @@ const Hero = () => {
 
                     <h1 className="reveal text-5xl md:text-6xl lg:text-7xl font-black tracking-tight-brand text-brand-black leading-[1.05]">
                         Systems that{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-cta">
+                        <span className="text-brand-orange">
                             scale
                         </span>{' '}
                         your startup.
                     </h1>
 
-                    <p className="reveal text-lg md:text-xl text-brand-black/60 max-w-lg leading-relaxed font-medium">
+                    <p className="reveal text-lg md:text-xl text-brand-black/70 max-w-lg leading-relaxed font-bold">
                         Professional-grade financial models, operations toolkits, and strategy frameworks — designed to save founders hundreds of hours.
                     </p>
 
@@ -58,13 +58,13 @@ const Hero = () => {
                         >
                             Explore Toolkit
                             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                             </svg>
                         </a>
                         <Link to="/products" className="btn-outline">
                             View Products
                             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </Link>
                     </div>
@@ -72,16 +72,16 @@ const Hero = () => {
                     {/* Micro social proof */}
                     <div className="reveal flex items-center gap-3 pt-2">
                         <div className="flex -space-x-2">
-                            {['#FF5F15', '#a93800', '#1A1A1A', '#5b4138'].map((color, i) => (
+                            {['#ff5f15', '#a93800', '#1A1A1A', '#5b4138'].map((color, i) => (
                                 <div
                                     key={i}
-                                    className="w-8 h-8 rounded-full border-2 border-brand-cream"
+                                    className="w-8 h-8 rounded-full border-2 border-brand-black box-content"
                                     style={{ background: color, zIndex: 4 - i }}
                                 />
                             ))}
                         </div>
-                        <p className="text-sm text-brand-black/50 font-medium">
-                            Trusted by <span className="text-brand-black font-bold">500+</span> founders
+                        <p className="text-sm text-brand-black/50 font-bold">
+                            Trusted by <span className="text-brand-black font-black">500+</span> founders
                         </p>
                     </div>
                 </div>
@@ -90,12 +90,12 @@ const Hero = () => {
                 <div className="reveal hidden lg:flex items-center justify-center relative">
                     <div className="relative w-full max-w-md aspect-square">
                         {/* Floating shapes */}
-                        <div className="absolute top-8 right-8 w-48 h-48 rounded-3xl bg-gradient-cta rotate-12 animate-float shadow-ambient-lg" />
-                        <div className="absolute bottom-12 left-4 w-36 h-36 rounded-2xl bg-surface-container -rotate-6 animate-float shadow-ambient" style={{ animationDelay: '2s' }} />
-                        <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-xl bg-brand-black rotate-45 animate-float shadow-ambient" style={{ animationDelay: '4s' }} />
+                        <div className="absolute top-8 right-8 w-48 h-48 rounded-3xl bg-brand-orange rotate-12 animate-float border-2 border-brand-black shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]" />
+                        <div className="absolute bottom-12 left-4 w-36 h-36 rounded-2xl bg-white -rotate-6 animate-float border-2 border-brand-black shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]" style={{ animationDelay: '2s' }} />
+                        <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-xl bg-brand-black rotate-45 animate-float border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(255,95,21,1)]" style={{ animationDelay: '4s' }} />
                         {/* Center circle */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-brand-black/10" />
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-2 border-brand-orange/20" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border-2 border-brand-black border-dashed" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-2 border-brand-orange" />
                     </div>
                 </div>
             </div>

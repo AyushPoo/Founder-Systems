@@ -36,16 +36,16 @@ const Toolkit = () => {
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
                 <div className="reveal text-center mb-16 md:mb-20">
-                    <span className="inline-block text-sm font-semibold text-brand-orange uppercase tracking-widest mb-4">
+                    <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">
                         The Toolkit
                     </span>
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight-brand text-brand-black mb-6">
                         Everything you need to{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-cta">
+                        <span className="text-brand-orange">
                             operate
                         </span>
                     </h2>
-                    <p className="text-lg text-brand-black/50 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg text-brand-black/70 font-bold max-w-2xl mx-auto leading-relaxed">
                         Professional-grade templates across finance, operations, and strategy — built by founders, for founders.
                     </p>
                 </div>
@@ -55,28 +55,28 @@ const Toolkit = () => {
                     {CATEGORIES.map((cat, i) => (
                         <div
                             key={i}
-                            className="reveal card-elevated group overflow-hidden"
+                            className="reveal card-elevated group overflow-hidden bg-white"
                         >
                             {/* Image area */}
-                            <div className="relative h-52 bg-surface-container flex items-center justify-center overflow-hidden">
+                            <div className="relative h-52 bg-white flex items-center justify-center overflow-hidden border-b-2 border-brand-black">
                                 <img
                                     src={cat.image}
                                     alt={cat.title}
-                                    className="h-36 object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+                                    className="h-36 object-contain transition-transform duration-500 group-hover:scale-110"
                                 />
                                 {/* Accent bar */}
                                 <div
-                                    className="absolute bottom-0 left-0 right-0 h-1"
+                                    className="absolute bottom-0 left-0 right-0 h-2 border-t-2 border-brand-black"
                                     style={{ background: cat.accent }}
                                 />
                             </div>
 
                             {/* Content */}
                             <div className="p-8">
-                                <h3 className="text-2xl font-bold text-brand-black mb-3">
+                                <h3 className="text-2xl font-black text-brand-black mb-3">
                                     {cat.title}
                                 </h3>
-                                <p className="text-brand-black/50 leading-relaxed mb-6 text-[15px]">
+                                <p className="text-brand-black/70 font-bold leading-relaxed mb-6 text-[15px]">
                                     {cat.description}
                                 </p>
 
@@ -85,7 +85,7 @@ const Toolkit = () => {
                                     {cat.features.map((f, j) => (
                                         <span
                                             key={j}
-                                            className="px-3 py-1 text-xs font-semibold rounded-full bg-surface-container text-brand-black/60"
+                                            className="px-3 py-1 text-xs font-black rounded border-2 border-brand-black bg-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-brand-black"
                                         >
                                             {f}
                                         </span>
@@ -94,11 +94,11 @@ const Toolkit = () => {
 
                                 <Link
                                     to="/products"
-                                    className="inline-flex items-center text-sm font-bold text-brand-orange group/link hover:gap-3 transition-all duration-300"
+                                    className="inline-flex items-center text-sm font-black text-brand-orange group/link hover:gap-3 transition-all duration-200"
                                 >
                                     View templates
                                     <svg
-                                        className="ml-1 w-4 h-4 transition-transform duration-300 group-hover/link:translate-x-1"
+                                        className="ml-1 w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"
@@ -106,7 +106,7 @@ const Toolkit = () => {
                                         <path
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
-                                            strokeWidth={2}
+                                            strokeWidth={3}
                                             d="M17 8l4 4m0 0l-4 4m4-4H3"
                                         />
                                     </svg>

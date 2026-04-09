@@ -1,7 +1,7 @@
 // scripts/update-n8n-workflow.js
 // Fixes the Product Publisher workflow to use $helpers.httpRequest instead of fetch()
 
-const N8N_URL = 'http://34.47.167.251:5678';
+const N8N_URL = 'http://20.193.252.82:567';
 const N8N_KEY = process.env.N8N_KEY || 'YOUR_N8N_KEY';
 const WF_ID = process.env.WF_ID || 'YOUR_WF_ID';
 const GUMROAD_KEY = process.env.GUMROAD_KEY || 'YOUR_GUMROAD_KEY';
