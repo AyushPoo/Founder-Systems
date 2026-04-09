@@ -86,7 +86,7 @@ const Footer = () => {
                     </p>
                     <div className="flex flex-col items-center md:items-end gap-1">
                         <p className="text-[10px] text-brand-black/30 font-bold uppercase tracking-widest text-center md:text-right">
-                            Jalahalli Cross, T Dasarahalli, Bangalore, Karnataka, India - 560057
+                            Bangalore, India
                         </p>
                         <p className="text-xs text-brand-black/40 font-bold">
                             Built with 🔥 for ambitious founders
