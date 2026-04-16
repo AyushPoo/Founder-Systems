@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/tools/promptdeck",
+      "destination": "/tools/promptdeck/index.html"
+    },
+    {
+      "source": "/tools/promptdeck/(.*)",
+      "destination": "/tools/promptdeck/index.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/"
     }
