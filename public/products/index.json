@@ -38,5 +38,29 @@
     "priceInr": 1999,
     "priceUsd": 25,
     "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
+  },
+  {
+    "id": "pitch-deck-maker",
+    "name": "Pitch Deck Storyboarder + Cap Table",
+    "description": "Build a fundraising narrative that converts. Includes a professional 12-slide storyboard and a detailed Cap Table planner.",
+    "category": "Strategy",
+    "productId": "FS010",
+    "priceInr": 799,
+    "priceUsd": 10,
+    "isBundle": false,
+    "isComingSoon": true,
+    "thumbnail": "/images/products/pitch-deck/thumbnail.png"
+  },
+  {
+    "id": "fundraising-suite",
+    "name": "Fundraising Readiness Suite (Bundle)",
+    "description": "Everything you need: Advanced Financial Model, Pitch Deck Storyboarder, and Cap Table Builder at a special bundle price.",
+    "category": "Strategy",
+    "productId": "FS-BNDL-001",
+    "priceInr": 3999,
+    "priceUsd": 50,
+    "thumbnail": "/images/products/pitch-deck/thumbnail.png",
+    "isBundle": true,
+    "isComingSoon": true
   }
 ]
