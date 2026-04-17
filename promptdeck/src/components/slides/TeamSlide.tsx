@@ -16,7 +16,7 @@ export function TeamSlide({ headline, members = [], slideIndex }: Props) {
           <div key={i} className="bg-white rounded-3xl p-12 border-2 border-slate-200 flex flex-col items-center text-center">
             <div className="w-32 h-32 rounded-full flex items-center justify-center text-5xl font-bold text-white mb-6"
                  style={{ background: 'linear-gradient(135deg, #7C3AED, #A78BFA)'}}>
-              {m.initials || (m.name && m.name.length > 0 ? m.name[0] : '?')}
+              {m.initials || m.name?.[0] || '?'}
             </div>
             <div className="text-3xl font-bold text-slate-900">{m.name}</div>
             <div className="text-2xl text-purple-600 mt-2 font-medium">{m.role}</div>

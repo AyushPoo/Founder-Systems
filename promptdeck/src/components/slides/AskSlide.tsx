@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { EditableText } from './EditableText'
 import { useDeck } from '../../context/DeckContext'
 
@@ -18,14 +18,17 @@ export function AskSlide({ headline, amount = '1M', currency = '$', use_of_funds
       <EditableText value={headline || 'The Ask'} onChange={up('headline')} tag="h2" className="text-7xl font-extrabold text-slate-900 mb-4" />
       <div className="text-9xl font-black text-purple-700 mb-4">{currency}{amount}</div>
       {runway_months && <div className="text-3xl text-slate-500 mb-8">{runway_months} months runway</div>}
-      <div className="flex-1 flex items-center">
-        <PieChart width={600} height={360}>
-          <Pie data={pieData} cx={280} cy={160} outerRadius={150} dataKey="value" label={({ name, value }) => `${name}: ${value}%`} labelLine>
-            {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-          </Pie>
-          <Tooltip formatter={(v: any) => [`${v}%`, 'Allocation']} />
-          <Legend />
-        </PieChart>
+      <div className="flex-1 flex items-center justify-center" style={{ minHeight: 300 }}>
+        <ResponsiveContainer width="70%" height={320}>
+          <PieChart>
+            <Pie data={pieData} cx="50%" cy="50%" outerRadius={120} dataKey="value"
+                 label={({ name, value }) => `${name}: ${value}%`} labelLine>
+              {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Tooltip formatter={(v: any) => [`${v}%`, 'Allocation']} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     </div>
   )

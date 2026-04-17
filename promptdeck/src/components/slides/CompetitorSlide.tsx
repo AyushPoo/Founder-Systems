@@ -20,7 +20,7 @@ export function CompetitorSlide({ headline, axes, competitors = [], slideIndex }
             <div key={i}
                  className={`absolute flex items-center justify-center rounded-full text-white font-bold text-lg ${c.us ? 'bg-purple-700' : 'bg-slate-400'}`}
                  style={{ left: `${c.x}%`, bottom: `${c.y}%`, width: c.us ? 80 : 60, height: c.us ? 80 : 60, transform: 'translate(-50%, 50%)'}}>
-              {c.name[0]}
+              {c.name?.[0] || '?'}
             </div>
           ))}
         </div>
