@@ -1,12 +1,16 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { EditableText } from './EditableText'
+import { useDeck } from '../../context/DeckContext'
 
-interface Props { years?: number[]; revenue?: number[]; currency?: string; unit?: string; projected?: boolean; slideIndex: number }
+interface Props { headline?: string; years?: number[]; revenue?: number[]; currency?: string; unit?: string; projected?: boolean; slideIndex: number }
 
-export function FinancialsSlide({ years = [2024, 2025, 2026], revenue = [0, 0, 0], currency = '$', unit = '', projected = true }: Props) {
+export function FinancialsSlide({ headline, years = [2024, 2025, 2026], revenue = [0, 0, 0], currency = '$', unit = '', projected = true, slideIndex }: Props) {
+  const { dispatch } = useDeck()
+  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
   const data = years.map((yr, i) => ({ year: String(yr), revenue: revenue[i] ?? 0 }))
   return (
     <div className="w-full h-full flex flex-col bg-slate-50 p-24">
-      <h2 className="text-7xl font-extrabold text-slate-900 mb-12">Financial Projections</h2>
+      <EditableText value={headline || 'Financial Projections'} onChange={up('headline')} tag="h2" className="text-7xl font-extrabold text-slate-900 mb-12" />
       <div className="flex-1">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 20, right: 40, left: 40, bottom: 20 }}>

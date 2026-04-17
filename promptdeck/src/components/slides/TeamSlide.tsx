@@ -1,11 +1,16 @@
-interface Member { name: string; role: string; background?: string; initials?: string }
-interface Props { members?: Member[]; slideIndex: number }
+import { EditableText } from './EditableText'
+import { useDeck } from '../../context/DeckContext'
 
-export function TeamSlide({ members = [] }: Props) {
+interface Member { name: string; role: string; background?: string; initials?: string }
+interface Props { headline?: string; members?: Member[]; slideIndex: number }
+
+export function TeamSlide({ headline, members = [], slideIndex }: Props) {
+  const { dispatch } = useDeck()
+  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
   const defaults = [{ name: 'Jane Smith', role: 'CEO & Co-founder', background: '10y in fintech', initials: 'JS' }, { name: 'Bob Lee', role: 'CTO & Co-founder', background: 'Ex-Google', initials: 'BL' }]
   return (
     <div className="w-full h-full flex flex-col bg-slate-50 p-24">
-      <h2 className="text-7xl font-extrabold text-slate-900 mb-12">The Team</h2>
+      <EditableText value={headline || 'The Team'} onChange={up('headline')} tag="h2" className="text-7xl font-extrabold text-slate-900 mb-12" />
       <div className="grid grid-cols-3 gap-8 flex-1">
         {(members.length ? members : defaults).map((m, i) => (
           <div key={i} className="bg-white rounded-3xl p-12 border-2 border-slate-200 flex flex-col items-center text-center">
