@@ -76,6 +76,8 @@ const Products = () => {
                                     description={product.description} 
                                     thumbnail={product.thumbnail}
                                     priceUsd={product.priceUsd}
+                                    isBundle={product.isBundle}
+                                    isComingSoon={product.isComingSoon}
                                 />
                             ))}
                         </div>

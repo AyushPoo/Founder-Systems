@@ -1,0 +1,98 @@
+{
+    "slug": "pitch-deck-maker",
+    "productId": "FS010",
+    "catalogName": "Pitch Deck Storyboarder + Cap Table Builder",
+    "catalogDescription": "Build a fundraising narrative that converts. Includes a professional 12-slide storyboard and a detailed Cap Table planner.",
+    "catalogCategory": "Strategy",
+    "isBundle": false,
+    "isComingSoon": true,
+    "title": "The High-Stakes Pitch Deck Storyboarder",
+    "subtitle": "Stop Making Slides. Start Telling a Story That Gets Funded.",
+    "descriptionBody": "\"Our solution is a first-of-its-kind, AI-driven...\" If your deck starts like this, you've already lost. Most founders build decks by moving boxes in PowerPoint. Winning founders build decks by answering the brutal questions investors are actually thinking.\n\nThis isn't just a \"template.\" It's a systematic storyboard that forces you to build a cohesive narrative, plus a master-grade Cap Table to prove you understand your own equity.",
+    "section1Title": "Content-First, Design-Second",
+    "section1Body": "A 12-slide battle-plan used by venture-backed founders to structure their Seed and Series A pitches. We don't give you pretty shapes; we give you the exact questions each slide must answer to pass the 'BS test'.",
+    "featuresTitle": "The Narrative Toolkit:",
+    "features": [
+        {
+            "name": "The 12-Slide Storyboard",
+            "desc": "Slide-by-slide guide for Problem, Solution, Market, Traction, and Vision. No fluff."
+        },
+        {
+            "name": "The 'No-Mistakes' Cap Table",
+            "desc": "Bonus Excel sheet. Model dilution, plan hiring pools, and calculate founder ownership after a SAFE/Convertible Note round."
+        },
+        {
+            "name": "Investor POV Checklist",
+            "desc": "100+ 'Brutal Questions' a VC will ask you about each specific slide."
+        },
+        {
+            "name": "The FOMO Builder",
+            "desc": "Framework for structuring your 'Why Now?' slide to create urgency in the room."
+        }
+    ],
+    "whyTitle": "Why this instead of a template?",
+    "whyPoints": [
+        {
+            "title": "Don't Waste $5k on a Designer",
+            "desc": "Investors care about the clarity of your thought, not the color of your gradients. This system ensures your clarity is 10/10."
+        },
+        {
+            "title": "Master Your Dilution",
+            "desc": "The included Cap Table tool prevents you from accidentally giving away 40% of your company in the first round."
+        },
+        {
+            "title": "Save 30+ Hours of Googling",
+            "desc": "Stop looking for 'best pitch deck examples'. Just follow the system that works."
+        }
+    ],
+    "footerSummaryTitle": "The Price",
+    "footerSummaryDetails": "(Less than a typical SaaS subscription for one month).",
+    "footerResultTitle": "The Result",
+    "footerResultDetails": "A deck that actually makes sense and a clean cap table.",
+    "whatYouGet": [
+        "12-Slide Pitch Storyboard Framework (PDF/Notion)",
+        "Cap Table Planning Excel Sheet (Unlocked)",
+        "Dilution & Scenario Modeling Tool",
+        "Founders Equity Roadmap Template",
+        "100+ Slide-Specific Investor Questions",
+        "Lifetime Access & Instant Download"
+    ],
+    "whoThisIsFor": [
+        "Founders preparing for Seed or Series A pitches.",
+        "Early-stage teams planning their first equity round.",
+        "Solo founders who need to simplify their core narrative.",
+        "Builders who want to 'see' their dilution before it happens."
+    ],
+    "faq": [
+        {
+            "q": "Is the Cap Table tool included in this price?",
+            "a": "Yes! The Cap Table Planning Excel is included as a bonus with the Pitch Deck Storyboarder for a limited time."
+        },
+        {
+            "q": "What formats are provided?",
+            "a": "The Storyboard is a interactive PDF/Notion guide, and the Cap Table is a fully editable Excel file."
+        },
+        {
+            "q": "Can I use this for B2B or B2C?",
+            "a": "The framework is agnostic. It focuses on the core principles of venture-scale systems that apply to both."
+        }
+    ],
+    "images": [
+        "/images/products/pitch-deck/thumbnail.png"
+    ],
+    "priceInr": 799,
+    "priceUsd": 10,
+    "originalPriceInr": 1199,
+    "originalPriceUsd": 15,
+    "platformUrls": {
+        "gumroad": "https://ayushpoojary.gumroad.com/",
+        "instamojo": "https://ayushpoojary.myinstamojo.com/",
+        "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/"
+    },
+    "platformIds": {
+        "gumroadProductId": "PLACEHOLDER",
+        "lemonSqueezyProductId": "PLACEHOLDER",
+        "lemonSqueezyVariantId": "PLACEHOLDER",
+        "instamojoProductId": ""
+    }
+}

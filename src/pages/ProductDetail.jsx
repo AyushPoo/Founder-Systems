@@ -25,6 +25,18 @@ const FaqItem = ({ q, a }) => {
     );
 };
 
+const BundleItem = ({ name, desc, icon }) => (
+    <div className="flex gap-4 p-6 bg-white rounded-xl border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-brand-orange/10 border-2 border-brand-black flex items-center justify-center text-2xl">
+            {icon || "📦"}
+        </div>
+        <div>
+            <h4 className="font-black text-brand-black mb-1">{name}</h4>
+            <p className="text-sm text-brand-black/60 font-medium leading-relaxed">{desc}</p>
+        </div>
+    </div>
+);
+
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -218,6 +230,21 @@ const ProductDetail = () => {
                             </div>
                         )}
 
+                        {/* Bundle Items (If Bundle) */}
+                        {product.isBundle && product.features && (
+                            <div className="space-y-8">
+                                <h3 className="text-2xl md:text-3xl font-black tracking-tight-brand flex items-center gap-3">
+                                    <span className="w-2 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />
+                                    What's in this Suite
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {product.features.map((item, idx) => (
+                                        <BundleItem key={idx} name={item.name} desc={item.desc} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Value Proposition */}
                         {product.whyPoints && product.whyPoints.length > 0 && (
                             <div>
@@ -295,6 +322,23 @@ const ProductDetail = () => {
                                     {product.faq.map((item, idx) => (
                                         <FaqItem key={idx} q={item.q} a={item.a} />
                                     ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Bundle Upsell (For Individual Products) */}
+                        {!product.isBundle && (product.slug === 'saas-financial-model' || product.slug === 'advanced-saas-model' || product.slug === 'pitch-deck-maker' || product.slug === 'marketplace-financial-model' || product.slug === 'd2c-ecommerce-model') && (
+                            <div className="bg-brand-orange border-4 border-brand-black p-8 rounded-xl shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] text-white group relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                                    <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 8.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg>
+                                </div>
+                                <div className="relative z-10">
+                                    <span className="inline-block bg-white text-brand-orange font-black text-[10px] uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]">Bundle & Save 30%</span>
+                                    <h3 className="text-2xl md:text-3xl font-black mb-3 leading-tight">Get the Fundraising Readiness Suite instead</h3>
+                                    <p className="font-bold text-white/90 mb-6 max-w-lg">Includes the Advanced Model, Pitch Deck Storyboarder, and Cap Table Builder for just ₹3,999 / $50.</p>
+                                    <Link to="/products/fundraising-suite" className="inline-flex items-center justify-center bg-white text-brand-black px-8 py-3 rounded-lg font-black hover:bg-brand-cream transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+                                        View the Bundle &rarr;
+                                    </Link>
                                 </div>
                             </div>
                         )}
@@ -395,18 +439,32 @@ const ProductDetail = () => {
                                 </div>
 
                                 <div className="flex flex-col gap-4 w-full">
-                                    <button
-                                        onClick={() => handleBuyClick('INR')}
-                                        className="btn-cta w-full !text-lg !py-5"
-                                    >
-                                        Buy for ₹{product.priceInr} (India) &rarr;
-                                    </button>
-                                    <button
-                                        onClick={() => handleBuyClick('USD')}
-                                        className="btn-outline w-full !py-4"
-                                    >
-                                        Buy for ${product.priceUsd} (International) &rarr;
-                                    </button>
+                                    {product.isComingSoon ? (
+                                        <div className="bg-brand-orange/5 border-2 border-brand-black border-dashed p-8 rounded-xl flex flex-col items-center text-center">
+                                            <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center border-2 border-brand-black mb-4 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] animate-bounce">
+                                                <span className="text-3xl">🚀</span>
+                                            </div>
+                                            <h3 className="text-2xl font-black mb-2 uppercase tracking-tight">Coming Soon</h3>
+                                            <p className="font-bold text-brand-black/60 max-w-sm">
+                                                We're polishing the final calculations and storyboards. This product will be live in a few days.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button
+                                                onClick={() => handleBuyClick('INR')}
+                                                className="btn-cta w-full !text-lg !py-5"
+                                            >
+                                                Buy for ₹{product.priceInr} (India) &rarr;
+                                            </button>
+                                            <button
+                                                onClick={() => handleBuyClick('USD')}
+                                                className="btn-outline w-full !py-4"
+                                            >
+                                                Buy for ${product.priceUsd} (International) &rarr;
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
 
                                 <p className="text-center text-xs text-brand-black/45 mt-5 font-medium">

@@ -1,0 +1,91 @@
+{
+    "slug": "fundraising-suite",
+    "productId": "FS-BNDL-001",
+    "isBundle": true,
+    "isComingSoon": true,
+    "bundleItems": ["advanced-saas-model", "pitch-deck-maker"],
+    "catalogName": "The Fundraising Readiness Suite (Bundle)",
+    "catalogDescription": "Get everything: the Advanced Financial Model, the Pitch Deck Storyboarder, and the Cap Table Builder at the best price.",
+    "catalogCategory": "Strategy",
+    "title": "The Strategic Fundraising Readiness Suite",
+    "subtitle": "Everything You Need to Scale, Model, and Pitch Your Startup.",
+    "descriptionBody": "Raising venture capital is not about 'luck.' It's about preparedness. Investors can smell a founder who doesn't understand their numbers from across the room. \n\nWe've bundled the 'Big Three' systems of the Founder Systems toolkit into one high-stakes suite. If you are preparing for a Seed or Series A round, this is your operating system. Model your growth, storyboard your deck, and plan your dilution in one weekend.",
+    "section1Title": "The Investor-Grade Suite",
+    "section1Body": "Get the Advanced Financial Model (MRR, Cohorts, DCF), the Pitch Deck Storyboarder, and the Cap Table Planning tool for 30% less than buying them individually.",
+    "featuresTitle": "The Fundraising Foundation:",
+    "features": [
+        {
+            "name": "Advanced SaaS Financial Model",
+            "desc": "Heavy-duty 3-year engine with MRR waterfalls and investor-grade unit economics."
+        },
+        {
+            "name": "The High-Stakes Storyboard",
+            "desc": "Narrative-first framework used by million-dollar founders to build decks that convert."
+        },
+        {
+            "name": "Cap Table Planning Master",
+            "desc": "Excel-based dilution simulation and scenario modeling for Seed/Series A."
+        }
+    ],
+    "whyTitle": "Why this bundle?",
+    "whyPoints": [
+        {
+            "title": "Pass Every Due Diligence",
+            "desc": "Model, Deck, and Cap Table. When a VC asks for 'more detail', you won't scramble. You'll already have the answer."
+        },
+        {
+            "title": "Save Significant Cash",
+            "desc": "Get the entire toolkit for less than the price of a single hour with a part-time CFO."
+        },
+        {
+            "title": "One Source of Truth",
+            "desc": "Ensure your deck's numbers match your model's projections exactly."
+        }
+    ],
+    "footerSummaryTitle": "The Best Price",
+    "footerSummaryDetails": "(30% savings vs. individual purchase).",
+    "footerResultTitle": "The Result",
+    "footerResultDetails": "Total command over your fundraising process.",
+    "whatYouGet": [
+        "Advanced SaaS Financial Model (Excel)",
+        "Pitch Deck Storyboarder (PDF/Notion)",
+        "Cap Table Planning Excel Sheet (Unlocked)",
+        "Dilution & Scenario Modeling Engine",
+        "Lifetime Access to all 3 Systems",
+        "Bonus: 100+ Slide-Specific Investor Questions",
+        "Instant Download"
+    ],
+    "whoThisIsFor": [
+        "Founders preparing for Seed or Series A institutional rounds.",
+        "Teams who need to professionalize their financial and strategic reporting.",
+        "Founders raising for the first time who want a structured blueprint."
+    ],
+    "faq": [
+        {
+            "q": "What exactly is in this bundle?",
+            "a": "You get the full Advanced SaaS Financial Model, the Pitch Deck Storyboarder, and the bonus Cap Table Planning Excel in one download."
+        },
+        {
+            "q": "Can I upgrade if I already bought the Model?",
+            "a": "Yes! Just reach out to support and we'll apply your previous purchase as credit."
+        }
+    ],
+    "images": [
+        "/images/products/pitch-deck/thumbnail.png",
+        "/images/products/cap-table/thumbnail.png"
+    ],
+    "priceInr": 3999,
+    "priceUsd": 50,
+    "originalPriceInr": 5999,
+    "originalPriceUsd": 75,
+    "platformUrls": {
+        "gumroad": "https://ayushpoojary.gumroad.com/",
+        "lemonSqueezy": "https://ayushpoojary.lemonsqueezy.com/"
+    },
+    "platformIds": {
+        "gumroadProductId": "PLACEHOLDER",
+        "lemonSqueezyProductId": "PLACEHOLDER",
+        "lemonSqueezyVariantId": "PLACEHOLDER",
+        "instamojoProductId": ""
+    }
+}

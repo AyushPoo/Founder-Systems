@@ -1,16 +1,30 @@
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ id, name, description, thumbnail, priceUsd }) => {
+const ProductCard = ({ id, name, description, thumbnail, priceUsd, isBundle, isComingSoon }) => {
     return (
         <div className="card-elevated group flex flex-col overflow-hidden bg-white">
             {/* Thumbnail */}
             {thumbnail && (
                 <Link to={`/products/${id}`} className="block relative aspect-[4/3] w-full overflow-hidden border-b-2 border-brand-black bg-surface-low">
-                    <img 
-                        src={thumbnail} 
-                        alt={name} 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                    />
+                        {isBundle && (
+                            <div className="absolute top-4 left-4 z-10">
+                                <span className="bg-brand-orange text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] rotate-[-2deg] inline-block">
+                                    🔥 Best Value
+                                </span>
+                            </div>
+                        )}
+                        {isComingSoon && (
+                            <div className="absolute top-4 right-4 z-10">
+                                <span className="bg-yellow-400 text-brand-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] rotate-[2deg] inline-block animate-pulse">
+                                    🚀 Coming Soon
+                                </span>
+                            </div>
+                        )}
+                        <img 
+                            src={thumbnail} 
+                            alt={name} 
+                            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isComingSoon ? 'grayscale-[0.5] opacity-80' : ''}`} 
+                        />
                 </Link>
             )}
             
@@ -46,9 +60,9 @@ const ProductCard = ({ id, name, description, thumbnail, priceUsd }) => {
 
                 <Link
                     to={`/products/${id}`}
-                    className="btn-cta text-sm text-center w-full !py-3"
+                    className={`text-sm text-center w-full !py-3 ${isComingSoon ? 'bg-brand-black/10 text-brand-black/40 border-2 border-brand-black/20 rounded-lg pointer-events-none cursor-not-allowed font-black' : 'btn-cta'}`}
                 >
-                    I want this!
+                    {isComingSoon ? 'Launching Soon' : 'I want this!'}
                 </Link>
             </div>
         </div>

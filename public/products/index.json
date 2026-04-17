@@ -40,9 +40,33 @@
     "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
   },
   {
+    "id": "pitch-deck-maker",
+    "name": "Pitch Deck Storyboarder + Cap Table",
+    "description": "Build a fundraising narrative that converts. Includes a professional 12-slide storyboard and a detailed Cap Table planner.",
+    "category": "Strategy",
+    "productId": "FS010",
+    "priceInr": 799,
+    "priceUsd": 10,
+    "isBundle": false,
+    "isComingSoon": true,
+    "thumbnail": "/images/products/pitch-deck/thumbnail.png"
+  },
+  {
+    "id": "fundraising-suite",
+    "name": "Fundraising Readiness Suite (Bundle)",
+    "description": "Everything you need: Advanced Financial Model, Pitch Deck Storyboarder, and Cap Table Builder at a special bundle price.",
+    "category": "Strategy",
+    "productId": "FS-BNDL-001",
+    "priceInr": 3999,
+    "priceUsd": 50,
+    "thumbnail": "/images/products/pitch-deck/thumbnail.png",
+    "isBundle": true,
+    "isComingSoon": true
+  },
+  {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
-    "description": "Build a fundable pitch deck in 15 minutes \u2014 just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for \u20b9500.",
+    "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
     "category": "Strategy",
     "thumbnail": "/images/products/promptdeck-ai/thumbnail.jpg"
   }
