@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 const NAV_LINKS = [
     { label: 'Toolkit', href: '/#toolkit' },
     { label: 'Products', href: '/products' },
+    { label: 'Guides', href: '/guides' },
     { label: 'About', href: '/about' },
     { label: 'Access Purchases', href: '/access' },
 ];

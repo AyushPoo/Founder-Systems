@@ -8,6 +8,8 @@ import Terms from './pages/Terms';
 import RefundPolicy from './pages/RefundPolicy';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Access from './pages/Access';
+import Guides from './pages/Guides';
+import GuideDetail from './pages/GuideDetail';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/guides" element={<Guides />} />
+          <Route path="/guides/:id" element={<GuideDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/download" element={<DownloadPage />} />
           <Route path="/terms" element={<Terms />} />
