@@ -1,0 +1,25 @@
+{
+  "id": "promptdeck-ai",
+  "title": "PromptDeck AI — Pitch Deck Builder",
+  "subtitle": "Build a fundable pitch deck in 15 minutes. Just talk to the AI.",
+  "descriptionBody": "Stop staring at a blank slide. PromptDeck AI is a conversational pitch deck builder — you describe your startup in plain English and the AI builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
+  "launchUrl": "https://promptdeck.foundersystems.in",
+  "category": "Strategy",
+  "features": [
+    { "name": "AI-Powered Conversation", "desc": "The AI asks smart questions across 8 startup dimensions — problem, solution, market, traction, team, business model, and ask — then builds your deck." },
+    { "name": "Live Three-Panel UI", "desc": "Chat panel on the left, live slide preview in the center, navigator on the right. Edit text by clicking directly on slides." },
+    { "name": "12 Professional Slide Types", "desc": "Hero, Problem, Solution, Market, Traction, Team, Competitor, Business Model, Financials, Ask, Timeline, and Quote — all auto-populated from your conversation." },
+    { "name": "PDF Export", "desc": "Export a high-resolution PDF (1920×1080 per slide) rendered server-side. ₹500 for 3 deck exports." },
+    { "name": "Per-Slide Regeneration", "desc": "Not happy with a slide? Click ⟳ to regenerate it, or ask the AI to edit it in the chat." }
+  ],
+  "whoThisIsFor": [
+    "Early-stage founders preparing for fundraising conversations.",
+    "Startup teams who need a professional deck fast without hiring a designer.",
+    "Founders who've been putting off the deck because starting from scratch is painful."
+  ],
+  "faq": [
+    { "q": "How does the AI know what to put in the deck?", "a": "It asks you questions about your startup across 8 dimensions and builds slides from your answers. The more you share, the better the output." },
+    { "q": "Can I edit the slides after they're generated?", "a": "Yes — click any text directly on the slide to edit it inline, or tell the AI what to change in the chat." },
+    { "q": "What does ₹500 get me?", "a": "3 PDF exports. You can generate and edit as many decks as you like — you only pay when you want to download." }
+  ]
+}

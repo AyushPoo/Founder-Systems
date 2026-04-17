@@ -38,5 +38,12 @@
     "priceInr": 1999,
     "priceUsd": 25,
     "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
+  },
+  {
+    "id": "promptdeck-ai",
+    "name": "PromptDeck AI",
+    "description": "Build a fundable pitch deck in 15 minutes \u2014 just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for \u20b9500.",
+    "category": "Strategy",
+    "thumbnail": "/images/products/promptdeck-ai/thumbnail.jpg"
   }
 ]

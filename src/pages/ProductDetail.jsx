@@ -374,6 +374,12 @@ const ProductDetail = () => {
                         )}
 
                         {/* Purchase Section */}
+                        {product.launchUrl ? (
+                          <a href={product.launchUrl} target="_blank" rel="noopener noreferrer"
+                             className="btn-cta w-full !text-lg !py-5 text-center">
+                            Launch App &rarr;
+                          </a>
+                        ) : (
                         <div className="flex flex-col items-center w-full">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-brand-orange text-base leading-none">★★★★★</span>
@@ -436,6 +442,7 @@ const ProductDetail = () => {
                                 )}
                             </div>
                         </div>
+                        )}
                     </div>
 
                 </div>
