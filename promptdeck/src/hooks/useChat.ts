@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useDeck } from '../context/DeckContext'
+import type { DeckStyleType } from '../context/DeckContext'
 import { sendMessage, buildDeck, buildFromDescription, analyzeReferenceApi } from '../api/client'
 import type { Reference } from '../context/DeckContext'
 
@@ -57,11 +58,31 @@ export function useChat() {
     setLoading(true)
     try {
       const result = await analyzeReferenceApi(ref.filename, ref.full_text, state.dimensions)
-      // Surface the AI's analysis as a chat message
       addMsg(dispatch, result.message)
-      // Merge any extracted dimensions
       if (result.dimensions && Object.keys(result.dimensions).length > 0) {
         dispatch({ type: 'UPDATE_DIMENSIONS', payload: result.dimensions })
+      }
+      // Apply brand style inferred from uploaded reference
+      const brand = result.brand
+      if (brand) {
+        const notes = (brand.style_notes || '').toLowerCase()
+        const color = (brand.primary_color || '').toLowerCase()
+        let detectedStyle: DeckStyleType | null = null
+        if (notes.includes('light') || notes.includes('white') || notes.includes('minimal clean') || notes.includes('clean white')) {
+          detectedStyle = 'light'
+        } else if (notes.includes('navy') || notes.includes('blue') || color.includes('1e3') || color.includes('0d1')) {
+          detectedStyle = 'navy'
+        } else if (notes.includes('green') || color.includes('10b') || color.includes('22c')) {
+          detectedStyle = 'forest'
+        } else if (notes.includes('red') || notes.includes('coral') || color.includes('ef4') || color.includes('f43')) {
+          detectedStyle = 'bold'
+        } else if (notes.includes('pink') || notes.includes('rose') || color.includes('ec4')) {
+          detectedStyle = 'rose'
+        }
+        if (detectedStyle) {
+          dispatch({ type: 'SET_DECK_STYLE', payload: detectedStyle })
+          addMsg(dispatch, `I matched your brand to the **${detectedStyle}** theme — you can change it anytime with the style picker.`)
+        }
       }
     } catch {
       addMsg(dispatch, `I've read **${ref.filename}** and will use it as context for your deck.`)
