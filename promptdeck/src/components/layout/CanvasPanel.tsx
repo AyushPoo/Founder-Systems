@@ -71,19 +71,21 @@ export function CanvasPanel() {
   const { slides, activeSlideIndex, prevSlideIndex, deckBuilt, deckStyle } = state
   const activeSlide = slides[activeSlideIndex]
   const containerRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
+  // scale removed — using autoScale + userZoom
   const [animClass, setAnimClass] = useState('')
   const [customUploading, setCustomUploading] = useState(false)
   const [customThumb, setCustomThumb] = useState<string | null>(null)
   const styleFileRef = useRef<HTMLInputElement>(null)
+  const [autoScale, setAutoScale] = useState(1)
+  const [userZoom, setUserZoom] = useState(1)
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
     const update = () => {
-      const containerW = el.clientWidth - 64
-      const containerH = el.clientHeight - 64
-      setScale(Math.min(containerW / 1920, containerH / 1080))
+      const containerW = el.clientWidth - 48
+      const containerH = el.clientHeight - 48
+      setAutoScale(Math.min(containerW / 1920, containerH / 1080))
     }
     update()
     const ro = new ResizeObserver(update)
@@ -110,6 +112,9 @@ export function CanvasPanel() {
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(1) }
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1) }
+      if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) { e.preventDefault(); setUserZoom(z => Math.min(2, parseFloat((z + 0.1).toFixed(1)))) }
+      if ((e.ctrlKey || e.metaKey) && e.key === '-') { e.preventDefault(); setUserZoom(z => Math.max(0.3, parseFloat((z - 0.1).toFixed(1)))) }
+      if ((e.ctrlKey || e.metaKey) && e.key === '0') { e.preventDefault(); setUserZoom(1) }
     }
     let wheelTimer: ReturnType<typeof setTimeout>
     const onWheel = (e: WheelEvent) => {
@@ -253,7 +258,8 @@ export function CanvasPanel() {
             className="text-secondary hover:text-primary disabled:opacity-20 transition-colors text-lg leading-none"
           >›</button>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          {/* Move toggle */}
           <button
             onClick={() => dispatch({ type: 'SET_DRAG_MODE', payload: !state.dragMode })}
             title={state.dragMode ? 'Exit move mode' : 'Move elements'}
@@ -266,16 +272,35 @@ export function CanvasPanel() {
             </svg>
             {state.dragMode ? 'Move ON' : 'Move'}
           </button>
-          <div className="text-xs text-secondary/50">← → or scroll</div>
+
+          {/* Divider */}
+          <div className="w-px h-4 bg-border mx-1" />
+
+          {/* Zoom controls */}
+          <button
+            onClick={() => setUserZoom(z => Math.max(0.3, parseFloat((z - 0.1).toFixed(1))))}
+            title="Zoom out (Ctrl -)"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface border border-border transition-colors text-sm font-medium"
+          >−</button>
+          <button
+            onClick={() => setUserZoom(1)}
+            title="Reset zoom (Ctrl 0)"
+            className="min-w-[48px] h-7 px-2 text-xs font-mono text-secondary hover:text-primary rounded-lg hover:bg-surface border border-border transition-colors"
+          >{Math.round(autoScale * userZoom * 100)}%</button>
+          <button
+            onClick={() => setUserZoom(z => Math.min(2, parseFloat((z + 0.1).toFixed(1))))}
+            title="Zoom in (Ctrl +)"
+            className="w-7 h-7 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface border border-border transition-colors text-sm font-medium"
+          >+</button>
         </div>
       </div>
-      <div ref={containerRef} className="flex-1 flex items-center justify-center p-8">
+      <div ref={containerRef} className="flex-1 flex items-center justify-center p-6 overflow-hidden">
         <div
           className={animClass}
           style={{
             width: 1920,
             height: 1080,
-            transform: `scale(${scale})`,
+            transform: `scale(${autoScale * userZoom})`,
             transformOrigin: 'center center',
             position: 'relative',
           }}
