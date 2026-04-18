@@ -36,8 +36,7 @@ function SolutionFeatures({ headline, features, imageUrl, up }: any) {
             style={{ fontSize: fs, letterSpacing: '-1px', lineHeight: 1.1, fontFamily: "'Bricolage Grotesque', sans-serif" }} />
         </div>
         <div className="relative z-10">
-          <div className="w-10 h-0.5 mb-5" style={{ background: '#7C3AED' }} />
-          <div className="font-medium" style={{ fontSize: 16, color: 'rgba(167,139,250,0.45)', lineHeight: 1.7 }}>Built for founders who refuse to compromise.</div>
+          <div className="w-10 h-0.5" style={{ background: 'rgba(124,58,237,0.4)' }} />
         </div>
       </div>
       <div className="flex-1 flex flex-col justify-center">
