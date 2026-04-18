@@ -10,6 +10,15 @@ export interface Reference {
   full_text: string
 }
 
+export type DeckStyleType = 'dark' | 'light' | 'bold'
+
+interface FullDeckState extends DeckState {
+  references: Reference[]
+  dragMode: boolean
+  deckStyle: DeckStyleType
+  prevSlideIndex: number
+}
+
 type Action =
   | { type: 'ADD_MESSAGE'; payload: Message }
   | { type: 'SET_SLIDES'; payload: SlideConfig[] }
@@ -28,35 +37,26 @@ type Action =
   | { type: 'REMOVE_REFERENCE'; payload: string }
   | { type: 'CLEAR_REFERENCES' }
   | { type: 'SET_DRAG_MODE'; payload: boolean }
-
-interface FullDeckState extends DeckState {
-  references: Reference[]
-  dragMode: boolean
-}
+  | { type: 'SET_DECK_STYLE'; payload: DeckStyleType }
 
 function reducer(state: FullDeckState, action: Action): FullDeckState {
   switch (action.type) {
     case 'ADD_MESSAGE':
       return { ...state, messages: [...state.messages, action.payload] }
-
     case 'SET_SLIDES':
       return { ...state, slides: action.payload, deckBuilt: true }
-
     case 'UPDATE_SLIDE': {
       const slides = [...state.slides]
       slides[action.payload.index] = action.payload.slide
       return { ...state, slides }
     }
-
     case 'INSERT_SLIDE': {
       const slides = [...state.slides]
       slides.splice(action.payload.index, 0, action.payload.slide)
       return { ...state, slides }
     }
-
     case 'SET_ACTIVE_SLIDE':
-      return { ...state, activeSlideIndex: action.payload }
-
+      return { ...state, prevSlideIndex: state.activeSlideIndex, activeSlideIndex: action.payload }
     case 'UPDATE_SLIDE_PROP': {
       const slides = [...state.slides]
       slides[action.payload.index] = {
@@ -65,37 +65,28 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
       }
       return { ...state, slides }
     }
-
     case 'UPDATE_DIMENSIONS':
       return { ...state, dimensions: { ...state.dimensions, ...action.payload } }
-
     case 'SET_CONFIRMATION_CARD':
       return { ...state, confirmationCard: action.payload }
-
     case 'SET_DECK_BUILT':
       return { ...state, deckBuilt: action.payload }
-
     case 'SET_CREDITS':
       return { ...state, credits: action.payload }
-
     case 'SET_ORDER_ID':
       return { ...state, orderId: action.payload }
-
     case 'REORDER_SLIDES':
       return { ...state, slides: action.payload }
-
     case 'ADD_REFERENCE':
       return { ...state, references: [...state.references, action.payload] }
-
     case 'REMOVE_REFERENCE':
       return { ...state, references: state.references.filter(r => r.ref_id !== action.payload) }
-
     case 'CLEAR_REFERENCES':
       return { ...state, references: [] }
-
     case 'SET_DRAG_MODE':
       return { ...state, dragMode: action.payload }
-
+    case 'SET_DECK_STYLE':
+      return { ...state, deckStyle: action.payload }
     case 'APPLY_SLIDE_DELTA': {
       const delta = action.payload
       if (delta.action === 'none' || !delta.slide_type) return state
@@ -110,7 +101,6 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
       }
       return { ...state, slides }
     }
-
     default:
       return state
   }
@@ -126,6 +116,8 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     ...(DEFAULT_DECK_STATE as DeckState),
     references: [],
     dragMode: false,
+    deckStyle: 'dark',
+    prevSlideIndex: 0,
   } as FullDeckState)
   return <DeckContext.Provider value={{ state, dispatch }}>{children}</DeckContext.Provider>
 }
