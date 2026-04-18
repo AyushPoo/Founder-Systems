@@ -14,7 +14,7 @@ const STARTER_PROMPTS = [
 
 export function ChatPanel() {
   const { state, dispatch } = useDeck()
-  const { send, buildDirect, loading } = useChat()
+  const { send, analyzeReference, buildDirect, loading } = useChat()
   const [input, setInput] = useState('')
   const [uploading, setUploading] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -23,7 +23,7 @@ export function ChatPanel() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [state.messages.length])
+  }, [state.messages.length, loading])
 
   // Auto-resize textarea
   useEffect(() => {
@@ -54,6 +54,9 @@ export function ChatPanel() {
     try {
       const ref = await uploadReference(file)
       dispatch({ type: 'ADD_REFERENCE', payload: ref })
+      // Show file as user message, then auto-analyze
+      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: `📎 ${ref.filename}`, timestamp: Date.now() } })
+      await analyzeReference(ref)
     } catch (err: any) {
       dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: `Upload failed: ${err.message}`, timestamp: Date.now() } })
     } finally {
@@ -76,9 +79,8 @@ export function ChatPanel() {
       {/* Messages */}
       <div className="min-h-0 flex-1 overflow-y-auto">
         {isEmpty ? (
-          /* ── Empty state ── */
           <div className="flex flex-col h-full">
-            {/* Top: icon + tagline */}
+            {/* Icon + tagline */}
             <div className="flex-1 flex flex-col items-center justify-center px-5 pb-2">
               <div className="w-10 h-10 rounded-2xl bg-accent/15 flex items-center justify-center mb-3">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: '#A78BFA' }}>
@@ -90,14 +92,13 @@ export function ChatPanel() {
                 Chat to answer a few questions, or paste your full description to build instantly.
               </div>
             </div>
-
             {/* Starter chips */}
             <div className="px-3 pb-3 space-y-1.5">
               <div className="text-xs font-medium mb-2" style={{ color: 'rgba(148,163,184,0.45)' }}>Try a prompt</div>
               {STARTER_PROMPTS.map(p => (
                 <button
                   key={p}
-                  onClick={() => setInput(p)}
+                  onClick={() => { setInput(p); textareaRef.current?.focus() }}
                   className="w-full text-left px-3 py-2 rounded-lg text-xs transition-colors"
                   style={{
                     background: 'rgba(255,255,255,0.04)',
@@ -111,10 +112,9 @@ export function ChatPanel() {
             </div>
           </div>
         ) : (
-          /* ── Conversation ── */
           <div className="p-4 space-y-1">
             {state.messages.map((m, i) => <ChatMessage key={i} message={m} />)}
-            {loading && (
+            {(loading || uploading) && (
               <div className="flex justify-start mb-3">
                 <div className="bg-surface border border-border rounded-2xl rounded-bl-sm px-4 py-3">
                   <div className="flex gap-1">
@@ -130,7 +130,7 @@ export function ChatPanel() {
         )}
       </div>
 
-      {/* Confirmation Card */}
+      {/* Confirmation card */}
       {state.confirmationCard && <ConfirmationCard card={state.confirmationCard} />}
 
       {/* Attached references */}
@@ -149,22 +149,22 @@ export function ChatPanel() {
         </div>
       )}
 
-      {/* Input area */}
+      {/* Input */}
       <div className="shrink-0 p-3 border-t border-border">
         <input
           ref={fileInputRef}
           type="file"
-          accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md,.csv"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md,.csv,.pptx"
           className="hidden"
           onChange={handleFile}
         />
 
-        {/* Textarea row */}
         <div className="flex gap-2 items-end mb-2">
+          {/* Attach */}
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading || uploading}
-            title="Attach reference"
+            title="Attach a document, image, or brand guide"
             className="shrink-0 text-secondary hover:text-accent disabled:opacity-40 transition-colors p-1.5 rounded-lg hover:bg-surface"
           >
             {uploading ? (
@@ -178,6 +178,8 @@ export function ChatPanel() {
               </svg>
             )}
           </button>
+
+          {/* Textarea */}
           <textarea
             ref={textareaRef}
             value={input}
@@ -185,21 +187,23 @@ export function ChatPanel() {
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
             }}
-            placeholder={state.deckBuilt ? "Ask to edit a slide..." : "Tell me about your startup..."}
+            placeholder={state.deckBuilt ? 'Ask to edit a slide...' : 'Tell me about your startup...'}
             className="flex-1 bg-surface border border-border rounded-xl px-3 py-2.5 text-sm text-primary placeholder-secondary resize-none focus:outline-none focus:border-accent/60 min-h-[40px] max-h-[120px]"
             rows={1}
-            disabled={loading}
+            disabled={loading || uploading}
           />
+
+          {/* Send */}
           <button
             onClick={handleSend}
-            disabled={(!input.trim() && state.references.length === 0) || loading}
+            disabled={(!input.trim() && state.references.length === 0) || loading || uploading}
             className="bg-accent hover:bg-accent/90 disabled:opacity-40 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors shrink-0"
           >
             →
           </button>
         </div>
 
-        {/* Build directly button — only shown pre-deck when enough text */}
+        {/* Build directly — appears when user has typed enough */}
         {canBuildDirect && !loading && (
           <button
             onClick={handleBuildDirect}

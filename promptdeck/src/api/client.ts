@@ -11,12 +11,20 @@ async function apiFetch(path: string, options?: RequestInit) {
   return res
 }
 
-export async function uploadReference(file: File): Promise<{ ref_id: string; filename: string; preview: string; full_text: string }> {
+export async function uploadReference(file: File) {
   const form = new FormData()
   form.append('file', file)
   const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form })
   if (!res.ok) throw new Error(`Upload error ${res.status}: ${await res.text()}`)
-  return res.json()
+  return res.json() as Promise<{ ref_id: string; filename: string; preview: string; full_text: string }>
+}
+
+export async function analyzeReferenceApi(filename: string, content: string, currentDimensions: any) {
+  const res = await apiFetch('/analyze-reference', {
+    method: 'POST',
+    body: JSON.stringify({ filename, content, current_dimensions: currentDimensions }),
+  })
+  return res.json() as Promise<{ message: string; dimensions: any; brand: any }>
 }
 
 export async function sendMessage(
@@ -45,6 +53,14 @@ export async function buildDeck(dimensions: Record<string, any>) {
     body: JSON.stringify({ dimensions }),
   })
   return res.json() as Promise<{ slides: any[] }>
+}
+
+export async function buildFromDescription(description: string) {
+  const res = await apiFetch('/build-from-description', {
+    method: 'POST',
+    body: JSON.stringify({ description }),
+  })
+  return res.json() as Promise<{ slides: any[]; dimensions: any }>
 }
 
 export async function regenerateSlide(slideType: string, dimensions: Record<string, any>, prompt?: string) {
@@ -83,12 +99,4 @@ export async function confirmPayment(
     }),
   })
   return res.json()
-}
-
-export async function buildFromDescription(description: string) {
-  const res = await apiFetch('/build-from-description', {
-    method: 'POST',
-    body: JSON.stringify({ description }),
-  })
-  return res.json() as Promise<{ slides: any[]; dimensions: any }>
 }

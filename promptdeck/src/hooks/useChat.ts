@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { useDeck } from '../context/DeckContext'
-import { sendMessage, buildDeck, buildFromDescription } from '../api/client'
+import { sendMessage, buildDeck, buildFromDescription, analyzeReferenceApi } from '../api/client'
 import type { Reference } from '../context/DeckContext'
+
+function addMsg(dispatch: any, content: string) {
+  dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content, timestamp: Date.now() } })
+}
 
 export function useChat() {
   const { state, dispatch } = useDeck()
@@ -14,16 +18,17 @@ export function useChat() {
 
     let fullMessage = text
     if (references.length > 0) {
-      const refBlock = references.map(r =>
-        '[Reference: ' + r.filename + ']\n' + r.full_text
-      ).join('\n\n---\n\n')
-      fullMessage = refBlock + '\n\n---\n\nUser message: ' + (text || '(see references above)')
+      const refBlock = references.map(r => `[Reference: ${r.filename}]\n${r.full_text}`).join('\n\n---\n\n')
+      fullMessage = `${refBlock}\n\n---\n\nUser message: ${text || '(see references above)'}`
     }
 
-    const displayContent = text || ('\u{1F4CE} ' + references.map(r => r.filename).join(', '))
+    const displayContent = text || `📎 ${references.map(r => r.filename).join(', ')}`
     dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: displayContent, timestamp: Date.now() } })
 
-    const history = state.messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }))
+    const history = state.messages.map(m => ({
+      role: m.role === 'ai' ? 'assistant' : 'user',
+      content: m.content,
+    }))
 
     try {
       const activeSlide = state.slides[state.activeSlideIndex]
@@ -34,6 +39,7 @@ export function useChat() {
       )
       dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: res.message, timestamp: Date.now() } })
       dispatch({ type: 'UPDATE_DIMENSIONS', payload: res.dimensions as any })
+
       if (res.slide_delta.action !== 'none') {
         dispatch({ type: 'APPLY_SLIDE_DELTA', payload: res.slide_delta })
       }
@@ -41,7 +47,40 @@ export function useChat() {
         dispatch({ type: 'SET_CONFIRMATION_CARD', payload: res.confirmation_card })
       }
     } catch (e: any) {
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Error: ' + e.message, timestamp: Date.now() } })
+      addMsg(dispatch, `Something went wrong — ${e.message}. Try again.`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function analyzeReference(ref: Reference) {
+    setLoading(true)
+    try {
+      const result = await analyzeReferenceApi(ref.filename, ref.full_text, state.dimensions)
+      // Surface the AI's analysis as a chat message
+      addMsg(dispatch, result.message)
+      // Merge any extracted dimensions
+      if (result.dimensions && Object.keys(result.dimensions).length > 0) {
+        dispatch({ type: 'UPDATE_DIMENSIONS', payload: result.dimensions })
+      }
+    } catch {
+      addMsg(dispatch, `I've read **${ref.filename}** and will use it as context for your deck.`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function confirmBuild() {
+    setLoading(true)
+    dispatch({ type: 'SET_CONFIRMATION_CARD', payload: null })
+    addMsg(dispatch, '✨ Perfect — building your 10-slide deck now. This takes about 20–30 seconds...')
+
+    try {
+      const { slides } = await buildDeck(state.dimensions)
+      dispatch({ type: 'SET_SLIDES', payload: slides })
+      addMsg(dispatch, `Your deck is ready — ${slides.length} slides, investor-grade. Use ← → to navigate, click any text to edit.`)
+    } catch (e: any) {
+      addMsg(dispatch, `Deck generation failed: ${e.message}. Please try again.`)
     } finally {
       setLoading(false)
     }
@@ -51,32 +90,17 @@ export function useChat() {
     if (!description.trim() || loading) return
     setLoading(true)
     dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: description, timestamp: Date.now() } })
-    dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: '\u26a1 Got it — building your deck directly from your description. This takes about 20-30 seconds...', timestamp: Date.now() } })
+    addMsg(dispatch, '⚡ Got it — extracting your startup details and building the deck. Give me 30 seconds...')
     try {
       const { slides } = await buildFromDescription(description)
       dispatch({ type: 'SET_SLIDES', payload: slides })
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Your deck is ready! ' + slides.length + ' slides built from your description. Click any slide to edit, or chat to refine it.', timestamp: Date.now() } })
+      addMsg(dispatch, `Your deck is ready — ${slides.length} slides built from your description. Chat to refine any slide.`)
     } catch (e: any) {
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Failed to build deck: ' + e.message, timestamp: Date.now() } })
+      addMsg(dispatch, `Build failed: ${e.message}. Try again or chat to give me more details.`)
     } finally {
       setLoading(false)
     }
   }
 
-  async function confirmBuild() {
-    setLoading(true)
-    dispatch({ type: 'SET_CONFIRMATION_CARD', payload: null })
-    dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Building your deck now...', timestamp: Date.now() } })
-    try {
-      const { slides } = await buildDeck(state.dimensions)
-      dispatch({ type: 'SET_SLIDES', payload: slides })
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Your deck is ready! ' + slides.length + ' slides built. Click any slide to edit, or keep chatting to refine it.', timestamp: Date.now() } })
-    } catch (e: any) {
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: 'Failed to build deck: ' + e.message, timestamp: Date.now() } })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return { send, buildDirect, confirmBuild, loading }
+  return { send, analyzeReference, confirmBuild, buildDirect, loading }
 }
