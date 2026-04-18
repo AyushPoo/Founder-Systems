@@ -1,31 +1,35 @@
 import { EditableText } from './EditableText'
 import { useDeck } from '../../context/DeckContext'
 
-interface Props { headline?: string; quote?: string; vision?: string; attribution?: string; slideIndex: number }
+interface Props { quote?: string; author?: string; role?: string; imageUrl?: string; slideIndex: number }
 
-export function QuoteSlide({ headline, quote, vision, attribution, slideIndex }: Props) {
+export function QuoteSlide({ quote, author, role, imageUrl, slideIndex }: Props) {
   const { dispatch } = useDeck()
-  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
+  const up = (k: string) => (v: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key: k, value: v } })
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden"
-         style={{ background: 'linear-gradient(135deg,#0A0A0F 0%,#0f0a2e 60%,#1a0a3e 100%)' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(rgba(124,58,237,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,0.05) 1px,transparent 1px)', backgroundSize: '60px 60px' }} />
-      <div className="absolute font-black select-none pointer-events-none" style={{ fontSize: 500, color: 'rgba(124,58,237,0.06)', top: -120, left: 20, lineHeight: 1, fontFamily: 'Georgia, serif' }}>"</div>
-      <div className="relative z-10 flex flex-col items-center text-center px-40 max-w-6xl mx-auto">
-        {headline && (
-          <EditableText value={headline} onChange={up('headline')} tag="div"
-            className="font-bold tracking-widest uppercase mb-8" style={{ fontSize: 20, color: '#A78BFA' }} />
-        )}
-        <EditableText value={quote || vision || 'We exist to make something impossible, possible.'} onChange={up('quote')}
-          className="font-black text-white leading-tight" style={{ fontSize: 68, letterSpacing: '-1px' }} />
-        {attribution && (
-          <div className="mt-12 flex items-center gap-4">
-            <div className="h-px w-12" style={{ background: 'rgba(167,139,250,0.4)' }} />
-            <EditableText value={attribution} onChange={up('attribution')} tag="span"
-              className="font-semibold" style={{ fontSize: 24, color: 'rgba(167,139,250,0.7)' }} />
-            <div className="h-px w-12" style={{ background: 'rgba(167,139,250,0.4)' }} />
-          </div>
-        )}
+    <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden" style={{ background: '#000' }}>
+      {imageUrl && (
+        <>
+          <div className="absolute inset-0" style={{ backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.08 }} />
+          <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%)' }} />
+        </>
+      )}
+      {/* Decorative quotation mark */}
+      <div className="absolute font-display font-black select-none pointer-events-none"
+           style={{ fontSize: 600, color: 'rgba(124,58,237,0.04)', top: -160, left: 40, lineHeight: 1, fontFamily: "'Bricolage Grotesque', sans-serif" }}>"</div>
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center text-center px-40 max-w-7xl mx-auto">
+        <div className="w-16 h-1 mb-16" style={{ background: '#7C3AED' }} />
+        <EditableText value={quote || 'This is the most important company building in our space right now.'} onChange={up('quote')} tag="p"
+          className="font-display font-bold text-white leading-tight mb-16"
+          style={{ fontSize: 58, letterSpacing: '-2px', lineHeight: 1.25, fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+        <div className="flex flex-col items-center gap-2">
+          <EditableText value={author || 'Partner Name'} onChange={up('author')} tag="div"
+            className="font-display font-black text-white"
+            style={{ fontSize: 28, fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+          <EditableText value={role || 'Partner @ Tier-1 VC'} onChange={up('role')} tag="div"
+            className="font-medium" style={{ fontSize: 20, color: 'rgba(255,255,255,0.35)' }} />
+        </div>
       </div>
     </div>
   )

@@ -2,66 +2,60 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { EditableText } from './EditableText'
 import { useDeck } from '../../context/DeckContext'
 
-interface FundItem { label: string; percentage: number }
-interface Props { headline?: string; amount?: string; currency?: string; use_of_funds?: FundItem[]; runway_months?: number; slideIndex: number }
+interface UseOfFunds { label: string; percentage: number }
+interface Props { headline?: string; amount?: string; currency?: string; use_of_funds?: UseOfFunds[]; runway_months?: number; slideIndex: number }
 
-const COLORS = ['#7C3AED','#A78BFA','#C4B5FD','#DDD6FE','#4C1D95']
+const COLORS = ['#7C3AED', '#A78BFA', '#C4B5FD', '#4F46E5']
 
-export function AskSlide({ headline, amount = '1M', currency = '$', use_of_funds = [], runway_months, slideIndex }: Props) {
+export function AskSlide({ headline, amount = '$2.5M', currency = 'USD', use_of_funds = [], runway_months = 18, slideIndex }: Props) {
   const { dispatch } = useDeck()
-  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
+  const up = (k: string) => (v: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key: k, value: v } })
   const funds = use_of_funds.length ? use_of_funds : [
-    { label: 'Engineering', percentage: 50 },
-    { label: 'Marketing', percentage: 30 },
-    { label: 'Operations', percentage: 20 },
+    { label: 'Product & Engineering', percentage: 45 },
+    { label: 'Sales & Marketing', percentage: 30 },
+    { label: 'Operations', percentage: 15 },
+    { label: 'Reserve', percentage: 10 },
   ]
   const pieData = funds.map(f => ({ name: f.label, value: f.percentage }))
   return (
-    <div className="w-full h-full flex overflow-hidden" style={{ background: '#0A0F1E' }}>
-      {/* Left: the ask */}
-      <div className="flex-1 flex flex-col justify-center px-20" style={{ borderRight: '1px solid rgba(124,58,237,0.2)' }}>
-        <div className="text-sm font-bold tracking-widest uppercase mb-6" style={{ color: '#A78BFA' }}>The Ask</div>
-        <EditableText value={headline || 'Join us'} onChange={up('headline')} tag="h2"
-          className="font-black text-white mb-8" style={{ fontSize: 68 }} />
-        <div className="flex items-baseline gap-3 mb-6">
-          <span className="font-black" style={{ fontSize: 40, color: 'rgba(167,139,250,0.7)' }}>{currency}</span>
-          <EditableText value={amount} onChange={up('amount')} tag="span"
-            className="font-black" style={{ fontSize: 120, color: '#fff', lineHeight: 1, letterSpacing: '-4px' }} />
+    <div className="w-full h-full flex" style={{ background: '#000' }}>
+      {/* Left: funding ask */}
+      <div className="flex-1 flex flex-col justify-center px-24 py-20" style={{ borderRight: '1px solid #111' }}>
+        <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: '#A78BFA' }}>The Ask</div>
+        <EditableText value={headline || 'Raising our Seed Round'} onChange={up('headline')} tag="h2"
+          className="font-display font-black text-white mb-12 leading-tight"
+          style={{ fontSize: 56, letterSpacing: '-2px', fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+        <EditableText value={amount} onChange={up('amount')} tag="div"
+          className="font-display font-black text-white leading-none mb-8"
+          style={{ fontSize: 120, letterSpacing: '-6px', fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+        <div className="flex items-center gap-3 mb-2">
+          <div className="font-medium" style={{ fontSize: 20, color: 'rgba(255,255,255,0.35)' }}>Currency</div>
+          <div className="font-semibold" style={{ fontSize: 20, color: '#A78BFA' }}>{currency}</div>
         </div>
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-px flex-1" style={{ background: 'rgba(124,58,237,0.3)' }} />
+        <div className="flex items-center gap-3">
+          <div className="font-medium" style={{ fontSize: 20, color: 'rgba(255,255,255,0.35)' }}>Runway</div>
+          <div className="font-semibold" style={{ fontSize: 20, color: '#10B981' }}>{runway_months} months</div>
         </div>
-        {runway_months && (
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-white text-xl"
-                 style={{ background: 'rgba(124,58,237,0.3)' }}>↗</div>
-            <div>
-              <div className="font-black text-white" style={{ fontSize: 28 }}>{runway_months} months</div>
-              <div className="font-medium" style={{ fontSize: 18, color: 'rgba(148,163,184,0.6)' }}>runway to profitability</div>
-            </div>
-          </div>
-        )}
       </div>
       {/* Right: use of funds */}
-      <div className="flex-1 flex flex-col justify-center px-16">
-        <div className="text-sm font-bold tracking-widest uppercase mb-8" style={{ color: 'rgba(167,139,250,0.6)' }}>Use of Funds</div>
-        <div style={{ height: 320 }}>
+      <div className="w-5/12 shrink-0 flex flex-col justify-center px-16 py-20">
+        <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: 'rgba(255,255,255,0.25)' }}>Use of Funds</div>
+        <div style={{ height: 280 }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={pieData} cx="45%" cy="50%" innerRadius={80} outerRadius={140} dataKey="value" paddingAngle={3}>
+              <Pie data={pieData} cx="50%" cy="50%" innerRadius={80} outerRadius={130} dataKey="value" strokeWidth={2} stroke="#000">
                 {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid rgba(124,58,237,0.4)', borderRadius: 10, color: '#fff' }}
-                formatter={(v: any) => [`${v}%`, '']} />
+              <Tooltip formatter={(v: any) => `${v}%`} contentStyle={{ background: '#111', border: '1px solid #222', borderRadius: 8 }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="flex flex-col gap-4 mt-6">
           {funds.map((f, i) => (
-            <div key={i} className="flex items-center gap-4">
-              <div className="w-4 h-4 rounded-sm shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
-              <div className="flex-1 font-semibold text-white" style={{ fontSize: 22 }}>{f.label}</div>
-              <div className="font-black" style={{ fontSize: 22, color: COLORS[i % COLORS.length] }}>{f.percentage}%</div>
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full shrink-0" style={{ background: COLORS[i % COLORS.length] }} />
+              <div className="flex-1 font-medium" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }}>{f.label}</div>
+              <div className="font-display font-bold" style={{ fontSize: 18, color: COLORS[i % COLORS.length], fontFamily: "'Bricolage Grotesque', sans-serif" }}>{f.percentage}%</div>
             </div>
           ))}
         </div>

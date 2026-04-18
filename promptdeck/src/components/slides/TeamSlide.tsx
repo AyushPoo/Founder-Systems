@@ -1,50 +1,55 @@
+import { ExternalLink } from "lucide-react"
 import { EditableText } from './EditableText'
 import { useDeck } from '../../context/DeckContext'
 
-interface Member { name: string; role: string; background?: string; initials?: string }
+interface Member { name: string; role: string; background: string; initials: string }
 interface Props { headline?: string; members?: Member[]; slideIndex: number }
+
+const GRAD = [
+  'linear-gradient(135deg,#7C3AED,#4F46E5)',
+  'linear-gradient(135deg,#0EA5E9,#7C3AED)',
+  'linear-gradient(135deg,#D97706,#EF4444)',
+  'linear-gradient(135deg,#10B981,#0EA5E9)',
+]
 
 export function TeamSlide({ headline, members = [], slideIndex }: Props) {
   const { dispatch } = useDeck()
-  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
-  const defaults = [
-    { name: 'Jane Smith', role: 'CEO & Co-founder', background: '10 years in fintech', initials: 'JS' },
-    { name: 'Bob Lee', role: 'CTO & Co-founder', background: 'Ex-Google, Stanford CS', initials: 'BL' },
-    { name: 'Sara Chen', role: 'Head of Growth', background: 'Ex-Stripe, 0→1M users', initials: 'SC' },
-  ]
-  const team = members.length ? members : defaults
-  const gradients = [
-    'linear-gradient(135deg,#7C3AED,#A78BFA)',
-    'linear-gradient(135deg,#0EA5E9,#38BDF8)',
-    'linear-gradient(135deg,#F59E0B,#FCD34D)',
-    'linear-gradient(135deg,#EF4444,#F87171)',
+  const up = (k: string) => (v: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key: k, value: v } })
+  const people = members.length ? members : [
+    { name: 'Alex Chen', role: 'CEO & Co-founder', background: '10 yrs scaling B2B SaaS, prev VP Product @ Stripe', initials: 'AC' },
+    { name: 'Jordan Kim', role: 'CTO & Co-founder', background: 'Built infra @ Google serving 1B users', initials: 'JK' },
+    { name: 'Sam Rivera', role: 'Head of Growth', background: '0→$10M ARR at two prior startups', initials: 'SR' },
   ]
   return (
-    <div className="w-full h-full flex overflow-hidden" style={{ background: '#F8F7FF' }}>
-      <div className="w-72 shrink-0 flex flex-col justify-center px-14" style={{ background: 'linear-gradient(160deg,#0A0F1E,#1a0a3e)' }}>
-        <div className="text-sm font-bold tracking-widest uppercase mb-6" style={{ color: '#A78BFA' }}>The Team</div>
-        <EditableText value={headline || 'Built by people who get it'} onChange={up('headline')} tag="h2"
-          className="font-black text-white leading-tight" style={{ fontSize: 44 }} />
-        <div className="mt-10 font-medium" style={{ fontSize: 18, color: 'rgba(148,163,184,0.6)', lineHeight: 1.7 }}>
-          Domain expertise. Operator experience. Ready to execute.
+    <div className="w-full h-full flex" style={{ background: '#000' }}>
+      {/* Left panel */}
+      <div className="w-80 shrink-0 flex flex-col justify-between px-16 py-20" style={{ background: '#06060a', borderRight: '1px solid #111' }}>
+        <div>
+          <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: '#A78BFA' }}>The Team</div>
+          <EditableText value={headline || 'Operators, not academics'} onChange={up('headline')} tag="h2"
+            className="font-display font-black text-white leading-tight"
+            style={{ fontSize: 48, letterSpacing: '-2px', fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+        </div>
+        <div className="font-display font-black" style={{ fontSize: 140, color: 'rgba(124,58,237,0.06)', lineHeight: 1, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+          {people.length}×
         </div>
       </div>
-      <div className="flex-1 grid grid-cols-3 gap-0">
-        {team.map((m, i) => (
-          <div key={i} className="flex flex-col items-center justify-center p-12"
-               style={{ borderRight: i < team.length - 1 ? '1px solid rgba(0,0,0,0.06)' : 'none' }}>
-            <div className="w-28 h-28 rounded-2xl flex items-center justify-center font-black text-white text-4xl mb-6 shadow-lg"
-                 style={{ background: gradients[i % gradients.length] }}>
-              {m.initials || m.name?.[0] || '?'}
+      {/* Right: members */}
+      <div className="flex-1 flex flex-col justify-center gap-0">
+        {people.map((m, i) => (
+          <div key={i} className="flex items-center gap-8 px-16 py-9"
+               style={{ borderBottom: i < people.length - 1 ? '1px solid #111' : 'none' }}>
+            {/* Avatar */}
+            <div className="w-20 h-20 rounded-2xl shrink-0 flex items-center justify-center font-display font-black text-white text-2xl"
+                 style={{ background: GRAD[i % GRAD.length], fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+              {m.initials || m.name.split(' ').map((n: string) => n[0]).join('')}
             </div>
-            <div className="font-black text-slate-900 text-center mb-1" style={{ fontSize: 30 }}>{m.name}</div>
-            <div className="font-bold text-center mb-3" style={{ fontSize: 20, color: '#7C3AED' }}>{m.role}</div>
-            {m.background && (
-              <div className="px-4 py-2 rounded-lg text-center font-medium"
-                   style={{ fontSize: 18, background: 'rgba(124,58,237,0.08)', color: '#4C1D95' }}>
-                {m.background}
-              </div>
-            )}
+            <div className="flex-1 min-w-0">
+              <div className="font-display font-black text-white mb-1" style={{ fontSize: 30, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{m.name}</div>
+              <div className="font-semibold mb-2" style={{ fontSize: 18, color: '#7C3AED' }}>{m.role}</div>
+              <div className="font-medium" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>{m.background}</div>
+            </div>
+            <ExternalLink size={20} color="rgba(255,255,255,0.15)" strokeWidth={1.5} className="shrink-0" />
           </div>
         ))}
       </div>

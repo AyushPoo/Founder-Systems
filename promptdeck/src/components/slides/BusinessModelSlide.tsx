@@ -1,48 +1,58 @@
+import { DollarSign, Users, Repeat2 } from 'lucide-react'
 import { EditableText } from './EditableText'
 import { useDeck } from '../../context/DeckContext'
 
-interface Stream { name: string; description: string; percentage?: number }
-interface Props { headline?: string; type?: string; streams?: Stream[]; slideIndex: number }
+interface Stream { name: string; description: string; percentage: number }
+interface Props { type?: string; headline?: string; streams?: Stream[]; slideIndex: number }
 
-export function BusinessModelSlide({ headline, type, streams = [], slideIndex }: Props) {
+const ICONS = [DollarSign, Users, Repeat2]
+const COLORS = ['#7C3AED', '#A78BFA', '#C4B5FD']
+
+export function BusinessModelSlide({ type = 'SaaS', headline, streams = [], slideIndex }: Props) {
   const { dispatch } = useDeck()
-  const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
+  const up = (k: string) => (v: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key: k, value: v } })
   const items = streams.length ? streams : [
-    { name: 'Subscription', description: 'Monthly SaaS recurring revenue from SMB customers', percentage: 65 },
-    { name: 'Usage-Based', description: 'Pay per API call or transaction volume', percentage: 25 },
-    { name: 'Enterprise', description: 'Annual contracts with custom onboarding tiers', percentage: 10 },
+    { name: 'Subscription', description: 'Monthly/annual SaaS plans — $99–$999/mo per seat', percentage: 70 },
+    { name: 'Usage-based', description: 'Pay-per-API call for high-volume enterprise customers', percentage: 20 },
+    { name: 'Professional Services', description: 'Implementation, training, and custom integrations', percentage: 10 },
   ]
   return (
-    <div className="w-full h-full flex overflow-hidden" style={{ background: '#F8F7FF' }}>
-      <div className="w-80 shrink-0 flex flex-col justify-center px-14" style={{ background: 'linear-gradient(160deg,#0A0F1E,#1a0a3e)' }}>
-        <div className="text-sm font-bold tracking-widest uppercase mb-6" style={{ color: '#A78BFA' }}>Business Model</div>
-        <EditableText value={headline || 'How we make money'} onChange={up('headline')} tag="h2"
-          className="font-black text-white leading-tight mb-8" style={{ fontSize: 48 }} />
-        {type && (
-          <div className="px-5 py-3 rounded-xl font-bold self-start" style={{ fontSize: 22, background: 'rgba(124,58,237,0.3)', color: '#C4B5FD', border: '1px solid rgba(124,58,237,0.5)' }}>
-            {type}
-          </div>
-        )}
+    <div className="w-full h-full flex" style={{ background: '#000' }}>
+      {/* Left */}
+      <div className="w-96 shrink-0 flex flex-col justify-between px-16 py-20" style={{ background: '#06060a', borderRight: '1px solid #111' }}>
+        <div>
+          <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: '#A78BFA' }}>Business Model</div>
+          <EditableText value={headline || 'How we make money'} onChange={up('headline')} tag="h2"
+            className="font-display font-black text-white leading-tight"
+            style={{ fontSize: 52, letterSpacing: '-2px', fontFamily: "'Bricolage Grotesque', sans-serif" }} />
+        </div>
+        <div className="px-5 py-4 rounded-2xl" style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)' }}>
+          <div className="text-xs font-semibold tracking-wider uppercase mb-1" style={{ color: 'rgba(167,139,250,0.5)' }}>Model Type</div>
+          <div className="font-display font-black" style={{ fontSize: 28, color: '#C4B5FD', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{type}</div>
+        </div>
       </div>
-      <div className="flex-1 flex flex-col justify-center px-20 gap-10">
-        {items.map((s, i) => (
-          <div key={i}>
-            <div className="flex items-end justify-between mb-3">
-              <div>
-                <div className="font-black text-slate-900" style={{ fontSize: 30 }}>{s.name}</div>
-                <div className="font-medium text-slate-500 mt-1" style={{ fontSize: 20 }}>{s.description}</div>
+      {/* Right */}
+      <div className="flex-1 flex flex-col justify-center gap-0">
+        {items.map((s, i) => {
+          const Icon = ICONS[i % ICONS.length]
+          const color = COLORS[i % COLORS.length]
+          return (
+            <div key={i} className="px-16 py-10" style={{ borderBottom: i < items.length - 1 ? '1px solid #111' : 'none' }}>
+              <div className="flex items-center gap-5 mb-4">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                     style={{ background: `rgba(124,58,237,0.08)`, border: `1px solid rgba(124,58,237,0.2)` }}>
+                  <Icon size={22} color={color} strokeWidth={1.5} />
+                </div>
+                <div className="font-display font-black" style={{ fontSize: 26, color: '#fff', fontFamily: "'Bricolage Grotesque', sans-serif" }}>{s.name}</div>
+                <div className="ml-auto font-display font-black" style={{ fontSize: 32, color, fontFamily: "'Bricolage Grotesque', sans-serif" }}>{s.percentage}%</div>
               </div>
-              {s.percentage != null && (
-                <div className="font-black" style={{ fontSize: 44, color: '#7C3AED' }}>{s.percentage}%</div>
-              )}
+              <div className="mb-4 font-medium" style={{ fontSize: 20, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{s.description}</div>
+              <div className="w-full rounded-full overflow-hidden" style={{ height: 4, background: 'rgba(255,255,255,0.05)' }}>
+                <div className="h-full rounded-full" style={{ width: `${s.percentage}%`, background: `linear-gradient(to right, ${color}, rgba(124,58,237,0.4))` }} />
+              </div>
             </div>
-            {s.percentage != null && (
-              <div className="h-3 rounded-full" style={{ background: 'rgba(124,58,237,0.1)' }}>
-                <div className="h-3 rounded-full transition-all" style={{ width: `${s.percentage}%`, background: 'linear-gradient(90deg,#7C3AED,#A78BFA)' }} />
-              </div>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
