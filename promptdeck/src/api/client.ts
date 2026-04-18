@@ -84,3 +84,11 @@ export async function confirmPayment(
   })
   return res.json()
 }
+
+export async function buildFromDescription(description: string) {
+  const res = await apiFetch('/build-from-description', {
+    method: 'POST',
+    body: JSON.stringify({ description }),
+  })
+  return res.json() as Promise<{ slides: any[]; dimensions: any }>
+}

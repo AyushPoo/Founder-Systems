@@ -7,7 +7,7 @@ import './index.css'
 
 function AppInner() {
   return (
-    <div className="h-screen w-screen flex flex-col bg-bg text-primary overflow-hidden">
+    <div className="h-[100dvh] w-screen flex flex-col bg-bg text-primary overflow-hidden">
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">P</div>
@@ -16,8 +16,8 @@ function AppInner() {
         </div>
         <PaymentGate />
       </div>
-      <div className="flex-1 flex overflow-hidden">
-        <div className="w-80 shrink-0 flex flex-col">
+      <div className="flex-1 flex overflow-hidden min-h-0">
+        <div className="w-80 shrink-0 flex flex-col overflow-hidden">
           <ChatPanel />
         </div>
         <CanvasPanel />
