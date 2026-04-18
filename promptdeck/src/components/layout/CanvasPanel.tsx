@@ -87,7 +87,24 @@ export function CanvasPanel() {
             className="text-secondary hover:text-primary disabled:opacity-20 transition-colors text-lg leading-none"
           >›</button>
         </div>
-        <div className="text-xs text-secondary/50">← → keys or scroll to navigate</div>
+        <div className="flex items-center gap-3">
+          {/* Drag mode toggle */}
+          <button
+            onClick={() => dispatch({ type: 'SET_DRAG_MODE', payload: !state.dragMode })}
+            title={state.dragMode ? 'Exit move mode' : 'Move elements'}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              state.dragMode
+                ? 'bg-accent text-white'
+                : 'text-secondary hover:text-primary hover:bg-surface border border-border'
+            }`}
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+            {state.dragMode ? 'Move ON' : 'Move'}
+          </button>
+          <div className="text-xs text-secondary/50">← → keys or scroll to navigate</div>
+        </div>
       </div>
       <div ref={containerRef} className="flex-1 flex items-center justify-center p-8">
         <div
@@ -96,6 +113,7 @@ export function CanvasPanel() {
             height: 1080,
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
+            position: 'relative',
           }}
           className="shadow-2xl rounded-lg overflow-hidden"
         >

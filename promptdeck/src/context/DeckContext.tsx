@@ -3,6 +3,13 @@ import type { ReactNode } from 'react'
 import type { DeckState, SlideConfig, Message, Dimensions, ConfirmationCardData, SlideDelta } from '../types'
 import { DEFAULT_DECK_STATE } from '../constants'
 
+export interface Reference {
+  ref_id: string
+  filename: string
+  preview: string
+  full_text: string
+}
+
 type Action =
   | { type: 'ADD_MESSAGE'; payload: Message }
   | { type: 'SET_SLIDES'; payload: SlideConfig[] }
@@ -17,8 +24,17 @@ type Action =
   | { type: 'SET_ORDER_ID'; payload: string }
   | { type: 'APPLY_SLIDE_DELTA'; payload: SlideDelta }
   | { type: 'REORDER_SLIDES'; payload: SlideConfig[] }
+  | { type: 'ADD_REFERENCE'; payload: Reference }
+  | { type: 'REMOVE_REFERENCE'; payload: string }
+  | { type: 'CLEAR_REFERENCES' }
+  | { type: 'SET_DRAG_MODE'; payload: boolean }
 
-function reducer(state: DeckState, action: Action): DeckState {
+interface FullDeckState extends DeckState {
+  references: Reference[]
+  dragMode: boolean
+}
+
+function reducer(state: FullDeckState, action: Action): FullDeckState {
   switch (action.type) {
     case 'ADD_MESSAGE':
       return { ...state, messages: [...state.messages, action.payload] }
@@ -68,6 +84,18 @@ function reducer(state: DeckState, action: Action): DeckState {
     case 'REORDER_SLIDES':
       return { ...state, slides: action.payload }
 
+    case 'ADD_REFERENCE':
+      return { ...state, references: [...state.references, action.payload] }
+
+    case 'REMOVE_REFERENCE':
+      return { ...state, references: state.references.filter(r => r.ref_id !== action.payload) }
+
+    case 'CLEAR_REFERENCES':
+      return { ...state, references: [] }
+
+    case 'SET_DRAG_MODE':
+      return { ...state, dragMode: action.payload }
+
     case 'APPLY_SLIDE_DELTA': {
       const delta = action.payload
       if (delta.action === 'none' || !delta.slide_type) return state
@@ -89,12 +117,16 @@ function reducer(state: DeckState, action: Action): DeckState {
 }
 
 const DeckContext = createContext<{
-  state: DeckState
+  state: FullDeckState
   dispatch: React.Dispatch<Action>
 } | null>(null)
 
 export function DeckProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, DEFAULT_DECK_STATE as DeckState)
+  const [state, dispatch] = useReducer(reducer, {
+    ...(DEFAULT_DECK_STATE as DeckState),
+    references: [],
+    dragMode: false,
+  } as FullDeckState)
   return <DeckContext.Provider value={{ state, dispatch }}>{children}</DeckContext.Provider>
 }
 

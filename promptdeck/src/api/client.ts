@@ -11,6 +11,14 @@ async function apiFetch(path: string, options?: RequestInit) {
   return res
 }
 
+export async function uploadReference(file: File): Promise<{ ref_id: string; filename: string; preview: string; full_text: string }> {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form })
+  if (!res.ok) throw new Error(`Upload error ${res.status}: ${await res.text()}`)
+  return res.json()
+}
+
 export async function sendMessage(
   message: string,
   history: { role: string; content: string }[],
