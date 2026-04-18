@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react'
 import { useDeck } from '../../context/DeckContext'
 import { SlideRenderer } from '../slides/SlideRenderer'
 import type { DeckStyleType } from '../../context/DeckContext'
+import { SLIDE_LAYOUTS } from '../../constants/slideLayouts'
 
 const FREE_SLIDES = 3
 const isPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('preview')
@@ -66,6 +67,38 @@ function StyleCard({
   )
 }
 
+
+function LayoutPicker({ slideType, currentLayout, activeSlideIndex, dispatch }: {
+  slideType: string; currentLayout: string; activeSlideIndex: number; dispatch: any
+}) {
+  const layouts = SLIDE_LAYOUTS[slideType]
+  if (!layouts || layouts.length < 2) return null
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="text-xs mr-1" style={{ color: 'rgba(148,163,184,0.35)', fontSize: 10, letterSpacing: '0.05em' }}>LAYOUT</div>
+      {layouts.map(l => {
+        const active = currentLayout === l.id || (!currentLayout && l.id === layouts[0].id)
+        return (
+          <button
+            key={l.id}
+            onClick={() => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: activeSlideIndex, key: 'layout', value: l.id } })}
+            title={l.label}
+            className="relative rounded overflow-hidden transition-all duration-150"
+            style={{
+              width: 36, height: 24,
+              border: active ? '1.5px solid #7C3AED' : '1.5px solid rgba(255,255,255,0.1)',
+              boxShadow: active ? '0 0 8px rgba(124,58,237,0.35)' : 'none',
+              background: '#0a0a0a',
+            }}
+          >
+            <svg viewBox="0 0 36 24" width="36" height="24" dangerouslySetInnerHTML={{ __html: l.thumb }} />
+            {active && <div className="absolute inset-0 rounded" style={{ background: 'rgba(124,58,237,0.08)' }} />}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 export function CanvasPanel() {
   const { state, dispatch } = useDeck()
   const { slides, activeSlideIndex, prevSlideIndex, deckBuilt, deckStyle } = state
@@ -258,6 +291,15 @@ export function CanvasPanel() {
             className="text-secondary hover:text-primary disabled:opacity-20 transition-colors text-lg leading-none"
           >›</button>
         </div>
+        {/* Layout picker */}
+        {activeSlide && (
+          <LayoutPicker
+            slideType={activeSlide.type}
+            currentLayout={activeSlide.props?.layout || ''}
+            activeSlideIndex={activeSlideIndex}
+            dispatch={dispatch}
+          />
+        )}
         <div className="flex items-center gap-2">
           {/* Move toggle */}
           <button
