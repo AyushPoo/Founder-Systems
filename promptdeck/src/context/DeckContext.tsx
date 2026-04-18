@@ -10,13 +10,14 @@ export interface Reference {
   full_text: string
 }
 
-export type DeckStyleType = 'dark' | 'light' | 'bold'
+export type DeckStyleType = 'dark' | 'light' | 'bold' | 'navy' | 'forest' | 'rose' | 'custom'
 
 interface FullDeckState extends DeckState {
   references: Reference[]
   dragMode: boolean
   deckStyle: DeckStyleType
   prevSlideIndex: number
+  customStyleUrl?: string
 }
 
 type Action =
@@ -38,6 +39,7 @@ type Action =
   | { type: 'CLEAR_REFERENCES' }
   | { type: 'SET_DRAG_MODE'; payload: boolean }
   | { type: 'SET_DECK_STYLE'; payload: DeckStyleType }
+  | { type: 'SET_CUSTOM_STYLE'; payload: string }
 
 function reducer(state: FullDeckState, action: Action): FullDeckState {
   switch (action.type) {
@@ -87,6 +89,8 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
       return { ...state, dragMode: action.payload }
     case 'SET_DECK_STYLE':
       return { ...state, deckStyle: action.payload }
+    case 'SET_CUSTOM_STYLE':
+      return { ...state, deckStyle: 'custom', customStyleUrl: action.payload }
     case 'APPLY_SLIDE_DELTA': {
       const delta = action.payload
       if (delta.action === 'none' || !delta.slide_type) return state
@@ -118,6 +122,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     dragMode: false,
     deckStyle: 'dark',
     prevSlideIndex: 0,
+    customStyleUrl: undefined,
   } as FullDeckState)
   return <DeckContext.Provider value={{ state, dispatch }}>{children}</DeckContext.Provider>
 }

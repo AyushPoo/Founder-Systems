@@ -39,15 +39,15 @@ export function ChatPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-bg border-r border-border">
+    <div className="flex flex-col h-full overflow-hidden bg-bg border-r border-border">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-border">
+      <div className="px-4 py-3 border-b border-border shrink-0">
         <div className="text-sm font-semibold text-primary">PromptDeck AI</div>
         <div className="text-xs text-secondary">Chat to build your pitch deck</div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
+      {/* Messages — min-h-0 required for flex overflow to work */}
+      <div className="min-h-0 flex-1 overflow-y-auto p-4 space-y-1">
         {state.messages.length === 0 && (
           <div className="text-center text-secondary text-sm mt-12 px-4">
             <div className="text-4xl mb-4">🚀</div>
@@ -75,7 +75,7 @@ export function ChatPanel() {
 
       {/* Attached references */}
       {state.references.length > 0 && (
-        <div className="px-3 pt-2 flex flex-wrap gap-1.5">
+        <div className="px-3 pt-2 flex flex-wrap gap-1.5 shrink-0">
           {state.references.map(ref => (
             <div key={ref.ref_id} className="flex items-center gap-1.5 bg-surface border border-border rounded-lg px-2 py-1 text-xs text-primary max-w-[180px]">
               <span className="text-accent">📎</span>
@@ -90,7 +90,7 @@ export function ChatPanel() {
       )}
 
       {/* Input */}
-      <div className="p-3 border-t border-border">
+      <div className="shrink-0 p-3 border-t border-border">
         <div className="flex gap-2 items-end">
           {/* Hidden file input */}
           <input
