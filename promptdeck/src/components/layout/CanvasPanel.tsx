@@ -116,8 +116,8 @@ export function CanvasPanel() {
     const el = containerRef.current
     if (!el) return
     const update = () => {
-      const containerW = el.clientWidth - 48
-      const containerH = el.clientHeight - 48
+      const containerW = el.clientWidth - 64
+      const containerH = el.clientHeight - 64
       setAutoScale(Math.min(containerW / 1920, containerH / 1080))
     }
     update()
@@ -301,23 +301,6 @@ export function CanvasPanel() {
           />
         )}
         <div className="flex items-center gap-2">
-          {/* Move toggle */}
-          <button
-            onClick={() => dispatch({ type: 'SET_DRAG_MODE', payload: !state.dragMode })}
-            title={state.dragMode ? 'Exit move mode' : 'Move elements'}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
-              state.dragMode ? 'bg-accent text-white' : 'text-secondary hover:text-primary hover:bg-surface border border-border'
-            }`}
-          >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
-            {state.dragMode ? 'Move ON' : 'Move'}
-          </button>
-
-          {/* Divider */}
-          <div className="w-px h-4 bg-border mx-1" />
-
           {/* Zoom controls */}
           <button
             onClick={() => setUserZoom(z => Math.max(0.3, parseFloat((z - 0.1).toFixed(1))))}
@@ -336,18 +319,20 @@ export function CanvasPanel() {
           >+</button>
         </div>
       </div>
-      <div ref={containerRef} className="flex-1 flex items-center justify-center p-6 overflow-hidden">
+      <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ background: '#0D0D14' }}>
         <div
           className={animClass}
           style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
             width: 1920,
             height: 1080,
-            transform: `scale(${autoScale * userZoom})`,
+            transform: `translate(-50%, -50%) scale(${autoScale * userZoom})`,
             transformOrigin: 'center center',
-            position: 'relative',
           }}
         >
-          <div className="w-full h-full shadow-2xl rounded-lg overflow-hidden">
+          <div className="w-full h-full overflow-hidden rounded-xl" style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}>
             {isLocked ? <LockedSlide /> : (
               <SlideRenderer type={activeSlide.type} props={{ ...activeSlide.props, deckStyle }} slideIndex={activeSlideIndex} />
             )}
