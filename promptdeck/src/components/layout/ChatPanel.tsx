@@ -34,18 +34,19 @@ export function ChatPanel() {
   }, [input])
 
   const handleSend = async () => {
-    if (!input.trim() && state.references.length === 0) return
-    // If there are staged references with no prior analysis (messages empty or last was not AI analyzing)
-    const hasUnanalyzedRefs = state.references.length > 0 && state.messages.length === 0
-    if (hasUnanalyzedRefs) {
+    const hasText = input.trim().length > 0
+    const hasRefs = state.references.length > 0
+    if (!hasText && !hasRefs) return
+
+    if (!hasText && hasRefs) {
+      // No message typed — analyze the reference docs and show what was found
       for (const ref of state.references) {
         dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: `📎 ${ref.filename}`, timestamp: Date.now() } })
         await analyzeReference(ref)
       }
       dispatch({ type: 'CLEAR_REFERENCES' })
-      if (input.trim()) send(input, [])
-      setInput('')
     } else {
+      // User typed a message — send text + references together as one context-rich message
       send(input, state.references)
       setInput('')
       dispatch({ type: 'CLEAR_REFERENCES' })
@@ -173,6 +174,19 @@ export function ChatPanel() {
         />
 
         <div className="flex gap-2 items-end mb-2">
+          {/* Build direct shortcut — lightning icon, compact */}
+          {canBuildDirect && !loading && (
+            <button
+              onClick={handleBuildDirect}
+              title="Build deck now — skip Q&A"
+              className="shrink-0 rounded-xl p-2.5 transition-all duration-200 text-accent hover:opacity-80"
+              style={{ background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)' }}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
+              </svg>
+            </button>
+          )}
           {/* Attach */}
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -216,23 +230,6 @@ export function ChatPanel() {
           </button>
         </div>
 
-        {/* Build directly — appears when user has typed enough */}
-        {canBuildDirect && !loading && (
-          <button
-            onClick={handleBuildDirect}
-            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold transition-all duration-200"
-            style={{
-              background: 'rgba(124,58,237,0.15)',
-              border: '1px solid rgba(124,58,237,0.35)',
-              color: '#C4B5FD',
-            }}
-          >
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"/>
-            </svg>
-            Build deck now — skip Q&amp;A
-          </button>
-        )}
       </div>
     </div>
   )

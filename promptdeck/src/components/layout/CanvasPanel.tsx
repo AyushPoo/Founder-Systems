@@ -301,6 +301,39 @@ export function CanvasPanel() {
           />
         )}
         <div className="flex items-center gap-2">
+          {/* Drag/Move mode toggle */}
+          {state.deckBuilt && (
+            <button
+              onClick={() => dispatch({ type: 'SET_DRAG_MODE', payload: !state.dragMode })}
+              title={state.dragMode ? "Switch to Edit text mode" : "Switch to Move elements mode"}
+              className="flex items-center gap-1.5 h-7 px-2 rounded-lg border transition-all text-xs font-medium"
+              style={state.dragMode ? {
+                background: 'rgba(124,58,237,0.25)',
+                border: '1px solid rgba(124,58,237,0.6)',
+                color: '#C4B5FD',
+              } : {
+                background: 'transparent',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'rgba(148,163,184,0.6)',
+              }}
+            >
+              {state.dragMode ? (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/>
+                  </svg>
+                  Move
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                  Edit
+                </>
+              )}
+            </button>
+          )}
           {/* Zoom controls */}
           <button
             onClick={() => setUserZoom(z => Math.max(0.3, parseFloat((z - 0.1).toFixed(1))))}

@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import { useDeck } from './context/DeckContext'
 import { DeckProvider } from './context/DeckContext'
 import { ChatPanel } from './components/layout/ChatPanel'
 import { CanvasPanel } from './components/layout/CanvasPanel'
@@ -7,8 +8,17 @@ import { PaymentGate } from './components/payment/PaymentGate'
 import './index.css'
 
 function AppInner() {
+  const { state } = useDeck()
   const [chatWidth, setChatWidth] = useState(300)
+  const [chatCollapsed, setChatCollapsed] = useState(false)
   const [navWidth, setNavWidth] = useState(196)
+
+  // Auto-collapse chat when deck is built to give more canvas space
+  useEffect(() => {
+    if (state.deckBuilt) {
+      setChatCollapsed(true)
+    }
+  }, [state.deckBuilt])
   const dragging = useRef<null | 'chat' | 'nav'>(null)
   const startX = useRef(0)
   const startW = useRef(0)
@@ -59,10 +69,35 @@ function AppInner() {
 
       {/* Main panels */}
       <div className="flex-1 flex overflow-hidden min-h-0">
-        {/* Chat panel — resizable */}
-        <div style={{ width: chatWidth, minWidth: 220, maxWidth: 480 }} className="shrink-0 flex flex-col overflow-hidden">
-          <ChatPanel />
-        </div>
+        {/* Chat panel — resizable + collapsible */}
+        {chatCollapsed ? (
+          <div className="shrink-0 flex flex-col items-center py-3 gap-3 overflow-hidden border-r border-border" style={{ width: 44 }}>
+            <button
+              onClick={() => setChatCollapsed(false)}
+              title="Expand chat"
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-secondary hover:text-accent transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <div style={{ width: chatWidth, minWidth: 220, maxWidth: 480 }} className="shrink-0 flex flex-col overflow-hidden relative">
+            <div className="absolute top-2.5 right-2.5 z-10">
+              <button
+                onClick={() => setChatCollapsed(true)}
+                title="Hide chat"
+                className="w-6 h-6 flex items-center justify-center rounded-md text-secondary hover:text-primary hover:bg-surface border border-border transition-colors"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                </svg>
+              </button>
+            </div>
+            <ChatPanel />
+          </div>
+        )}
 
         {/* Chat ↔ Canvas divider */}
         <div
