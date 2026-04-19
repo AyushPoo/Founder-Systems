@@ -17,17 +17,17 @@ export interface Theme {
 
 export const THEMES: Record<string, Theme> = {
   dark: {
-    bg: '#000000',
-    surface: '#0D0D14',
-    surfaceAlt: '#08001a',
-    border: 'rgba(255,255,255,0.06)',
+    bg: '#08080F',
+    surface: '#12121E',
+    surfaceAlt: '#1A1A2E',
+    border: 'rgba(255,255,255,0.1)',
     text: '#ffffff',
-    textSub: 'rgba(255,255,255,0.5)',
-    textMuted: 'rgba(255,255,255,0.22)',
+    textSub: 'rgba(255,255,255,0.6)',
+    textMuted: 'rgba(255,255,255,0.3)',
     accent: '#7C3AED',
     accentLight: '#A78BFA',
-    accentBg: 'rgba(124,58,237,0.1)',
-    accentBorder: 'rgba(124,58,237,0.3)',
+    accentBg: 'rgba(124,58,237,0.15)',
+    accentBorder: 'rgba(124,58,237,0.4)',
     isDark: true,
   },
   light: {

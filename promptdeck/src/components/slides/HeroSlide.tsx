@@ -91,8 +91,8 @@ function HeroMagazine({ company_name, tagline, stage, year, imageUrl, logoUrl, u
   return (
     <div className="w-full h-full relative overflow-hidden flex flex-col" style={{ background: t.bg }}>
       {imageUrl && <div className="absolute inset-0" style={{ backgroundImage: `url(${imageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />}
-      <div className="absolute inset-0" style={{ background: imageUrl ? 'linear-gradient(to right, rgba(0,0,0,0.96) 50%, rgba(0,0,0,0.4) 100%)' : t.bg }} />
-      <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.4\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
+      <div className="absolute inset-0" style={{ background: imageUrl ? 'linear-gradient(to right, rgba(8,8,15,0.97) 50%, rgba(8,8,15,0.5) 100%)' : 'radial-gradient(ellipse 120% 80% at 70% 50%, rgba(124,58,237,0.18) 0%, rgba(8,8,15,0) 60%), radial-gradient(ellipse 60% 100% at 30% 0%, rgba(124,58,237,0.1) 0%, transparent 70%), #08080F' }} />
+      <div className="absolute inset-0 opacity-[0.25]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.4\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
       <div className="relative z-10 flex flex-col justify-between h-full px-24 py-20">
         <div className="flex items-center gap-4">
           <LogoBadge logoUrl={logoUrl} company_name={company_name} t={t} />

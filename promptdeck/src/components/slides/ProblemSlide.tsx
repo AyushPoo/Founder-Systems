@@ -70,7 +70,7 @@ function ProblemCards({ headline, pain_points, up, t }: any) {
         </div>
       </div>
       {/* Right: dynamic grid — 2×2 for 4 pts, 3-col for ≤3 pts */}
-      <div className={`flex-1 grid gap-0 ${points.length >= 4 ? 'grid-cols-2 grid-rows-2' : 'grid-cols-3 grid-rows-1'}`}>
+      <div className={`flex-1 grid gap-0 ${points.length >= 4 ? 'grid-cols-2 grid-rows-2' : 'grid-cols-3 grid-rows-1'}`} style={{ height: '100%' }}>
         {points.slice(0, 4).map((p: PainPoint, i: number) => {
           const Icon = ICON_MAP[p.icon || ''] || ICONS[i % ICONS.length]
           const is4 = points.length >= 4
@@ -78,11 +78,13 @@ function ProblemCards({ headline, pain_points, up, t }: any) {
           const col = i % totalCols
           const row = is4 ? Math.floor(i / 2) : 0
           return (
-            <div key={i} className="flex flex-col justify-start p-10"
+            <div key={i} className="flex flex-col justify-start p-10 h-full"
               style={{
                 borderRight: col < totalCols - 1 ? `1px solid ${t.border}` : 'none',
                 borderBottom: is4 && row === 0 ? `1px solid ${t.border}` : 'none',
-                background: i === 0 ? (t.isDark ? 'rgba(239,68,68,0.04)' : '#FFF9F9') : 'transparent',
+                background: i === 0
+                  ? (t.isDark ? 'rgba(239,68,68,0.07)' : '#FFF5F5')
+                  : t.isDark ? 'rgba(255,255,255,0.02)' : 'transparent',
               }}>
               <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 shrink-0"
                 style={{ background: redBg, border: `1px solid ${redBorder}` }}>

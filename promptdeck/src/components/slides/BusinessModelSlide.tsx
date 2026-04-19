@@ -51,7 +51,7 @@ export function BusinessModelSlide({ type = 'SaaS', headline, streams = [], slid
               </div>
               <div className="mb-4 font-medium" style={{ fontSize: 20, color: t.textSub, lineHeight: 1.5 }}>{s.description}</div>
               <div className="w-full rounded-full overflow-hidden" style={{ height: 4, background: t.border }}>
-                <div className="h-full rounded-full" style={{ width: `${s.percentage}%`, background: `linear-gradient(to right, ${color}, ${t.accentBg})` }} />
+                <div className="h-full rounded-full" style={{ width: `${s.percentage}%`, background: `linear-gradient(to right, ${color}cc, ${color}33)` }} />
               </div>
             </div>
           )
