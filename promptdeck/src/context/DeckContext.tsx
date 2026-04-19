@@ -12,12 +12,19 @@ export interface Reference {
 
 export type DeckStyleType = 'dark' | 'light' | 'bold' | 'navy' | 'forest' | 'rose' | 'custom'
 
+export interface DeckAssets {
+  logoDataUrl?: string
+  founderPhotos: string[]
+  productScreenshot?: string
+}
+
 interface FullDeckState extends DeckState {
   references: Reference[]
   dragMode: boolean
   deckStyle: DeckStyleType
   prevSlideIndex: number
   customStyleUrl?: string
+  assets: DeckAssets
 }
 
 type Action =
@@ -40,6 +47,11 @@ type Action =
   | { type: 'SET_DRAG_MODE'; payload: boolean }
   | { type: 'SET_DECK_STYLE'; payload: DeckStyleType }
   | { type: 'SET_CUSTOM_STYLE'; payload: string }
+  | { type: 'SET_ASSET_LOGO'; payload: string }
+  | { type: 'ADD_ASSET_PHOTO'; payload: string }
+  | { type: 'REMOVE_ASSET_PHOTO'; payload: number }
+  | { type: 'SET_ASSET_SCREENSHOT'; payload: string }
+  | { type: 'CLEAR_ASSETS' }
 
 function reducer(state: FullDeckState, action: Action): FullDeckState {
   switch (action.type) {
@@ -91,6 +103,16 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
       return { ...state, deckStyle: action.payload }
     case 'SET_CUSTOM_STYLE':
       return { ...state, deckStyle: 'custom', customStyleUrl: action.payload }
+    case 'SET_ASSET_LOGO':
+      return { ...state, assets: { ...state.assets, logoDataUrl: action.payload } }
+    case 'ADD_ASSET_PHOTO':
+      return { ...state, assets: { ...state.assets, founderPhotos: [...state.assets.founderPhotos, action.payload] } }
+    case 'REMOVE_ASSET_PHOTO':
+      return { ...state, assets: { ...state.assets, founderPhotos: state.assets.founderPhotos.filter((_, i) => i !== action.payload) } }
+    case 'SET_ASSET_SCREENSHOT':
+      return { ...state, assets: { ...state.assets, productScreenshot: action.payload } }
+    case 'CLEAR_ASSETS':
+      return { ...state, assets: { logoDataUrl: undefined, founderPhotos: [], productScreenshot: undefined } }
     case 'APPLY_SLIDE_DELTA': {
       const delta = action.payload
       if (delta.action === 'none' || !delta.slide_type) return state
@@ -123,6 +145,7 @@ export function DeckProvider({ children }: { children: ReactNode }) {
     deckStyle: 'dark',
     prevSlideIndex: 0,
     customStyleUrl: undefined,
+    assets: { logoDataUrl: undefined, founderPhotos: [], productScreenshot: undefined },
   } as FullDeckState)
   return <DeckContext.Provider value={{ state, dispatch }}>{children}</DeckContext.Provider>
 }

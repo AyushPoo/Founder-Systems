@@ -8,6 +8,25 @@ function addMsg(dispatch: any, content: string) {
   dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content, timestamp: Date.now() } })
 }
 
+function patchAssetsIntoSlides(slides: any[], assets: { logoDataUrl?: string; founderPhotos: string[]; productScreenshot?: string }) {
+  return slides.map((slide: any) => {
+    if (slide.type === 'HeroSlide' && assets.logoDataUrl) {
+      return { ...slide, props: { ...slide.props, logoUrl: assets.logoDataUrl } }
+    }
+    if (slide.type === 'TeamSlide' && assets.founderPhotos.length > 0) {
+      const members = (slide.props.members || []).map((m: any, i: number) => ({
+        ...m,
+        photoUrl: assets.founderPhotos[i] || undefined,
+      }))
+      return { ...slide, props: { ...slide.props, members } }
+    }
+    if (slide.type === 'SolutionSlide' && assets.productScreenshot) {
+      return { ...slide, props: { ...slide.props, imageUrl: assets.productScreenshot } }
+    }
+    return slide
+  })
+}
+
 export function useChat() {
   const { state, dispatch } = useDeck()
   const [loading, setLoading] = useState(false)
@@ -94,12 +113,14 @@ export function useChat() {
   async function confirmBuild() {
     setLoading(true)
     dispatch({ type: 'SET_CONFIRMATION_CARD', payload: null })
-    addMsg(dispatch, '✨ Perfect — building your 10-slide deck now. This takes about 20–30 seconds...')
+    addMsg(dispatch, '✨ Building your 10-slide deck now. This takes about 20–30 seconds...')
 
     try {
-      const { slides } = await buildDeck(state.dimensions)
-      dispatch({ type: 'SET_SLIDES', payload: slides })
-      addMsg(dispatch, `Your deck is ready — ${slides.length} slides, investor-grade. Use ← → to navigate, click any text to edit.`)
+      const { slides } = await buildDeck(state.dimensions, state.assets)
+      // Patch user-uploaded assets into relevant slide props (client-side — no large blobs sent to backend)
+      const patched = patchAssetsIntoSlides(slides, state.assets)
+      dispatch({ type: 'SET_SLIDES', payload: patched })
+      addMsg(dispatch, `Your deck is ready — ${patched.length} slides, investor-grade. Use ← → to navigate, click any text to edit.`)
     } catch (e: any) {
       addMsg(dispatch, `Deck generation failed: ${e.message}. Please try again.`)
     } finally {
@@ -114,8 +135,9 @@ export function useChat() {
     addMsg(dispatch, '⚡ Got it — extracting your startup details and building the deck. Give me 30 seconds...')
     try {
       const { slides } = await buildFromDescription(description)
-      dispatch({ type: 'SET_SLIDES', payload: slides })
-      addMsg(dispatch, `Your deck is ready — ${slides.length} slides built from your description. Chat to refine any slide.`)
+      const patched = patchAssetsIntoSlides(slides, state.assets)
+      dispatch({ type: 'SET_SLIDES', payload: patched })
+      addMsg(dispatch, `Your deck is ready — ${patched.length} slides built from your description. Chat to refine any slide.`)
     } catch (e: any) {
       addMsg(dispatch, `Build failed: ${e.message}. Try again or chat to give me more details.`)
     } finally {

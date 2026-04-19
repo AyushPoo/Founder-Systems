@@ -5,6 +5,7 @@ import { getTheme } from '../../constants/themes'
 interface Props {
   company_name: string; tagline: string; stage: string
   year: number | string; imageUrl?: string; layout?: string
+  logoUrl?: string
   slideIndex: number; deckStyle?: string
 }
 
@@ -13,17 +14,46 @@ function nameSize(name: string) {
   if (n <= 5) return 160; if (n <= 8) return 128; if (n <= 12) return 100; if (n <= 16) return 80; return 64
 }
 
-function HeroMagazine({ company_name, tagline, stage, year, imageUrl, up, t }: any) {
+function LogoBadge({ logoUrl, company_name, t }: { logoUrl?: string; company_name: string; t: any }) {
+  if (logoUrl) {
+    return (
+      <div className="flex items-center justify-center rounded-xl overflow-hidden"
+        style={{ width: 52, height: 52, background: 'rgba(255,255,255,0.08)', border: `1px solid ${t.border}` }}>
+        <img src={logoUrl} alt="logo" style={{ width: 44, height: 44, objectFit: 'contain' }} />
+      </div>
+    )
+  }
+  // SVG monogram fallback
+  const letter = (company_name || 'C')[0].toUpperCase()
+  return (
+    <div className="flex items-center justify-center rounded-xl font-black"
+      style={{
+        width: 52, height: 52,
+        background: t.accentBg,
+        border: `1px solid ${t.accentBorder}`,
+        fontSize: 24,
+        color: t.accent,
+        fontFamily: "'Bricolage Grotesque', sans-serif",
+        letterSpacing: '-1px',
+      }}>
+      {letter}
+    </div>
+  )
+}
+
+function HeroMagazine({ company_name, tagline, stage, year, imageUrl, logoUrl, up, t }: any) {
   const fs = nameSize(company_name)
   if (!t.isDark) {
-    // Light theme: clean split — white left, photo right
     return (
       <div className="w-full h-full flex" style={{ background: t.bg }}>
         <div className="flex flex-col justify-between px-24 py-20" style={{ width: '55%' }}>
           <div className="flex items-center gap-4">
-            <div className="h-px w-10" style={{ background: t.accent }} />
-            <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
-              className="text-sm font-semibold tracking-[0.3em] uppercase" style={{ color: t.accent }} />
+            <LogoBadge logoUrl={logoUrl} company_name={company_name} t={t} />
+            <div className="flex items-center gap-3">
+              <div className="h-px w-6" style={{ background: t.accent }} />
+              <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
+                className="text-sm font-semibold tracking-[0.3em] uppercase" style={{ color: t.accent }} />
+            </div>
           </div>
           <div className="flex flex-col gap-6">
             <EditableText value={company_name || 'Company'} onChange={up('company_name')} tag="h1"
@@ -65,9 +95,12 @@ function HeroMagazine({ company_name, tagline, stage, year, imageUrl, up, t }: a
       <div className="absolute inset-0 opacity-[0.15]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'0.4\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px' }} />
       <div className="relative z-10 flex flex-col justify-between h-full px-24 py-20">
         <div className="flex items-center gap-4">
-          <div className="h-px w-10" style={{ background: t.accent }} />
-          <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
-            className="text-sm font-semibold tracking-[0.3em] uppercase" style={{ color: t.accentLight }} />
+          <LogoBadge logoUrl={logoUrl} company_name={company_name} t={t} />
+          <div className="flex items-center gap-3">
+            <div className="h-px w-6" style={{ background: t.accent }} />
+            <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
+              className="text-sm font-semibold tracking-[0.3em] uppercase" style={{ color: t.accentLight }} />
+          </div>
         </div>
         <div className="flex flex-col gap-6 max-w-4xl">
           <EditableText value={company_name || 'Company'} onChange={up('company_name')} tag="h1"
@@ -86,7 +119,7 @@ function HeroMagazine({ company_name, tagline, stage, year, imageUrl, up, t }: a
   )
 }
 
-function HeroCentered({ company_name, tagline, stage, year, up, t }: any) {
+function HeroCentered({ company_name, tagline, stage, year, logoUrl, up, t }: any) {
   const fs = nameSize(company_name)
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden" style={{ background: t.bg }}>
@@ -94,11 +127,14 @@ function HeroCentered({ company_name, tagline, stage, year, up, t }: any) {
         backgroundImage: `linear-gradient(${t.isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.3)'} 1px, transparent 1px), linear-gradient(90deg, ${t.isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.3)'} 1px, transparent 1px)`,
         backgroundSize: '80px 80px'
       }} />
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-3">
-        <div className="h-px w-8" style={{ background: t.accentBorder }} />
-        <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
-          className="text-sm font-semibold tracking-[0.35em] uppercase" style={{ color: t.accentLight }} />
-        <div className="h-px w-8" style={{ background: t.accentBorder }} />
+      <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-4">
+        <LogoBadge logoUrl={logoUrl} company_name={company_name} t={t} />
+        <div className="flex items-center gap-3">
+          <div className="h-px w-8" style={{ background: t.accentBorder }} />
+          <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
+            className="text-sm font-semibold tracking-[0.35em] uppercase" style={{ color: t.accentLight }} />
+          <div className="h-px w-8" style={{ background: t.accentBorder }} />
+        </div>
       </div>
       <div className="relative z-10 flex flex-col items-center text-center px-24">
         <EditableText value={company_name || 'Company'} onChange={up('company_name')} tag="h1"
@@ -116,16 +152,19 @@ function HeroCentered({ company_name, tagline, stage, year, up, t }: any) {
   )
 }
 
-function HeroSplit({ company_name, tagline, stage, year, up, t }: any) {
+function HeroSplit({ company_name, tagline, stage, year, logoUrl, up, t }: any) {
   const fs = nameSize(company_name)
   const smallFs = Math.min(fs, 100)
   return (
     <div className="w-full h-full flex" style={{ background: t.bg }}>
       <div className="flex flex-col justify-between px-20 py-20" style={{ width: '58%' }}>
-        <div className="flex items-center gap-3">
-          <div className="h-px w-8" style={{ background: t.accent }} />
-          <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
-            className="text-sm font-semibold tracking-[0.35em] uppercase" style={{ color: t.accent }} />
+        <div className="flex items-center gap-4">
+          <LogoBadge logoUrl={logoUrl} company_name={company_name} t={t} />
+          <div className="flex items-center gap-3">
+            <div className="h-px w-8" style={{ background: t.accent }} />
+            <EditableText value={stage || 'Seed'} onChange={up('stage')} tag="span"
+              className="text-sm font-semibold tracking-[0.35em] uppercase" style={{ color: t.accent }} />
+          </div>
         </div>
         <div>
           <EditableText value={company_name || 'Company'} onChange={up('company_name')} tag="h1"
@@ -159,11 +198,11 @@ function HeroSplit({ company_name, tagline, stage, year, up, t }: any) {
   )
 }
 
-export function HeroSlide({ company_name, tagline, stage, year, imageUrl, layout = 'magazine', slideIndex, deckStyle }: Props) {
+export function HeroSlide({ company_name, tagline, stage, year, imageUrl, logoUrl, layout = 'magazine', slideIndex, deckStyle }: Props) {
   const { dispatch } = useDeck()
   const t = getTheme(deckStyle)
   const up = (key: string) => (val: string) => dispatch({ type: 'UPDATE_SLIDE_PROP', payload: { index: slideIndex, key, value: val } })
-  const shared = { company_name, tagline, stage, year, imageUrl, up, t }
+  const shared = { company_name, tagline, stage, year, imageUrl, logoUrl, up, t }
   if (layout === 'centered') return <HeroCentered {...shared} />
   if (layout === 'split') return <HeroSplit {...shared} />
   return <HeroMagazine {...shared} />

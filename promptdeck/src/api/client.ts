@@ -47,10 +47,10 @@ export async function sendMessage(
   return res.json()
 }
 
-export async function buildDeck(dimensions: Record<string, any>) {
+export async function buildDeck(dimensions: Record<string, any>, assets?: { logoDataUrl?: string; founderPhotos?: string[]; productScreenshot?: string }) {
   const res = await apiFetch('/build', {
     method: 'POST',
-    body: JSON.stringify({ dimensions }),
+    body: JSON.stringify({ dimensions, assets: assets || {} }),
   })
   return res.json() as Promise<{ slides: any[] }>
 }
