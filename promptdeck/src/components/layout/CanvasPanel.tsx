@@ -321,7 +321,6 @@ export function CanvasPanel() {
       </div>
       <div ref={containerRef} className="flex-1 relative overflow-hidden" style={{ background: '#0D0D14' }}>
         <div
-          className={animClass}
           style={{
             position: 'absolute',
             top: '50%',
@@ -332,10 +331,12 @@ export function CanvasPanel() {
             transformOrigin: 'center center',
           }}
         >
-          <div className="w-full h-full overflow-hidden rounded-xl" style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}>
-            {isLocked ? <LockedSlide /> : (
-              <SlideRenderer type={activeSlide.type} props={{ ...activeSlide.props, deckStyle }} slideIndex={activeSlideIndex} />
-            )}
+          <div className={animClass} style={{ width: '100%', height: '100%' }}>
+            <div className="w-full h-full overflow-hidden rounded-xl" style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)' }}>
+              {isLocked ? <LockedSlide /> : (
+                <SlideRenderer type={activeSlide.type} props={{ ...activeSlide.props, deckStyle }} slideIndex={activeSlideIndex} />
+              )}
+            </div>
           </div>
         </div>
       </div>

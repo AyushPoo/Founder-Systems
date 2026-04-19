@@ -116,7 +116,8 @@ export function useChat() {
     addMsg(dispatch, '✨ Building your 10-slide deck now. This takes about 20–30 seconds...')
 
     try {
-      const { slides } = await buildDeck(state.dimensions, state.assets)
+      const refContent = state.references.map((r: any) => r.full_text).join('\n\n---\n\n')
+      const { slides } = await buildDeck(state.dimensions, state.assets, refContent)
       // Patch user-uploaded assets into relevant slide props (client-side — no large blobs sent to backend)
       const patched = patchAssetsIntoSlides(slides, state.assets)
       dispatch({ type: 'SET_SLIDES', payload: patched })

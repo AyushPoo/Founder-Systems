@@ -30,7 +30,7 @@ export function EditableText({ value, onChange, tag: Tag = 'div', className = ''
       ref={ref as any}
       contentEditable
       suppressContentEditableWarning
-      onFocus={() => { isFocused.current = true }}
+
       onBlur={(e: FocusEvent<HTMLElement>) => {
         isFocused.current = false
         onChange(e.currentTarget.textContent ?? '')
@@ -39,7 +39,26 @@ export function EditableText({ value, onChange, tag: Tag = 'div', className = ''
       style={{
         outline: 'none',
         cursor: state.dragMode ? 'move' : 'text',
+        borderRadius: 4,
+        transition: 'box-shadow 0.15s ease, background 0.15s ease',
         ...style,
+      }}
+      onMouseEnter={(e: any) => {
+        if (!state.dragMode) {
+          e.currentTarget.style.boxShadow = '0 0 0 2px rgba(124,58,237,0.4)'
+          e.currentTarget.style.background = 'rgba(124,58,237,0.06)'
+        }
+      }}
+      onMouseLeave={(e: any) => {
+        if (!isFocused.current) {
+          e.currentTarget.style.boxShadow = 'none'
+          e.currentTarget.style.background = 'transparent'
+        }
+      }}
+      onFocus={(e: any) => {
+        isFocused.current = true
+        e.currentTarget.style.boxShadow = '0 0 0 2px rgba(124,58,237,0.7)'
+        e.currentTarget.style.background = 'rgba(124,58,237,0.08)'
       }}
       data-placeholder={placeholder}
     />
