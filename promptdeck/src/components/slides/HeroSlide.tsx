@@ -74,7 +74,7 @@ function HeroMagazine({ company_name, tagline, stage, year, imageUrl, logoUrl, u
             : (
               <>
                 <div className="absolute inset-0" style={{ background: t.surfaceAlt }} />
-                <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 500 1080" preserveAspectRatio="xMidYMid slice">
+                <svg className="absolute inset-0 w-full h-full opacity-25" viewBox="0 0 500 1080" preserveAspectRatio="xMidYMid slice">
                   <circle cx="250" cy="540" r="400" fill="none" stroke={t.accent} strokeWidth="1" />
                   <circle cx="250" cy="540" r="280" fill="none" stroke={t.accent} strokeWidth="0.5" />
                   <circle cx="250" cy="540" r="160" fill="none" stroke={t.accent} strokeWidth="0.5" />

@@ -13,6 +13,15 @@ const GRAD = [
   'linear-gradient(135deg,#10B981,#0EA5E9)',
 ]
 
+function hlSize(text: string) {
+  const n = (text || '').length
+  if (n <= 18) return 48
+  if (n <= 28) return 40
+  if (n <= 42) return 32
+  if (n <= 60) return 26
+  return 20
+}
+
 function MemberAvatar({ member, index }: { member: Member; index: number }) {
   if (member.photoUrl) {
     return (
@@ -25,7 +34,6 @@ function MemberAvatar({ member, index }: { member: Member; index: number }) {
       </div>
     )
   }
-  // Gradient initials fallback
   return (
     <div className="w-20 h-20 rounded-2xl shrink-0 flex items-center justify-center font-display font-black text-white text-2xl"
        style={{ background: GRAD[index % GRAD.length], fontFamily: "'Bricolage Grotesque', sans-serif" }}>
@@ -44,41 +52,36 @@ export function TeamSlide({ headline, members = [], slideIndex, deckStyle }: Pro
     { name: 'Sam Rivera', role: 'Head of Growth', background: '0→$10M ARR at two prior startups', initials: 'SR' },
   ]
 
-  const leftBg = t.isDark ? '#06060a' : t.surfaceAlt
-  const leftBorder = t.isDark ? '#111' : t.border
-  const rowBorder = t.isDark ? '#111' : t.border
-  const labelColor = t.accentLight
-  const headlineColor = t.text
-  const roleColor = t.accent
-  const bgColor = t.isDark ? '#000' : t.bg
-  const memberBgColor = t.isDark ? '#0a0a12' : t.surface
+  const hl = headline || 'Operators, not academics'
+  const fs = hlSize(hl)
 
   return (
-    <div className="w-full h-full flex" style={{ background: bgColor }}>
+    <div className="w-full h-full flex" style={{ background: t.bg }}>
       {/* Left panel */}
-      <div className="w-80 shrink-0 flex flex-col justify-between px-16 py-20" style={{ background: leftBg, borderRight: `1px solid ${leftBorder}` }}>
+      <div className="w-80 shrink-0 flex flex-col justify-between px-16 py-20"
+        style={{ background: t.surface, borderRight: `1px solid ${t.border}` }}>
         <div>
-          <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: labelColor }}>The Team</div>
-          <EditableText value={headline || 'Operators, not academics'} onChange={up('headline')} tag="h2"
+          <div className="text-sm font-semibold tracking-[0.35em] uppercase mb-8" style={{ color: t.accentLight }}>The Team</div>
+          <EditableText value={hl} onChange={up('headline')} tag="h2"
             className="font-display font-black leading-tight"
-            style={{ fontSize: 48, letterSpacing: '-2px', fontFamily: "'Bricolage Grotesque', sans-serif", color: headlineColor }} />
+            style={{ fontSize: fs, letterSpacing: '-1.5px', fontFamily: "'Bricolage Grotesque', sans-serif", color: t.text }} />
         </div>
         <div className="font-display font-black" style={{ fontSize: 140, color: `${t.accent}0F`, lineHeight: 1, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
-          {people.length}×
+          {people.length}x
         </div>
       </div>
       {/* Right: members */}
       <div className="flex-1 flex flex-col justify-center gap-0">
         {people.map((m, i) => (
           <div key={i} className="flex items-center gap-8 px-16 py-9"
-               style={{ background: i % 2 === 0 ? 'transparent' : memberBgColor, borderBottom: i < people.length - 1 ? `1px solid ${rowBorder}` : 'none' }}>
+               style={{ background: i % 2 === 0 ? 'transparent' : t.surface, borderBottom: i < people.length - 1 ? `1px solid ${t.border}` : 'none' }}>
             <MemberAvatar member={m} index={i} />
             <div className="flex-1 min-w-0">
-              <div className="font-display font-black mb-1" style={{ fontSize: 30, fontFamily: "'Bricolage Grotesque', sans-serif", color: headlineColor }}>{m.name}</div>
-              <div className="font-semibold mb-2" style={{ fontSize: 18, color: roleColor }}>{m.role}</div>
+              <div className="font-display font-black mb-1" style={{ fontSize: 30, fontFamily: "'Bricolage Grotesque', sans-serif", color: t.text }}>{m.name}</div>
+              <div className="font-semibold mb-2" style={{ fontSize: 18, color: t.accent }}>{m.role}</div>
               <div className="font-medium" style={{ fontSize: 20, color: t.textMuted, lineHeight: 1.4 }}>{m.background}</div>
             </div>
-            <ExternalLink size={20} color={t.isDark ? 'rgba(255,255,255,0.15)' : t.border} strokeWidth={1.5} className="shrink-0" />
+            <ExternalLink size={20} color={t.border} strokeWidth={1.5} className="shrink-0" />
           </div>
         ))}
       </div>

@@ -87,8 +87,8 @@ function TractionChart({ headline, metrics, chartData, chartMetric, up, slideInd
           <AreaChart data={data} margin={{ top: 16, right: 32, left: 8, bottom: 8 }}>
             <defs>
               <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={t.accent} stopOpacity={0.25} />
-                <stop offset="90%" stopColor={t.accent} stopOpacity={0.02} />
+                <stop offset="5%" stopColor={t.accent} stopOpacity={t.isDark ? 0.3 : 0.5} />
+                <stop offset="90%" stopColor={t.accent} stopOpacity={0.03} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={t.border} vertical={false} />

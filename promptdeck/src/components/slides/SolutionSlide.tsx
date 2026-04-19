@@ -42,6 +42,16 @@ function SolutionFeatures({ headline, features, imageUrl, up, t }: any) {
             style={{ fontSize: fs, letterSpacing: '-1px', lineHeight: 1.1,
               fontFamily: "'Bricolage Grotesque', sans-serif", color: t.text }} />
         </div>
+        <div className="relative z-10 flex-1 flex flex-col justify-center py-8">
+          <div className="font-display font-black leading-none select-none"
+            style={{ fontSize: 120, letterSpacing: '-6px', lineHeight: 0.85,
+              color: t.accent, opacity: 0.08, fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            01
+          </div>
+          <div className="mt-8 font-medium" style={{ fontSize: 16, color: t.textMuted, lineHeight: 1.7, maxWidth: 280 }}>
+            Built from first principles to replace what came before
+          </div>
+        </div>
         <div className="relative z-10">
           <div className="w-10 h-0.5" style={{ background: t.accentBorder }} />
         </div>

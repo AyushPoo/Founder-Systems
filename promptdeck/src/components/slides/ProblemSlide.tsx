@@ -69,17 +69,19 @@ function ProblemCards({ headline, pain_points, up, t }: any) {
           </div>
         </div>
       </div>
-      {/* Right: 2×2 cards */}
-      <div className="flex-1 grid grid-cols-2 grid-rows-2 gap-0">
+      {/* Right: dynamic grid — 2×2 for 4 pts, 3-col for ≤3 pts */}
+      <div className={`flex-1 grid gap-0 ${points.length >= 4 ? 'grid-cols-2 grid-rows-2' : 'grid-cols-3 grid-rows-1'}`}>
         {points.slice(0, 4).map((p: PainPoint, i: number) => {
           const Icon = ICON_MAP[p.icon || ''] || ICONS[i % ICONS.length]
-          const col = i % 2
-          const row = Math.floor(i / 2)
+          const is4 = points.length >= 4
+          const totalCols = is4 ? 2 : Math.min(points.length, 3)
+          const col = i % totalCols
+          const row = is4 ? Math.floor(i / 2) : 0
           return (
             <div key={i} className="flex flex-col justify-start p-10"
               style={{
-                borderRight: col === 0 ? `1px solid ${t.border}` : 'none',
-                borderBottom: row === 0 ? `1px solid ${t.border}` : 'none',
+                borderRight: col < totalCols - 1 ? `1px solid ${t.border}` : 'none',
+                borderBottom: is4 && row === 0 ? `1px solid ${t.border}` : 'none',
                 background: i === 0 ? (t.isDark ? 'rgba(239,68,68,0.04)' : '#FFF9F9') : 'transparent',
               }}>
               <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 shrink-0"
