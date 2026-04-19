@@ -33,11 +33,23 @@ export function ChatPanel() {
     el.style.height = Math.min(el.scrollHeight, 120) + 'px'
   }, [input])
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim() && state.references.length === 0) return
-    send(input, state.references)
-    setInput('')
-    dispatch({ type: 'CLEAR_REFERENCES' })
+    // If there are staged references with no prior analysis (messages empty or last was not AI analyzing)
+    const hasUnanalyzedRefs = state.references.length > 0 && state.messages.length === 0
+    if (hasUnanalyzedRefs) {
+      for (const ref of state.references) {
+        dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: `📎 ${ref.filename}`, timestamp: Date.now() } })
+        await analyzeReference(ref)
+      }
+      dispatch({ type: 'CLEAR_REFERENCES' })
+      if (input.trim()) send(input, [])
+      setInput('')
+    } else {
+      send(input, state.references)
+      setInput('')
+      dispatch({ type: 'CLEAR_REFERENCES' })
+    }
   }
 
   const handleBuildDirect = () => {
@@ -48,15 +60,15 @@ export function ChatPanel() {
   }
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = Array.from(e.target.files || [])
+    if (files.length === 0) return
     setUploading(true)
     try {
-      const ref = await uploadReference(file)
-      dispatch({ type: 'ADD_REFERENCE', payload: ref })
-      // Show file as user message, then auto-analyze
-      dispatch({ type: 'ADD_MESSAGE', payload: { role: 'user', content: `📎 ${ref.filename}`, timestamp: Date.now() } })
-      await analyzeReference(ref)
+      for (const file of files) {
+        const ref = await uploadReference(file)
+        dispatch({ type: 'ADD_REFERENCE', payload: ref })
+      }
+      // Files are staged — user can type a message and send together
     } catch (err: any) {
       dispatch({ type: 'ADD_MESSAGE', payload: { role: 'ai', content: `Upload failed: ${err.message}`, timestamp: Date.now() } })
     } finally {
@@ -156,6 +168,7 @@ export function ChatPanel() {
           type="file"
           accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md,.csv,.pptx"
           className="hidden"
+          multiple
           onChange={handleFile}
         />
 
@@ -164,7 +177,7 @@ export function ChatPanel() {
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={loading || uploading}
-            title="Attach a document, image, or brand guide"
+            title={state.references.length > 0 ? `${state.references.length} file(s) attached — type a message and send` : "Attach a document, image, or brand guide"}
             className="shrink-0 text-secondary hover:text-accent disabled:opacity-40 transition-colors p-1.5 rounded-lg hover:bg-surface"
           >
             {uploading ? (
