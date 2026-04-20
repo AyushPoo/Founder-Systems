@@ -2,6 +2,7 @@ import { createContext, useContext, useReducer } from 'react'
 import type { ReactNode } from 'react'
 import type { DeckState, SlideConfig, Message, Dimensions, ConfirmationCardData, SlideDelta } from '../types'
 import { DEFAULT_DECK_STATE } from '../constants'
+import { guardSlideProps } from '../lib/slideGuards'
 
 export interface Reference {
   ref_id: string
@@ -58,7 +59,7 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
     case 'ADD_MESSAGE':
       return { ...state, messages: [...state.messages, action.payload] }
     case 'SET_SLIDES':
-      return { ...state, slides: action.payload, deckBuilt: true }
+      return { ...state, slides: action.payload.map((s: any) => ({ ...s, props: guardSlideProps(s.type, s.props) })), deckBuilt: true }
     case 'UPDATE_SLIDE': {
       const slides = [...state.slides]
       slides[action.payload.index] = action.payload.slide
@@ -75,7 +76,7 @@ function reducer(state: FullDeckState, action: Action): FullDeckState {
       const slides = [...state.slides]
       slides[action.payload.index] = {
         ...slides[action.payload.index],
-        props: { ...slides[action.payload.index].props, [action.payload.key]: action.payload.value }
+        props: guardSlideProps(slides[action.payload.index].type, { ...slides[action.payload.index].props, [action.payload.key]: action.payload.value })
       }
       return { ...state, slides }
     }
