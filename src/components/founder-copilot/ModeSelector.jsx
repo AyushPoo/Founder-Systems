@@ -1,21 +1,14 @@
-const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) => {
+const ModeSelector = ({ modes = [], selectedMode, onSelect }) => {
   return (
-    <section
-      className={`rounded-[24px] border-2 border-brand-black bg-brand-cream/35 ${
-        compact ? 'p-4 md:p-5' : 'p-6 md:p-7'
-      }`}
-    >
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange mb-3">
-        Choose your stage
-      </p>
-      <h2 className={`${compact ? 'text-xl md:text-2xl' : 'text-2xl md:text-[2rem]'} font-black tracking-tight-brand mb-2`}>
+    <section className="mx-auto max-w-[1080px]">
+      <h2 className="text-[1.9rem] md:text-[2.25rem] font-black tracking-tight-brand mb-2">
         Where are you right now?
       </h2>
-      <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/60 mb-5">
+      <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/55 mb-8 max-w-[560px]">
         Pick the closest starting point.
       </p>
 
-      <div className={`grid gap-3 ${compact ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>
+      <div className="grid gap-4 md:grid-cols-3">
         {modes.map((mode) => {
           const isActive = selectedMode === mode.id;
 
@@ -24,15 +17,17 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) =
               key={mode.id}
               type="button"
               onClick={() => onSelect(mode.id)}
-              className={`text-left rounded-[20px] border-2 border-brand-black p-4 transition-all min-h-[132px] flex flex-col justify-between ${
+              className={`text-left rounded-[28px] border-2 border-brand-black bg-white p-6 md:p-7 transition-all min-h-[208px] flex flex-col justify-between ${
                 isActive
-                  ? 'bg-brand-orange text-white shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
-                  : 'bg-white hover:shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
+                  ? 'bg-brand-orange text-white shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]'
+                  : 'hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]'
               }`}
             >
-              <p className="text-base md:text-lg font-black tracking-tight-brand mb-2 leading-tight">{mode.title}</p>
+              <p className="text-[1.7rem] md:text-[1.95rem] font-black tracking-tight-brand mb-4 leading-[1.08] max-w-[11ch]">
+                {mode.title}
+              </p>
               <p
-                className={`text-sm font-bold leading-relaxed ${
+                className={`text-base font-bold leading-relaxed ${
                   isActive ? 'text-white/90' : 'text-brand-black/60'
                 }`}
               >

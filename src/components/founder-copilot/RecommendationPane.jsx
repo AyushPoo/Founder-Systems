@@ -79,15 +79,12 @@ const RecommendationPane = ({
   }
 
   return (
-    <section className="rounded-[28px] border-2 border-brand-black bg-white p-6 md:p-7 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-      <div className="pb-5 border-b-2 border-brand-black">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange mb-2">
-          Context
-        </p>
-        <h2 className="text-2xl font-black tracking-tight-brand">Context</h2>
+    <section className="flex h-full min-h-0 flex-col rounded-[28px] border-2 border-brand-black bg-white p-5 md:p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+      <div className="border-b-2 border-brand-black pb-4">
+        <h2 className="text-[1.85rem] font-black tracking-tight-brand">Context</h2>
       </div>
 
-      <div className="pt-6 space-y-5 xl:max-h-[calc(100vh-260px)] xl:overflow-y-auto xl:pr-1">
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto pt-5 xl:pr-1">
         <div className="rounded-[22px] border-2 border-brand-black bg-brand-cream/25 p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
             Session state
@@ -95,7 +92,7 @@ const RecommendationPane = ({
           <p className="text-sm font-bold text-brand-black/70 leading-relaxed">
             {stage === 'mode_selection'
               ? 'Choose a stage to begin.'
-              : 'The right side updates as the conversation sharpens.'}
+              : 'The right side sharpens as the conversation sharpens.'}
           </p>
           {selectedMode ? (
             <p className="mt-3 text-xs font-black uppercase tracking-[0.14em] text-brand-black/55">

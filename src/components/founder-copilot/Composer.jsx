@@ -11,7 +11,7 @@ const Composer = ({
   onRemoveAttachment,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-2">
       <textarea
         rows={3}
         value={value}
@@ -41,8 +41,8 @@ const Composer = ({
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
           <label className={`inline-flex items-center gap-2 rounded-full border-2 border-brand-black bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
             <input
               type="file"
@@ -54,13 +54,7 @@ const Composer = ({
             />
             Attach files
           </label>
-          <p className="text-xs md:text-sm font-bold text-brand-black/50 leading-relaxed">
-            Text, markdown, CSV, and JSON work best right now.
-          </p>
         </div>
-        <p className="text-xs md:text-sm font-bold text-brand-black/55 leading-relaxed md:ml-auto">
-          {helperText}
-        </p>
         <button
           type="submit"
           disabled={disabled || loading}
@@ -69,6 +63,9 @@ const Composer = ({
           {loading ? 'Thinking...' : 'Send'}
         </button>
       </div>
+      {helperText ? (
+        <p className="text-xs font-bold leading-relaxed text-brand-black/45">{helperText}</p>
+      ) : null}
     </form>
   );
 };

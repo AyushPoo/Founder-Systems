@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import ConversationPane from '../components/founder-copilot/ConversationPane';
 import RecommendationPane from '../components/founder-copilot/RecommendationPane';
 import CopilotShell from '../components/founder-copilot/CopilotShell';
+import ModeSelector from '../components/founder-copilot/ModeSelector';
 import { copyText, downloadMarkdown, normalizeFounderSpecResponse } from '../utils/founderSpec';
 import {
   appendFounderCopilotMessage,
@@ -88,6 +89,7 @@ const FounderSpecGenerator = () => {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const [showActiveShell, setShowActiveShell] = useState(false);
 
   const recommendationTitle = useMemo(
     () => session.recommendation?.title || session.recommendation?.what || '',
@@ -95,6 +97,16 @@ const FounderSpecGenerator = () => {
   );
 
   const hasActiveMode = Boolean(session.selectedMode);
+
+  useEffect(() => {
+    if (!hasActiveMode) {
+      setShowActiveShell(false);
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => setShowActiveShell(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, [hasActiveMode]);
 
   async function submitPayload({ message = '', selection = null, nextSession = session, documents = [] }) {
     setLoading(true);
@@ -140,6 +152,7 @@ const FounderSpecGenerator = () => {
   }
 
   function handleModeSelect(modeId) {
+    setShowActiveShell(false);
     const nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
     setSession(nextSession);
     setInputValue('');
@@ -221,58 +234,82 @@ const FounderSpecGenerator = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pt-20 md:pt-22 pb-4 md:pb-6 xl:h-[calc(100vh-88px)] xl:overflow-hidden">
-        <div className="max-w-[1480px] mx-auto px-4 md:px-6 xl:px-8 h-full">
-          <div className="mb-4 md:mb-5">
-            <div>
-              <span className="inline-block px-3 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-xs font-black uppercase tracking-[0.22em] mb-3">
-                Strategy Beta
-              </span>
-              <h1 className="text-2xl md:text-[2.35rem] font-black tracking-tight-brand">
-                Founder Strategy Copilot
-              </h1>
-            </div>
-          </div>
+      <main className="flex-grow pt-20 md:pt-22 pb-6 xl:h-[calc(100vh-88px)] xl:overflow-hidden">
+        <div className="mx-auto h-full max-w-[1480px] px-4 md:px-6 xl:px-8">
+          {!hasActiveMode ? (
+            <section className="flex h-full items-center">
+              <div className="w-full max-w-[1120px]">
+                <div className="mb-10 max-w-[760px]">
+                  <h1 className="text-[2.4rem] leading-none md:text-[4rem] font-black tracking-tight-brand">
+                    Founder Strategy Copilot
+                  </h1>
+                  <p className="mt-4 max-w-[580px] text-base font-bold leading-relaxed text-brand-black/55 md:text-lg">
+                    Pick your stage. We&apos;ll open the copilot from there.
+                  </p>
+                </div>
 
-          <CopilotShell
-            leftPane={
-              <ConversationPane
-                session={session}
-                inputValue={inputValue}
-                onInputChange={setInputValue}
-                onSubmit={handleSubmit}
-                loading={loading}
-                error={error}
-                disabled={!hasActiveMode}
-                modes={COPILOT_MODES}
-                onSelectMode={handleModeSelect}
-                attachments={attachments}
-                onPickFiles={handlePickFiles}
-                onRemoveAttachment={handleRemoveAttachment}
-              />
-            }
-            rightPane={
-              <RecommendationPane
-                stage={session.stage}
-                shortlist={session.shortlist}
-                recommendation={session.recommendation}
-                evidence={session.evidence}
-                inference={session.inference}
-                onSelectShortlist={handleShortlistSelect}
-                brief={session.brief}
-                markdown={session.markdown}
-                copied={copied}
-                onCopy={handleCopy}
-                onDownload={handleDownload}
-                founderFit={session.founderFit}
-                actionPlan={session.actionPlan}
-                verdict={session.verdict}
-                challenge={session.challenge}
-                activeTab={session.activePanel}
-                selectedMode={session.selectedMode}
-              />
-            }
-          />
+                <ModeSelector
+                  modes={COPILOT_MODES}
+                  selectedMode={session.selectedMode}
+                  onSelect={handleModeSelect}
+                />
+              </div>
+            </section>
+          ) : (
+            <section className="flex h-full min-h-0 flex-col">
+              <div className="mb-4 flex items-end justify-between gap-6">
+                <div className="min-w-0">
+                  <h1 className="text-[2.1rem] leading-none md:text-[2.9rem] font-black tracking-tight-brand">
+                    Founder Strategy Copilot
+                  </h1>
+                </div>
+              </div>
+
+              <div
+                className={`min-h-0 flex-1 transition-all duration-300 ease-out ${
+                  showActiveShell ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+                }`}
+              >
+                <CopilotShell
+                  leftPane={
+                    <ConversationPane
+                      session={session}
+                      inputValue={inputValue}
+                      onInputChange={setInputValue}
+                      onSubmit={handleSubmit}
+                      loading={loading}
+                      error={error}
+                      disabled={!hasActiveMode}
+                      attachments={attachments}
+                      onPickFiles={handlePickFiles}
+                      onRemoveAttachment={handleRemoveAttachment}
+                    />
+                  }
+                  rightPane={
+                    <RecommendationPane
+                      stage={session.stage}
+                      shortlist={session.shortlist}
+                      recommendation={session.recommendation}
+                      evidence={session.evidence}
+                      inference={session.inference}
+                      onSelectShortlist={handleShortlistSelect}
+                      brief={session.brief}
+                      markdown={session.markdown}
+                      copied={copied}
+                      onCopy={handleCopy}
+                      onDownload={handleDownload}
+                      founderFit={session.founderFit}
+                      actionPlan={session.actionPlan}
+                      verdict={session.verdict}
+                      challenge={session.challenge}
+                      activeTab={session.activePanel}
+                      selectedMode={session.selectedMode}
+                    />
+                  }
+                />
+              </div>
+            </section>
+          )}
         </div>
       </main>
     </div>

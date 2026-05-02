@@ -1,8 +1,8 @@
 const CopilotShell = ({ leftPane, rightPane }) => {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.12fr)_minmax(360px,0.88fr)] gap-5 xl:gap-7 items-start xl:h-[calc(100vh-164px)]">
-      <div className="min-w-0">{leftPane}</div>
-      <aside className="min-w-0 xl:sticky xl:top-20">{rightPane}</aside>
+    <div className="grid h-full min-h-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] xl:gap-7">
+      <div className="min-w-0 min-h-0">{leftPane}</div>
+      <aside className="min-w-0 min-h-0">{rightPane}</aside>
     </div>
   );
 };
