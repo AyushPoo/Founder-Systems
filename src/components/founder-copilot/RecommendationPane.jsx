@@ -92,7 +92,7 @@ const RecommendationPane = ({
         </p>
       </div>
 
-      <div className="pt-6 space-y-5">
+      <div className="pt-6 space-y-5 xl:max-h-[calc(100vh-260px)] xl:overflow-y-auto xl:pr-1">
         <div className="rounded-[22px] border-2 border-brand-black bg-brand-cream/25 p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
             Session state

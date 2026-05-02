@@ -16,7 +16,7 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) =
         asking for fake certainty up front.
       </p>
 
-      <div className={`grid gap-3 ${compact ? 'grid-cols-1 xl:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>
+      <div className={`grid gap-3 ${compact ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>
         {modes.map((mode) => {
           const isActive = selectedMode === mode.id;
 
@@ -25,13 +25,13 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) =
               key={mode.id}
               type="button"
               onClick={() => onSelect(mode.id)}
-              className={`text-left rounded-[20px] border-2 border-brand-black p-4 md:p-5 transition-all min-h-[148px] ${
+              className={`text-left rounded-[20px] border-2 border-brand-black p-4 transition-all min-h-[132px] flex flex-col justify-between ${
                 isActive
                   ? 'bg-brand-orange text-white shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
                   : 'bg-white hover:shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
               }`}
             >
-              <p className="text-base md:text-lg font-black tracking-tight-brand mb-2">{mode.title}</p>
+              <p className="text-base md:text-lg font-black tracking-tight-brand mb-2 leading-tight">{mode.title}</p>
               <p
                 className={`text-sm font-bold leading-relaxed ${
                   isActive ? 'text-white/90' : 'text-brand-black/65'

@@ -20,9 +20,12 @@ const ConversationPane = ({
   const messages = Array.isArray(session.messages) ? session.messages : [];
   const visibleMessages = hasActiveMode ? messages : messages.filter((message) => message.role !== 'assistant');
   const hasMessages = visibleMessages.length > 0;
+  const shellHeightClass = hasActiveMode
+    ? 'xl:min-h-[calc(100vh-172px)] xl:max-h-[calc(100vh-172px)]'
+    : 'xl:min-h-[calc(100vh-172px)]';
 
   return (
-    <section className="rounded-[28px] border-2 border-brand-black bg-brand-cream/20 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] min-h-[calc(100vh-170px)] max-h-[calc(100vh-170px)] overflow-hidden">
+    <section className={`rounded-[28px] border-2 border-brand-black bg-brand-cream/20 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] overflow-hidden ${shellHeightClass}`}>
       <div className="border-b-2 border-brand-black bg-white px-6 py-5 md:px-7">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -42,8 +45,8 @@ const ConversationPane = ({
         </div>
       </div>
 
-      <div className="flex h-[calc(100vh-264px)] min-h-[560px] flex-col">
-        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5 md:px-7">
+      <div className={`flex min-h-0 flex-col ${hasActiveMode ? 'xl:h-[calc(100vh-266px)]' : ''}`}>
+        <div className={`flex-1 px-6 py-5 md:px-7 ${hasActiveMode ? 'space-y-4 overflow-y-auto' : 'space-y-4'}`}>
           {!hasActiveMode ? (
             <ModeSelector
               modes={modes}
@@ -78,7 +81,7 @@ const ConversationPane = ({
           ) : null}
         </div>
 
-        <div className="border-t-2 border-brand-black bg-brand-cream/35 px-6 py-5 md:px-7">
+        <div className="border-t-2 border-brand-black bg-brand-cream/35 px-6 py-4 md:px-7">
           {error ? (
             <div className="mb-4 rounded-[18px] border-2 border-red-600 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
               {error}
