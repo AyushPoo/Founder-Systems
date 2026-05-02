@@ -130,18 +130,20 @@ const FounderSpecGenerator = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pt-32 md:pt-40 pb-16 md:pb-24">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="mb-10 md:mb-14">
-            <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">
-              Strategy Beta
-            </span>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight-brand mb-5">
-              Founder Strategy Copilot
-            </h1>
-            <p className="text-lg md:text-xl text-brand-black/70 font-bold max-w-4xl leading-relaxed">
-              Recommendation first, evidence underneath. Start from whatever level of clarity you
-              actually have, and let the copilot narrow the idea, wedge, and next move with you.
+      <main className="flex-grow pt-24 md:pt-28 pb-10 md:pb-14">
+        <div className="max-w-[1380px] mx-auto px-5 md:px-8 xl:px-10">
+          <div className="mb-5 md:mb-6 flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+            <div>
+              <span className="inline-block px-3 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-xs font-black uppercase tracking-[0.22em] mb-3">
+                Strategy Beta
+              </span>
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight-brand">
+                Founder Strategy Copilot
+              </h1>
+            </div>
+            <p className="text-sm md:text-base text-brand-black/65 font-bold max-w-2xl leading-relaxed xl:text-right">
+              Start in the chat, not in a worksheet. Pick your stage, talk naturally, and let the
+              copilot build the structure with you.
             </p>
           </div>
 
