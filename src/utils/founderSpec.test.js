@@ -69,6 +69,9 @@ assert.match(validArrayPayload.markdown, /^# Founder Spec: Founder spec app/m);
 const typedPayload = normalizeFounderSpecResponse([
   {
     mode: 'ask_question',
+    stage: 'challenging',
+    activePanel: 'founder_fit',
+    confidence: 'medium',
     session: { mode: 'no_idea', answers: [] },
     question: {
       id: 'strengths',
@@ -76,22 +79,41 @@ const typedPayload = normalizeFounderSpecResponse([
       inputType: 'single_select',
       options: ['Sales', 'Ops', 'Product', 'Engineering'],
     },
+    challenge: {
+      summary: 'Right now this sounds broader than your current unfair advantage.',
+    },
   },
 ]);
 
 assert.equal(typedPayload.ok, true);
 assert.equal(typedPayload.mode, 'ask_question');
+assert.equal(typedPayload.stage, 'challenging');
+assert.equal(typedPayload.activePanel, 'founder_fit');
+assert.equal(typedPayload.confidence, 'medium');
 assert.equal(typedPayload.question.id, 'strengths');
+assert.equal(typedPayload.challenge.summary.includes('broader'), true);
 assert.equal(typedPayload.shortlist.length, 0);
 
 const recommendationPayload = normalizeFounderSpecResponse({
   mode: 'show_recommendation',
+  stage: 'final_verdict',
+  activePanel: 'action_plan',
+  confidence: 'high',
   session: { mode: 'known_idea' },
   recommendation: {
     title: 'Start with a narrow restaurant ops wedge',
   },
   evidence: [{ name: 'Example Co' }],
   inference: ['Assumes manual ops pain is urgent'],
+  founderFit: {
+    fitSummary: 'Strong founder insight, weaker distribution leverage.',
+  },
+  actionPlan: {
+    firstWeek: ['Talk to 5 operators'],
+  },
+  verdict: {
+    standing: 'Promising but underprepared',
+  },
   brief: {
     problem: 'Problem',
   },
@@ -100,9 +122,14 @@ const recommendationPayload = normalizeFounderSpecResponse({
 
 assert.equal(recommendationPayload.ok, true);
 assert.equal(recommendationPayload.mode, 'show_recommendation');
+assert.equal(recommendationPayload.stage, 'final_verdict');
+assert.equal(recommendationPayload.activePanel, 'action_plan');
+assert.equal(recommendationPayload.confidence, 'high');
 assert.equal(recommendationPayload.recommendation.title, 'Start with a narrow restaurant ops wedge');
 assert.equal(recommendationPayload.evidence.length, 1);
 assert.equal(recommendationPayload.inference.length, 1);
+assert.equal(recommendationPayload.founderFit.fitSummary, 'Strong founder insight, weaker distribution leverage.');
+assert.equal(recommendationPayload.verdict.standing, 'Promising but underprepared');
 assert.equal(recommendationPayload.markdown, '# Founder Strategy Brief');
 
 const invalidPayload = normalizeFounderSpecResponse({

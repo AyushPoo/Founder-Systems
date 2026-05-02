@@ -8,11 +8,15 @@ const BRIEF_SECTIONS = [
   ['next30Days', '30-Day Next Steps'],
 ];
 
-const FounderBriefPane = ({ brief, markdown, copied, onCopy, onDownload }) => {
+const FounderBriefPane = ({ brief, markdown, copied, onCopy, onDownload, compact = false }) => {
   const hasBrief = brief && typeof brief === 'object';
 
   return (
-    <section className="rounded-[28px] border-2 border-brand-black bg-white p-6 md:p-7 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+    <section
+      className={`rounded-[28px] border-2 border-brand-black bg-white ${
+        compact ? 'p-5 md:p-6' : 'p-6 md:p-7 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]'
+      }`}
+    >
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 pb-5 border-b-2 border-brand-black">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange mb-2">
@@ -48,28 +52,21 @@ const FounderBriefPane = ({ brief, markdown, copied, onCopy, onDownload }) => {
       </div>
 
       {!hasBrief ? (
-        <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {BRIEF_SECTIONS.map(([, label]) => (
-            <div
-              key={label}
-              className="rounded-[22px] border-2 border-brand-black border-dashed bg-brand-cream/20 p-5 min-h-[136px]"
-            >
-              <p className="text-base font-black tracking-tight-brand mb-3">{label}</p>
-              <p className="text-sm font-bold text-brand-black/45 leading-relaxed">
-                The brief will land here once the conversation converges on a direction.
-              </p>
-            </div>
-          ))}
+        <div className="pt-6 rounded-[22px] border-2 border-dashed border-brand-black bg-brand-cream/20 p-5">
+          <p className="text-base font-black tracking-tight-brand mb-3">Brief draft</p>
+          <p className="text-sm font-bold text-brand-black/45 leading-relaxed">
+            The structured founder brief will appear once the conversation converges on a direction.
+          </p>
         </div>
       ) : (
         <div className="pt-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
             {BRIEF_SECTIONS.map(([key, label]) => (
               <article
                 key={key}
-                className="rounded-[22px] border-2 border-brand-black bg-brand-cream/30 p-5 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]"
+                className="rounded-[22px] border-2 border-brand-black bg-brand-cream/20 p-4"
               >
-                <h3 className="text-lg font-black tracking-tight-brand mb-3">{label}</h3>
+                <h3 className="text-base md:text-lg font-black tracking-tight-brand mb-2">{label}</h3>
                 <p className="text-sm md:text-[15px] font-medium leading-relaxed text-brand-black/75 whitespace-pre-line">
                   {brief[key] || 'Not provided yet.'}
                 </p>

@@ -2,10 +2,9 @@ import { useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
-import ModeSelector from '../components/founder-copilot/ModeSelector';
 import ConversationPane from '../components/founder-copilot/ConversationPane';
 import RecommendationPane from '../components/founder-copilot/RecommendationPane';
-import FounderBriefPane from '../components/founder-copilot/FounderBriefPane';
+import CopilotShell from '../components/founder-copilot/CopilotShell';
 import { copyText, downloadMarkdown, normalizeFounderSpecResponse } from '../utils/founderSpec';
 import {
   appendFounderCopilotMessage,
@@ -40,7 +39,6 @@ const FounderSpecGenerator = () => {
   );
 
   const hasActiveMode = Boolean(session.selectedMode);
-  const responseMode = session.brief ? 'show_founder_brief' : session.stage;
 
   async function submitPayload({ message = '', selection = null, nextSession = session }) {
     setLoading(true);
@@ -147,14 +145,8 @@ const FounderSpecGenerator = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)] gap-8 items-start">
-            <div className="space-y-8">
-              <ModeSelector
-                modes={COPILOT_MODES}
-                selectedMode={session.selectedMode}
-                onSelect={handleModeSelect}
-              />
-
+          <CopilotShell
+            leftPane={
               <ConversationPane
                 session={session}
                 inputValue={inputValue}
@@ -163,28 +155,32 @@ const FounderSpecGenerator = () => {
                 loading={loading}
                 error={error}
                 disabled={!hasActiveMode}
+                modes={COPILOT_MODES}
+                onSelectMode={handleModeSelect}
               />
-            </div>
-
-            <div className="space-y-8">
+            }
+            rightPane={
               <RecommendationPane
-                stage={responseMode}
+                stage={session.stage}
                 shortlist={session.shortlist}
                 recommendation={session.recommendation}
                 evidence={session.evidence}
                 inference={session.inference}
                 onSelectShortlist={handleShortlistSelect}
-              />
-
-              <FounderBriefPane
                 brief={session.brief}
                 markdown={session.markdown}
                 copied={copied}
                 onCopy={handleCopy}
                 onDownload={handleDownload}
+                founderFit={session.founderFit}
+                actionPlan={session.actionPlan}
+                verdict={session.verdict}
+                challenge={session.challenge}
+                activeTab={session.activePanel}
+                selectedMode={session.selectedMode}
               />
-            </div>
-          </div>
+            }
+          />
         </div>
       </main>
 

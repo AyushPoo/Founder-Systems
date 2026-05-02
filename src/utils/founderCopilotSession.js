@@ -23,7 +23,7 @@ const MODE_METADATA = {
 };
 
 const DEFAULT_ASSISTANT_MESSAGE =
-  'Pick the starting point that matches where you are. I will guide the next few questions, then recommend a direction with evidence.';
+  'Pick the starting point that matches where you are. I will guide the next few questions, challenge weak assumptions, then recommend a direction with evidence.';
 
 let messageSequence = 0;
 
@@ -32,16 +32,28 @@ function nextMessageId(role) {
   return `${role}-${messageSequence}`;
 }
 
+function cleanText(value) {
+  return String(value || '').trim();
+}
+
+function normalizeArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
 function toMessage(role, content) {
+  const normalized = cleanText(content);
+  if (!normalized) return null;
+
   return {
     id: nextMessageId(role),
     role,
-    content,
+    content: normalized,
   };
 }
 
-function cleanText(value) {
-  return String(value || '').trim();
+function normalizeMessage(message) {
+  if (!message || typeof message !== 'object') return null;
+  return toMessage(message.role || 'assistant', message.content);
 }
 
 function normalizeQuestion(question) {
@@ -57,25 +69,85 @@ function normalizeQuestion(question) {
     id,
     prompt,
     inputType,
-    options: Array.isArray(question.options)
-      ? question.options.map((entry) => cleanText(entry)).filter(Boolean)
-      : [],
+    options: normalizeArray(question.options)
+      .map((entry) => cleanText(entry))
+      .filter(Boolean),
     helperText: cleanText(question.helperText || question.helper),
     placeholder: cleanText(question.placeholder),
   };
 }
 
-function normalizeMessage(message) {
-  if (!message || typeof message !== 'object') return null;
+function normalizeAnswers(value) {
+  return normalizeArray(value)
+    .map((entry) => {
+      if (!entry || typeof entry !== 'object') return null;
+      const questionId = cleanText(entry.questionId || entry.id || entry.key);
+      const answerValue = cleanText(entry.value || entry.answer || entry.text || entry.label);
+      if (!questionId || !answerValue) return null;
+      return { questionId, value: answerValue };
+    })
+    .filter(Boolean);
+}
 
-  const content = cleanText(message.content);
-  if (!content) return null;
+function inferStageFromMode(mode) {
+  switch (mode) {
+    case 'show_shortlist':
+      return 'narrowing';
+    case 'show_recommendation':
+    case 'show_founder_brief':
+      return 'recommending';
+    case 'ask_question':
+    default:
+      return 'exploring';
+  }
+}
 
-  return {
-    id: message.id || nextMessageId(message.role || 'message'),
-    role: message.role || 'assistant',
-    content,
-  };
+export function getActivePanelForStage(stage) {
+  switch (cleanText(stage)) {
+    case 'challenging':
+      return 'founder_fit';
+    case 'recommending':
+      return 'recommendation';
+    case 'planning':
+    case 'final_verdict':
+      return 'action_plan';
+    case 'narrowing':
+    case 'exploring':
+    default:
+      return 'evidence';
+  }
+}
+
+export function getVisibleTabs(stage) {
+  switch (cleanText(stage)) {
+    case 'narrowing':
+      return ['evidence', 'recommendation'];
+    case 'challenging':
+      return ['evidence', 'founder_fit'];
+    case 'recommending':
+      return ['recommendation', 'evidence', 'founder_fit'];
+    case 'planning':
+    case 'final_verdict':
+      return ['recommendation', 'founder_fit', 'action_plan', 'evidence'];
+    case 'exploring':
+    default:
+      return ['evidence'];
+  }
+}
+
+export function getPrimaryTab(stage) {
+  const visible = getVisibleTabs(stage);
+  return visible[0] || 'evidence';
+}
+
+export function shouldAllowRecommendation(session) {
+  const mode = cleanText(session?.selectedMode);
+  const answerCount = normalizeAnswers(session?.answers).length;
+
+  if (mode === 'no_idea') return answerCount >= 4;
+  if (mode === 'messy_idea') return answerCount >= 3;
+  if (mode === 'known_idea') return answerCount >= 2;
+  return false;
 }
 
 export const COPILOT_MODES = Object.entries(MODE_METADATA).map(([id, value]) => ({
@@ -87,6 +159,8 @@ export function createFounderCopilotSession() {
   return {
     selectedMode: null,
     stage: 'mode_selection',
+    activePanel: 'evidence',
+    confidence: 'low',
     question: null,
     answers: [],
     messages: [toMessage('assistant', DEFAULT_ASSISTANT_MESSAGE)],
@@ -94,6 +168,10 @@ export function createFounderCopilotSession() {
     recommendation: null,
     evidence: [],
     inference: [],
+    challenge: null,
+    founderFit: null,
+    actionPlan: null,
+    verdict: null,
     brief: null,
     markdown: '',
     error: '',
@@ -107,11 +185,12 @@ export function selectFounderCopilotMode(session, modeId) {
   return {
     ...createFounderCopilotSession(),
     selectedMode: modeId,
-    stage: 'conversation',
+    stage: 'exploring',
+    activePanel: getActivePanelForStage('exploring'),
     messages: [
       toMessage('assistant', DEFAULT_ASSISTANT_MESSAGE),
       toMessage('assistant', mode.starterPrompt),
-    ],
+    ].filter(Boolean),
   };
 }
 
@@ -121,74 +200,116 @@ export function appendFounderCopilotMessage(session, role, content) {
 
   return {
     ...session,
-    messages: [...(session.messages || []), message],
+    messages: [...normalizeArray(session.messages), message],
   };
 }
 
 export function buildFounderCopilotRequest({ session, message, selection = null }) {
   const cleanedMessage = cleanText(message);
   const normalizedSelection = selection && typeof selection === 'object' ? selection : null;
+  const visibleMessages = normalizeArray(session.messages)
+    .slice(-8)
+    .map((entry) => ({
+      role: cleanText(entry.role),
+      content: cleanText(entry.content),
+    }))
+    .filter((entry) => entry.role && entry.content);
 
   return {
     mode: session.selectedMode,
     message: cleanedMessage,
-    answers: Array.isArray(session.answers) ? session.answers : [],
+    answers: normalizeAnswers(session.answers),
     selectedShortlistId: cleanText(normalizedSelection?.id),
     selectedShortlistLabel: cleanText(normalizedSelection?.title),
     session: {
       mode: session.selectedMode,
-      step: session.stage,
-      answers: Array.isArray(session.answers) ? session.answers : [],
+      step: cleanText(session.stage),
+      activePanel: cleanText(session.activePanel),
+      confidence: cleanText(session.confidence),
+      answers: normalizeAnswers(session.answers),
+      messages: visibleMessages,
     },
   };
 }
 
+function appendUniqueMessage(messages, role, content) {
+  const candidate = cleanText(content);
+  if (!candidate) return messages;
+
+  const lastMessage = messages[messages.length - 1];
+  if (lastMessage && lastMessage.role === role && cleanText(lastMessage.content) === candidate) {
+    return messages;
+  }
+
+  const next = toMessage(role, candidate);
+  return next ? [...messages, next] : messages;
+}
+
+function normalizeEvidenceList(value) {
+  return normalizeArray(value).filter((entry) => entry && typeof entry === 'object');
+}
+
 export function applyFounderCopilotResponse({ session, payload, submittedValue = '' }) {
   const normalizedQuestion = normalizeQuestion(payload?.question);
-  const nextMessages = [...(session.messages || [])];
+  let nextMessages = [...normalizeArray(session.messages)];
   const cleanedSubmittedValue = cleanText(submittedValue);
 
   if (cleanedSubmittedValue) {
-    nextMessages.push(toMessage('user', cleanedSubmittedValue));
+    nextMessages = appendUniqueMessage(nextMessages, 'user', cleanedSubmittedValue);
+  }
+
+  if (payload?.challenge?.summary) {
+    nextMessages = appendUniqueMessage(nextMessages, 'challenge', payload.challenge.summary);
   }
 
   if (normalizedQuestion?.prompt) {
-    nextMessages.push(toMessage('assistant', normalizedQuestion.prompt));
+    nextMessages = appendUniqueMessage(nextMessages, 'assistant', normalizedQuestion.prompt);
   } else if (payload?.recommendation?.summary) {
-    nextMessages.push(toMessage('assistant', cleanText(payload.recommendation.summary)));
+    nextMessages = appendUniqueMessage(nextMessages, 'assistant', payload.recommendation.summary);
   } else if (payload?.recommendation?.title) {
-    nextMessages.push(toMessage('assistant', cleanText(payload.recommendation.title)));
+    nextMessages = appendUniqueMessage(nextMessages, 'assistant', payload.recommendation.title);
+  } else if (payload?.verdict?.standing) {
+    nextMessages = appendUniqueMessage(
+      nextMessages,
+      'assistant',
+      `Current verdict: ${payload.verdict.standing}`
+    );
   } else if (payload?.brief?.problem) {
-    nextMessages.push(
-      toMessage('assistant', 'I turned this into a sharper founder brief you can work from now.')
+    nextMessages = appendUniqueMessage(
+      nextMessages,
+      'assistant',
+      'I turned this into a sharper founder brief you can work from now.'
     );
   }
 
   const nextMode = cleanText(payload?.session?.mode) || session.selectedMode;
-  const nextAnswers = Array.isArray(payload?.session?.answers)
-    ? payload.session.answers
-    : Array.isArray(session.answers)
-      ? session.answers
-      : [];
-
-  let stage = 'conversation';
-  if (payload?.mode === 'show_shortlist') stage = 'shortlist';
-  if (payload?.mode === 'show_recommendation' || payload?.mode === 'show_founder_brief') stage = 'recommendation';
+  const nextAnswers = normalizeAnswers(
+    Array.isArray(payload?.session?.answers) ? payload.session.answers : session.answers
+  );
+  const nextStage =
+    cleanText(payload?.stage) || inferStageFromMode(payload?.mode) || session.stage || 'exploring';
+  const nextActivePanel =
+    cleanText(payload?.activePanel) || getActivePanelForStage(nextStage);
 
   return {
     ...session,
     selectedMode: nextMode,
-    stage,
+    stage: nextStage,
+    activePanel: nextActivePanel,
+    confidence: cleanText(payload?.confidence) || session.confidence || 'low',
     question: normalizedQuestion,
     answers: nextAnswers,
     messages: nextMessages.map(normalizeMessage).filter(Boolean),
-    shortlist: Array.isArray(payload?.shortlist) ? payload.shortlist : [],
+    shortlist: normalizeEvidenceList(payload?.shortlist),
     recommendation: payload?.recommendation || null,
-    evidence: Array.isArray(payload?.evidence) ? payload.evidence : [],
-    inference: Array.isArray(payload?.inference) ? payload.inference : [],
+    evidence: normalizeEvidenceList(payload?.evidence),
+    inference: normalizeArray(payload?.inference).map((entry) => cleanText(entry)).filter(Boolean),
+    challenge: payload?.challenge || null,
+    founderFit: payload?.founderFit || null,
+    actionPlan: payload?.actionPlan || null,
+    verdict: payload?.verdict || null,
     brief: payload?.brief || null,
     markdown: cleanText(payload?.markdown),
     error: '',
   };
 }
-

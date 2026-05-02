@@ -5,22 +5,35 @@ import {
   applyFounderCopilotResponse,
   buildFounderCopilotRequest,
   createFounderCopilotSession,
+  getActivePanelForStage,
+  getPrimaryTab,
+  getVisibleTabs,
   selectFounderCopilotMode,
+  shouldAllowRecommendation,
 } from './founderCopilotSession.js';
 
 const initialSession = createFounderCopilotSession();
 
 assert.equal(initialSession.selectedMode, null);
 assert.equal(initialSession.stage, 'mode_selection');
+assert.equal(initialSession.activePanel, 'evidence');
 assert.equal(initialSession.messages.length, 1);
 assert.equal(initialSession.messages[0].role, 'assistant');
 assert.equal(COPILOT_MODES.length, 3);
+
+assert.equal(getActivePanelForStage('exploring'), 'evidence');
+assert.equal(getActivePanelForStage('challenging'), 'founder_fit');
+assert.equal(getActivePanelForStage('planning'), 'action_plan');
+assert.equal(getPrimaryTab('planning'), 'recommendation');
+assert.deepEqual(getVisibleTabs('exploring'), ['evidence']);
+assert.deepEqual(getVisibleTabs('challenging'), ['evidence', 'founder_fit']);
 
 const messyIdeaSession = selectFounderCopilotMode(initialSession, 'messy_idea');
 const messyLastMessage = messyIdeaSession.messages[messyIdeaSession.messages.length - 1];
 
 assert.equal(messyIdeaSession.selectedMode, 'messy_idea');
-assert.equal(messyIdeaSession.stage, 'conversation');
+assert.equal(messyIdeaSession.stage, 'exploring');
+assert.equal(messyIdeaSession.activePanel, 'evidence');
 assert.equal(messyLastMessage.role, 'assistant');
 assert.match(messyLastMessage.content, /rough version|fuzzy/i);
 
@@ -36,6 +49,8 @@ assert.equal(withFounderReply.messages[withFounderReply.messages.length - 1].rol
 const request = buildFounderCopilotRequest({
   session: {
     ...withFounderReply,
+    activePanel: 'founder_fit',
+    confidence: 'medium',
     answers: [{ questionId: 'idea_dump', value: 'Independent fitness coaches' }],
   },
   message: 'I want to build something for independent fitness coaches.',
@@ -45,15 +60,49 @@ assert.equal(request.mode, 'messy_idea');
 assert.equal(request.message, 'I want to build something for independent fitness coaches.');
 assert.equal(request.answers.length, 1);
 assert.equal(request.session.mode, 'messy_idea');
+assert.equal(request.session.activePanel, 'founder_fit');
+assert.equal(request.session.confidence, 'medium');
+assert.equal(request.session.messages.length >= 2, true);
+
+assert.equal(
+  shouldAllowRecommendation({
+    ...withFounderReply,
+    selectedMode: 'no_idea',
+    answers: [
+      { questionId: 'strength', value: 'Sales' },
+      { questionId: 'market', value: 'Restaurants' },
+    ],
+  }),
+  false
+);
+
+assert.equal(
+  shouldAllowRecommendation({
+    ...withFounderReply,
+    selectedMode: 'known_idea',
+    answers: [
+      { questionId: 'idea', value: 'Onboarding analytics' },
+      { questionId: 'distribution', value: 'Can reach 20 founders directly' },
+    ],
+  }),
+  true
+);
 
 const recommendationSession = applyFounderCopilotResponse({
   session: messyIdeaSession,
   submittedValue: 'Independent fitness coaches lose time to billing and follow-up.',
   payload: {
     mode: 'show_recommendation',
+    stage: 'final_verdict',
+    activePanel: 'action_plan',
+    confidence: 'high',
     session: {
       mode: 'messy_idea',
-      answers: [{ questionId: 'idea_dump', value: 'Independent fitness coaches' }],
+      answers: [
+        { questionId: 'idea_dump', value: 'Independent fitness coaches' },
+        { questionId: 'problem', value: 'Billing and follow-up' },
+        { questionId: 'distribution', value: 'Can reach 30 coaches' },
+      ],
     },
     recommendation: {
       title: 'Start with a workflow for fitness coaches',
@@ -61,15 +110,24 @@ const recommendationSession = applyFounderCopilotResponse({
     },
     evidence: [{ companyName: 'CoachFlow', pattern: 'Strong early retention' }],
     inference: ['Assumes coaches value admin automation more than growth tooling.'],
+    challenge: { summary: 'Do not broaden into an all-in-one coach OS yet.' },
+    founderFit: { fitSummary: 'Good founder proximity, weaker technical moat.' },
+    actionPlan: { firstWeek: ['Interview 5 coaches'] },
+    verdict: { standing: 'Ready to pursue' },
     markdown: '# Founder Strategy Brief',
   },
 });
 
-assert.equal(recommendationSession.stage, 'recommendation');
-assert.equal(recommendationSession.answers.length, 1);
+assert.equal(recommendationSession.stage, 'final_verdict');
+assert.equal(recommendationSession.activePanel, 'action_plan');
+assert.equal(recommendationSession.confidence, 'high');
+assert.equal(recommendationSession.answers.length, 3);
 assert.equal(recommendationSession.recommendation.title, 'Start with a workflow for fitness coaches');
 assert.equal(recommendationSession.evidence.length, 1);
 assert.equal(recommendationSession.inference.length, 1);
+assert.equal(recommendationSession.challenge.summary, 'Do not broaden into an all-in-one coach OS yet.');
+assert.equal(recommendationSession.founderFit.fitSummary, 'Good founder proximity, weaker technical moat.');
+assert.equal(recommendationSession.verdict.standing, 'Ready to pursue');
 assert.equal(recommendationSession.markdown, '# Founder Strategy Brief');
 assert.equal(
   recommendationSession.messages[recommendationSession.messages.length - 1].content,
@@ -80,6 +138,8 @@ const shortlistSession = applyFounderCopilotResponse({
   session: messyIdeaSession,
   payload: {
     mode: 'show_shortlist',
+    stage: 'narrowing',
+    activePanel: 'recommendation',
     session: {
       mode: 'no_idea',
       answers: [],
@@ -95,7 +155,8 @@ const shortlistSession = applyFounderCopilotResponse({
   },
 });
 
-assert.equal(shortlistSession.stage, 'shortlist');
+assert.equal(shortlistSession.stage, 'narrowing');
+assert.equal(shortlistSession.activePanel, 'recommendation');
 assert.equal(shortlistSession.shortlist.length, 3);
 assert.equal(shortlistSession.selectedMode, 'no_idea');
 
@@ -103,18 +164,29 @@ const questionSession = applyFounderCopilotResponse({
   session: messyIdeaSession,
   payload: {
     mode: 'ask_question',
+    stage: 'challenging',
+    activePanel: 'founder_fit',
     question: {
       id: 'customer-pain',
       prompt: 'What is the sharpest pain you have personally seen in this space?',
       helperText: 'One sentence is enough.',
       inputType: 'long_text',
     },
+    challenge: {
+      summary: 'You are still speaking in category language, not lived customer pain.',
+    },
   },
 });
 
-assert.equal(questionSession.stage, 'conversation');
+assert.equal(questionSession.stage, 'challenging');
+assert.equal(questionSession.activePanel, 'founder_fit');
 assert.equal(questionSession.question.id, 'customer-pain');
 assert.equal(questionSession.question.helperText, 'One sentence is enough.');
+assert.equal(questionSession.challenge.summary.includes('category language'), true);
+assert.equal(
+  questionSession.messages[questionSession.messages.length - 2].role,
+  'challenge'
+);
 assert.match(
   questionSession.messages[questionSession.messages.length - 1].content,
   /sharpest pain/i

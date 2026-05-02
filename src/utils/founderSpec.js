@@ -28,6 +28,9 @@ function normalizeTypedModePayload(normalizedPayload) {
     'show_shortlist',
     'show_recommendation',
     'show_founder_brief',
+    'show_challenge',
+    'show_founder_assessment',
+    'show_action_plan',
   ]);
 
   if (!knownModes.has(normalizedPayload.mode)) {
@@ -37,12 +40,19 @@ function normalizeTypedModePayload(normalizedPayload) {
   return {
     ok: true,
     mode: normalizedPayload.mode,
+    stage: cleanText(normalizedPayload.stage) || '',
+    activePanel: cleanText(normalizedPayload.activePanel) || '',
+    confidence: cleanText(normalizedPayload.confidence) || '',
     session: normalizedPayload.session || {},
     question: normalizedPayload.question || null,
     shortlist: Array.isArray(normalizedPayload.shortlist) ? normalizedPayload.shortlist : [],
     recommendation: normalizedPayload.recommendation || null,
     evidence: Array.isArray(normalizedPayload.evidence) ? normalizedPayload.evidence : [],
     inference: Array.isArray(normalizedPayload.inference) ? normalizedPayload.inference : [],
+    challenge: normalizedPayload.challenge || null,
+    founderFit: normalizedPayload.founderFit || null,
+    actionPlan: normalizedPayload.actionPlan || null,
+    verdict: normalizedPayload.verdict || null,
     brief: normalizedPayload.brief || null,
     markdown: cleanText(normalizedPayload.markdown),
   };
