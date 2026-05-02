@@ -22,6 +22,32 @@ function cleanText(value) {
   return String(value || '').trim();
 }
 
+function normalizeTypedModePayload(normalizedPayload) {
+  const knownModes = new Set([
+    'ask_question',
+    'show_shortlist',
+    'show_recommendation',
+    'show_founder_brief',
+  ]);
+
+  if (!knownModes.has(normalizedPayload.mode)) {
+    return null;
+  }
+
+  return {
+    ok: true,
+    mode: normalizedPayload.mode,
+    session: normalizedPayload.session || {},
+    question: normalizedPayload.question || null,
+    shortlist: Array.isArray(normalizedPayload.shortlist) ? normalizedPayload.shortlist : [],
+    recommendation: normalizedPayload.recommendation || null,
+    evidence: Array.isArray(normalizedPayload.evidence) ? normalizedPayload.evidence : [],
+    inference: Array.isArray(normalizedPayload.inference) ? normalizedPayload.inference : [],
+    brief: normalizedPayload.brief || null,
+    markdown: cleanText(normalizedPayload.markdown),
+  };
+}
+
 export function buildFounderSpecMarkdown({ inputs = {}, spec = {} }) {
   const title = cleanText(inputs.idea) || 'Untitled Founder Spec';
   const metadata = [
@@ -58,6 +84,11 @@ export function normalizeFounderSpecResponse(payload, inputsOverride = {}) {
 
   if (!normalizedPayload || typeof normalizedPayload !== 'object') {
     return { ok: false, error: 'Invalid founder spec response.' };
+  }
+
+  const typedModePayload = normalizeTypedModePayload(normalizedPayload);
+  if (typedModePayload) {
+    return typedModePayload;
   }
 
   if (normalizedPayload.status || normalizedPayload.error) {

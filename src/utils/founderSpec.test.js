@@ -66,6 +66,45 @@ const validArrayPayload = normalizeFounderSpecResponse([
 assert.equal(validArrayPayload.ok, true);
 assert.match(validArrayPayload.markdown, /^# Founder Spec: Founder spec app/m);
 
+const typedPayload = normalizeFounderSpecResponse([
+  {
+    mode: 'ask_question',
+    session: { mode: 'no_idea', answers: [] },
+    question: {
+      id: 'strengths',
+      prompt: 'What are you unusually good at or close to?',
+      inputType: 'single_select',
+      options: ['Sales', 'Ops', 'Product', 'Engineering'],
+    },
+  },
+]);
+
+assert.equal(typedPayload.ok, true);
+assert.equal(typedPayload.mode, 'ask_question');
+assert.equal(typedPayload.question.id, 'strengths');
+assert.equal(typedPayload.shortlist.length, 0);
+
+const recommendationPayload = normalizeFounderSpecResponse({
+  mode: 'show_recommendation',
+  session: { mode: 'known_idea' },
+  recommendation: {
+    title: 'Start with a narrow restaurant ops wedge',
+  },
+  evidence: [{ name: 'Example Co' }],
+  inference: ['Assumes manual ops pain is urgent'],
+  brief: {
+    problem: 'Problem',
+  },
+  markdown: '# Founder Strategy Brief',
+});
+
+assert.equal(recommendationPayload.ok, true);
+assert.equal(recommendationPayload.mode, 'show_recommendation');
+assert.equal(recommendationPayload.recommendation.title, 'Start with a narrow restaurant ops wedge');
+assert.equal(recommendationPayload.evidence.length, 1);
+assert.equal(recommendationPayload.inference.length, 1);
+assert.equal(recommendationPayload.markdown, '# Founder Strategy Brief');
+
 const invalidPayload = normalizeFounderSpecResponse({
   spec: {
     problem: 'Problem only',
