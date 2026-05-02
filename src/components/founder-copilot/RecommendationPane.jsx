@@ -84,12 +84,7 @@ const RecommendationPane = ({
         <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange mb-2">
           Context
         </p>
-        <h2 className="text-2xl font-black tracking-tight-brand mb-2">
-          Calm context for the current thread
-        </h2>
-        <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/65">
-          Recommendation first. Evidence, brief, fit, and next moves when you need them.
-        </p>
+        <h2 className="text-2xl font-black tracking-tight-brand">Context</h2>
       </div>
 
       <div className="pt-6 space-y-5 xl:max-h-[calc(100vh-260px)] xl:overflow-y-auto xl:pr-1">
@@ -99,8 +94,8 @@ const RecommendationPane = ({
           </p>
           <p className="text-sm font-bold text-brand-black/70 leading-relaxed">
             {stage === 'mode_selection'
-              ? 'Choose a starting mode to begin.'
-              : 'Use the tabs to inspect the current recommendation, supporting evidence, founder-fit pushback, and action plan at the right moment.'}
+              ? 'Choose a stage to begin.'
+              : 'The right side updates as the conversation sharpens.'}
           </p>
           {selectedMode ? (
             <p className="mt-3 text-xs font-black uppercase tracking-[0.14em] text-brand-black/55">

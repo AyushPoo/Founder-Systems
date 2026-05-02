@@ -15,6 +15,9 @@ import {
 } from '../utils/founderCopilotSession';
 
 const API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
+const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
+const MAX_ATTACHMENT_CHARS = 4000;
+const MAX_ATTACHMENTS = 4;
 
 function toFilename(mode, recommendationTitle) {
   const base = String(recommendationTitle || mode || 'founder-strategy-brief')
@@ -25,12 +28,66 @@ function toFilename(mode, recommendationTitle) {
   return `${base || 'founder-strategy-brief'}.md`;
 }
 
+function getExtension(filename) {
+  const parts = String(filename || '').toLowerCase().split('.');
+  return parts.length > 1 ? parts.pop() : '';
+}
+
+function isTextAttachment(file) {
+  const extension = getExtension(file?.name);
+  return file?.type?.startsWith('text/') || TEXT_ATTACHMENT_EXTENSIONS.includes(extension);
+}
+
+async function fileToAttachment(file) {
+  const base = {
+    id: `${file.name}-${file.size}-${file.lastModified}`,
+    name: file.name,
+    size: file.size,
+    type: file.type || 'application/octet-stream',
+    parsed: false,
+    excerpt: '',
+  };
+
+  if (!isTextAttachment(file)) {
+    return base;
+  }
+
+  try {
+    const text = await file.text();
+    return {
+      ...base,
+      parsed: true,
+      excerpt: String(text || '').trim().slice(0, MAX_ATTACHMENT_CHARS),
+    };
+  } catch {
+    return base;
+  }
+}
+
+function buildAttachmentContext(attachments) {
+  if (!attachments.length) return '';
+
+  const lines = ['Attached context:'];
+
+  attachments.forEach((file) => {
+    lines.push(`- ${file.name}`);
+    if (file.parsed && file.excerpt) {
+      lines.push(file.excerpt);
+    } else {
+      lines.push('[Attachment added. Text extraction not available for this file type yet.]');
+    }
+  });
+
+  return lines.join('\n');
+}
+
 const FounderSpecGenerator = () => {
   const [session, setSession] = useState(createFounderCopilotSession);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [attachments, setAttachments] = useState([]);
 
   const recommendationTitle = useMemo(
     () => session.recommendation?.title || session.recommendation?.what || '',
@@ -39,7 +96,7 @@ const FounderSpecGenerator = () => {
 
   const hasActiveMode = Boolean(session.selectedMode);
 
-  async function submitPayload({ message = '', selection = null, nextSession = session }) {
+  async function submitPayload({ message = '', selection = null, nextSession = session, documents = [] }) {
     setLoading(true);
     setError('');
     setCopied(false);
@@ -54,6 +111,7 @@ const FounderSpecGenerator = () => {
           session: nextSession,
           message,
           selection,
+          attachments: documents,
         })),
       });
 
@@ -85,18 +143,52 @@ const FounderSpecGenerator = () => {
     const nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
     setSession(nextSession);
     setInputValue('');
+    setAttachments([]);
     submitPayload({ message: '', nextSession });
+  }
+
+  async function handlePickFiles(fileList) {
+    const files = Array.from(fileList || []).slice(0, MAX_ATTACHMENTS);
+    if (!files.length) return;
+    const normalized = await Promise.all(files.map(fileToAttachment));
+    setAttachments((current) => {
+      const next = [...current];
+      normalized.forEach((file) => {
+        if (!next.some((entry) => entry.id === file.id)) {
+          next.push(file);
+        }
+      });
+      return next.slice(0, MAX_ATTACHMENTS);
+    });
+  }
+
+  function handleRemoveAttachment(id) {
+    setAttachments((current) => current.filter((file) => file.id !== id));
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
     const message = String(inputValue || '').trim();
-    if (!message || !hasActiveMode || loading) return;
+    const attachmentContext = buildAttachmentContext(attachments);
+    if ((!message && !attachmentContext) || !hasActiveMode || loading) return;
 
-    const optimisticSession = appendFounderCopilotMessage(session, 'user', message);
+    const submissionMessage = [message, attachmentContext].filter(Boolean).join('\n\n');
+    const chatLabel =
+      message ||
+      (attachments.length
+        ? `Attached ${attachments.length} file${attachments.length > 1 ? 's' : ''}: ${attachments.map((file) => file.name).join(', ')}`
+        : '');
+
+    const optimisticSession = appendFounderCopilotMessage(session, 'user', chatLabel);
     setSession(optimisticSession);
     setInputValue('');
-    await submitPayload({ message, nextSession: optimisticSession });
+    const submittedAttachments = attachments;
+    setAttachments([]);
+    await submitPayload({
+      message: submissionMessage,
+      nextSession: optimisticSession,
+      documents: submittedAttachments,
+    });
   }
 
   async function handleShortlistSelect(item) {
@@ -131,7 +223,7 @@ const FounderSpecGenerator = () => {
 
       <main className="flex-grow pt-20 md:pt-22 pb-4 md:pb-6 xl:h-[calc(100vh-88px)] xl:overflow-hidden">
         <div className="max-w-[1480px] mx-auto px-4 md:px-6 xl:px-8 h-full">
-          <div className="mb-4 md:mb-5 flex flex-col gap-2 xl:flex-row xl:items-end xl:justify-between">
+          <div className="mb-4 md:mb-5">
             <div>
               <span className="inline-block px-3 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-xs font-black uppercase tracking-[0.22em] mb-3">
                 Strategy Beta
@@ -140,9 +232,6 @@ const FounderSpecGenerator = () => {
                 Founder Strategy Copilot
               </h1>
             </div>
-            <p className="text-sm md:text-[15px] text-brand-black/65 font-bold max-w-xl leading-relaxed xl:text-right">
-              Pick your stage and start talking. The copilot should be usable without a scroll hunt.
-            </p>
           </div>
 
           <CopilotShell
@@ -157,6 +246,9 @@ const FounderSpecGenerator = () => {
                 disabled={!hasActiveMode}
                 modes={COPILOT_MODES}
                 onSelectMode={handleModeSelect}
+                attachments={attachments}
+                onPickFiles={handlePickFiles}
+                onRemoveAttachment={handleRemoveAttachment}
               />
             }
             rightPane={

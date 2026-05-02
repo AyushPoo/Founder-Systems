@@ -12,10 +12,10 @@ const ConversationPane = ({
   disabled,
   modes = [],
   onSelectMode,
+  attachments = [],
+  onPickFiles,
+  onRemoveAttachment,
 }) => {
-  const promptLabel =
-    session.question?.helperText ||
-    'Answer in plain language. The copilot will turn it into structure.';
   const hasActiveMode = Boolean(session.selectedMode);
   const messages = Array.isArray(session.messages) ? session.messages : [];
   const visibleMessages = hasActiveMode ? messages : messages.filter((message) => message.role !== 'assistant');
@@ -33,9 +33,6 @@ const ConversationPane = ({
               Guided conversation
             </p>
             <h2 className="text-2xl font-black tracking-tight-brand">Founder copilot</h2>
-            <p className="mt-2 text-sm font-bold leading-relaxed text-brand-black/60">
-              Keep the thread messy. The structure should emerge from the exchange.
-            </p>
           </div>
           {hasActiveMode ? (
             <span className="rounded-full border-2 border-brand-black bg-brand-cream/45 px-3 py-2 text-xs font-black uppercase tracking-[0.16em]">
@@ -45,17 +42,20 @@ const ConversationPane = ({
         </div>
       </div>
 
-      <div className={`flex min-h-0 flex-col ${hasActiveMode ? 'xl:h-[calc(100vh-266px)]' : ''}`}>
-        <div className={`flex-1 px-6 py-5 md:px-7 ${hasActiveMode ? 'space-y-4 overflow-y-auto' : 'space-y-4'}`}>
-          {!hasActiveMode ? (
-            <ModeSelector
-              modes={modes}
-              selectedMode={session.selectedMode}
-              onSelect={onSelectMode}
-              compact
-            />
-          ) : null}
+      {!hasActiveMode ? (
+        <div className="px-6 py-6 md:px-7 md:py-7">
+          <ModeSelector
+            modes={modes}
+            selectedMode={session.selectedMode}
+            onSelect={onSelectMode}
+            compact
+          />
+        </div>
+      ) : null}
 
+      {hasActiveMode ? (
+      <div className={`flex min-h-0 flex-col xl:h-[calc(100vh-254px)]`}>
+        <div className={`flex-1 px-6 py-5 md:px-7 ${hasActiveMode ? 'space-y-4 overflow-y-auto' : 'space-y-4'}`}>
           {!hasMessages && hasActiveMode ? (
             <ThreadMessage
               message={{
@@ -70,13 +70,15 @@ const ConversationPane = ({
             <ThreadMessage key={message.id} message={message} />
           ))}
 
-          {hasActiveMode && session.question ? (
+          {session.question ? (
             <div className="rounded-[20px] border-2 border-dashed border-brand-black bg-white/80 px-4 py-3">
               <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
                 Current prompt
               </p>
               <p className="text-sm font-black leading-relaxed mb-1">{session.question.prompt}</p>
-              <p className="text-xs font-bold text-brand-black/55">{promptLabel}</p>
+              {session.question.helperText ? (
+                <p className="text-xs font-bold text-brand-black/55">{session.question.helperText}</p>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -93,20 +95,18 @@ const ConversationPane = ({
             onChange={onInputChange}
             onSubmit={onSubmit}
             loading={loading}
-            disabled={disabled}
+            disabled={loading}
             placeholder={
-              disabled
-                ? 'Pick a starting point first.'
-                : 'Reply naturally. The copilot should infer the structure from your answer.'
+              'Reply naturally. The copilot should infer the structure from your answer.'
             }
-            helperText={
-              hasActiveMode
-                ? 'Strong founder guidance starts from real constraints, not polished input.'
-                : 'The composer stays ready, but the mode only needs to be chosen once at session start.'
-            }
+            helperText="Use plain language. Attach notes or progress docs if they help."
+            attachments={attachments}
+            onPickFiles={onPickFiles}
+            onRemoveAttachment={onRemoveAttachment}
           />
         </div>
       </div>
+      ) : null}
     </section>
   );
 };

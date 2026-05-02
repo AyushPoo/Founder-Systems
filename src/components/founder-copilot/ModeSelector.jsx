@@ -6,14 +6,13 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) =
       }`}
     >
       <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-orange mb-3">
-        Start here
+        Choose your stage
       </p>
       <h2 className={`${compact ? 'text-xl md:text-2xl' : 'text-2xl md:text-[2rem]'} font-black tracking-tight-brand mb-2`}>
-        What do you need help with right now?
+        Where are you right now?
       </h2>
-      <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/65 mb-4">
-        Pick the closest starting point. The copilot should narrow with the founder instead of
-        asking for fake certainty up front.
+      <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/60 mb-5">
+        Pick the closest starting point.
       </p>
 
       <div className={`grid gap-3 ${compact ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>
@@ -34,7 +33,7 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect, compact = false }) =
               <p className="text-base md:text-lg font-black tracking-tight-brand mb-2 leading-tight">{mode.title}</p>
               <p
                 className={`text-sm font-bold leading-relaxed ${
-                  isActive ? 'text-white/90' : 'text-brand-black/65'
+                  isActive ? 'text-white/90' : 'text-brand-black/60'
                 }`}
               >
                 {mode.description}

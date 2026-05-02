@@ -1,22 +1,19 @@
 const MODE_METADATA = {
   no_idea: {
     title: 'I have no idea what to build',
-    description:
-      'Start from strengths, access, and founder constraints. The copilot should narrow the space for you.',
+    description: 'Start from your strengths and constraints.',
     starterPrompt:
       'You do not need a polished idea yet. Start with the spaces, people, or problems you are closest to.',
   },
   messy_idea: {
     title: 'I have a rough idea but it is messy',
-    description:
-      'Pressure-test the idea, sharpen the wedge, and remove the parts that are just noise.',
+    description: 'Sharpen the wedge and remove the noise.',
     starterPrompt:
       'Give me the rough version. What are you thinking about building, and what still feels fuzzy?',
   },
   known_idea: {
     title: 'I know what I want to build, help me scope and launch it',
-    description:
-      'Turn a known direction into a tighter founder brief with scope, evidence, and next steps.',
+    description: 'Turn it into a tighter plan and launch path.',
     starterPrompt:
       'Tell me the business you want to build, who it is for, and where you feel least certain.',
   },
@@ -204,7 +201,7 @@ export function appendFounderCopilotMessage(session, role, content) {
   };
 }
 
-export function buildFounderCopilotRequest({ session, message, selection = null }) {
+export function buildFounderCopilotRequest({ session, message, selection = null, attachments = [] }) {
   const cleanedMessage = cleanText(message);
   const normalizedSelection = selection && typeof selection === 'object' ? selection : null;
   const visibleMessages = normalizeArray(session.messages)
@@ -218,6 +215,11 @@ export function buildFounderCopilotRequest({ session, message, selection = null 
   return {
     mode: session.selectedMode,
     message: cleanedMessage,
+    attachments: normalizeArray(attachments).map((file) => ({
+      name: cleanText(file?.name),
+      type: cleanText(file?.type),
+      parsed: Boolean(file?.parsed),
+    })),
     answers: normalizeAnswers(session.answers),
     selectedShortlistId: cleanText(normalizedSelection?.id),
     selectedShortlistLabel: cleanText(normalizedSelection?.title),
