@@ -1,0 +1,85 @@
+{
+  "slug": "founder-spec-generator",
+  "productId": "FS011",
+  "catalogName": "Founder Spec Generator",
+  "catalogDescription": "Turn a rough startup idea into a build-ready founder execution spec with MVP scope, pricing logic, and GTM direction.",
+  "catalogCategory": "Strategy",
+  "title": "Founder Spec Generator",
+  "subtitle": "Stop staring at a blank doc. Start with a founder-grade execution brief.",
+  "descriptionBody": "Most startup ideas die in the gap between a rough concept and a build-ready plan. Founders either overbuild, under-scope, or never turn scattered notes into a clear MVP with believable pricing and GTM direction.\n\nFounder Spec Generator takes your idea, target user, business model, and geography, then produces a practical founder execution spec you can actually work from. No generic startup fluff. Just the key decisions you need before building.",
+  "section1Title": "From rough idea to usable execution plan",
+  "section1Body": "The generator structures your idea into a founder-ready spec with problem clarity, ICP definition, MVP boundaries, exclusions, pricing logic, GTM direction, and a 30-day next-step plan. It is designed for speed, not corporate theater.",
+  "featuresTitle": "What the beta generates:",
+  "features": [
+    {
+      "name": "Founder-specific problem framing",
+      "desc": "Turns a vague concept into a sharper articulation of the pain, timing, and user context."
+    },
+    {
+      "name": "MVP scope and exclusions",
+      "desc": "Defines the minimum product to ship first and explicitly calls out what not to build in v1."
+    },
+    {
+      "name": "Pricing and GTM hypotheses",
+      "desc": "Suggests a founder-appropriate pricing angle and an early go-to-market direction."
+    },
+    {
+      "name": "Markdown export",
+      "desc": "Copy or download the resulting spec as a clean .md file for Notion, docs, or team review."
+    }
+  ],
+  "whyTitle": "Why use this instead of a blank document?",
+  "whyPoints": [
+    {
+      "title": "Avoid fake clarity",
+      "desc": "A lot of founders feel productive while writing long notes that never become product decisions. This forces a tighter execution brief."
+    },
+    {
+      "title": "Scope before building",
+      "desc": "The most expensive mistake in v1 is building too much. The generator keeps the first version smaller and more testable."
+    },
+    {
+      "title": "Useful for India and global angles",
+      "desc": "The output can lean India-first, global-first, or mixed depending on the market you want to target."
+    }
+  ],
+  "footerSummaryTitle": "Beta Access",
+  "footerSummaryDetails": "(Free while we validate and tighten the output quality).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "A founder-ready execution spec you can refine, share, and build from.",
+  "whatYouGet": [
+    "Problem statement",
+    "ICP definition",
+    "MVP scope",
+    "What not to build",
+    "Pricing hypothesis",
+    "GTM plan",
+    "30-day next steps",
+    "Markdown export"
+  ],
+  "whoThisIsFor": [
+    "Founders moving from idea to MVP.",
+    "Solo builders who need a first execution spec before coding.",
+    "Operators or cofounders aligning on what v1 should actually be.",
+    "Teams validating niche founder tools quickly."
+  ],
+  "faq": [
+    {
+      "q": "Is this a document template or a real tool?",
+      "a": "It is a live interactive tool. You provide the startup context, and it generates a structured founder execution spec."
+    },
+    {
+      "q": "Does it save my work?",
+      "a": "Not in v1. This beta is intentionally simple: generate, review, copy, and download."
+    },
+    {
+      "q": "Can I use this for India-first startups?",
+      "a": "Yes. You can choose India, Global, or India + Global so the spec reflects the market context you care about."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/founder-spec-generator",
+  "category": "Strategy"
+}

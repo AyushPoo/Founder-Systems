@@ -10,6 +10,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import Access from './pages/Access';
 import Guides from './pages/Guides';
 import GuideDetail from './pages/GuideDetail';
+import FounderSpecGenerator from './pages/FounderSpecGenerator';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/guides" element={<Guides />} />
           <Route path="/guides/:id" element={<GuideDetail />} />
+          <Route path="/tools/founder-spec-generator" element={<FounderSpecGenerator />} />
           <Route path="/about" element={<About />} />
           <Route path="/download" element={<DownloadPage />} />
           <Route path="/terms" element={<Terms />} />

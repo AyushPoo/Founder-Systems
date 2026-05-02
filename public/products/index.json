@@ -64,6 +64,14 @@
     "isComingSoon": true
   },
   {
+    "id": "founder-spec-generator",
+    "name": "Founder Spec Generator",
+    "description": "Turn a rough startup idea into a build-ready founder execution spec with MVP scope, pricing logic, and GTM direction.",
+    "category": "Strategy",
+    "productId": "FS011",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
