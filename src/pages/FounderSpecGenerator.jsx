@@ -256,7 +256,7 @@ const FounderSpecGenerator = () => {
               </div>
             </section>
           ) : (
-            <section className="flex h-full min-h-0 flex-col">
+            <section className="flex h-full min-h-0 flex-col overflow-hidden">
               <div className="mb-4 flex items-end justify-between gap-6">
                 <div className="min-w-0">
                   <h1 className="text-[2.1rem] leading-none md:text-[2.9rem] font-black tracking-tight-brand">
