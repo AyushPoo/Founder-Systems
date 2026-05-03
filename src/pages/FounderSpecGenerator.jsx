@@ -17,7 +17,7 @@ import {
 
 const API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
-const MAX_ATTACHMENT_CHARS = 4000;
+const MAX_ATTACHMENT_CHARS = 1800;
 const MAX_ATTACHMENTS = 4;
 
 function toFilename(mode, recommendationTitle) {
@@ -172,7 +172,7 @@ const FounderSpecGenerator = () => {
     setSession(nextSession);
     setInputValue('');
     setAttachments([]);
-    submitPayload({ message: '', nextSession });
+    setError('');
   }
 
   async function handlePickFiles(fileList) {
@@ -254,16 +254,16 @@ const FounderSpecGenerator = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pt-20 md:pt-22 pb-6 xl:h-[calc(100vh-88px)] xl:overflow-hidden">
-        <div className="mx-auto h-full max-w-[1480px] px-4 md:px-6 xl:px-8">
+      <main className="flex-grow pb-6 pt-16 sm:pt-18 lg:pt-22 lg:h-[calc(100vh-88px)] lg:overflow-hidden">
+        <div className="mx-auto h-full max-w-[1480px] px-4 sm:px-5 lg:px-8">
           {!hasActiveMode ? (
-            <section className="flex h-full items-center">
-              <div className="w-full max-w-[1120px]">
-                <div className="mb-8 max-w-[760px] md:mb-10">
-                  <h1 className="text-[2.35rem] leading-[0.96] md:text-[4rem] font-black tracking-tight-brand">
+            <section className="flex h-full items-start lg:items-center">
+              <div className="w-full max-w-[1120px] pt-2 sm:pt-4 lg:pt-0">
+                <div className="mb-6 max-w-[760px] sm:mb-8 lg:mb-10">
+                  <h1 className="text-[2rem] leading-[0.94] sm:text-[2.5rem] lg:text-[4rem] font-black tracking-tight-brand">
                     Founder Strategy Copilot
                   </h1>
-                  <p className="mt-3 max-w-[520px] text-sm font-bold leading-relaxed text-brand-black/55 md:mt-4 md:text-lg">
+                  <p className="mt-2 max-w-[420px] text-[13px] font-bold leading-relaxed text-brand-black/50 sm:mt-3 sm:text-sm lg:mt-4 lg:max-w-[520px] lg:text-lg">
                     Pick your stage. We&apos;ll open the copilot from there.
                   </p>
                 </div>
@@ -277,15 +277,15 @@ const FounderSpecGenerator = () => {
             </section>
           ) : (
             <section className="flex h-full min-h-0 flex-col overflow-hidden">
-              <div className="mb-4 hidden items-end justify-between gap-6 md:flex">
+              <div className="mb-4 hidden items-end justify-between gap-6 lg:flex">
                 <div className="min-w-0">
-                  <h1 className="text-[2.1rem] leading-none md:text-[2.9rem] font-black tracking-tight-brand">
+                  <h1 className="text-[2.1rem] leading-none lg:text-[2.9rem] font-black tracking-tight-brand">
                     Founder Strategy Copilot
                   </h1>
                 </div>
               </div>
 
-              <div className="mb-3 flex items-center justify-between gap-3 rounded-[22px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_14px_32px_rgba(27,28,26,0.06)] md:hidden">
+              <div className="mb-3 flex items-center justify-between gap-3 rounded-[20px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_14px_32px_rgba(27,28,26,0.06)] lg:hidden">
                 <div className="min-w-0">
                   <h1 className="text-lg font-black tracking-tight-brand">Founder copilot</h1>
                   <p className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-black/48">

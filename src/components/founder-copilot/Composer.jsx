@@ -18,7 +18,7 @@ const Composer = ({
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
         placeholder={placeholder}
-        className="min-h-[92px] w-full resize-none rounded-[24px] border border-brand-black/12 bg-white px-4 py-3.5 text-[15px] font-medium leading-relaxed shadow-[0_10px_24px_rgba(27,28,26,0.06)] outline-none transition placeholder:text-brand-black/32 focus:border-brand-black/25 focus:ring-2 focus:ring-brand-black/5 disabled:cursor-not-allowed disabled:opacity-60 md:min-h-[104px]"
+        className="min-h-[72px] w-full resize-none rounded-[22px] border border-brand-black/12 bg-white px-4 py-3 text-[15px] font-medium leading-relaxed shadow-[0_10px_24px_rgba(27,28,26,0.06)] outline-none transition placeholder:text-brand-black/32 focus:border-brand-black/25 focus:ring-2 focus:ring-brand-black/5 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[88px] lg:min-h-[104px]"
       />
 
       {attachments.length ? (
@@ -43,9 +43,9 @@ const Composer = ({
       ) : null}
 
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <label
-            className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-brand-black/12 bg-white text-brand-black shadow-[0_10px_24px_rgba(27,28,26,0.06)] transition ${
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-black/12 bg-white text-brand-black shadow-[0_10px_24px_rgba(27,28,26,0.06)] transition sm:h-11 sm:w-11 ${
               disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-brand-black/25'
             }`}
             aria-label="Attach files"
@@ -62,13 +62,13 @@ const Composer = ({
             <span className="text-lg font-black leading-none">+</span>
           </label>
           {helperText ? (
-            <p className="text-xs font-bold leading-relaxed text-brand-black/40">{helperText}</p>
+            <p className="truncate text-[11px] font-bold leading-relaxed text-brand-black/40 sm:text-xs">{helperText}</p>
           ) : null}
         </div>
         <button
           type="submit"
           disabled={disabled || loading}
-          className={`inline-flex h-11 min-w-[88px] items-center justify-center rounded-full bg-brand-black px-5 text-sm font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_rgba(27,28,26,0.18)] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60`}
+          className={`inline-flex h-10 min-w-[84px] items-center justify-center rounded-full bg-brand-black px-4 text-[12px] font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_rgba(27,28,26,0.18)] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60 sm:h-11 sm:min-w-[88px] sm:px-5 sm:text-sm`}
         >
           {loading ? 'Thinking...' : 'Send'}
         </button>

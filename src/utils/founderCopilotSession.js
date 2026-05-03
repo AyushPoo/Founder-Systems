@@ -204,7 +204,7 @@ export function createFounderCopilotSession() {
     confidence: 'low',
     question: null,
     answers: [],
-    messages: [toMessage('assistant', DEFAULT_ASSISTANT_MESSAGE)],
+    messages: [],
     shortlist: [],
     recommendation: null,
     evidence: [],
@@ -230,10 +230,7 @@ export function selectFounderCopilotMode(session, modeId) {
     selectedMode: modeId,
     stage: 'exploring',
     activePanel: getActivePanelForStage('exploring'),
-    messages: [
-      toMessage('assistant', DEFAULT_ASSISTANT_MESSAGE),
-      toMessage('assistant', mode.starterPrompt),
-    ].filter(Boolean),
+    messages: [toMessage('assistant', mode.starterPrompt)].filter(Boolean),
   };
 }
 
@@ -247,14 +244,18 @@ export function appendFounderCopilotMessage(session, role, content) {
   };
 }
 
+function truncateForRequest(value, maxChars = 420) {
+  return cleanText(value).slice(0, maxChars);
+}
+
 export function buildFounderCopilotRequest({ session, message, selection = null, attachments = [] }) {
   const cleanedMessage = cleanText(message);
   const normalizedSelection = selection && typeof selection === 'object' ? selection : null;
   const visibleMessages = normalizeArray(session.messages)
-    .slice(-8)
+    .slice(-4)
     .map((entry) => ({
       role: cleanText(entry.role),
-      content: cleanText(entry.content),
+      content: truncateForRequest(entry.content),
     }))
     .filter((entry) => entry.role && entry.content);
 
@@ -313,15 +314,7 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', advisoryMessage);
   }
 
-  if (payload?.challenge?.summary) {
-    nextMessages = appendUniqueMessage(
-      nextMessages,
-      'assistant',
-      `Reality check: ${payload.challenge.summary}`
-    );
-  }
-
-  if (normalizedQuestion?.prompt) {
+  if (!advisoryMessage && normalizedQuestion?.prompt) {
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', normalizedQuestion.prompt);
   } else if (payload?.recommendation?.summary) {
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', payload.recommendation.summary);

@@ -41,21 +41,21 @@ const Navbar = () => {
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
                 scrolled
-                    ? 'bg-white border-b-2 border-brand-black py-3'
-                    : 'bg-transparent py-5'
+                    ? 'bg-white border-b-2 border-brand-black py-2.5 lg:py-3'
+                    : 'bg-transparent py-3.5 lg:py-5'
             }`}
         >
-            <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 sm:px-5 lg:px-12 flex items-center justify-between">
                 {/* Logo */}
                 <Link
                     to="/"
-                    className="text-xl md:text-2xl font-black tracking-tight-brand text-brand-black uppercase"
+                    className="max-w-[140px] text-[1.05rem] leading-[0.9] sm:max-w-none sm:text-xl lg:text-2xl font-black tracking-tight-brand text-brand-black uppercase"
                 >
                     Founder Systems
                 </Link>
 
                 {/* Desktop links */}
-                <div className="hidden md:flex items-center gap-10">
+                <div className="hidden lg:flex items-center gap-10">
                     {NAV_LINKS.map((link) => (
                         <Link
                             key={link.label}
@@ -77,7 +77,7 @@ const Navbar = () => {
                 {/* Mobile hamburger */}
                 <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="md:hidden flex flex-col gap-1.5 p-2"
+                    className="lg:hidden flex flex-col gap-1.5 p-2"
                     aria-label="Toggle menu"
                 >
                     <span
@@ -100,7 +100,7 @@ const Navbar = () => {
 
             {/* Mobile menu */}
             <div
-                className={`md:hidden overflow-hidden transition-all duration-500 ${
+                className={`lg:hidden overflow-hidden transition-all duration-500 ${
                     menuOpen ? 'max-h-80' : 'max-h-0'
                 }`}
             >

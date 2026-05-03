@@ -14,14 +14,14 @@ const ThreadMessage = ({ message }) => {
 
   return (
     <article
-      className={`max-w-[88%] px-4 py-3.5 shadow-[0_14px_32px_rgba(27,28,26,0.08)] md:max-w-[78%] ${
+      className={`max-w-[92%] px-3.5 py-3 shadow-[0_10px_22px_rgba(27,28,26,0.08)] sm:px-4 sm:py-3.5 lg:max-w-[78%] ${
         bubbleStyles[role]
       } ${role === 'user' ? 'ml-auto' : ''}`}
     >
-      <p className="mb-1.5 text-[10px] font-black uppercase tracking-[0.18em] opacity-45">
+      <p className="mb-1 text-[9px] font-black uppercase tracking-[0.15em] opacity-42 sm:mb-1.5 sm:text-[10px] sm:tracking-[0.18em]">
         {role === 'user' ? 'Founder' : role === 'challenge' ? 'Copilot note' : 'Copilot'}
       </p>
-      <p className="whitespace-pre-line text-[15px] font-bold leading-relaxed md:text-[15px]">
+      <p className="whitespace-pre-line text-[14px] font-bold leading-relaxed sm:text-[15px]">
         {message?.content || ''}
       </p>
     </article>
