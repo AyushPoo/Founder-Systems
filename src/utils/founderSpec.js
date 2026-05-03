@@ -22,6 +22,34 @@ function cleanText(value) {
   return String(value || '').trim();
 }
 
+function normalizeRuntime(value) {
+  if (!value || typeof value !== 'object') {
+    return {
+      turnType: 'fast',
+      fallbackUsed: false,
+      fallbackReason: '',
+    };
+  }
+
+  return {
+    turnType: cleanText(value.turnType).toLowerCase() === 'heavy' ? 'heavy' : 'fast',
+    fallbackUsed: Boolean(value.fallbackUsed),
+    fallbackReason: cleanText(value.fallbackReason),
+  };
+}
+
+function normalizeAdvisory(value) {
+  if (!value || typeof value !== 'object') return null;
+
+  const advisory = {
+    whatIHeard: cleanText(value.whatIHeard || value.heard),
+    currentRead: cleanText(value.currentRead || value.read),
+    nextQuestion: cleanText(value.nextQuestion),
+  };
+
+  return Object.values(advisory).some(Boolean) ? advisory : null;
+}
+
 function normalizeTypedModePayload(normalizedPayload) {
   const knownModes = new Set([
     'ask_question',
@@ -44,6 +72,8 @@ function normalizeTypedModePayload(normalizedPayload) {
     activePanel: cleanText(normalizedPayload.activePanel) || '',
     confidence: cleanText(normalizedPayload.confidence) || '',
     session: normalizedPayload.session || {},
+    advisory: normalizeAdvisory(normalizedPayload.advisory),
+    runtime: normalizeRuntime(normalizedPayload.runtime),
     question: normalizedPayload.question || null,
     shortlist: Array.isArray(normalizedPayload.shortlist) ? normalizedPayload.shortlist : [],
     recommendation: normalizedPayload.recommendation || null,

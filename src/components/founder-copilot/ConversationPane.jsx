@@ -15,20 +15,28 @@ const ConversationPane = ({
 }) => {
   const messages = Array.isArray(session.messages) ? session.messages : [];
   const hasMessages = messages.length > 0;
+  const selectedModeLabel = String(session?.selectedMode || 'conversation').replace(/_/g, ' ');
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border-2 border-brand-black bg-brand-cream/20 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-      <div className="border-b-2 border-brand-black bg-white px-5 py-4 md:px-6">
-        <div className="flex items-start justify-between gap-4">
-          <h2 className="text-[1.85rem] font-black tracking-tight-brand">Founder copilot</h2>
-          <span className="rounded-full border-2 border-brand-black bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.16em]">
-            {session.selectedMode.replace(/_/g, ' ')}
+    <section className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent xl:rounded-[28px] xl:border xl:border-brand-black/12 xl:bg-white xl:shadow-[0_24px_60px_rgba(27,28,26,0.08)]">
+      <div className="hidden border-b border-brand-black/10 bg-white/80 px-4 py-3 backdrop-blur xl:block xl:px-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/40">
+              Conversation
+            </p>
+            <p className="mt-1 text-sm font-bold text-brand-black/62">
+              Keep it loose. The copilot will structure the signal.
+            </p>
+          </div>
+          <span className="rounded-full border border-brand-black/12 bg-brand-cream/55 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-brand-black/58">
+            {selectedModeLabel}
           </span>
         </div>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 md:px-6">
+        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 md:px-5 xl:px-6">
           {!hasMessages ? (
             <ThreadMessage
               message={{
@@ -44,22 +52,28 @@ const ConversationPane = ({
           ))}
 
           {session.question ? (
-            <div className="rounded-[20px] border-2 border-dashed border-brand-black bg-white/80 px-4 py-3">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
+            <div className="rounded-[22px] border border-brand-black/12 bg-brand-cream/45 px-4 py-3.5 shadow-[0_12px_28px_rgba(27,28,26,0.05)]">
+              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-brand-black/42">
                 Current prompt
               </p>
-              <p className="text-sm font-black leading-relaxed mb-1">{session.question.prompt}</p>
+              <p className="mb-1 text-sm font-black leading-relaxed">{session.question.prompt}</p>
               {session.question.helperText ? (
-                <p className="text-xs font-bold text-brand-black/55">{session.question.helperText}</p>
+                <p className="text-xs font-bold text-brand-black/52">{session.question.helperText}</p>
               ) : null}
             </div>
           ) : null}
         </div>
 
-        <div className="border-t-2 border-brand-black bg-brand-cream/35 px-5 py-4 md:px-6">
+        <div className="border-t border-brand-black/10 bg-brand-cream/35 px-4 py-4 md:px-5 xl:px-6">
           {error ? (
-            <div className="mb-4 rounded-[18px] border-2 border-red-600 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+            <div className="mb-3 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
               {error}
+            </div>
+          ) : null}
+
+          {session?.runtime?.fallbackUsed && session?.runtime?.fallbackReason ? (
+            <div className="mb-3 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-brand-black/75">
+              {session.runtime.fallbackReason}
             </div>
           ) : null}
 

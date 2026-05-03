@@ -90,6 +90,7 @@ const FounderSpecGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [showActiveShell, setShowActiveShell] = useState(false);
+  const [mobileAnalysisOpen, setMobileAnalysisOpen] = useState(false);
 
   const recommendationTitle = useMemo(
     () => session.recommendation?.title || session.recommendation?.what || '',
@@ -141,11 +142,24 @@ const FounderSpecGenerator = () => {
           submittedValue: message || (selection ? selection.title : ''),
         })
       );
+      return true;
     } catch (submitError) {
+      setSession((current) => ({
+        ...current,
+        runtime: {
+          turnType: 'fast',
+          fallbackUsed: true,
+          fallbackReason:
+            'I hit a problem while generating the deeper analysis. I can still keep going from the chat.',
+        },
+      }));
       setError(
-        submitError.message ||
-          'The founder copilot could not finish this turn. Please try again.'
+        submitError.message === 'Failed to fetch'
+          ? 'I had trouble reaching the deeper analysis. You can still keep going here.'
+          : submitError.message ||
+            'The founder copilot hit a temporary problem. Please try the next turn again.'
       );
+      return false;
     } finally {
       setLoading(false);
     }
@@ -153,6 +167,7 @@ const FounderSpecGenerator = () => {
 
   function handleModeSelect(modeId) {
     setShowActiveShell(false);
+    setMobileAnalysisOpen(false);
     const nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
     setSession(nextSession);
     setInputValue('');
@@ -197,15 +212,20 @@ const FounderSpecGenerator = () => {
     setInputValue('');
     const submittedAttachments = attachments;
     setAttachments([]);
-    await submitPayload({
+    const succeeded = await submitPayload({
       message: submissionMessage,
       nextSession: optimisticSession,
       documents: submittedAttachments,
     });
+    if (!succeeded) {
+      setInputValue(message);
+      setAttachments(submittedAttachments);
+    }
   }
 
   async function handleShortlistSelect(item) {
     if (!item || loading) return;
+    setMobileAnalysisOpen(false);
     await submitPayload({
       message: item.title || '',
       selection: item,
@@ -239,11 +259,11 @@ const FounderSpecGenerator = () => {
           {!hasActiveMode ? (
             <section className="flex h-full items-center">
               <div className="w-full max-w-[1120px]">
-                <div className="mb-10 max-w-[760px]">
-                  <h1 className="text-[2.4rem] leading-none md:text-[4rem] font-black tracking-tight-brand">
+                <div className="mb-8 max-w-[760px] md:mb-10">
+                  <h1 className="text-[2.35rem] leading-[0.96] md:text-[4rem] font-black tracking-tight-brand">
                     Founder Strategy Copilot
                   </h1>
-                  <p className="mt-4 max-w-[580px] text-base font-bold leading-relaxed text-brand-black/55 md:text-lg">
+                  <p className="mt-3 max-w-[520px] text-sm font-bold leading-relaxed text-brand-black/55 md:mt-4 md:text-lg">
                     Pick your stage. We&apos;ll open the copilot from there.
                   </p>
                 </div>
@@ -257,12 +277,28 @@ const FounderSpecGenerator = () => {
             </section>
           ) : (
             <section className="flex h-full min-h-0 flex-col overflow-hidden">
-              <div className="mb-4 flex items-end justify-between gap-6">
+              <div className="mb-4 hidden items-end justify-between gap-6 md:flex">
                 <div className="min-w-0">
                   <h1 className="text-[2.1rem] leading-none md:text-[2.9rem] font-black tracking-tight-brand">
                     Founder Strategy Copilot
                   </h1>
                 </div>
+              </div>
+
+              <div className="mb-3 flex items-center justify-between gap-3 rounded-[22px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_14px_32px_rgba(27,28,26,0.06)] md:hidden">
+                <div className="min-w-0">
+                  <h1 className="text-lg font-black tracking-tight-brand">Founder copilot</h1>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-black/48">
+                    {String(session.selectedMode || '').replace(/_/g, ' ')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMobileAnalysisOpen(true)}
+                  className="shrink-0 rounded-full border border-brand-black/12 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-black shadow-[0_10px_24px_rgba(27,28,26,0.06)]"
+                >
+                  View analysis
+                </button>
               </div>
 
               <div
@@ -271,6 +307,7 @@ const FounderSpecGenerator = () => {
                 }`}
               >
                 <CopilotShell
+                  showRightPaneOnMobile={mobileAnalysisOpen}
                   leftPane={
                     <ConversationPane
                       session={session}
@@ -304,6 +341,9 @@ const FounderSpecGenerator = () => {
                       challenge={session.challenge}
                       activeTab={session.activePanel}
                       selectedMode={session.selectedMode}
+                      mobileOpen={mobileAnalysisOpen}
+                      onMobileClose={() => setMobileAnalysisOpen(false)}
+                      mobileTitle="Analysis"
                     />
                   }
                 />

@@ -20,7 +20,13 @@ const MODE_METADATA = {
 };
 
 const DEFAULT_ASSISTANT_MESSAGE =
-  'Pick the starting point that matches where you are. I will guide the next few questions, challenge weak assumptions, then recommend a direction with evidence.';
+  'Pick the starting point that matches where you are. I will tell you what I am hearing, give you my current read, and ask for the one thing I need next.';
+
+const DEFAULT_RUNTIME = {
+  turnType: 'fast',
+  fallbackUsed: false,
+  fallbackReason: '',
+};
 
 let messageSequence = 0;
 
@@ -86,6 +92,44 @@ function normalizeAnswers(value) {
     .filter(Boolean);
 }
 
+function normalizeRuntime(value) {
+  if (!value || typeof value !== 'object') return { ...DEFAULT_RUNTIME };
+
+  const turnType = cleanText(value.turnType).toLowerCase() === 'heavy' ? 'heavy' : 'fast';
+  return {
+    turnType,
+    fallbackUsed: Boolean(value.fallbackUsed),
+    fallbackReason: cleanText(value.fallbackReason),
+  };
+}
+
+function normalizeAdvisory(value) {
+  if (!value || typeof value !== 'object') return null;
+
+  const whatIHeard = cleanText(value.whatIHeard || value.heard);
+  const currentRead = cleanText(value.currentRead || value.read);
+  const nextQuestion = cleanText(value.nextQuestion);
+
+  if (!whatIHeard && !currentRead && !nextQuestion) return null;
+
+  return {
+    whatIHeard,
+    currentRead,
+    nextQuestion,
+  };
+}
+
+function formatAdvisoryMessage(advisory) {
+  const normalized = normalizeAdvisory(advisory);
+  if (!normalized) return '';
+
+  const lines = [];
+  if (normalized.whatIHeard) lines.push(`What I heard: ${normalized.whatIHeard}`);
+  if (normalized.currentRead) lines.push(`Current read: ${normalized.currentRead}`);
+  if (normalized.nextQuestion) lines.push(`Next question: ${normalized.nextQuestion}`);
+  return lines.join('\n');
+}
+
 function inferStageFromMode(mode) {
   switch (mode) {
     case 'show_shortlist':
@@ -141,8 +185,8 @@ export function shouldAllowRecommendation(session) {
   const mode = cleanText(session?.selectedMode);
   const answerCount = normalizeAnswers(session?.answers).length;
 
-  if (mode === 'no_idea') return answerCount >= 4;
-  if (mode === 'messy_idea') return answerCount >= 3;
+  if (mode === 'no_idea') return answerCount >= 3;
+  if (mode === 'messy_idea') return answerCount >= 2;
   if (mode === 'known_idea') return answerCount >= 2;
   return false;
 }
@@ -172,6 +216,8 @@ export function createFounderCopilotSession() {
     brief: null,
     markdown: '',
     error: '',
+    runtime: { ...DEFAULT_RUNTIME },
+    advisory: null,
   };
 }
 
@@ -230,6 +276,7 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
       confidence: cleanText(session.confidence),
       answers: normalizeAnswers(session.answers),
       messages: visibleMessages,
+      runtime: normalizeRuntime(session.runtime),
     },
   };
 }
@@ -253,6 +300,7 @@ function normalizeEvidenceList(value) {
 
 export function applyFounderCopilotResponse({ session, payload, submittedValue = '' }) {
   const normalizedQuestion = normalizeQuestion(payload?.question);
+  const normalizedAdvisory = normalizeAdvisory(payload?.advisory);
   let nextMessages = [...normalizeArray(session.messages)];
   const cleanedSubmittedValue = cleanText(submittedValue);
 
@@ -260,8 +308,17 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     nextMessages = appendUniqueMessage(nextMessages, 'user', cleanedSubmittedValue);
   }
 
+  const advisoryMessage = formatAdvisoryMessage(normalizedAdvisory);
+  if (advisoryMessage) {
+    nextMessages = appendUniqueMessage(nextMessages, 'assistant', advisoryMessage);
+  }
+
   if (payload?.challenge?.summary) {
-    nextMessages = appendUniqueMessage(nextMessages, 'challenge', payload.challenge.summary);
+    nextMessages = appendUniqueMessage(
+      nextMessages,
+      'assistant',
+      `Reality check: ${payload.challenge.summary}`
+    );
   }
 
   if (normalizedQuestion?.prompt) {
@@ -313,5 +370,7 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     brief: payload?.brief || null,
     markdown: cleanText(payload?.markdown),
     error: '',
+    runtime: normalizeRuntime(payload?.runtime || session.runtime),
+    advisory: normalizedAdvisory,
   };
 }

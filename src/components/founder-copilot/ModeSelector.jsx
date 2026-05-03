@@ -1,14 +1,7 @@
 const ModeSelector = ({ modes = [], selectedMode, onSelect }) => {
   return (
     <section className="mx-auto max-w-[1080px]">
-      <h2 className="text-[1.9rem] md:text-[2.25rem] font-black tracking-tight-brand mb-2">
-        Where are you right now?
-      </h2>
-      <p className="text-sm md:text-base font-bold leading-relaxed text-brand-black/55 mb-8 max-w-[560px]">
-        Pick the closest starting point.
-      </p>
-
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3 md:gap-4">
         {modes.map((mode) => {
           const isActive = selectedMode === mode.id;
 
@@ -17,18 +10,22 @@ const ModeSelector = ({ modes = [], selectedMode, onSelect }) => {
               key={mode.id}
               type="button"
               onClick={() => onSelect(mode.id)}
-              className={`text-left rounded-[28px] border-2 border-brand-black bg-white p-6 md:p-7 transition-all min-h-[208px] flex flex-col justify-between ${
+              className={`flex min-h-[156px] flex-col justify-between rounded-[24px] border border-brand-black/15 bg-white px-5 py-5 text-left transition-all md:min-h-[188px] md:px-6 md:py-6 ${
                 isActive
-                  ? 'bg-brand-orange text-white shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]'
-                  : 'hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]'
+                  ? 'border-brand-black bg-brand-black text-white shadow-[0_20px_40px_rgba(27,28,26,0.12)]'
+                  : 'hover:-translate-y-0.5 hover:border-brand-black/25 hover:shadow-[0_18px_36px_rgba(27,28,26,0.08)]'
               }`}
             >
-              <p className="text-[1.7rem] md:text-[1.95rem] font-black tracking-tight-brand mb-4 leading-[1.08] max-w-[11ch]">
+              <p
+                className={`mb-4 text-[1.4rem] font-black leading-[1.08] tracking-tight-brand md:text-[1.75rem] ${
+                  isActive ? 'text-white' : 'text-brand-black'
+                }`}
+              >
                 {mode.title}
               </p>
               <p
-                className={`text-base font-bold leading-relaxed ${
-                  isActive ? 'text-white/90' : 'text-brand-black/60'
+                className={`max-w-[26ch] text-sm font-bold leading-relaxed md:text-[15px] ${
+                  isActive ? 'text-white/78' : 'text-brand-black/58'
                 }`}
               >
                 {mode.description}

@@ -69,10 +69,18 @@ assert.match(validArrayPayload.markdown, /^# Founder Spec: Founder spec app/m);
 const typedPayload = normalizeFounderSpecResponse([
   {
     mode: 'ask_question',
-    stage: 'challenging',
-    activePanel: 'founder_fit',
+    stage: 'exploring',
+    activePanel: 'evidence',
     confidence: 'medium',
     session: { mode: 'no_idea', answers: [] },
+    advisory: {
+      whatIHeard: 'You are strongest in founder sales conversations.',
+      currentRead: 'That is enough signal to narrow by reachable users first.',
+    },
+    runtime: {
+      turnType: 'fast',
+      fallbackUsed: false,
+    },
     question: {
       id: 'strengths',
       prompt: 'What are you unusually good at or close to?',
@@ -87,50 +95,70 @@ const typedPayload = normalizeFounderSpecResponse([
 
 assert.equal(typedPayload.ok, true);
 assert.equal(typedPayload.mode, 'ask_question');
-assert.equal(typedPayload.stage, 'challenging');
-assert.equal(typedPayload.activePanel, 'founder_fit');
+assert.equal(typedPayload.stage, 'exploring');
+assert.equal(typedPayload.activePanel, 'evidence');
 assert.equal(typedPayload.confidence, 'medium');
 assert.equal(typedPayload.question.id, 'strengths');
+assert.equal(typedPayload.advisory.whatIHeard.includes('founder sales'), true);
+assert.equal(typedPayload.runtime.turnType, 'fast');
 assert.equal(typedPayload.challenge.summary.includes('broader'), true);
 assert.equal(typedPayload.shortlist.length, 0);
 
 const recommendationPayload = normalizeFounderSpecResponse({
   mode: 'show_recommendation',
-  stage: 'final_verdict',
-  activePanel: 'action_plan',
-  confidence: 'high',
+  stage: 'recommending',
+  activePanel: 'recommendation',
+  confidence: 'medium',
   session: { mode: 'known_idea' },
+  advisory: {
+    whatIHeard: 'You want to help restaurant operators with repeat admin work.',
+    currentRead: 'There is enough signal to offer a provisional wedge before a full verdict.',
+  },
+  runtime: {
+    turnType: 'heavy',
+    fallbackUsed: false,
+  },
   recommendation: {
     title: 'Start with a narrow restaurant ops wedge',
   },
   evidence: [{ name: 'Example Co' }],
   inference: ['Assumes manual ops pain is urgent'],
-  founderFit: {
-    fitSummary: 'Strong founder insight, weaker distribution leverage.',
-  },
-  actionPlan: {
-    firstWeek: ['Talk to 5 operators'],
-  },
-  verdict: {
-    standing: 'Promising but underprepared',
-  },
-  brief: {
-    problem: 'Problem',
-  },
-  markdown: '# Founder Strategy Brief',
+  markdown: '# Provisional Recommendation',
 });
 
 assert.equal(recommendationPayload.ok, true);
 assert.equal(recommendationPayload.mode, 'show_recommendation');
-assert.equal(recommendationPayload.stage, 'final_verdict');
-assert.equal(recommendationPayload.activePanel, 'action_plan');
-assert.equal(recommendationPayload.confidence, 'high');
+assert.equal(recommendationPayload.stage, 'recommending');
+assert.equal(recommendationPayload.activePanel, 'recommendation');
+assert.equal(recommendationPayload.confidence, 'medium');
 assert.equal(recommendationPayload.recommendation.title, 'Start with a narrow restaurant ops wedge');
 assert.equal(recommendationPayload.evidence.length, 1);
 assert.equal(recommendationPayload.inference.length, 1);
-assert.equal(recommendationPayload.founderFit.fitSummary, 'Strong founder insight, weaker distribution leverage.');
-assert.equal(recommendationPayload.verdict.standing, 'Promising but underprepared');
-assert.equal(recommendationPayload.markdown, '# Founder Strategy Brief');
+assert.equal(recommendationPayload.runtime.turnType, 'heavy');
+assert.equal(recommendationPayload.advisory.currentRead.includes('provisional wedge'), true);
+assert.equal(recommendationPayload.markdown, '# Provisional Recommendation');
+
+const fallbackTypedPayload = normalizeFounderSpecResponse({
+  mode: 'ask_question',
+  stage: 'exploring',
+  activePanel: 'evidence',
+  confidence: 'low',
+  runtime: {
+    turnType: 'fast',
+    fallbackUsed: true,
+    fallbackReason: 'parser_recovery',
+  },
+  session: { mode: 'messy_idea', answers: [] },
+  question: {
+    id: 'fallback_question',
+    prompt: 'What feels most urgent to fix first?',
+    inputType: 'long_text',
+  },
+});
+
+assert.equal(fallbackTypedPayload.ok, true);
+assert.equal(fallbackTypedPayload.runtime.fallbackUsed, true);
+assert.equal(fallbackTypedPayload.runtime.fallbackReason, 'parser_recovery');
 
 const invalidPayload = normalizeFounderSpecResponse({
   spec: {

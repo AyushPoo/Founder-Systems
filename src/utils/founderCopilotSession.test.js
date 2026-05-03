@@ -79,6 +79,31 @@ assert.equal(
 assert.equal(
   shouldAllowRecommendation({
     ...withFounderReply,
+    selectedMode: 'no_idea',
+    answers: [
+      { questionId: 'strength', value: 'Sales' },
+      { questionId: 'market', value: 'Restaurants' },
+      { questionId: 'pull', value: 'Can talk to 10 owners this week' },
+    ],
+  }),
+  true
+);
+
+assert.equal(
+  shouldAllowRecommendation({
+    ...withFounderReply,
+    selectedMode: 'messy_idea',
+    answers: [
+      { questionId: 'idea', value: 'Workflow software for coaches' },
+      { questionId: 'distribution', value: 'Already advise 15 coaches' },
+    ],
+  }),
+  true
+);
+
+assert.equal(
+  shouldAllowRecommendation({
+    ...withFounderReply,
     selectedMode: 'known_idea',
     answers: [
       { questionId: 'idea', value: 'Onboarding analytics' },
@@ -164,32 +189,69 @@ const questionSession = applyFounderCopilotResponse({
   session: messyIdeaSession,
   payload: {
     mode: 'ask_question',
-    stage: 'challenging',
-    activePanel: 'founder_fit',
+    stage: 'exploring',
+    activePanel: 'evidence',
+    advisory: {
+      whatIHeard: 'You want to help coaches spend less time on admin.',
+      currentRead: 'You are close to the user and the pain sounds real, but the wedge is still broad.',
+    },
+    runtime: {
+      turnType: 'fast',
+      fallbackUsed: false,
+    },
     question: {
       id: 'customer-pain',
       prompt: 'What is the sharpest pain you have personally seen in this space?',
       helperText: 'One sentence is enough.',
       inputType: 'long_text',
     },
-    challenge: {
-      summary: 'You are still speaking in category language, not lived customer pain.',
-    },
   },
 });
 
-assert.equal(questionSession.stage, 'challenging');
-assert.equal(questionSession.activePanel, 'founder_fit');
+assert.equal(questionSession.stage, 'exploring');
+assert.equal(questionSession.activePanel, 'evidence');
 assert.equal(questionSession.question.id, 'customer-pain');
 assert.equal(questionSession.question.helperText, 'One sentence is enough.');
-assert.equal(questionSession.challenge.summary.includes('category language'), true);
+assert.equal(questionSession.runtime.turnType, 'fast');
+assert.equal(questionSession.runtime.fallbackUsed, false);
+assert.match(
+  questionSession.messages[questionSession.messages.length - 2].content,
+  /what i heard: you want to help coaches spend less time on admin\./i
+);
 assert.equal(
-  questionSession.messages[questionSession.messages.length - 2].role,
-  'challenge'
+  questionSession.messages[questionSession.messages.length - 1].role,
+  'assistant'
 );
 assert.match(
   questionSession.messages[questionSession.messages.length - 1].content,
   /sharpest pain/i
 );
+
+const fallbackSession = applyFounderCopilotResponse({
+  session: messyIdeaSession,
+  payload: {
+    mode: 'ask_question',
+    stage: 'exploring',
+    activePanel: 'evidence',
+    runtime: {
+      turnType: 'fast',
+      fallbackUsed: true,
+      fallbackReason: 'parser_recovery',
+    },
+    advisory: {
+      whatIHeard: 'You have a rough coach workflow idea.',
+      currentRead: 'I can still keep this moving with one tighter question.',
+    },
+    question: {
+      id: 'fallback-question',
+      prompt: 'Which workflow step breaks most often today?',
+      inputType: 'long_text',
+    },
+  },
+});
+
+assert.equal(fallbackSession.runtime.fallbackUsed, true);
+assert.equal(fallbackSession.runtime.fallbackReason, 'parser_recovery');
+assert.equal(fallbackSession.question.id, 'fallback-question');
 
 console.log('founderCopilotSession tests passed');
