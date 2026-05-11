@@ -248,7 +248,7 @@ const FounderSpecGenerator = () => {
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
       <SEO
-        title="Founder Strategy Copilot"
+        title="Founder Spec Generator"
         description="A guided founder copilot that helps you discover, sharpen, and scope businesses with recommendation-first output backed by evidence."
         canonical="/tools/founder-spec-generator"
       />
@@ -261,10 +261,11 @@ const FounderSpecGenerator = () => {
               <div className="w-full max-w-[1120px] pt-2 sm:pt-4 lg:pt-0">
                 <div className="mb-6 max-w-[760px] sm:mb-8 lg:mb-10">
                   <h1 className="text-[2rem] leading-[0.94] sm:text-[2.5rem] lg:text-[4rem] font-black tracking-tight-brand">
-                    Founder Strategy Copilot
+                    Founder Spec Generator
                   </h1>
                   <p className="mt-2 max-w-[420px] text-[13px] font-bold leading-relaxed text-brand-black/50 sm:mt-3 sm:text-sm lg:mt-4 lg:max-w-[520px] lg:text-lg">
-                    Pick your stage. We&apos;ll open the copilot from there.
+                    Validate the idea, audit the strategy, and turn the best next move into a
+                    founder-ready spec.
                   </p>
                 </div>
 
@@ -280,7 +281,7 @@ const FounderSpecGenerator = () => {
               <div className="mb-4 hidden items-end justify-between gap-6 lg:flex">
                 <div className="min-w-0">
                   <h1 className="text-[2.1rem] leading-none lg:text-[2.9rem] font-black tracking-tight-brand">
-                    Founder Strategy Copilot
+                    Founder Spec Generator
                   </h1>
                 </div>
               </div>

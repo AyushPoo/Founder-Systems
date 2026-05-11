@@ -1,26 +1,44 @@
 const MODE_METADATA = {
   no_idea: {
-    title: 'I have no idea what to build',
-    description: 'Start from your strengths and constraints.',
+    title: 'Find and validate a direction',
+    description: 'Start from your strengths, constraints, and reachable market signals.',
     starterPrompt:
-      'You do not need a polished idea yet. Start with the spaces, people, or problems you are closest to.',
+      'You do not need a polished idea yet. Start with the spaces, people, or problems you are closest to, and I will help validate which direction is worth testing first.',
   },
   messy_idea: {
-    title: 'I have a rough idea but it is messy',
-    description: 'Sharpen the wedge and remove the noise.',
+    title: 'Stress-test a messy idea',
+    description: 'Sharpen the wedge, expose weak assumptions, and remove the noise.',
     starterPrompt:
-      'Give me the rough version. What are you thinking about building, and what still feels fuzzy?',
+      'Give me the rough version. What are you thinking about building, what still feels fuzzy, and where do you suspect the idea may be weak?',
   },
   known_idea: {
-    title: 'I know what I want to build, help me scope and launch it',
-    description: 'Turn it into a tighter plan and launch path.',
+    title: 'Scope and package my plan',
+    description: 'Turn a known idea into a tighter MVP, launch path, and founder-ready brief.',
     starterPrompt:
-      'Tell me the business you want to build, who it is for, and where you feel least certain.',
+      'Tell me the business you want to build, who it is for, and where you feel least certain. I will turn it into a scoped plan you can actually act on.',
   },
 };
 
 const DEFAULT_ASSISTANT_MESSAGE =
-  'Pick the starting point that matches where you are. I will tell you what I am hearing, give you my current read, and ask for the one thing I need next.';
+  'Pick the starting point that matches where you are. I can validate the idea, audit the strategy, and package the plan into a founder-ready brief.';
+
+export const COPILOT_STRATEGY_LENSES = [
+  {
+    id: 'idea_validation',
+    label: 'Idea validation',
+    description: 'Judge whether the direction is worth testing and what proof is missing.',
+  },
+  {
+    id: 'strategy_audit',
+    label: 'Strategy audit',
+    description: 'Find the weak assumptions, founder-fit gaps, and sharper wedge.',
+  },
+  {
+    id: 'business_plan',
+    label: 'Business plan',
+    description: 'Package the decision into MVP scope, pricing, GTM, and next steps.',
+  },
+];
 
 const DEFAULT_RUNTIME = {
   turnType: 'fast',
@@ -204,7 +222,7 @@ export function createFounderCopilotSession() {
     confidence: 'low',
     question: null,
     answers: [],
-    messages: [],
+    messages: [toMessage('assistant', DEFAULT_ASSISTANT_MESSAGE)].filter(Boolean),
     shortlist: [],
     recommendation: null,
     evidence: [],
@@ -262,6 +280,9 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
   return {
     mode: session.selectedMode,
     message: cleanedMessage,
+    strategyLenses: COPILOT_STRATEGY_LENSES.map((lens) => lens.id),
+    expectedOutput:
+      'Evaluate the idea through idea validation, strategy audit, and business-plan packaging. Return evidence, inference boundaries, founder fit, challenge, action plan, verdict, brief, and markdown when enough signal exists.',
     attachments: normalizeArray(attachments).map((file) => ({
       name: cleanText(file?.name),
       type: cleanText(file?.type),
@@ -314,7 +335,7 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', advisoryMessage);
   }
 
-  if (!advisoryMessage && normalizedQuestion?.prompt) {
+  if (normalizedQuestion?.prompt) {
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', normalizedQuestion.prompt);
   } else if (payload?.recommendation?.summary) {
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', payload.recommendation.summary);

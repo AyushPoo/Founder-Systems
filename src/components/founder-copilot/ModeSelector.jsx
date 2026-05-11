@@ -1,6 +1,11 @@
 const ModeSelector = ({ modes = [], selectedMode, onSelect }) => {
   return (
     <section className="mx-auto max-w-[1080px]">
+      <div className="mb-5 grid gap-2 text-sm font-black uppercase tracking-[0.14em] text-brand-black/48 sm:grid-cols-3">
+        <span>Idea validation</span>
+        <span>Strategy audit</span>
+        <span>Business plan</span>
+      </div>
       <div className="grid gap-3.5 lg:grid-cols-3 lg:gap-5">
         {modes.map((mode) => {
           const isActive = selectedMode === mode.id;

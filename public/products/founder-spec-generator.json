@@ -2,41 +2,41 @@
   "slug": "founder-spec-generator",
   "productId": "FS011",
   "catalogName": "Founder Spec Generator",
-  "catalogDescription": "Turn a rough startup idea into a build-ready founder execution spec with MVP scope, pricing logic, and GTM direction.",
+  "catalogDescription": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
   "catalogCategory": "Strategy",
   "title": "Founder Spec Generator",
-  "subtitle": "Stop staring at a blank doc. Start with a founder-grade execution brief.",
-  "descriptionBody": "Most startup ideas die in the gap between a rough concept and a build-ready plan. Founders either overbuild, under-scope, or never turn scattered notes into a clear MVP with believable pricing and GTM direction.\n\nFounder Spec Generator takes your idea, target user, business model, and geography, then produces a practical founder execution spec you can actually work from. No generic startup fluff. Just the key decisions you need before building.",
-  "section1Title": "From rough idea to usable execution plan",
-  "section1Body": "The generator structures your idea into a founder-ready spec with problem clarity, ICP definition, MVP boundaries, exclusions, pricing logic, GTM direction, and a 30-day next-step plan. It is designed for speed, not corporate theater.",
-  "featuresTitle": "What the beta generates:",
+  "subtitle": "Validate the idea. Audit the strategy. Leave with a founder-ready spec.",
+  "descriptionBody": "Most startup ideas do not fail because the founder forgot to write a business plan. They fail because the first wedge is fuzzy, the assumptions are untested, or the founder builds before knowing what proof actually matters.\n\nFounder Spec Generator talks through your idea, challenges the weak parts, checks founder fit, and turns the strongest path into a practical execution brief. It covers the jobs people usually split into an idea validator, SWOT audit, and business plan generator, but keeps them inside one guided founder conversation.",
+  "section1Title": "One copilot for validation, audit, and planning",
+  "section1Body": "Start with no idea, a messy idea, or a known business direction. The copilot asks for the missing context, separates evidence from inference, surfaces the sharpest risk, and packages the result into MVP scope, exclusions, pricing logic, GTM direction, and a 30-day action plan.",
+  "featuresTitle": "What the beta helps with:",
   "features": [
     {
-      "name": "Founder-specific problem framing",
-      "desc": "Turns a vague concept into a sharper articulation of the pain, timing, and user context."
+      "name": "Idea validation",
+      "desc": "Tests whether the direction is worth pursuing, what evidence is still missing, and what first proof would make it real."
     },
     {
-      "name": "MVP scope and exclusions",
-      "desc": "Defines the minimum product to ship first and explicitly calls out what not to build in v1."
+      "name": "Strategy audit",
+      "desc": "Calls out weak assumptions, founder-fit gaps, wedge problems, and what not to build in v1."
     },
     {
-      "name": "Pricing and GTM hypotheses",
-      "desc": "Suggests a founder-appropriate pricing angle and an early go-to-market direction."
+      "name": "Business-plan packaging",
+      "desc": "Turns the decision into problem clarity, ICP, MVP scope, pricing hypothesis, GTM plan, and next steps."
     },
     {
       "name": "Markdown export",
-      "desc": "Copy or download the resulting spec as a clean .md file for Notion, docs, or team review."
+      "desc": "Copy or download the resulting founder brief as a clean .md file for Notion, docs, or team review."
     }
   ],
   "whyTitle": "Why use this instead of a blank document?",
   "whyPoints": [
     {
       "title": "Avoid fake clarity",
-      "desc": "A lot of founders feel productive while writing long notes that never become product decisions. This forces a tighter execution brief."
+      "desc": "A lot of founders feel productive while writing long notes that never become product decisions. This forces a sharper verdict."
     },
     {
       "title": "Scope before building",
-      "desc": "The most expensive mistake in v1 is building too much. The generator keeps the first version smaller and more testable."
+      "desc": "The most expensive mistake in v1 is building too much. The copilot keeps the first version smaller and more testable."
     },
     {
       "title": "Useful for India and global angles",
@@ -48,6 +48,8 @@
   "footerResultTitle": "The Result",
   "footerResultDetails": "A founder-ready execution spec you can refine, share, and build from.",
   "whatYouGet": [
+    "Idea validation read",
+    "Strategy audit",
     "Problem statement",
     "ICP definition",
     "MVP scope",
