@@ -12,6 +12,7 @@ import {
   buildFounderCopilotRequest,
   COPILOT_MODES,
   createFounderCopilotSession,
+  shouldAllowRecommendation,
   selectFounderCopilotMode,
 } from '../utils/founderCopilotSession';
 
@@ -98,6 +99,7 @@ const FounderSpecGenerator = () => {
   );
 
   const hasActiveMode = Boolean(session.selectedMode);
+  const canGenerateSpec = hasActiveMode && shouldAllowRecommendation(session);
 
   useEffect(() => {
     if (!hasActiveMode) {
@@ -233,6 +235,15 @@ const FounderSpecGenerator = () => {
     });
   }
 
+  async function handleGenerateSpec() {
+    if (!canGenerateSpec || loading) return;
+    await submitPayload({
+      message: 'Generate the founder verdict and spec now.',
+      selection: { id: 'generate_founder_spec', title: 'Generate founder spec' },
+      nextSession: session,
+    });
+  }
+
   async function handleCopy() {
     if (!session.markdown) return;
     await copyText(session.markdown);
@@ -318,6 +329,8 @@ const FounderSpecGenerator = () => {
                       loading={loading}
                       error={error}
                       disabled={!hasActiveMode}
+                      canGenerateSpec={canGenerateSpec}
+                      onGenerateSpec={handleGenerateSpec}
                       attachments={attachments}
                       onPickFiles={handlePickFiles}
                       onRemoveAttachment={handleRemoveAttachment}
@@ -342,6 +355,8 @@ const FounderSpecGenerator = () => {
                       challenge={session.challenge}
                       activeTab={session.activePanel}
                       selectedMode={session.selectedMode}
+                      session={session}
+                      loading={loading}
                       mobileOpen={mobileAnalysisOpen}
                       onMobileClose={() => setMobileAnalysisOpen(false)}
                       mobileTitle="Analysis"

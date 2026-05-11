@@ -60,7 +60,7 @@ const FounderFitPanel = ({ founderFit, recommendation, brief, selectedMode }) =>
 
   if (!items.length) {
     return (
-      <div className="rounded-[22px] border-2 border-dashed border-brand-black bg-brand-cream/25 p-5">
+      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
         <p className="text-base font-black tracking-tight-brand mb-2">Founder fit</p>
         <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
           Once the copilot has enough signal, this tab can explain why the direction fits the
@@ -75,7 +75,7 @@ const FounderFitPanel = ({ founderFit, recommendation, brief, selectedMode }) =>
       {items.map((item, index) => (
         <article
           key={item.label || index}
-          className="rounded-[22px] border-2 border-brand-black bg-white p-4"
+          className="rounded-[18px] border border-brand-black/10 bg-white p-4"
         >
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
             {item.label || `Fit signal ${index + 1}`}

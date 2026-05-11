@@ -46,6 +46,12 @@ const DEFAULT_RUNTIME = {
   fallbackReason: '',
 };
 
+const MODE_ANSWER_LIMITS = {
+  no_idea: 5,
+  messy_idea: 4,
+  known_idea: 4,
+};
+
 let messageSequence = 0;
 
 function nextMessageId(role) {
@@ -137,14 +143,16 @@ function normalizeAdvisory(value) {
   };
 }
 
-function formatAdvisoryMessage(advisory) {
+function formatAdvisoryMessage(advisory, { includeNextQuestion = true } = {}) {
   const normalized = normalizeAdvisory(advisory);
   if (!normalized) return '';
 
   const lines = [];
   if (normalized.whatIHeard) lines.push(`What I heard: ${normalized.whatIHeard}`);
   if (normalized.currentRead) lines.push(`Current read: ${normalized.currentRead}`);
-  if (normalized.nextQuestion) lines.push(`Next question: ${normalized.nextQuestion}`);
+  if (includeNextQuestion && normalized.nextQuestion) {
+    lines.push(`Next question: ${normalized.nextQuestion}`);
+  }
   return lines.join('\n');
 }
 
@@ -173,7 +181,7 @@ export function getActivePanelForStage(stage) {
     case 'narrowing':
     case 'exploring':
     default:
-      return 'evidence';
+      return 'map';
   }
 }
 
@@ -190,7 +198,7 @@ export function getVisibleTabs(stage) {
       return ['recommendation', 'founder_fit', 'action_plan', 'evidence'];
     case 'exploring':
     default:
-      return ['evidence'];
+      return ['map', 'founder_fit', 'action_plan', 'evidence'];
   }
 }
 
@@ -201,12 +209,24 @@ export function getPrimaryTab(stage) {
 
 export function shouldAllowRecommendation(session) {
   const mode = cleanText(session?.selectedMode);
-  const answerCount = normalizeAnswers(session?.answers).length;
+  const userMessageCount = normalizeArray(session?.messages).filter((message) => message?.role === 'user').length;
+  const answerCount = Math.max(normalizeAnswers(session?.answers).length, userMessageCount);
 
   if (mode === 'no_idea') return answerCount >= 3;
   if (mode === 'messy_idea') return answerCount >= 2;
   if (mode === 'known_idea') return answerCount >= 2;
   return false;
+}
+
+export function getAnswerLimit(session) {
+  const mode = cleanText(session?.selectedMode);
+  return MODE_ANSWER_LIMITS[mode] || 4;
+}
+
+export function shouldForceFounderBrief(session) {
+  const userMessageCount = normalizeArray(session?.messages).filter((message) => message?.role === 'user').length;
+  const answerCount = Math.max(normalizeAnswers(session?.answers).length, userMessageCount);
+  return answerCount >= getAnswerLimit(session);
 }
 
 export const COPILOT_MODES = Object.entries(MODE_METADATA).map(([id, value]) => ({
@@ -218,7 +238,7 @@ export function createFounderCopilotSession() {
   return {
     selectedMode: null,
     stage: 'mode_selection',
-    activePanel: 'evidence',
+    activePanel: 'map',
     confidence: 'low',
     question: null,
     answers: [],
@@ -280,9 +300,14 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
   return {
     mode: session.selectedMode,
     message: cleanedMessage,
+    requestFinal:
+      normalizedSelection?.id === 'generate_founder_spec' ||
+      shouldForceFounderBrief(session) ||
+      /generate|verdict|spec|plan|business plan|final/i.test(cleanedMessage),
+    maxQuestionCount: getAnswerLimit(session),
     strategyLenses: COPILOT_STRATEGY_LENSES.map((lens) => lens.id),
     expectedOutput:
-      'Evaluate the idea through idea validation, strategy audit, and business-plan packaging. Return evidence, inference boundaries, founder fit, challenge, action plan, verdict, brief, and markdown when enough signal exists.',
+      'Evaluate the idea through idea validation, strategy audit, SWOT-style strategic risk, and business-plan packaging. Do not keep asking questions forever. Once maxQuestionCount answers are present, or requestFinal is true, stop asking and return a provisional verdict, recommendation, actionPlan, brief, and markdown even if confidence is imperfect. If one assumption is unknown, state it as an assumption instead of asking another broad question.',
     attachments: normalizeArray(attachments).map((file) => ({
       name: cleanText(file?.name),
       type: cleanText(file?.type),
@@ -330,7 +355,9 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     nextMessages = appendUniqueMessage(nextMessages, 'user', cleanedSubmittedValue);
   }
 
-  const advisoryMessage = formatAdvisoryMessage(normalizedAdvisory);
+  const advisoryMessage = formatAdvisoryMessage(normalizedAdvisory, {
+    includeNextQuestion: !normalizedQuestion?.prompt,
+  });
   if (advisoryMessage) {
     nextMessages = appendUniqueMessage(nextMessages, 'assistant', advisoryMessage);
   }

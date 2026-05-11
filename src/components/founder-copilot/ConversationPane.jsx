@@ -1,5 +1,6 @@
 import ThreadMessage from './ThreadMessage';
 import Composer from './Composer';
+import ThinkingStatus from './ThinkingStatus';
 
 const ConversationPane = ({
   session,
@@ -9,6 +10,8 @@ const ConversationPane = ({
   loading,
   error,
   disabled,
+  canGenerateSpec,
+  onGenerateSpec,
   attachments = [],
   onPickFiles,
   onRemoveAttachment,
@@ -16,6 +19,7 @@ const ConversationPane = ({
   const messages = Array.isArray(session.messages) ? session.messages : [];
   const hasMessages = messages.length > 0;
   const selectedModeLabel = String(session?.selectedMode || 'conversation').replace(/_/g, ' ');
+  const showRecoveryNote = Boolean(session?.runtime?.fallbackUsed && error);
 
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent xl:rounded-[28px] xl:border xl:border-brand-black/12 xl:bg-white xl:shadow-[0_24px_60px_rgba(27,28,26,0.08)]">
@@ -59,9 +63,30 @@ const ConversationPane = ({
             </div>
           ) : null}
 
-          {session?.runtime?.fallbackUsed && session?.runtime?.fallbackReason ? (
+          {showRecoveryNote ? (
             <div className="mb-3 rounded-[18px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-brand-black/75">
-              {session.runtime.fallbackReason}
+              The deeper analysis returned an incomplete response. I kept your answers and you can continue or ask for the spec now.
+            </div>
+          ) : null}
+
+          <ThinkingStatus loading={loading} />
+
+          {canGenerateSpec ? (
+            <div className="mb-3 flex flex-col gap-2 rounded-[18px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_10px_24px_rgba(27,28,26,0.06)] sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-black text-brand-black">Enough signal for a provisional spec.</p>
+                <p className="mt-1 text-xs font-bold text-brand-black/50">
+                  You can keep refining, or ask for the verdict and plan now.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onGenerateSpec?.()}
+                disabled={loading}
+                className="rounded-full bg-brand-black px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
+              >
+                Generate spec
+              </button>
             </div>
           ) : null}
 

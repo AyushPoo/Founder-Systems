@@ -4,11 +4,11 @@ const EvidencePanel = ({ evidence, inference }) => {
 
   if (!hasEvidence && !hasInference) {
     return (
-      <div className="rounded-[22px] border-2 border-dashed border-brand-black bg-brand-cream/25 p-5">
+      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
         <p className="text-base font-black tracking-tight-brand mb-2">Evidence trail</p>
         <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
-          Evidence, analogs, and inference boundaries will appear here once the copilot starts
-          grounding the recommendation.
+          This version uses your supplied context first. External proof can be added later for a
+          dedicated startup validator mode.
         </p>
       </div>
     );
@@ -17,7 +17,7 @@ const EvidencePanel = ({ evidence, inference }) => {
   return (
     <div className="space-y-4">
       {hasEvidence ? (
-        <article className="rounded-[22px] border-2 border-brand-black bg-white p-5">
+        <article className="rounded-[18px] border border-brand-black/10 bg-white p-5">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-3">
             Signals used
           </p>
@@ -25,7 +25,7 @@ const EvidencePanel = ({ evidence, inference }) => {
             {evidence.map((item, index) => (
               <div
                 key={item.id || item.name || item.title || index}
-                className="rounded-[18px] border-2 border-brand-black bg-brand-cream/25 p-4"
+                className="rounded-[16px] border border-brand-black/10 bg-brand-cream/25 p-4"
               >
                 <p className="text-sm font-black mb-1">
                   {item.companyName || item.name || item.title || `Reference ${index + 1}`}
@@ -49,7 +49,7 @@ const EvidencePanel = ({ evidence, inference }) => {
       ) : null}
 
       {hasInference ? (
-        <article className="rounded-[22px] border-2 border-brand-black border-dashed bg-white p-5">
+        <article className="rounded-[18px] border border-brand-black/10 bg-white p-5">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-3">
             Inference boundary
           </p>

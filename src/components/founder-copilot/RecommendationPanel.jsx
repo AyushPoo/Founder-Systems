@@ -4,7 +4,7 @@ const RecommendationPanel = ({ shortlist, recommendation, onSelectShortlist }) =
 
   if (!hasShortlist && !hasRecommendation) {
     return (
-      <div className="rounded-[22px] border-2 border-dashed border-brand-black bg-brand-cream/25 p-5">
+      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
         <p className="text-base font-black tracking-tight-brand mb-2">Recommendation snapshot</p>
         <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
           The right pane stays quiet until the conversation creates a real direction to inspect.
@@ -16,8 +16,8 @@ const RecommendationPanel = ({ shortlist, recommendation, onSelectShortlist }) =
   return (
     <div className="space-y-4">
       {hasRecommendation ? (
-        <article className="rounded-[24px] border-2 border-brand-black bg-brand-orange text-white p-5 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] mb-2 text-white/80">
+        <article className="rounded-[18px] border border-brand-black/10 bg-brand-black p-5 text-white shadow-[0_18px_44px_rgba(27,28,26,0.16)]">
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] mb-2 text-white/64">
             Best next move
           </p>
           <h3 className="text-2xl font-black tracking-tight-brand mb-3">
@@ -42,7 +42,7 @@ const RecommendationPanel = ({ shortlist, recommendation, onSelectShortlist }) =
           {shortlist.map((item, index) => (
             <article
               key={item.id || item.title || index}
-              className="rounded-[22px] border-2 border-brand-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]"
+              className="rounded-[18px] border border-brand-black/10 bg-white p-4 shadow-[0_12px_28px_rgba(27,28,26,0.06)]"
             >
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -57,7 +57,7 @@ const RecommendationPanel = ({ shortlist, recommendation, onSelectShortlist }) =
                   </p>
                 </div>
                 {item.score ? (
-                  <span className="rounded-full border-2 border-brand-black bg-brand-cream/45 px-3 py-2 text-xs font-black">
+                  <span className="rounded-full border border-brand-black/10 bg-brand-cream/45 px-3 py-2 text-xs font-black">
                     Score {item.score}
                   </span>
                 ) : null}

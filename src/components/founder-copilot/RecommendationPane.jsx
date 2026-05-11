@@ -4,33 +4,35 @@ import RecommendationPanel from './RecommendationPanel';
 import EvidencePanel from './EvidencePanel';
 import FounderFitPanel from './FounderFitPanel';
 import ActionPlanPanel from './ActionPlanPanel';
+import StrategyMapPanel from './StrategyMapPanel';
 
 const TAB_CONFIG = {
+  map: { id: 'map', label: 'Map' },
   recommendation: { id: 'recommendation', label: 'Recommendation' },
   evidence: { id: 'evidence', label: 'Evidence' },
-  founder_fit: { id: 'founder_fit', label: 'Founder fit' },
-  action_plan: { id: 'action_plan', label: 'Action plan' },
+  founder_fit: { id: 'founder_fit', label: 'SWOT' },
+  action_plan: { id: 'action_plan', label: 'Plan' },
 };
 
 function getVisibleTabs(stage) {
   switch (stage) {
     case 'narrowing':
-      return ['recommendation', 'evidence'];
+      return ['map', 'recommendation', 'evidence'];
     case 'challenging':
-      return ['founder_fit', 'evidence'];
+      return ['map', 'founder_fit', 'evidence'];
     case 'planning':
     case 'final_verdict':
-      return ['action_plan', 'founder_fit', 'recommendation', 'evidence'];
+      return ['map', 'action_plan', 'founder_fit', 'recommendation', 'evidence'];
     case 'recommending':
-      return ['recommendation', 'evidence', 'founder_fit'];
+      return ['map', 'recommendation', 'founder_fit', 'evidence'];
     case 'exploring':
     case 'mode_selection':
     default:
-      return ['evidence'];
+      return ['map', 'founder_fit', 'action_plan', 'evidence'];
   }
 }
 
-const DEFAULT_TAB = 'evidence';
+const DEFAULT_TAB = 'map';
 
 const RecommendationPane = ({
   stage,
@@ -55,6 +57,8 @@ const RecommendationPane = ({
   mobileOpen = false,
   onMobileClose,
   mobileTitle = 'Context',
+  session,
+  loading,
 }) => {
   const tabs = useMemo(
     () => getVisibleTabs(stage).map((id) => TAB_CONFIG[id]).filter(Boolean),
@@ -84,14 +88,14 @@ const RecommendationPane = ({
   function renderPaneContent() {
     return (
       <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pt-4 xl:pr-1">
-        <div className="rounded-[22px] border border-brand-black/12 bg-brand-cream/45 p-4">
+        <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/45 p-4">
           <p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-brand-black/42">
-            Session state
+            Strategy brain
           </p>
           <p className="text-sm font-bold leading-relaxed text-brand-black/66">
             {stage === 'mode_selection'
               ? 'Choose a stage to begin.'
-              : 'Open this when you want the sharper read on what the conversation is pointing to.'}
+              : 'This updates as the conversation moves from validation to strategy audit to plan.'}
           </p>
           {selectedMode ? (
             <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/48">
@@ -106,6 +110,8 @@ const RecommendationPane = ({
         </div>
 
         <ContextTabs tabs={tabs} activeTab={resolvedTab} onChange={handleTabChange} />
+
+        {resolvedTab === 'map' ? <StrategyMapPanel session={session} loading={loading} /> : null}
 
         {resolvedTab === 'recommendation' ? (
           <RecommendationPanel
@@ -148,15 +154,15 @@ const RecommendationPane = ({
       <section
         className={`flex h-full min-h-0 flex-col bg-white ${
           mobile
-            ? 'relative z-10 mt-auto max-h-[88vh] rounded-t-[28px] px-4 pb-5 pt-3 shadow-[0_-20px_60px_rgba(27,28,26,0.22)]'
-            : 'rounded-[28px] border border-brand-black/12 p-5 shadow-[0_24px_60px_rgba(27,28,26,0.08)] md:p-6'
+            ? 'relative z-10 mt-auto max-h-[88vh] rounded-t-[24px] px-4 pb-5 pt-3 shadow-[0_-20px_60px_rgba(27,28,26,0.18)]'
+            : 'rounded-[22px] border border-brand-black/10 p-5 shadow-[0_20px_50px_rgba(27,28,26,0.07)] md:p-6'
         }`}
       >
         {mobile ? (
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-brand-black/12" />
-              <h2 className="text-[1.35rem] font-black tracking-tight-brand">{mobileTitle}</h2>
+            <h2 className="text-[1.35rem] font-black tracking-tight-brand">{mobileTitle}</h2>
             </div>
             <button
               type="button"
@@ -169,9 +175,9 @@ const RecommendationPane = ({
           </div>
         ) : (
           <div className="border-b border-brand-black/10 pb-4">
-            <h2 className="text-[1.7rem] font-black tracking-tight-brand">{mobileTitle}</h2>
+            <h2 className="text-[1.7rem] font-black tracking-tight-brand">Analysis map</h2>
             <p className="mt-1 text-sm font-bold text-brand-black/48">
-              Shortlist, evidence, fit, and next steps.
+              Idea validation, SWOT, business plan, and evidence.
             </p>
           </div>
         )}

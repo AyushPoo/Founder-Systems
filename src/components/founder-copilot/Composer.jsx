@@ -10,6 +10,8 @@ const Composer = ({
   onPickFiles,
   onRemoveAttachment,
 }) => {
+  const buttonLabel = loading ? 'Working' : 'Send';
+
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <textarea
@@ -68,9 +70,10 @@ const Composer = ({
         <button
           type="submit"
           disabled={disabled || loading}
-          className={`inline-flex h-10 min-w-[84px] items-center justify-center rounded-full bg-brand-black px-4 text-[12px] font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_rgba(27,28,26,0.18)] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-60 sm:h-11 sm:min-w-[88px] sm:px-5 sm:text-sm`}
+          className={`inline-flex h-10 min-w-[84px] items-center justify-center gap-2 rounded-full bg-brand-black px-4 text-[12px] font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_rgba(27,28,26,0.18)] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-70 sm:h-11 sm:min-w-[88px] sm:px-5 sm:text-sm`}
         >
-          {loading ? 'Thinking...' : 'Send'}
+          {loading ? <span className="h-2 w-2 animate-pulse rounded-full bg-white" /> : null}
+          {buttonLabel}
         </button>
       </div>
     </form>

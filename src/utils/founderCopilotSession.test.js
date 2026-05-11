@@ -16,16 +16,16 @@ const initialSession = createFounderCopilotSession();
 
 assert.equal(initialSession.selectedMode, null);
 assert.equal(initialSession.stage, 'mode_selection');
-assert.equal(initialSession.activePanel, 'evidence');
+assert.equal(initialSession.activePanel, 'map');
 assert.equal(initialSession.messages.length, 1);
 assert.equal(initialSession.messages[0].role, 'assistant');
 assert.equal(COPILOT_MODES.length, 3);
 
-assert.equal(getActivePanelForStage('exploring'), 'evidence');
+assert.equal(getActivePanelForStage('exploring'), 'map');
 assert.equal(getActivePanelForStage('challenging'), 'founder_fit');
 assert.equal(getActivePanelForStage('planning'), 'action_plan');
 assert.equal(getPrimaryTab('planning'), 'recommendation');
-assert.deepEqual(getVisibleTabs('exploring'), ['evidence']);
+assert.deepEqual(getVisibleTabs('exploring'), ['map', 'founder_fit', 'action_plan', 'evidence']);
 assert.deepEqual(getVisibleTabs('challenging'), ['evidence', 'founder_fit']);
 
 const messyIdeaSession = selectFounderCopilotMode(initialSession, 'messy_idea');
@@ -33,7 +33,7 @@ const messyLastMessage = messyIdeaSession.messages[messyIdeaSession.messages.len
 
 assert.equal(messyIdeaSession.selectedMode, 'messy_idea');
 assert.equal(messyIdeaSession.stage, 'exploring');
-assert.equal(messyIdeaSession.activePanel, 'evidence');
+assert.equal(messyIdeaSession.activePanel, 'map');
 assert.equal(messyLastMessage.role, 'assistant');
 assert.match(messyLastMessage.content, /rough version|fuzzy/i);
 

@@ -51,7 +51,7 @@ const ActionPlanPanel = ({
 
   if (!steps.length && !hasVerdict && !hasBrief) {
     return (
-      <div className="rounded-[22px] border-2 border-dashed border-brand-black bg-brand-cream/25 p-5">
+      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
         <p className="text-base font-black tracking-tight-brand mb-2">Action plan</p>
         <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
           The next move list can live here once the brief or backend exposes structured execution
@@ -64,7 +64,7 @@ const ActionPlanPanel = ({
   return (
     <div className="space-y-3">
       {hasVerdict ? (
-        <article className="rounded-[22px] border-2 border-brand-black bg-brand-orange p-5 text-white shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]">
+        <article className="rounded-[18px] border border-brand-black/10 bg-brand-black p-5 text-white shadow-[0_18px_44px_rgba(27,28,26,0.16)]">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/80 mb-2">
             Final verdict
           </p>
@@ -82,10 +82,10 @@ const ActionPlanPanel = ({
       {steps.map((step, index) => (
         <article
           key={`${step}-${index}`}
-          className="rounded-[22px] border-2 border-brand-black bg-white p-4"
+          className="rounded-[18px] border border-brand-black/10 bg-white p-4"
         >
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-brand-black bg-brand-orange text-xs font-black text-white">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-black text-xs font-black text-white">
               {index + 1}
             </span>
             <p className="text-sm font-bold text-brand-black/75 leading-relaxed">{step}</p>
@@ -94,7 +94,7 @@ const ActionPlanPanel = ({
       ))}
 
       {proofPoints.length ? (
-        <article className="rounded-[22px] border-2 border-brand-black bg-white p-4">
+        <article className="rounded-[18px] border border-brand-black/10 bg-white p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
             Proof points
           </p>
@@ -109,7 +109,7 @@ const ActionPlanPanel = ({
       ) : null}
 
       {killCriteria.length ? (
-        <article className="rounded-[22px] border-2 border-dashed border-brand-black bg-white p-4">
+        <article className="rounded-[18px] border border-brand-black/10 bg-white p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
             Kill criteria
           </p>
