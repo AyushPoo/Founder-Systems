@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
 
 
-const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy'];
+const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy', 'Marketing Tools'];
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },

@@ -65,8 +65,8 @@
   },
   {
     "id": "founder-spec-generator",
-    "name": "Founder Spec Generator",
-    "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
+    "name": "Founder Strategy Copilot",
+    "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder plan.",
     "category": "Strategy",
     "productId": "FS011",
     "thumbnail": "/images/strategy.png"
@@ -77,5 +77,13 @@
     "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
     "category": "Strategy",
     "thumbnail": "/images/products/promptdeck-ai/thumbnail.jpg"
+  },
+  {
+    "id": "founder-outreach-kit",
+    "name": "Founder Outreach Kit",
+    "description": "Turn a rough founder offer into a structured outreach campaign with strategy notes, emails, LinkedIn messages, objections, exports, and local saves.",
+    "category": "Marketing Tools",
+    "productId": "FS012",
+    "thumbnail": "/images/strategy.png"
   }
 ]
