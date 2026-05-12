@@ -55,14 +55,14 @@ function buildFounderFitItems({ founderFit, recommendation, brief, selectedMode 
   return items.slice(0, 4);
 }
 
-const FounderFitPanel = ({ founderFit, recommendation, brief, selectedMode }) => {
+const FounderFitPanel = ({ founderFit, recommendation, brief, selectedMode, compact = false }) => {
   const items = buildFounderFitItems({ founderFit, recommendation, brief, selectedMode });
 
   if (!items.length) {
     return (
-      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
-        <p className="text-base font-black tracking-tight-brand mb-2">Founder fit</p>
-        <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
+      <div className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-5'} border border-brand-black/10 bg-brand-cream/25`}>
+        <p className={`${compact ? 'text-[14px]' : 'text-base'} mb-2 font-black tracking-tight-brand`}>Founder fit</p>
+        <p className={`${compact ? 'text-[12px]' : 'text-sm'} font-semibold leading-relaxed text-brand-black/50`}>
           Once the copilot has enough signal, this tab can explain why the direction fits the
           founder instead of only describing the market.
         </p>
@@ -71,16 +71,16 @@ const FounderFitPanel = ({ founderFit, recommendation, brief, selectedMode }) =>
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {items.map((item, index) => (
         <article
           key={item.label || index}
-          className="rounded-[18px] border border-brand-black/10 bg-white p-4"
+          className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-4'} border border-brand-black/10 bg-white`}
         >
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/55">
             {item.label || `Fit signal ${index + 1}`}
           </p>
-          <p className="text-sm font-bold text-brand-black/75 leading-relaxed">
+          <p className={`${compact ? 'text-[12.5px] leading-6' : 'text-sm leading-relaxed'} font-semibold text-brand-black/75`}>
             {item.value || 'Founder fit signal not available yet.'}
           </p>
         </article>

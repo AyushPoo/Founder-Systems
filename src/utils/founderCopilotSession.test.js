@@ -214,10 +214,6 @@ assert.equal(questionSession.question.id, 'customer-pain');
 assert.equal(questionSession.question.helperText, 'One sentence is enough.');
 assert.equal(questionSession.runtime.turnType, 'fast');
 assert.equal(questionSession.runtime.fallbackUsed, false);
-assert.match(
-  questionSession.messages[questionSession.messages.length - 2].content,
-  /what i heard: you want to help coaches spend less time on admin\./i
-);
 assert.equal(
   questionSession.messages[questionSession.messages.length - 1].role,
   'assistant'
@@ -225,6 +221,10 @@ assert.equal(
 assert.match(
   questionSession.messages[questionSession.messages.length - 1].content,
   /sharpest pain/i
+);
+assert.equal(
+  questionSession.messages.some((message) => /what i heard:/i.test(message.content)),
+  false
 );
 
 const fallbackSession = applyFounderCopilotResponse({
@@ -253,5 +253,78 @@ const fallbackSession = applyFounderCopilotResponse({
 assert.equal(fallbackSession.runtime.fallbackUsed, true);
 assert.equal(fallbackSession.runtime.fallbackReason, 'parser_recovery');
 assert.equal(fallbackSession.question.id, 'fallback-question');
+
+const packagedFoodSession = appendFounderCopilotMessage(
+  selectFounderCopilotMode(initialSession, 'no_idea'),
+  'user',
+  'I know a supplier and want to white-label millet snacks for office professionals.'
+);
+
+const refinedQuestionSession = applyFounderCopilotResponse({
+  session: packagedFoodSession,
+  submittedValue: 'I know a supplier and want to white-label millet snacks for office professionals.',
+  payload: {
+    mode: 'ask_question',
+    stage: 'exploring',
+    activePanel: 'evidence',
+    session: {
+      mode: 'ask_question',
+      answers: [],
+    },
+    question: {
+      id: 'generic-founder-inventory',
+      prompt:
+        'What do you actually have more of than most early founders right now: customer access, execution ability, niche insight, or distribution?',
+      inputType: 'long_text',
+    },
+  },
+});
+
+assert.equal(refinedQuestionSession.selectedMode, 'no_idea');
+assert.match(
+  refinedQuestionSession.question.prompt,
+  /first buyer you can reach fastest/i
+);
+
+const repeatedQuestionSession = applyFounderCopilotResponse({
+  session: {
+    ...packagedFoodSession,
+    messages: [
+      ...packagedFoodSession.messages,
+      {
+        id: 'assistant-repeat-1',
+        role: 'assistant',
+        content:
+          'Who is the first buyer you can reach fastest for this: office teams, gyms, retail stores, or direct online consumers?',
+      },
+      {
+        id: 'user-repeat-1',
+        role: 'user',
+        content: 'Office as I have connection with Scaler and companies in electronic city in bangalore',
+      },
+    ],
+  },
+  submittedValue: 'Office as I have connection with Scaler and companies in electronic city in bangalore',
+  payload: {
+    mode: 'ask_question',
+    stage: 'exploring',
+    activePanel: 'evidence',
+    session: {
+      mode: 'ask_question',
+      answers: [],
+    },
+    question: {
+      id: 'repeated-channel-question',
+      prompt:
+        'Who is the first buyer you can reach fastest for this: office teams, gyms, retail stores, or direct online consumers?',
+      inputType: 'long_text',
+    },
+  },
+});
+
+assert.match(
+  repeatedQuestionSession.question.prompt,
+  /who exactly will say yes fastest/i
+);
 
 console.log('founderCopilotSession tests passed');
