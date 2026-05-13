@@ -59,24 +59,20 @@ const RESPONSE_SHAPE = {
       reply: '',
     },
   ],
-  csvRows: [
-    {
-      step: '',
-      channel: '',
-      subject: '',
-      body: '',
-      delayDays: 0,
-      goal: '',
-    },
-  ],
+  csvRows: [],
 };
 
 const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
 const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
-const DEFAULT_LITELLM_MODEL = 'cheap';
+const DEFAULT_LITELLM_MODEL = 'action';
 const DEFAULT_MAX_OUTPUT_TOKENS = 1100;
-const DEFAULT_TIMEOUT_MS = 25000;
-const DEFAULT_TEMPERATURE = 0.2;
+const DEFAULT_TIMEOUT_MS = 18000;
+const DEFAULT_TEMPERATURE = 0.1;
+const MAX_PROMPT_FIELD_CHARS = 320;
+const MAX_PROMPT_LONG_FIELD_CHARS = 600;
+const MAX_PROMPT_LIST_ITEMS = 6;
+const MAX_PROMPT_ATTACHMENTS = 2;
+const MAX_ATTACHMENT_EXCERPT_CHARS = 1400;
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -90,6 +86,21 @@ function cleanText(value) {
 
 function cleanList(values) {
   return Array.isArray(values) ? values.map(cleanText).filter(Boolean) : [];
+}
+
+function limitPromptText(value, maxLength = MAX_PROMPT_FIELD_CHARS) {
+  const text = cleanText(value);
+  if (!text || text.length <= maxLength) {
+    return text;
+  }
+
+  return `${text.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
+}
+
+function limitPromptList(values, itemMaxLength = MAX_PROMPT_FIELD_CHARS) {
+  return cleanList(values)
+    .slice(0, MAX_PROMPT_LIST_ITEMS)
+    .map((value) => limitPromptText(value, itemMaxLength));
 }
 
 function clampNumber(value, min, max, fallback) {
@@ -147,14 +158,14 @@ async function readJsonBody(req) {
 function collectAttachmentContext(attachments = []) {
   const lines = [];
 
-  attachments.forEach((file) => {
+  attachments.slice(0, MAX_PROMPT_ATTACHMENTS).forEach((file) => {
     if (!file || typeof file !== 'object') {
       return;
     }
 
-    const name = cleanText(file.name) || 'Untitled attachment';
-    const excerpt = cleanText(file.excerpt);
-    const fileType = cleanText(file.type);
+    const name = limitPromptText(file.name, 80) || 'Untitled attachment';
+    const excerpt = limitPromptText(file.excerpt, MAX_ATTACHMENT_EXCERPT_CHARS);
+    const fileType = limitPromptText(file.type, 40);
 
     if (excerpt) {
       lines.push(`Attachment: ${name}\nType: ${fileType || 'unknown'}\nExcerpt:\n${excerpt}`);
@@ -169,30 +180,30 @@ function collectAttachmentContext(attachments = []) {
 
 function buildUserPrompt(input, attachments = []) {
   const attachmentContext = collectAttachmentContext(attachments);
-  const objections = cleanList(input.objections);
-  const channels = cleanList(input.channels);
+  const objections = limitPromptList(input.objections, 120);
+  const channels = limitPromptList(input.channels, 40);
 
   return [
     'Create a founder outbound campaign from this intake.',
     '',
-    `Product name: ${input.productName}`,
-    `Offer: ${input.offer}`,
-    `Target customer: ${input.targetCustomer}`,
-    `Buyer role: ${input.buyerRole}`,
-    `Geography: ${input.geography || 'Unspecified'}`,
-    `Pain point: ${input.painPoint}`,
-    `Desired outcome: ${input.desiredOutcome}`,
-    `Proof: ${input.proof || 'None provided'}`,
-    `Pricing: ${input.pricing || 'Not shared'}`,
-    `CTA: ${input.cta}`,
-    `Tone: ${input.tone}`,
+    `Product name: ${limitPromptText(input.productName, 120)}`,
+    `Offer: ${limitPromptText(input.offer, MAX_PROMPT_LONG_FIELD_CHARS)}`,
+    `Target customer: ${limitPromptText(input.targetCustomer, 160)}`,
+    `Buyer role: ${limitPromptText(input.buyerRole, 120)}`,
+    `Geography: ${limitPromptText(input.geography, 120) || 'Unspecified'}`,
+    `Pain point: ${limitPromptText(input.painPoint, MAX_PROMPT_LONG_FIELD_CHARS)}`,
+    `Desired outcome: ${limitPromptText(input.desiredOutcome, MAX_PROMPT_LONG_FIELD_CHARS)}`,
+    `Proof: ${limitPromptText(input.proof, MAX_PROMPT_LONG_FIELD_CHARS) || 'None provided'}`,
+    `Pricing: ${limitPromptText(input.pricing, 160) || 'Not shared'}`,
+    `CTA: ${limitPromptText(input.cta, 160)}`,
+    `Tone: ${limitPromptText(input.tone, 120)}`,
     `Channels: ${channels.join(', ') || 'email'}`,
     `Objections to address: ${objections.join(', ') || 'None provided'}`,
-    `Competitors: ${input.competitors || 'None provided'}`,
-    `Industry: ${input.industry || 'Unspecified'}`,
-    `Company size: ${input.companySize || 'Unspecified'}`,
-    `Trigger event: ${input.triggerEvent || 'Unspecified'}`,
-    `Website URL: ${input.websiteUrl || 'Unspecified'}`,
+    `Competitors: ${limitPromptText(input.competitors, 220) || 'None provided'}`,
+    `Industry: ${limitPromptText(input.industry, 120) || 'Unspecified'}`,
+    `Company size: ${limitPromptText(input.companySize, 120) || 'Unspecified'}`,
+    `Trigger event: ${limitPromptText(input.triggerEvent, 200) || 'Unspecified'}`,
+    `Website URL: ${limitPromptText(input.websiteUrl, 200) || 'Unspecified'}`,
     '',
     attachmentContext ? `Attachment context:\n${attachmentContext}` : 'Attachment context: None provided.',
     '',
@@ -202,6 +213,9 @@ function buildUserPrompt(input, attachments = []) {
     '',
     'Expect exactly 3 positioningAngles, 4 emails, 6 subjectLines, 3 linkedinMessages, and 4 objectionReplies.',
     'Do not add extra sections or longer variants beyond that count.',
+    'Keep diagnosticNotes to 2 short bullets and fixBeforeSending to 3 short bullets.',
+    'Keep each whyItWorks, angle, objection reply, and strategist note short.',
+    'Set csvRows to an empty array. The server will build export rows separately.',
   ].join('\n');
 }
 
@@ -249,7 +263,7 @@ function buildFallbackCampaign(input) {
 
   return {
     diagnosticNotes: [
-      'OPENAI_API_KEY is not configured, so this campaign was generated from a deterministic fallback.',
+      'Deterministic fallback campaign generated locally.',
       `Primary channel emphasis was set to ${primaryChannel}.`,
       `Proof signal remains thin: ${proof}.`,
     ],
@@ -589,7 +603,10 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
   } = getOpenAiRuntimeConfig();
 
   if (!apiKey) {
-    return buildFallbackCampaign(normalizedInput);
+    return withFallbackDiagnostic(
+      buildFallbackCampaign(normalizedInput),
+      'Live model configuration is missing for Founder Outreach.'
+    );
   }
 
   const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;

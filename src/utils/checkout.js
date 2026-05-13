@@ -25,19 +25,19 @@ export const getLocalizedPrice = (inrPrice, usdPrice, inrOriginalPrice = null, u
 
     if (isIndia) {
         return {
-            displayPrice: `₹${inrPrice}`,
-            originalDisplayPrice: inrOriginalPrice ? `₹${inrOriginalPrice}` : null,
+            displayPrice: `\u20B9${inrPrice}`,
+            originalDisplayPrice: inrOriginalPrice ? `\u20B9${inrOriginalPrice}` : null,
             currency: 'INR',
             checkoutAmount: inrPrice * 100 // Razorpay expects paise for INR
         };
-    } else {
-        return {
-            displayPrice: `$${usdPrice}`,
-            originalDisplayPrice: usdOriginalPrice ? `$${usdOriginalPrice}` : null,
-            currency: 'USD',
-            checkoutAmount: usdPrice * 100 // Razorpay expects cents for USD
-        };
     }
+
+    return {
+        displayPrice: `$${usdPrice}`,
+        originalDisplayPrice: usdOriginalPrice ? `$${usdOriginalPrice}` : null,
+        currency: 'USD',
+        checkoutAmount: usdPrice * 100 // Razorpay expects cents for USD
+    };
 };
 
 /**
@@ -59,11 +59,16 @@ const openCheckout = ({
         return false;
     }
 
+    if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+        console.error('Checkout called without valid amount');
+        return false;
+    }
+
     const options = {
-        key: "rzp_live_SNdUB2ZDVSnOgi",
-        amount: amount,
-        currency: currency,
-        name: "Founder Systems",
+        key: 'rzp_live_SNdUB2ZDVSnOgi',
+        amount,
+        currency,
+        name: 'Founder Systems',
         description: productName,
         prefill: {
             email: customerEmail,
@@ -74,17 +79,17 @@ const openCheckout = ({
             product: productSlug,
             customer_email: customerEmail
         },
-        handler: function (response) {
+        handler: (response) => {
             if (onSuccess) {
                 onSuccess(response);
             }
         }
     };
 
-    if (window.Razorpay) {
+    if (typeof window !== 'undefined' && window.Razorpay) {
         const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', function (response) {
-            console.error("Payment failed:", response.error);
+        rzp.on('payment.failed', (response) => {
+            console.error('Payment failed:', response.error);
         });
         rzp.open();
         return true;
