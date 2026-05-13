@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import ContextTabs from './ContextTabs';
 import RecommendationPanel from './RecommendationPanel';
 import EvidencePanel from './EvidencePanel';
@@ -69,16 +69,12 @@ const RecommendationPane = ({
   const [internalActiveTab, setInternalActiveTab] = useState(
     activeTab && tabs.some((tab) => tab.id === activeTab) ? activeTab : defaultTab
   );
-
-  useEffect(() => {
-    if (activeTab && tabs.some((tab) => tab.id === activeTab)) {
-      setInternalActiveTab(activeTab);
-      return;
-    }
-    setInternalActiveTab(defaultTab);
-  }, [activeTab, defaultTab, tabs]);
-
-  const resolvedTab = internalActiveTab;
+  const resolvedTab =
+    activeTab && tabs.some((tab) => tab.id === activeTab)
+      ? activeTab
+      : tabs.some((tab) => tab.id === internalActiveTab)
+        ? internalActiveTab
+        : defaultTab;
 
   function handleTabChange(tabId) {
     setInternalActiveTab(tabId);

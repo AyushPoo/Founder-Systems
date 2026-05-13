@@ -1,0 +1,85 @@
+{
+  "slug": "founder-outreach-kit",
+  "productId": "FS012",
+  "catalogName": "Founder Outreach Kit",
+  "catalogDescription": "Turn a rough founder offer into a structured outreach campaign with strategy notes, emails, LinkedIn messages, objections, exports, and local saves.",
+  "catalogCategory": "Marketing Tools",
+  "title": "Founder Outreach Kit",
+  "subtitle": "Shape the strategy, generate the sequence, and keep the campaign on your machine.",
+  "descriptionBody": "Most founder outreach fails before the first message is sent. The offer is vague, the proof is buried, the CTA is weak, and the sequence sounds like a generic template.\n\nFounder Outreach Kit turns a rough founder offer into a structured campaign with strategist notes, copy-ready email and LinkedIn messages, objection handling, and export-ready output. It is built for founders who need sharper outbound without handing their working draft to a bloated CRM first.",
+  "section1Title": "A practical outbound workspace for founder-led selling",
+  "section1Body": "Move from offer clarity to channel-ready copy in one guided flow. Define the customer, pain, proof, CTA, tone, and objections, then generate a campaign you can review, save locally, and reuse. The output stays grounded in strategy before it becomes messaging.",
+  "featuresTitle": "What the beta helps with:",
+  "features": [
+    {
+      "name": "Strategy review",
+      "desc": "Pressure-tests the offer, target customer, pain point, proof, and CTA before the sequence is generated."
+    },
+    {
+      "name": "Email sequence generation",
+      "desc": "Creates sendable founder-style emails that stay aligned with the offer and the proof you provided."
+    },
+    {
+      "name": "LinkedIn messaging flow",
+      "desc": "Builds connection, follow-up, and nurture messages for LinkedIn without forcing the same copy into every step."
+    },
+    {
+      "name": "Objection handling and exports",
+      "desc": "Drafts replies for common objections and lets you copy or export the campaign for sheets, CRM import, or manual sending."
+    }
+  ],
+  "whyTitle": "Why use this instead of drafting from scratch?",
+  "whyPoints": [
+    {
+      "title": "Strategy before copy",
+      "desc": "The tool does not jump straight to wordsmithing. It tightens the offer first so the messaging has something real to stand on."
+    },
+    {
+      "title": "Local saves for working drafts",
+      "desc": "Save campaigns locally while you iterate, without needing to wire up a separate system just to keep progress."
+    },
+    {
+      "title": "Built for founder motion",
+      "desc": "Useful when the founder is still doing early outbound, refining positioning, and learning from objections in real time."
+    }
+  ],
+  "footerSummaryTitle": "Beta Access",
+  "footerSummaryDetails": "(Free beta with open access while we validate the workflow and tighten the output quality).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "A structured outbound campaign with strategist notes, sendable messages, objection replies, exports, and local saves.",
+  "whatYouGet": [
+    "Offer and customer strategy review",
+    "Founder-style email sequence",
+    "LinkedIn message flow",
+    "Common objection replies",
+    "Copy actions for individual assets",
+    "CSV export for operational use",
+    "Local campaign saves on your device",
+    "Free beta access"
+  ],
+  "whoThisIsFor": [
+    "Founders shaping outbound before hiring a growth team.",
+    "Early-stage teams testing founder-led sales messages.",
+    "Operators who need campaign structure without a heavy CRM workflow.",
+    "Builders refining outbound copy from live market feedback."
+  ],
+  "faq": [
+    {
+      "q": "Is this free to use right now?",
+      "a": "Yes. The current beta is open access and free while we validate the workflow."
+    },
+    {
+      "q": "Does it save my campaigns?",
+      "a": "Yes. Campaigns can be saved locally on your device so you can return to working drafts."
+    },
+    {
+      "q": "What kind of output does it generate?",
+      "a": "You get strategy guidance, email copy, LinkedIn messages, objection replies, and export-ready campaign output."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/founder-outreach-kit",
+  "category": "Marketing Tools"
+}

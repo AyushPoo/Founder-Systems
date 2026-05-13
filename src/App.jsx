@@ -11,6 +11,7 @@ import Access from './pages/Access';
 import Guides from './pages/Guides';
 import GuideDetail from './pages/GuideDetail';
 import FounderSpecGenerator from './pages/FounderSpecGenerator';
+import FounderOutreachKit from './pages/FounderOutreachKit';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/guides" element={<Guides />} />
           <Route path="/guides/:id" element={<GuideDetail />} />
           <Route path="/tools/founder-spec-generator" element={<FounderSpecGenerator />} />
+          <Route path="/tools/founder-outreach-kit" element={<FounderOutreachKit />} />
           <Route path="/about" element={<About />} />
           <Route path="/download" element={<DownloadPage />} />
           <Route path="/terms" element={<Terms />} />

@@ -3,9 +3,7 @@ import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-
-
-const CATEGORIES = ['All', 'Finance', 'Operations', 'Strategy'];
+import { buildCatalogCategories } from '../utils/productExperience';
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
@@ -30,6 +28,7 @@ const Products = () => {
             .catch(() => setLoading(false));
     }, []);
 
+    const categories = buildCatalogCategories(products);
     const filteredProducts = products.filter(product =>
         activeTab === 'All' || product.category === activeTab
     );
@@ -51,7 +50,7 @@ const Products = () => {
             </div>
             <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 py-16">
                 <div className="flex flex-wrap gap-4 mb-12">
-                    {CATEGORIES.map(category => (
+                    {categories.map(category => (
                         <button key={category} onClick={() => setActiveTab(category)}
                             className={`px-5 py-2 font-black text-sm uppercase tracking-wider border-2 border-brand-black transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] ${activeTab === category ? 'bg-brand-orange text-white translate-x-[-2px] translate-y-[-2px] shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]' : 'bg-white text-brand-black hover:bg-brand-cream hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]'}`}>
                             {category}

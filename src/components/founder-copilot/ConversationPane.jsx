@@ -9,7 +9,6 @@ const ConversationPane = ({
   onSubmit,
   loading,
   error,
-  disabled,
   canGenerateSpec,
   onGenerateSpec,
   attachments = [],

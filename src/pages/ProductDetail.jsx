@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { openINRCheckout, openUSDCheckout, getLocalizedPrice } from '../utils/checkout';
+import { openINRCheckout, openUSDCheckout } from '../utils/checkout';
+import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 
 const FaqItem = ({ q, a }) => {
     const [open, setOpen] = useState(false);
@@ -56,6 +57,8 @@ const ProductDetail = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        // The detail page reuses the same component across product ids, so we clear stale data before refetching.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true); setNotFound(false); setProduct(null);
         fetch(`/products/${id}.json`)
             .then(res => { if (!res.ok) throw new Error('Not found'); return res.json(); })
@@ -63,12 +66,8 @@ const ProductDetail = () => {
             .catch(() => { setNotFound(true); setLoading(false); });
     }, [id]);
 
-    const pricing = product ? getLocalizedPrice(
-        product.priceInr,
-        product.priceUsd,
-        product.originalPriceInr,
-        product.originalPriceUsd
-    ) : null;
+    const productAction = getProductPrimaryAction(product);
+    const showPricing = hasProductPricing(product);
 
     if (loading) {
         return (
@@ -103,6 +102,9 @@ const ProductDetail = () => {
     }
 
     const handleBuyClick = (currency) => {
+        if (!showPricing) {
+            return;
+        }
         // Use the explicit dual-button logic here to buy in either INR or USD.
         const isInr = currency === 'INR';
         setCurrentAmount(isInr ? product.priceInr * 100 : product.priceUsd * 100);
@@ -125,7 +127,7 @@ const ProductDetail = () => {
             customerEmail,
             customerName,
             amount: currentAmount,
-            onSuccess: (response) => {
+            onSuccess: () => {
                 setIsModalOpen(false);
                 navigate(`/download`);
             }
@@ -250,14 +252,16 @@ const ProductDetail = () => {
                             <div>
                                 <h3 className="text-2xl md:text-3xl font-black tracking-tight-brand mb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                                     {product.whyTitle || "Why invest"}
-                                    {product.originalPriceInr && product.originalPriceUsd && (
+                                    {showPricing && product.originalPriceInr && product.originalPriceUsd && (
                                         <span className="line-through text-brand-black/30 decoration-brand-orange decoration-2 font-bold text-xl">
                                             ₹{product.originalPriceInr} / ${product.originalPriceUsd}
                                         </span>
                                     )}
-                                    <span className="bg-brand-orange border-2 border-brand-black text-white px-4 py-1.5 rounded-sm text-lg font-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] -rotate-1 transform">
-                                        ₹{product.priceInr} / ${product.priceUsd}?
-                                    </span>
+                                    {showPricing ? (
+                                        <span className="bg-brand-orange border-2 border-brand-black text-white px-4 py-1.5 rounded-sm text-lg font-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] -rotate-1 transform">
+                                            ₹{product.priceInr} / ${product.priceUsd}?
+                                        </span>
+                                    ) : null}
                                 </h3>
                                 <div className="space-y-6 mt-8">
                                     {product.whyPoints.map((point, idx) => (
@@ -298,14 +302,16 @@ const ProductDetail = () => {
                         <div className="border-t-2 border-brand-black pt-10">
                             <div className="text-lg md:text-xl mb-3 flex flex-wrap items-center gap-x-3 gap-y-3">
                                 <span className="font-black">{product.footerSummaryTitle || "The Price:"}</span>
-                                {product.originalPriceInr && product.originalPriceUsd && (
+                                {showPricing && product.originalPriceInr && product.originalPriceUsd && (
                                     <span className="line-through text-brand-black/30 decoration-brand-orange decoration-2 font-bold">
                                         ₹{product.originalPriceInr} / ${product.originalPriceUsd}
                                     </span>
                                 )}
-                                <span className="font-black bg-brand-orange border-2 border-brand-black text-white px-3 py-1 rounded-sm text-base shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
-                                    ₹{product.priceInr} / ${product.priceUsd}
-                                </span>
+                                {showPricing ? (
+                                    <span className="font-black bg-brand-orange border-2 border-brand-black text-white px-3 py-1 rounded-sm text-base shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
+                                        ₹{product.priceInr} / ${product.priceUsd}
+                                    </span>
+                                ) : null}
                                 <span className="text-brand-black/60">{product.footerSummaryDetails}</span>
                             </div>
                             <p className="text-lg md:text-xl">
@@ -417,22 +423,34 @@ const ProductDetail = () => {
                             </div>
                         )}
 
-                        {/* Purchase Section */}
-                        {product.launchUrl ? (
-                          product.launchUrl.startsWith('/') ? (
-                            <Link
-                              to={product.launchUrl}
-                              className="btn-cta w-full !text-lg !py-5 text-center"
-                            >
-                              Launch App &rarr;
-                            </Link>
-                          ) : (
-                            <a href={product.launchUrl} target="_blank" rel="noopener noreferrer"
-                               className="btn-cta w-full !text-lg !py-5 text-center">
-                              Launch App &rarr;
-                            </a>
-                          )
-                        ) : (
+                        {/* Primary Action */}
+                        {productAction.kind === 'launch' ? (
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] flex flex-col items-center text-center">
+                                <p className="text-xs font-black text-brand-orange uppercase tracking-widest mb-3">
+                                    {product.footerSummaryTitle || 'Live access'}
+                                </p>
+                                <p className="text-sm font-medium leading-relaxed text-brand-black/64 mb-6">
+                                    {product.footerSummaryDetails || 'Open the live product experience from Founder Systems.'}
+                                </p>
+                                {productAction.isExternal ? (
+                                    <a
+                                        href={productAction.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="btn-cta w-full !text-lg !py-5 text-center"
+                                    >
+                                        Launch App &rarr;
+                                    </a>
+                                ) : (
+                                    <Link
+                                        to={productAction.href}
+                                        className="btn-cta w-full !text-lg !py-5 text-center"
+                                    >
+                                        Launch App &rarr;
+                                    </Link>
+                                )}
+                            </div>
+                        ) : productAction.kind === 'purchase' ? (
                         <>
                         <div className="flex flex-col items-center w-full">
                             <div className="flex items-center gap-2 mb-2">
@@ -511,6 +529,12 @@ const ProductDetail = () => {
                             </div>
                         </div>
                         </>
+                        ) : (
+                            <div className="bg-white rounded-xl border-2 border-brand-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] text-center">
+                                <p className="text-sm font-medium leading-relaxed text-brand-black/64">
+                                    This product is being updated. Check back soon for the next action.
+                                </p>
+                            </div>
                         )}
                     </div>
 

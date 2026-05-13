@@ -5,20 +5,16 @@ import Footer from '../components/Footer';
 const API_URL = "https://script.google.com/macros/s/AKfycbwXGFM0900uVZjEtLeiumxzHqKQQvxh5lHGR0dzCjMr-Z2KTu7bDp2KnOSVhBdkGO9uRw/exec";
 
 const DownloadPage = () => {
+    const paymentId = new URLSearchParams(window.location.search).get("payment");
     const [productName, setProductName] = useState('');
     const [downloadLink, setDownloadLink] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(() => Boolean(paymentId));
+    const [error, setError] = useState(() => (paymentId ? '' : 'No payment specified.'));
 
     useEffect(() => {
         window.scrollTo(0, 0);
 
-        const params = new URLSearchParams(window.location.search);
-        const paymentId = params.get("payment");
-
         if (!paymentId) {
-            setError("No payment specified.");
-            setIsLoading(false);
             return;
         }
 
@@ -40,7 +36,7 @@ const DownloadPage = () => {
                 setError("Failed to fetch download details.");
                 setIsLoading(false);
             });
-    }, []);
+    }, [paymentId]);
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">

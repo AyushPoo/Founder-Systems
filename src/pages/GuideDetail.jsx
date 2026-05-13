@@ -11,40 +11,54 @@ const GuideDetail = () => {
     const { id } = useParams();
     const [markdownData, setMarkdownData] = useState('');
     const [relatedProduct, setRelatedProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     const guide = guidesData.find(g => g.id === id);
 
     useEffect(() => {
+        let cancelled = false;
         window.scrollTo(0, 0);
-        
-        if (guide) {
-            // Fetch markdown content
-            fetch(`/guides/${id}.md`)
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to load guide');
-                    return res.text();
-                })
-                .then(text => setMarkdownData(text))
-                .catch(err => {
-                    console.error("Error loading markdown:", err);
-                    setMarkdownData('# 404\nGuide not found or failed to load.');
-                });
-            
-            // Fetch related product
-            fetch('/products/index.json')
-                .then(res => res.json())
-                .then(data => {
-                    const product = data.find(p => p.id === guide.relatedProductId);
-                    if (product) setRelatedProduct(product);
-                    setLoading(false);
-                })
-                .catch(() => setLoading(false));
-                
-        } else {
-            setLoading(false);
+
+        if (!guide) {
+            return () => {
+                cancelled = true;
+            };
         }
-    }, [id, guide]);
+
+        fetch(`/guides/${id}.md`)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load guide');
+                return res.text();
+            })
+            .then(text => {
+                if (!cancelled) {
+                    setMarkdownData(text);
+                }
+            })
+            .catch(err => {
+                console.error("Error loading markdown:", err);
+                if (!cancelled) {
+                    setMarkdownData('# 404\nGuide not found or failed to load.');
+                }
+            });
+
+        fetch('/products/index.json')
+            .then(res => res.json())
+            .then(data => {
+                if (cancelled) {
+                    return;
+                }
+
+                const product = data.find(p => p.id === guide.relatedProductId);
+                if (product) {
+                    setRelatedProduct(product);
+                }
+            })
+            .catch(() => {});
+
+        return () => {
+            cancelled = true;
+        };
+    }, [guide, id]);
 
     if (!guide) {
         return (

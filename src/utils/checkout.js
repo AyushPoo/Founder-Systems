@@ -6,7 +6,7 @@ export const isUserInIndia = () => {
     try {
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         return timeZone === 'Asia/Kolkata' || timeZone === 'Asia/Calcutta';
-    } catch (e) {
+    } catch {
         // Fallback default to false (International) to err on the side of caution.
         return false;
     }
@@ -88,8 +88,9 @@ const openCheckout = ({
         });
         rzp.open();
         return true;
-        return false;
     }
+
+    return false;
 };
 
 /**

@@ -20,11 +20,6 @@ const Navbar = () => {
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
 
-    // Close mobile menu on route change
-    useEffect(() => {
-        setMenuOpen(false);
-    }, [location]);
-
     const handleAnchor = (e, href) => {
         if (href.startsWith('/#')) {
             e.preventDefault();
@@ -32,10 +27,12 @@ const Navbar = () => {
             if (location.pathname === '/') {
                 document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
             } else {
-                window.location.href = href;
+                window.location.assign(href);
             }
         }
     };
+
+    const closeMenu = () => setMenuOpen(false);
 
     return (
         <nav
@@ -49,6 +46,7 @@ const Navbar = () => {
                 {/* Logo */}
                 <Link
                     to="/"
+                    onClick={closeMenu}
                     className="max-w-[140px] text-[1.05rem] leading-[0.9] sm:max-w-none sm:text-xl lg:text-2xl font-black tracking-tight-brand text-brand-black uppercase"
                 >
                     Founder Systems
@@ -60,7 +58,10 @@ const Navbar = () => {
                         <Link
                             key={link.label}
                             to={link.href}
-                            onClick={(e) => handleAnchor(e, link.href)}
+                            onClick={(e) => {
+                                closeMenu();
+                                handleAnchor(e, link.href);
+                            }}
                             className="text-sm font-semibold text-brand-black/70 hover:text-brand-orange transition-colors duration-300 tracking-wide uppercase"
                         >
                             {link.label}
@@ -68,6 +69,7 @@ const Navbar = () => {
                     ))}
                     <Link
                         to="/products"
+                        onClick={closeMenu}
                         className="btn-cta !py-2.5 !px-6 !text-sm"
                     >
                         Get Started
@@ -109,7 +111,10 @@ const Navbar = () => {
                         <Link
                             key={link.label}
                             to={link.href}
-                            onClick={(e) => handleAnchor(e, link.href)}
+                            onClick={(e) => {
+                                closeMenu();
+                                handleAnchor(e, link.href);
+                            }}
                             className="text-base font-semibold text-brand-black/70 hover:text-brand-orange transition-colors py-2 uppercase tracking-wide"
                         >
                             {link.label}
@@ -117,6 +122,7 @@ const Navbar = () => {
                     ))}
                     <Link
                         to="/products"
+                        onClick={closeMenu}
                         className="btn-cta !text-sm text-center mt-2"
                     >
                         Get Started

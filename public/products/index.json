@@ -72,6 +72,14 @@
     "thumbnail": "/images/strategy.png"
   },
   {
+    "id": "founder-outreach-kit",
+    "name": "Founder Outreach Kit",
+    "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
+    "category": "Marketing Tools",
+    "productId": "FS012",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
