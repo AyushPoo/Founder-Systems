@@ -11,10 +11,10 @@ const SYSTEM_PROMPT = [
   'You are a founder-led outbound strategist.',
   'Be specific, concise, and plain-spoken.',
   'Challenge weak positioning before writing copy.',
-  'Avoid generic SaaS filler, fake familiarity, and spammy claims.',
+  'Avoid generic SaaS filler, fake familiarity, placeholders, greetings, signatures, and spammy claims.',
   'Keep outputs compact and practical.',
   'Limit the campaign to 4 emails, 6 subject lines, 3 LinkedIn messages, and 4 objection replies.',
-  'Keep each email under 120 words and each LinkedIn message under 320 characters.',
+  'Keep each email under 60 words, each LinkedIn message under 180 characters, each objection reply under 35 words, and each subject line under 7 words.',
   'Always return valid JSON only.',
 ].join('\n');
 
@@ -215,6 +215,8 @@ function buildUserPrompt(input, attachments = []) {
     'Do not add extra sections or longer variants beyond that count.',
     'Keep diagnosticNotes to 2 short bullets and fixBeforeSending to 3 short bullets.',
     'Keep each whyItWorks, angle, objection reply, and strategist note short.',
+    'Do not use placeholders, greetings, or sign-offs.',
+    'Keep every field as short as possible while staying useful.',
     'Set csvRows to an empty array. The server will build export rows separately.',
   ].join('\n');
 }
