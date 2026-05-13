@@ -182,43 +182,74 @@ function buildUserPrompt(input, attachments = []) {
   const attachmentContext = collectAttachmentContext(attachments);
   const objections = limitPromptList(input.objections, 120);
   const channels = limitPromptList(input.channels, 40);
-
-  return [
+  const promptLines = [
     'Create a founder outbound campaign from this intake.',
-    '',
     `Product name: ${limitPromptText(input.productName, 120)}`,
     `Offer: ${limitPromptText(input.offer, MAX_PROMPT_LONG_FIELD_CHARS)}`,
     `Target customer: ${limitPromptText(input.targetCustomer, 160)}`,
     `Buyer role: ${limitPromptText(input.buyerRole, 120)}`,
-    `Geography: ${limitPromptText(input.geography, 120) || 'Unspecified'}`,
     `Pain point: ${limitPromptText(input.painPoint, MAX_PROMPT_LONG_FIELD_CHARS)}`,
     `Desired outcome: ${limitPromptText(input.desiredOutcome, MAX_PROMPT_LONG_FIELD_CHARS)}`,
-    `Proof: ${limitPromptText(input.proof, MAX_PROMPT_LONG_FIELD_CHARS) || 'None provided'}`,
-    `Pricing: ${limitPromptText(input.pricing, 160) || 'Not shared'}`,
     `CTA: ${limitPromptText(input.cta, 160)}`,
     `Tone: ${limitPromptText(input.tone, 120)}`,
     `Channels: ${channels.join(', ') || 'email'}`,
-    `Objections to address: ${objections.join(', ') || 'None provided'}`,
-    `Competitors: ${limitPromptText(input.competitors, 220) || 'None provided'}`,
-    `Industry: ${limitPromptText(input.industry, 120) || 'Unspecified'}`,
-    `Company size: ${limitPromptText(input.companySize, 120) || 'Unspecified'}`,
-    `Trigger event: ${limitPromptText(input.triggerEvent, 200) || 'Unspecified'}`,
-    `Website URL: ${limitPromptText(input.websiteUrl, 200) || 'Unspecified'}`,
-    '',
-    attachmentContext ? `Attachment context:\n${attachmentContext}` : 'Attachment context: None provided.',
-    '',
+  ];
+
+  if (input.proof) {
+    promptLines.push(`Proof: ${limitPromptText(input.proof, MAX_PROMPT_LONG_FIELD_CHARS)}`);
+  }
+
+  if (input.pricing) {
+    promptLines.push(`Pricing: ${limitPromptText(input.pricing, 160)}`);
+  }
+
+  if (input.geography) {
+    promptLines.push(`Geography: ${limitPromptText(input.geography, 120)}`);
+  }
+
+  if (objections.length > 0) {
+    promptLines.push(`Objections to address: ${objections.join(', ')}`);
+  }
+
+  if (input.competitors) {
+    promptLines.push(`Competitors: ${limitPromptText(input.competitors, 220)}`);
+  }
+
+  if (input.industry) {
+    promptLines.push(`Industry: ${limitPromptText(input.industry, 120)}`);
+  }
+
+  if (input.companySize) {
+    promptLines.push(`Company size: ${limitPromptText(input.companySize, 120)}`);
+  }
+
+  if (input.triggerEvent) {
+    promptLines.push(`Trigger event: ${limitPromptText(input.triggerEvent, 200)}`);
+  }
+
+  if (input.websiteUrl) {
+    promptLines.push(`Website URL: ${limitPromptText(input.websiteUrl, 200)}`);
+  }
+
+  if (attachmentContext) {
+    promptLines.push(`Attachment context:\n${attachmentContext}`);
+  }
+
+  promptLines.push(
     'Return JSON only.',
-    'Match this shape and keep every top-level key present:',
-    JSON.stringify(RESPONSE_SHAPE, null, 2),
-    '',
+    'Populate every top-level key in this exact object shape:',
+    JSON.stringify(RESPONSE_SHAPE),
     'Expect exactly 3 positioningAngles, 4 emails, 6 subjectLines, 3 linkedinMessages, and 4 objectionReplies.',
-    'Do not add extra sections or longer variants beyond that count.',
     'Keep diagnosticNotes to 2 short bullets and fixBeforeSending to 3 short bullets.',
     'Keep each whyItWorks, angle, objection reply, and strategist note short.',
+    'Never return an empty object and never omit required keys.',
     'Do not use placeholders, greetings, or sign-offs.',
-    'Keep every field as short as possible while staying useful.',
+    'No markdown.',
+    'Keep every field short and useful.',
     'Set csvRows to an empty array. The server will build export rows separately.',
-  ].join('\n');
+  );
+
+  return promptLines.join('\n');
 }
 
 function truncateSentence(value, maxLength) {
