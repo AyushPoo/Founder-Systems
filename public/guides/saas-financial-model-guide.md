@@ -1,62 +1,154 @@
-# How to Build a B2B SaaS Financial Model (Step-by-Step Guide)
+Your financial model should help you make decisions before it ever helps you raise money. A good SaaS model tells you whether your customer acquisition is sustainable, how much runway you really have, and which assumptions are quietly breaking the business.
 
-If you’re a SaaS founder, managing your financial projections isn’t just about making investors happy—it's about understanding if your business is actually viable. Most founders wait until they need to raise capital to build a financial model, which is a massive mistake.
+Most early founders either skip modeling entirely or build an investor-friendly spreadsheet that says almost nothing useful about the company. The better move is to build a model that is grounded in how your business actually sells, retains, and spends.
 
-A solid B2B SaaS financial model helps you predict your **runway**, understand your **burn rate**, and identify which levers to pull for growth.
+## What a useful SaaS financial model should answer
 
-In this guide, we'll walk through the essential components of a robust SaaS financial model.
+Before you build tabs and formulas, be clear about the questions the model needs to answer:
 
-## 1. Top-Down vs. Bottom-Up Forecasting
+- How many customers can you realistically acquire each month?
+- What does it cost to acquire them?
+- How quickly do they churn or expand?
+- How much cash do you burn as headcount grows?
+- When do you run out of runway if growth is slower than expected?
 
-When forecasting revenue, you generally have two approaches:
-*   **Top-Down:** Estimating your market size and assuming you capture a percentage of it (e.g., "The market is $1B, if we get 1%, we are a $10M ARR company"). **Do not use this for a startup model.**
-*   **Bottom-Up:** Estimating revenue based on your actual capabilities (e.g., "We will spend $5k on ads, which will yield 100 leads, converting at 5% to paid users at $100/mo").
+If your model cannot answer those questions, it is probably presentation math, not operating math.
 
-Always default to a **Bottom-Up** approach. It’s grounded in reality and forces you to think about unit economics instead of wishful thinking.
+## Start with bottom-up revenue, not market-size theater
 
-## 2. Customer Acquisition Cost (CAC)
+Founders often begin with a top-down narrative:
 
-You need to track every dollar spent on Sales and Marketing. Your CAC calculation should include:
-- Paid ad spend (Facebook, Google Ads, LinkedIn)
-- Content marketing & SEO software
-- Sales commissions and base salaries
-- CRM and marketing automation software costs
+- "The market is huge."
+- "If we capture 1 percent, we win."
+- "That means we are a $10M ARR company."
 
-Formula: `Total Sales & Marketing Spend / Total Number of New Customers Acquired = CAC`
+That is fine for a story slide. It is weak for a working model.
 
-## 3. Churn and Cohort Analysis
+Use a bottom-up revenue model instead. Start with concrete drivers such as:
 
-Churn is the silent killer of SaaS businesses. You must track both:
-*   **Logo Churn:** The percentage of customers who cancel.
-*   **Net Revenue Retention (NRR):** The percentage of revenue retained from existing customers after accounting for upgrades, downgrades, and cancellations.
+- monthly lead volume
+- conversion rate from lead to customer
+- average contract value or monthly price
+- sales cycle length
+- ramp time for reps or channels
 
-The best financial models use **cohort analysis** to track how long specific groups of users stick around, rather than using a flat churn rate across the board.
+For example:
 
-## 4. Lifetime Value (LTV)
+`120 leads x 4% conversion x $249 MRR = $1,195.20 new MRR for that month`
 
-LTV tells you how much revenue a single user generates before they churn.
-Formula: `Average Revenue Per User (ARPU) / Churn Rate = LTV`
+This approach forces you to model reality instead of ambition.
 
-To be healthy, your **LTV:CAC ratio** should ideally be **3:1 or higher**. If you spend $100 to acquire a customer, they should generate at least $300 in lifetime value.
+## Model customer acquisition cost in full
 
-## 5. Forecasting Expenses & Headcount
+CAC is not just your ad budget. It is the total cost of acquiring a customer through a given motion.
 
-Your largest expense will be payroll. Model out your headcount by department:
-- Engineering & Product
-- Sales & Marketing
-- Customer Success
-- G&A (Founders, Operations, Legal)
+Include:
 
-Don't forget to factor in payroll taxes, benefits (typically 15-20% of base salary), and software tools for each employee.
+- paid acquisition spend
+- contractor or agency fees
+- salaries and commissions for sales or growth hires
+- CRM, outbound, and marketing software
+- content and creative production costs where relevant
 
-## 6. Cash Flow and Runway
+Use the basic formula:
 
-Unlike traditional businesses, SaaS companies often have timing mismatches (e.g., paying upfront for annual marketing software but collecting monthly subscriptions). Make sure your model has a dedicated **Cash Flow Statement** so you know exactly when your bank account hits zero (your runway).
+`Total sales and marketing spend / new customers acquired = CAC`
 
----
+Then go one step further and break CAC by channel if you can. Paid social, founder-led outbound, partnerships, and content can behave very differently. That matters when you are deciding where to double down.
 
-## Don't Have the Time or Accounting Expertise?
+## Add churn and retention early
 
-Building this from scratch in Excel or Google Sheets takes dozens of hours, even if you know what you’re doing. If you make a formula error in your cohort analysis, your entire runway calculation could be severely off.
+A revenue model without churn is one of the fastest ways to fool yourself.
 
-Instead of reinventing the wheel, use our battle-tested, ready-to-go **SaaS Financial Model Template**.
+Track at least:
+
+- **Logo churn:** how many customers leave
+- **Revenue churn:** how much recurring revenue leaves
+- **Net revenue retention:** how much existing revenue remains after churn, downgrades, and expansion
+
+If you can, model retention by cohort instead of using one flat churn number forever. A flat churn assumption is easy to build and often wrong in practice. Early cohorts may churn harder, while later cohorts improve as onboarding, product quality, and targeting get better.
+
+## Calculate LTV carefully
+
+Lifetime value helps you judge whether your acquisition engine is healthy. A simple version is:
+
+`ARPU / churn rate = LTV`
+
+That said, treat this as a directional shortcut, not a sacred truth. If your churn is unstable or your contracts vary a lot, LTV can look stronger than reality. Use it alongside payback period and gross margin, not on its own.
+
+As a rule of thumb:
+
+- `LTV:CAC < 1` means you are buying bad growth
+- `LTV:CAC around 3` is usually healthy
+- `LTV:CAC much higher than 5` can mean you are underinvesting in growth
+
+## Forecast headcount and operating expenses by function
+
+Most SaaS companies are payroll-heavy. If you want the model to be useful, headcount cannot be one big blob.
+
+Split expenses by function:
+
+- engineering and product
+- sales and marketing
+- customer success
+- founders, ops, finance, and legal
+
+For each hire, capture:
+
+- planned start month
+- base salary
+- bonus or commission where needed
+- payroll tax and benefits load
+- software or tooling overhead
+
+This gives you a much more believable burn forecast than applying one generic expense growth rate across the board.
+
+## Build a real cash runway view
+
+Revenue does not equal cash in the bank. Your model should make the timing visible.
+
+Watch for:
+
+- annual software contracts paid upfront
+- delayed collections from customers
+- contractor invoices landing unevenly
+- hiring that happens before revenue catches up
+
+At minimum, your model should show:
+
+- opening cash
+- cash in
+- cash out
+- ending cash
+- months of runway remaining
+
+That view is usually more important to founders than a polished P&L.
+
+## Common mistakes to avoid
+
+- Modeling revenue without churn
+- Using one CAC number for every acquisition channel
+- Forgetting payroll taxes and benefits
+- Treating signed intent as closed revenue
+- Assuming growth improves automatically every month
+- Building the model only for fundraising instead of operations
+
+## A practical build order
+
+If you are starting from scratch, build in this order:
+
+1. Pricing and revenue drivers
+2. Customer acquisition assumptions
+3. Churn and retention
+4. Headcount plan
+5. Operating expenses
+6. Cash flow and runway
+7. Scenario cases for base, upside, and downside
+
+That order keeps the logic connected and makes it easier to debug when one assumption changes.
+
+## If you need speed, use a model that is already pressure-tested
+
+Building a solid SaaS financial model from zero can take dozens of hours, especially if you want cohort logic, headcount planning, and runway sensitivity to hold up under pressure.
+
+If you want to skip the spreadsheet archaeology and get to decisions faster, use the **SaaS Financial Model Template** inside Founder Systems and adapt the assumptions to your company instead of rebuilding the entire machine by hand.

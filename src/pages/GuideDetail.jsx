@@ -84,8 +84,27 @@ const GuideDetail = () => {
             />
             <Navbar />
             
-            <main className="flex-grow w-full max-w-3xl mx-auto px-6 md:px-12 py-32">
-                <article className="prose prose-lg prose-headings:font-black prose-headings:tracking-tight-brand prose-h1:text-4xl prose-h2:text-2xl prose-a:text-brand-orange prose-a:font-bold prose-strong:text-brand-black bg-white p-8 md:p-12 rounded-xl border-2 border-brand-black shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] mb-16">
+            <main className="flex-grow w-full max-w-5xl mx-auto px-6 md:px-12 py-32">
+                <section className="mb-10">
+                    <Link to="/guides" className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.22em] text-brand-black/65 transition hover:text-brand-orange">
+                        <span aria-hidden="true">←</span>
+                        Back to Guides
+                    </Link>
+                    <div className="mt-6 bg-white rounded-[2rem] border-2 border-brand-black px-8 py-10 md:px-12 md:py-12 shadow-[10px_10px_0px_0px_rgba(27,28,26,1)]">
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-black uppercase tracking-[0.24em] text-brand-black/55">
+                            <span className="rounded-full border border-brand-black px-3 py-1">Founder Guide</span>
+                            {guide.readTime && <span>{guide.readTime}</span>}
+                        </div>
+                        <h1 className="mt-6 max-w-4xl text-4xl md:text-5xl font-black tracking-tight-brand leading-[0.95]">
+                            {guide.title}
+                        </h1>
+                        <p className="mt-5 max-w-3xl text-lg md:text-xl leading-relaxed text-brand-black/72 font-semibold">
+                            {guide.description}
+                        </p>
+                    </div>
+                </section>
+
+                <article className="prose prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tight-brand prose-headings:text-brand-black prose-h2:mt-12 prose-h2:text-3xl prose-h2:leading-tight prose-h3:mt-8 prose-h3:text-2xl prose-h3:leading-tight prose-p:text-brand-black/82 prose-p:leading-8 prose-li:text-brand-black/82 prose-li:leading-8 prose-li:marker:text-brand-orange prose-ol:text-brand-black/82 prose-ul:text-brand-black/82 prose-hr:border-brand-black/15 prose-a:text-brand-orange prose-a:font-black prose-a:no-underline hover:prose-a:text-brand-orange-dark prose-strong:text-brand-black prose-strong:font-black prose-code:text-brand-orange prose-code:before:content-none prose-code:after:content-none bg-white p-8 md:p-12 rounded-[2rem] border-2 border-brand-black shadow-[10px_10px_0px_0px_rgba(27,28,26,1)] mb-16">
                     <ReactMarkdown>{markdownData}</ReactMarkdown>
                 </article>
 
