@@ -532,6 +532,57 @@ function buildResponsesPayload({ systemPrompt, userPrompt, model, maxOutputToken
   };
 }
 
+function mergeCampaignWithFallback(rawCampaign, fallbackCampaign) {
+  const source = rawCampaign && typeof rawCampaign === 'object' && !Array.isArray(rawCampaign)
+    ? rawCampaign
+    : {};
+  const repairedSections = [];
+
+  const pickArray = (key) => {
+    if (Array.isArray(source[key]) && source[key].length > 0) {
+      return source[key];
+    }
+
+    repairedSections.push(key);
+    return fallbackCampaign[key];
+  };
+
+  const pickObject = (key) => {
+    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+      return {
+        ...fallbackCampaign[key],
+        ...source[key],
+      };
+    }
+
+    repairedSections.push(key);
+    return fallbackCampaign[key];
+  };
+
+  const merged = {
+    ...fallbackCampaign,
+    ...source,
+    diagnosticNotes: pickArray('diagnosticNotes'),
+    fixBeforeSending: pickArray('fixBeforeSending'),
+    icpSnapshot: pickObject('icpSnapshot'),
+    positioningAngles: pickArray('positioningAngles'),
+    emails: pickArray('emails'),
+    subjectLines: pickArray('subjectLines'),
+    linkedinMessages: pickArray('linkedinMessages'),
+    objectionReplies: pickArray('objectionReplies'),
+    csvRows: Array.isArray(source.csvRows) ? source.csvRows : [],
+  };
+
+  if (repairedSections.length > 0) {
+    merged.diagnosticNotes = [
+      `Some campaign sections were completed from the local fallback scaffold: ${repairedSections.join(', ')}.`,
+      ...cleanList(merged.diagnosticNotes),
+    ];
+  }
+
+  return merged;
+}
+
 function buildChatCompletionsPayload({ systemPrompt, userPrompt, model, maxOutputTokens, temperature }) {
   return {
     model,
@@ -686,9 +737,10 @@ export default async function handler(req, res) {
       userPrompt: buildUserPrompt(normalized, normalized.attachments),
       normalizedInput: normalized,
     });
+    const hydratedOutput = mergeCampaignWithFallback(rawOutput, buildFallbackCampaign(normalized));
 
     const withMetadata = {
-      ...rawOutput,
+      ...hydratedOutput,
       normalizedInput: normalized,
       generatedAt: new Date().toISOString(),
     };

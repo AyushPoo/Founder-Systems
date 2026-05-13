@@ -116,13 +116,6 @@ globalThis.fetch = async (url, options = {}) => {
               content: JSON.stringify({
                 diagnosticNotes: ['live model'],
                 fixBeforeSending: ['Tighten proof'],
-                icpSnapshot: {
-                  customer: 'Solo SaaS founders',
-                  buyerRole: 'Founder',
-                  painIntensity: 'High',
-                  buyingTrigger: 'Outbound is not converting',
-                  whyTheyRespond: 'They need pipeline fast',
-                },
                 positioningAngles: [
                   {
                     name: 'Pain-led',
@@ -188,6 +181,13 @@ assert.equal(fetchCalls[1].url, 'https://litellm.example.com/v1/chat/completions
 assert.equal(JSON.parse(fetchCalls[1].body).model, 'cheap');
 assert.equal(JSON.parse(fetchCalls[1].body).max_tokens, 900);
 assert.equal(JSON.parse(fetchCalls[1].body).temperature, 0.1);
+const livePayload = parseJsonBody(liveRes);
+assert.equal(livePayload.ok, true);
+assert.equal(livePayload.icpSnapshot.customer.length > 0, true);
+assert.equal(
+  livePayload.diagnosticNotes.some((note) => /local fallback scaffold/i.test(note)),
+  true
+);
 
 if (typeof originalApiKey === 'undefined') {
   delete process.env.OPENAI_API_KEY;
