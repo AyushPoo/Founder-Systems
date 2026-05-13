@@ -200,6 +200,19 @@ def test_catalog_products_seed_and_checkout_use_live_prices(monkeypatch, tmp_pat
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_seed_catalog_falls_back_when_public_catalog_path_is_missing(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+    services = importlib.import_module("founder_systems_api.app.services")
+    monkeypatch.setattr(services, "_catalog_index_path", lambda: tmp_path / "missing-index.json")
+
+    catalog = services.load_product_seed_catalog(main.settings)
+    saas_model = next((row for row in catalog if row["slug"] == "saas-financial-model"), None)
+
+    assert saas_model is not None
+    assert saas_model["metadata"]["credit_price"] == 8
+    assert saas_model["prices"][("INR", "one-time")] == 149900
+
+
 def test_non_promptdeck_purchase_is_recorded_without_generation_credits(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 

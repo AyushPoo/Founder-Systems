@@ -1,0 +1,69 @@
+[
+  {
+    "id": "saas-financial-model",
+    "name": "SaaS Financial Model Template",
+    "description": "A professional-grade financial forecasting instrument designed specifically for SaaS founders.",
+    "category": "Finance",
+    "productId": "FS001",
+    "priceInr": 1499,
+    "priceUsd": 20,
+    "creditPrice": 8,
+    "thumbnail": "/images/products/saas-model/saas-thumbnail.jpg"
+  },
+  {
+    "id": "advanced-saas-model",
+    "name": "Advanced B2B SaaS Model",
+    "description": "Stop guessing your unit economics. An investor-grade SaaS model featuring automated cohort analysis, industry benchmarks, and dual-method valuation.",
+    "category": "Finance",
+    "productId": "FS002",
+    "priceInr": 2499,
+    "priceUsd": 30,
+    "creditPrice": 13,
+    "thumbnail": "/images/products/advanced-saas-model/thumbnail.jpg"
+  },
+  {
+    "id": "marketplace-financial-model",
+    "name": "Marketplace Financial Model",
+    "description": "Stop guessing your marketplace metrics. This model features dual-sided supply & demand growth, GMV waterfalls, industry benchmarks & 3-method valuation.",
+    "category": "Finance",
+    "productId": "FS003",
+    "priceInr": 1999,
+    "priceUsd": 25,
+    "creditPrice": 10,
+    "thumbnail": "/images/products/marketplace-model/thumbnail.jpg"
+  },
+  {
+    "id": "d2c-ecommerce-model",
+    "name": "D2C & Ecommerce Financial Model",
+    "description": "Stop guessing ROAS. This D2C model features automated cohort retention, multi-channel growth forecasting, and an inventory cash flow planner.",
+    "category": "Finance",
+    "productId": "FS004",
+    "priceInr": 1999,
+    "priceUsd": 25,
+    "creditPrice": 10,
+    "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
+  },
+  {
+    "id": "founder-spec-generator",
+    "name": "Founder Spec Generator",
+    "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
+    "category": "Strategy",
+    "productId": "FS011",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "founder-outreach-kit",
+    "name": "Founder Outreach Kit",
+    "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
+    "category": "Marketing Tools",
+    "productId": "FS012",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "promptdeck-ai",
+    "name": "PromptDeck AI",
+    "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
+    "category": "Strategy",
+    "thumbnail": "/images/products/promptdeck-ai/thumbnail.jpg"
+  }
+]

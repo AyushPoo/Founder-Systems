@@ -269,3 +269,46 @@ def test_credit_packs_fund_wallet_and_can_unlock_products(monkeypatch, tmp_path)
         assert any(entry["reason"] == "credit_pack_purchase" and entry["delta"] == 10 for entry in ledger_entries)
 
     asyncio.run(_run_with_client(main, scenario))
+
+
+def test_credit_checkout_supports_custom_credit_amounts_in_usd(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+
+        order = await client.post("/wallet/packs/checkout", json={"credits": 12, "currency": "USD"})
+        assert order.status_code == 200, order.text
+        order_body = order.json()
+        assert order_body["pack_slug"] == "custom"
+        assert order_body["credits_granted"] == 12
+        assert order_body["currency"] == "USD"
+        assert order_body["amount_minor"] == 3600
+
+        webhook_payload = {
+            "event": "payment.captured",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_wallet_custom_usd_001",
+                        "order_id": order_body["razorpay_order_id"],
+                    }
+                }
+            },
+        }
+        webhook = await client.post(
+            "/webhooks/razorpay",
+            content=json.dumps(webhook_payload),
+            headers={
+                "Content-Type": "application/json",
+                "X-Razorpay-Signature": "mock-signature",
+            },
+        )
+        assert webhook.status_code == 200, webhook.text
+        assert webhook.json()["processed"] is True
+
+        wallet = await client.get("/wallet")
+        assert wallet.status_code == 200, wallet.text
+        assert wallet.json()["wallet"]["balance"] == 12
+
+    asyncio.run(_run_with_client(main, scenario))

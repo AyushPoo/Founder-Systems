@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 
 const NAV_LINKS = [
     { label: 'Toolkit', href: '/#toolkit' },
@@ -7,13 +8,13 @@ const NAV_LINKS = [
     { label: 'Guides', href: '/guides' },
     { label: 'Account', href: '/account' },
     { label: 'About', href: '/about' },
-    { label: 'Access Purchases', href: '/access' },
 ];
 
 const Navbar = () => {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
+    const { authenticated, wallet } = useFounderWorkspace();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -68,6 +69,15 @@ const Navbar = () => {
                             {link.label}
                         </Link>
                     ))}
+                    {authenticated ? (
+                        <Link
+                            to="/account?tab=credits"
+                            onClick={closeMenu}
+                            className="rounded-full border-2 border-brand-black bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all"
+                        >
+                            {wallet?.balance ?? 0} Credits
+                        </Link>
+                    ) : null}
                     <Link
                         to="/products"
                         onClick={closeMenu}
@@ -121,6 +131,15 @@ const Navbar = () => {
                             {link.label}
                         </Link>
                     ))}
+                    {authenticated ? (
+                        <Link
+                            to="/account?tab=credits"
+                            onClick={closeMenu}
+                            className="rounded-full border-2 border-brand-black bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all text-center"
+                        >
+                            {wallet?.balance ?? 0} Credits
+                        </Link>
+                    ) : null}
                     <Link
                         to="/products"
                         onClick={closeMenu}

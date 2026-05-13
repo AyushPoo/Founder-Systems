@@ -274,7 +274,8 @@ class WorkspaceRecommendationsEnvelope(BaseModel):
 
 
 class CreditPackCheckoutRequest(BaseModel):
-    pack_slug: str = Field(min_length=1, max_length=64)
+    pack_slug: str | None = Field(default=None, min_length=1, max_length=64)
+    credits: int | None = Field(default=None, ge=1, le=500)
     currency: str = Field(default="INR", max_length=8)
 
 
@@ -287,6 +288,7 @@ class CreditPackCheckoutResponse(BaseModel):
     pack_slug: str
     pack_name: str
     credits_granted: int
+    unit_amount_minor: int
 
 
 class CreditPackResponse(BaseModel):
@@ -296,6 +298,7 @@ class CreditPackResponse(BaseModel):
     currency: str
     credits: int
     bonus_credits: int = 0
+    price_options_minor: dict[str, int] = Field(default_factory=dict)
 
 
 class CreditWalletResponse(BaseModel):
@@ -325,6 +328,7 @@ class CreditLedgerEntryResponse(BaseModel):
 class CreditWalletEnvelope(BaseModel):
     wallet: CreditWalletResponse
     packs: list[CreditPackResponse] = Field(default_factory=list)
+    credit_unit_amounts_minor: dict[str, int] = Field(default_factory=dict)
 
 
 class CreditWalletLedgerEnvelope(BaseModel):

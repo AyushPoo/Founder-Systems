@@ -4,6 +4,11 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
+import {
+    detectPreferredCurrency,
+    formatCreditValue,
+    mergeCatalogProductData,
+} from '../utils/commerce';
 
 const LEGACY_PRODUCT_REDIRECTS = {
     'pitch-deck-maker': '/products/promptdeck-ai',
@@ -60,7 +65,8 @@ const ProductDetail = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
-    const { authenticated, redeemCreditsForProduct, launchProductCheckout, user } = useFounderWorkspace();
+    const [preferredCurrency, setPreferredCurrency] = useState('INR');
+    const { authenticated, redeemCreditsForProduct, launchProductCheckout, user, wallet, creditUnitAmountsMinor } = useFounderWorkspace();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -71,11 +77,21 @@ const ProductDetail = () => {
         }
         // The detail page reuses the same component across product ids, so we clear stale data before refetching.
         setLoading(true); setNotFound(false); setProduct(null);
-        fetch(`/products/${id}.json`)
-            .then(res => { if (!res.ok) throw new Error('Not found'); return res.json(); })
-            .then(data => { setProduct(data); setLoading(false); })
+        Promise.all([
+            fetch(`/products/${id}.json`).then((res) => { if (!res.ok) throw new Error('Not found'); return res.json(); }),
+            fetch('/products/index.json').then((res) => res.ok ? res.json() : []),
+        ])
+            .then(([detail, catalog]) => {
+                const catalogMatch = Array.isArray(catalog) ? catalog.find((item) => item.id === id) : null;
+                setProduct(mergeCatalogProductData(detail, catalogMatch));
+                setLoading(false);
+            })
             .catch(() => { setNotFound(true); setLoading(false); });
     }, [id, navigate]);
+
+    useEffect(() => {
+        setPreferredCurrency(detectPreferredCurrency());
+    }, []);
 
     useEffect(() => {
         if (user?.email) {
@@ -89,6 +105,11 @@ const ProductDetail = () => {
     const productAction = getProductPrimaryAction(product);
     const showPricing = hasProductPricing(product);
     const showRetiredFundraisingBanner = false;
+    const creditValueLabel = product?.creditPrice
+        ? formatCreditValue(product.creditPrice, preferredCurrency, creditUnitAmountsMinor)
+        : '';
+    const primaryCheckoutCurrency = preferredCurrency === 'USD' ? 'USD' : 'INR';
+    const secondaryCheckoutCurrency = primaryCheckoutCurrency === 'INR' ? 'USD' : 'INR';
 
     if (loading) {
         return (
@@ -528,28 +549,45 @@ const ProductDetail = () => {
                                         </div>
                                     ) : (
                                         <>
+                                            {authenticated && product.creditPrice ? (
+                                                <div className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3 text-left">
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Workspace wallet</p>
+                                                    <p className="mt-1 text-sm font-semibold text-brand-black/78">
+                                                        You currently have {wallet?.balance ?? 0} credits.
+                                                        {creditValueLabel ? ` Unlocking this product uses ${product.creditPrice} credits (${creditValueLabel}).` : ` Unlocking this product uses ${product.creditPrice} credits.`}
+                                                    </p>
+                                                </div>
+                                            ) : null}
                                             <button
-                                                onClick={() => handleBuyClick('INR')}
+                                                onClick={() => handleBuyClick(primaryCheckoutCurrency)}
                                                 disabled={checkoutBusy}
                                                 className="btn-cta w-full !text-lg !py-5"
                                             >
-                                                Buy for ₹{product.priceInr} (India) &rarr;
+                                                {primaryCheckoutCurrency === 'INR' ? `Buy for ₹${product.priceInr} (India) →` : `Buy for $${product.priceUsd} (International) →`}
                                             </button>
                                             <button
-                                                onClick={() => handleBuyClick('USD')}
+                                                onClick={() => handleBuyClick(secondaryCheckoutCurrency)}
                                                 disabled={checkoutBusy}
                                                 className="btn-outline w-full !py-4"
                                             >
-                                                Buy for ${product.priceUsd} (International) &rarr;
+                                                {secondaryCheckoutCurrency === 'INR' ? `Buy for ₹${product.priceInr} (India) →` : `Buy for $${product.priceUsd} (International) →`}
                                             </button>
                                             {product.creditPrice ? (
-                                                <button
-                                                    onClick={handleUnlockWithCredits}
-                                                    disabled={checkoutBusy}
-                                                    className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-4 font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all"
-                                                >
-                                                    Unlock with {product.creditPrice} credits
-                                                </button>
+                                                <div className="space-y-3">
+                                                    <button
+                                                        onClick={handleUnlockWithCredits}
+                                                        disabled={checkoutBusy}
+                                                        className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-4 font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all w-full"
+                                                    >
+                                                        Unlock with {product.creditPrice} credits{creditValueLabel ? ` • ${creditValueLabel}` : ''}
+                                                    </button>
+                                                    <Link
+                                                        to="/account?tab=credits"
+                                                        className="block text-center text-xs font-black uppercase tracking-[0.14em] text-brand-black/60 underline underline-offset-4"
+                                                    >
+                                                        Buy or top up credits in Account
+                                                    </Link>
+                                                </div>
                                             ) : null}
                                         </>
                                     )}

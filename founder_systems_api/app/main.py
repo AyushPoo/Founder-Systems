@@ -103,6 +103,9 @@ from .services import (
     user_has_promptdeck_admin_bypass,
     create_workspace_memory_item,
     consume_wallet_credits,
+    get_credit_unit_amount_minor,
+    quote_wallet_credit_checkout,
+    WALLET_CREDIT_UNIT_AMOUNTS_MINOR,
 )
 
 
@@ -813,10 +816,24 @@ def wallet_summary(user: User = Depends(require_current_user), db: Session = Dep
     db.commit()
     db.refresh(wallet)
     packs = [
-        CreditPackResponse.model_validate(pack)
+        CreditPackResponse.model_validate(
+            {
+                "slug": pack["slug"],
+                "name": pack["name"],
+                "amount_minor": int((pack.get("prices_minor") or {}).get("INR") or 0),
+                "currency": "INR",
+                "credits": int(pack["credits"]),
+                "bonus_credits": int(pack.get("bonus_credits") or 0),
+                "price_options_minor": pack.get("prices_minor") or {},
+            }
+        )
         for pack in CREDIT_PACKS.values()
     ]
-    return CreditWalletEnvelope(wallet=credit_wallet_to_schema(wallet), packs=packs)
+    return CreditWalletEnvelope(
+        wallet=credit_wallet_to_schema(wallet),
+        packs=packs,
+        credit_unit_amounts_minor={currency: int(amount) for currency, amount in WALLET_CREDIT_UNIT_AMOUNTS_MINOR.items()},
+    )
 
 
 @app.get("/wallet/ledger", response_model=CreditWalletLedgerEnvelope)
@@ -859,20 +876,28 @@ async def wallet_pack_checkout(
     db: Session = Depends(get_db),
 ) -> CreditPackCheckoutResponse:
     workspace, _membership = get_or_create_workspace(db, user=user)
-    pack = get_credit_pack(payload.pack_slug)
-    if pack is None:
-        raise HTTPException(status_code=404, detail="Credit pack not found")
-    if str(payload.currency).upper() != str(pack["currency"]).upper():
-        raise HTTPException(status_code=400, detail="Unsupported currency for credit pack")
+    try:
+        quote = quote_wallet_credit_checkout(
+            currency=payload.currency,
+            pack_slug=payload.pack_slug,
+            credits=payload.credits,
+        )
+    except ValueError as error:
+        detail = str(error)
+        status_code = 404 if detail == "Credit pack not found" else 400
+        raise HTTPException(status_code=status_code, detail=detail) from error
 
     purchase = Purchase(
         user_id=user.id,
         status="pending",
-        currency=str(pack["currency"]).upper(),
-        amount_minor=int(pack["amount_minor"]),
+        currency=quote["currency"],
+        amount_minor=int(quote["amount_minor"]),
         metadata_json={
             "kind": "credit_pack",
-            "pack_slug": pack["slug"],
+            "pack_slug": quote["pack_slug"],
+            "pack_name": quote["pack_name"],
+            "credits_granted": int(quote["credits_granted"]),
+            "currency": quote["currency"],
             "workspace_id": workspace.id,
         },
     )
@@ -881,15 +906,16 @@ async def wallet_pack_checkout(
 
     order = await create_razorpay_order(
         settings,
-        amount_minor=int(pack["amount_minor"]),
-        currency=str(pack["currency"]).upper(),
+        amount_minor=int(quote["amount_minor"]),
+        currency=quote["currency"],
         receipt=purchase.id,
         notes={
             "purchase_id": purchase.id,
             "user_id": user.id,
             "workspace_id": workspace.id,
-            "pack_slug": pack["slug"],
+            "pack_slug": quote["pack_slug"],
             "kind": "credit_pack",
+            "credits_granted": int(quote["credits_granted"]),
         },
     )
     purchase.razorpay_order_id = str(order.get("id"))
@@ -900,11 +926,12 @@ async def wallet_pack_checkout(
         purchase_id=purchase.id,
         razorpay_order_id=purchase.razorpay_order_id or "",
         key_id=settings.razorpay_key_id or "rzp_mock",
-        amount_minor=int(pack["amount_minor"]),
-        currency=str(pack["currency"]).upper(),
-        pack_slug=pack["slug"],
-        pack_name=pack["name"],
-        credits_granted=int(pack["credits"]),
+        amount_minor=int(quote["amount_minor"]),
+        currency=quote["currency"],
+        pack_slug=quote["pack_slug"],
+        pack_name=quote["pack_name"],
+        credits_granted=int(quote["credits_granted"]),
+        unit_amount_minor=get_credit_unit_amount_minor(quote["currency"]),
     )
 
 

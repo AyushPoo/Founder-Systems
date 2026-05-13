@@ -35,6 +35,7 @@ export function FounderWorkspaceProvider({ children }) {
   const [preferences, setPreferences] = useState([]);
   const [wallet, setWallet] = useState(null);
   const [creditPacks, setCreditPacks] = useState([]);
+  const [creditUnitAmountsMinor, setCreditUnitAmountsMinor] = useState({});
   const [ledger, setLedger] = useState([]);
   const [usageEvents, setUsageEvents] = useState([]);
   const [entitlements, setEntitlements] = useState([]);
@@ -71,6 +72,7 @@ export function FounderWorkspaceProvider({ children }) {
       setPreferences([]);
       setWallet(null);
       setCreditPacks([]);
+      setCreditUnitAmountsMinor({});
       setLedger([]);
       setUsageEvents([]);
       setEntitlements([]);
@@ -98,6 +100,7 @@ export function FounderWorkspaceProvider({ children }) {
       setPreferences(preferencePayload || []);
       setWallet(walletPayload.wallet || null);
       setCreditPacks(walletPayload.packs || []);
+      setCreditUnitAmountsMinor(walletPayload.credit_unit_amounts_minor || {});
       setLedger(ledgerPayload.entries || []);
       setUsageEvents(usagePayload || []);
       setEntitlements(entitlementsPayload || []);
@@ -145,6 +148,7 @@ export function FounderWorkspaceProvider({ children }) {
     setPreferences([]);
     setWallet(null);
     setCreditPacks([]);
+    setCreditUnitAmountsMinor({});
     setLedger([]);
     setUsageEvents([]);
     setEntitlements([]);
@@ -182,11 +186,18 @@ export function FounderWorkspaceProvider({ children }) {
     return getWorkspaceRecommendations(productSlug);
   }, [authenticated]);
 
-  const launchCreditPackCheckout = useCallback(async (packSlug) => {
+  const launchCreditPackCheckout = useCallback(async (checkoutRequest) => {
     if (!authenticated || !user) {
       throw new Error('Please sign in before you buy credits.');
     }
-    const order = await createCreditPackCheckout({ pack_slug: packSlug, currency: 'INR' });
+    const payload = typeof checkoutRequest === 'string'
+      ? { pack_slug: checkoutRequest, currency: 'INR' }
+      : {
+        pack_slug: checkoutRequest?.packSlug || undefined,
+        credits: checkoutRequest?.credits || undefined,
+        currency: checkoutRequest?.currency || 'INR',
+      };
+    const order = await createCreditPackCheckout(payload);
     return new Promise((resolve, reject) => {
       const opened = openBackendRazorpayCheckout({
         key: order.key_id,
@@ -199,6 +210,7 @@ export function FounderWorkspaceProvider({ children }) {
         notes: {
           pack_slug: order.pack_slug,
           purchase_id: order.purchase_id,
+          credits_granted: order.credits_granted,
         },
         onSuccess: async (response) => {
           try {
@@ -282,6 +294,7 @@ export function FounderWorkspaceProvider({ children }) {
     preferences,
     wallet,
     creditPacks,
+    creditUnitAmountsMinor,
     ledger,
     usageEvents,
     entitlements,
@@ -312,6 +325,7 @@ export function FounderWorkspaceProvider({ children }) {
     preferences,
     wallet,
     creditPacks,
+    creditUnitAmountsMinor,
     ledger,
     usageEvents,
     entitlements,

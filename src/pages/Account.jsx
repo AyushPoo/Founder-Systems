@@ -4,23 +4,30 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
+import {
+  detectPreferredCurrency,
+  formatCreditValue,
+  formatMoneyMinor,
+  getPurchaseDisplayName,
+  humanizeIdentifier,
+} from '../utils/commerce';
 
-const TABS = ['Memory', 'Connections', 'Credits', 'Settings'];
+const TABS = ['Memory', 'Products', 'Credits', 'History', 'Settings'];
 const PRODUCT_CONNECTIONS = [
   {
     slug: 'founder-spec-generator',
     name: 'Founder Spec Generator',
-    description: 'Reads workspace memory and can promote strategy outputs back into shared memory.',
+    description: 'Reads workspace memory, sharpens strategy, and can promote the strongest answers back into shared founder memory.',
   },
   {
     slug: 'founder-outreach-kit',
     name: 'Founder Outreach Kit',
-    description: 'Imports ICP, offer, proof, and tone to prefill outreach drafts and save campaign learnings.',
+    description: 'Pulls in ICP, offer, proof, and tone so founders can draft outreach faster without repeating the setup.',
   },
   {
     slug: 'promptdeck-ai',
     name: 'PromptDeck AI',
-    description: 'Uses shared story, customer, offer, and proof context to seed deck generation and recommendations.',
+    description: 'Uses shared story, customer, and offer context to seed deck generation and recommend the next best product move.',
   },
 ];
 
@@ -46,13 +53,41 @@ function titleCase(value) {
     .replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
+function getProductName(productSlug) {
+  const configuredProduct = PRODUCT_CONNECTIONS.find((item) => item.slug === productSlug);
+  if (configuredProduct) {
+    return configuredProduct.name;
+  }
+  return humanizeIdentifier(productSlug);
+}
+
+function getDefaultPreference(productSlug, preferences) {
+  return preferences.find((item) => item.product_slug === productSlug) || {
+    import_mode: 'ask',
+    allow_product_read: true,
+    allow_product_write: true,
+    allow_inferred_suggestions: true,
+    allow_save_to_workspace: true,
+    start_fresh_by_default: false,
+  };
+}
+
+function PreferenceToggle({ label, checked, onChange }) {
+  return (
+    <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+      <span>{label}</span>
+      <input type="checkbox" checked={checked} onChange={onChange} />
+    </label>
+  );
+}
+
 function Account() {
   const {
     authenticated,
     creditPacks,
+    creditUnitAmountsMinor,
     entitlements,
     error,
-    getPreferenceForProduct,
     launchCreditPackCheckout,
     ledger,
     loadingAccount,
@@ -71,6 +106,7 @@ function Account() {
     wallet,
     workspace,
   } = useFounderWorkspace();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const returnTo = searchParams.get('returnTo') || '/account';
   const [activeTab, setActiveTab] = useState(() => {
@@ -83,6 +119,8 @@ function Account() {
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [memoryForm, setMemoryForm] = useState(DEFAULT_MEMORY_FORM);
+  const [preferredCurrency, setPreferredCurrency] = useState('INR');
+  const [customCredits, setCustomCredits] = useState(10);
 
   useEffect(() => {
     const value = searchParams.get('tab');
@@ -91,12 +129,37 @@ function Account() {
     }
   }, [searchParams]);
 
+  useEffect(() => {
+    setPreferredCurrency(detectPreferredCurrency());
+  }, []);
+
   const memoryCounts = useMemo(() => {
     const canonical = memoryItems.filter((item) => item.memory_scope === 'canonical').length;
     const native = memoryItems.filter((item) => item.memory_scope === 'product_native').length;
-    const archived = memoryItems.filter((item) => item.status === 'archived').length;
-    return { canonical, native, archived };
+    return { canonical, native };
   }, [memoryItems]);
+
+  const enabledProductCount = useMemo(() => PRODUCT_CONNECTIONS.filter((product) => {
+    const preference = getDefaultPreference(product.slug, preferences);
+    return preference.allow_product_read || preference.allow_product_write;
+  }).length, [preferences]);
+
+  const walletValueLabel = useMemo(
+    () => formatCreditValue(wallet?.balance ?? 0, preferredCurrency, creditUnitAmountsMinor),
+    [creditUnitAmountsMinor, preferredCurrency, wallet?.balance],
+  );
+
+  const customCreditCost = useMemo(
+    () => formatCreditValue(customCredits, preferredCurrency, creditUnitAmountsMinor),
+    [creditUnitAmountsMinor, customCredits, preferredCurrency],
+  );
+
+  const overviewCards = [
+    { label: 'Workspace memory', value: memoryItems.length, meta: `${memoryCounts.canonical} shared / ${memoryCounts.native} product-native` },
+    { label: 'Credits available', value: wallet?.balance ?? 0, meta: walletValueLabel ? `Estimated wallet value ${walletValueLabel}` : 'Switch the wallet currency below to preview value' },
+    { label: 'Products linked', value: enabledProductCount, meta: 'Products currently allowed to read from or write to shared workspace memory' },
+    { label: 'Purchase history', value: purchases.length, meta: `${entitlements.length} active entitlements across direct purchases and credit unlocks` },
+  ];
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -122,6 +185,7 @@ function Account() {
       memory_scope: item.memory_scope || 'canonical',
       visibility: item.visibility || 'workspace_shared',
     });
+    handleTabChange('Memory');
   };
 
   const handleArchiveMemory = async (itemId) => {
@@ -171,11 +235,8 @@ function Account() {
     try {
       const payload = await sendMagicLink({ email, name, nextPath: returnTo });
       setNotice(payload.magic_link_url
-        ? 'Magic link created. In development it appears below as well.'
+        ? `Magic link created: ${payload.magic_link_url}`
         : 'Magic link sent. Check your inbox to sign in.');
-      if (payload.magic_link_url) {
-        setNotice(`Magic link created: ${payload.magic_link_url}`);
-      }
     } catch (sendError) {
       setNotice(sendError.message || 'Could not send the magic link.');
     } finally {
@@ -183,14 +244,14 @@ function Account() {
     }
   };
 
-  const handlePackCheckout = async (packSlug) => {
+  const handlePackCheckout = async ({ packSlug, credits }) => {
     setSubmitting(true);
     setNotice('');
     try {
-      await launchCreditPackCheckout(packSlug);
-      setNotice('Payment window opened. Your wallet will refresh as soon as the webhook confirms the pack.');
+      await launchCreditPackCheckout({ packSlug, credits, currency: preferredCurrency });
+      setNotice('Payment window opened. Your wallet will refresh as soon as the webhook confirms the payment.');
     } catch (checkoutError) {
-      setNotice(checkoutError.message || 'Could not start the credit pack checkout.');
+      setNotice(checkoutError.message || 'Could not start the credit checkout.');
     } finally {
       setSubmitting(false);
     }
@@ -209,16 +270,9 @@ function Account() {
     }
   };
 
-  const overviewCards = [
-    { label: 'Workspace memory', value: memoryItems.length, meta: `${memoryCounts.canonical} shared / ${memoryCounts.native} product-native` },
-    { label: 'Credits available', value: wallet?.balance ?? 0, meta: '₹200 baseline per credit' },
-    { label: 'Connected products', value: preferences.length || PRODUCT_CONNECTIONS.length, meta: 'Spec Generator, Outreach Kit, PromptDeck AI' },
-    { label: 'Entitlements', value: entitlements.length, meta: 'Direct purchases and wallet unlocks' },
-  ];
-
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title="Account" description="Manage your Founder Systems workspace memory, credits, product connections, and settings." canonical="/account" />
+      <SEO title="Account" description="Manage your Founder Systems workspace memory, credits, products, and history." canonical="/account" />
       <Navbar />
 
       <div className="w-full pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b-2 border-brand-black bg-white">
@@ -228,7 +282,7 @@ function Account() {
           </span>
           <h1 className="mt-6 text-4xl md:text-6xl font-black tracking-tight-brand">Account, memory, credits, and product handoffs.</h1>
           <p className="mt-4 max-w-3xl text-lg md:text-xl font-medium leading-relaxed text-brand-black/68">
-            Keep strategy, outreach, and deck context inside one founder workspace so the products can build on each other instead of making you repeat yourself.
+            Keep strategy, outreach, and deck context inside one workspace so the products build on each other instead of making founders repeat themselves.
           </p>
           {authenticated && user ? (
             <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-bold text-brand-black/70">
@@ -252,7 +306,7 @@ function Account() {
             <section className="rounded-[24px] border-2 border-brand-black bg-white p-8 md:p-10 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight-brand">Sign in to unlock your workspace.</h2>
               <p className="mt-3 text-base md:text-lg font-medium leading-relaxed text-brand-black/65">
-                Your account is where shared memory, credit balance, entitlements, and product preferences now live. Once you sign in, Spec Generator, Outreach Kit, and PromptDeck can reuse the same founder context with your approval.
+                Shared memory, purchases, wallet balance, and product handoffs now live here. Once you sign in, your context can move across Spec Generator, Outreach Kit, and PromptDeck with your approval.
               </p>
               <form className="mt-8 grid gap-4 md:grid-cols-2" onSubmit={handleMagicLink}>
                 <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="rounded-2xl border-2 border-brand-black bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" />
@@ -265,7 +319,7 @@ function Account() {
                 Continue with Google
               </button>
               <p className="mt-6 text-sm font-semibold text-brand-black/55">
-                Legacy purchase retrieval still lives on <Link to="/access" className="text-brand-orange underline">Access Purchases</Link> while the account migration settles.
+                Older email-only downloads are still available on <Link to="/access" className="text-brand-orange underline">the legacy access page</Link> if you ever need them.
               </p>
             </section>
 
@@ -273,8 +327,8 @@ function Account() {
               <h3 className="text-xl font-black tracking-tight-brand">What becomes shared</h3>
               <ul className="mt-5 space-y-3 text-sm font-medium leading-relaxed text-white/82">
                 <li>Venture summary, offer, ICP, buyer role, proof points, tone, and GTM hypotheses.</li>
-                <li>Per-product import controls so you can reuse memory, skip it, or start fresh.</li>
-                <li>Credit wallet packs that work across products without forcing a single purchase path.</li>
+                <li>Per-product memory controls so founders can reuse context, skip it, or start fresh.</li>
+                <li>Wallet credits and purchase history inside the same account, not scattered across surfaces.</li>
               </ul>
             </aside>
           </div>
@@ -321,7 +375,7 @@ function Account() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <h2 className="text-2xl font-black tracking-tight-brand">Workspace memory</h2>
-                      <p className="mt-2 text-sm font-medium text-brand-black/58">Edit any shared fact here. Products can suggest memory, but this page stays the source of truth.</p>
+                      <p className="mt-2 text-sm font-medium text-brand-black/58">This is the source of truth. Products can suggest edits, but founders can override anything here.</p>
                     </div>
                     <button onClick={resetMemoryForm} className="rounded-full border border-brand-black/15 bg-brand-cream px-4 py-2 text-sm font-bold">
                       New item
@@ -348,10 +402,7 @@ function Account() {
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <button onClick={() => startEditMemory(item)} className="rounded-full border border-brand-black/15 bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em]">Edit</button>
-                            <button
-                              onClick={() => handleArchiveMemory(item.id)}
-                              className="rounded-full border border-brand-black/15 bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em]"
-                            >
+                            <button onClick={() => handleArchiveMemory(item.id)} className="rounded-full border border-brand-black/15 bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em]">
                               Archive
                             </button>
                           </div>
@@ -379,7 +430,7 @@ function Account() {
                       <option value="selected_products">Selected products</option>
                       <option value="private">Private</option>
                     </select>
-                    <textarea value={memoryForm.text} onChange={(event) => setMemoryForm((current) => ({ ...current, text: event.target.value }))} placeholder="The actual shared fact or note" rows={5} className="w-full rounded-2xl border-2 border-brand-black bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" required />
+                    <textarea value={memoryForm.text} onChange={(event) => setMemoryForm((current) => ({ ...current, text: event.target.value }))} placeholder="The shared fact or note itself" rows={5} className="w-full rounded-2xl border-2 border-brand-black bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" required />
                     <textarea value={memoryForm.summary} onChange={(event) => setMemoryForm((current) => ({ ...current, summary: event.target.value }))} placeholder="Optional summary or provenance note" rows={3} className="w-full rounded-2xl border-2 border-brand-black bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" />
                     <div className="flex gap-3">
                       <button disabled={submitting} className="btn-cta justify-center flex-1">{submitting ? 'Saving...' : editingId ? 'Save changes' : 'Add memory item'}</button>
@@ -390,35 +441,48 @@ function Account() {
               </section>
             ) : null}
 
-            {activeTab === 'Connections' ? (
+            {activeTab === 'Products' ? (
               <section className="grid gap-5 xl:grid-cols-3">
                 {PRODUCT_CONNECTIONS.map((product) => {
-                  const preference = getPreferenceForProduct(product.slug) || {
-                    import_mode: 'ask',
-                    allow_product_read: true,
-                    allow_product_write: true,
-                    allow_inferred_suggestions: true,
-                    allow_save_to_workspace: true,
-                    start_fresh_by_default: false,
-                  };
+                  const preference = getDefaultPreference(product.slug, preferences);
                   return (
                     <article key={product.slug} className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">{product.slug}</p>
-                      <h2 className="mt-2 text-xl font-black tracking-tight-brand">{product.name}</h2>
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">{product.slug}</p>
+                          <h2 className="mt-2 text-xl font-black tracking-tight-brand">{product.name}</h2>
+                        </div>
+                        <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] ${preference.allow_product_read || preference.allow_product_write ? 'bg-brand-orange text-white' : 'bg-brand-cream text-brand-black/70'}`}>
+                          {preference.allow_product_read || preference.allow_product_write ? 'Connected' : 'Paused'}
+                        </span>
+                      </div>
                       <p className="mt-3 text-sm font-medium leading-relaxed text-brand-black/62">{product.description}</p>
+                      <div className="mt-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Import behavior</p>
+                        <p className="mt-1 text-sm font-semibold text-brand-black/75">
+                          {preference.import_mode === 'always_allow'
+                            ? 'Remember and import shared memory automatically.'
+                            : preference.import_mode === 'start_fresh'
+                              ? 'Start fresh unless the founder chooses to import memory.'
+                              : 'Ask before importing shared workspace memory.'}
+                        </p>
+                      </div>
                       <div className="mt-6 space-y-3 text-sm font-semibold">
-                        <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <span>Allow this product to read workspace memory</span>
-                          <input type="checkbox" checked={preference.allow_product_read} onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_product_read: event.target.checked })} />
-                        </label>
-                        <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <span>Allow this product to save back into memory</span>
-                          <input type="checkbox" checked={preference.allow_product_write} onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_product_write: event.target.checked })} />
-                        </label>
-                        <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <span>Allow inferred suggestions</span>
-                          <input type="checkbox" checked={preference.allow_inferred_suggestions} onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_inferred_suggestions: event.target.checked })} />
-                        </label>
+                        <PreferenceToggle
+                          label="Allow this product to read workspace memory"
+                          checked={preference.allow_product_read}
+                          onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_product_read: event.target.checked })}
+                        />
+                        <PreferenceToggle
+                          label="Allow this product to save back into memory"
+                          checked={preference.allow_product_write}
+                          onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_product_write: event.target.checked })}
+                        />
+                        <PreferenceToggle
+                          label="Allow inferred suggestions"
+                          checked={preference.allow_inferred_suggestions}
+                          onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_inferred_suggestions: event.target.checked })}
+                        />
                       </div>
                     </article>
                   );
@@ -427,88 +491,163 @@ function Account() {
             ) : null}
 
             {activeTab === 'Credits' ? (
-              <section className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                 <div className="space-y-6">
                   <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
                     <h2 className="text-2xl font-black tracking-tight-brand">Credit wallet</h2>
-                    <p className="mt-2 text-sm font-medium text-brand-black/58">Buy packs, unlock products, and use the same credits across products that support wallet spends.</p>
+                    <p className="mt-2 text-sm font-medium text-brand-black/58">Buy bonus packs or choose the exact number of credits you want. The same wallet can unlock products and power repeat usage where supported.</p>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {['INR', 'USD'].map((currency) => (
+                        <button
+                          key={currency}
+                          type="button"
+                          onClick={() => setPreferredCurrency(currency)}
+                          className={`rounded-full border-2 px-4 py-2 text-sm font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] ${
+                            preferredCurrency === currency
+                              ? 'border-brand-black bg-brand-orange text-white'
+                              : 'border-brand-black bg-white text-brand-black'
+                          }`}
+                        >
+                          {currency === 'INR' ? 'INR' : 'USD'}
+                        </button>
+                      ))}
+                    </div>
                     <div className="mt-5 rounded-[22px] border-2 border-brand-black bg-brand-black px-6 py-5 text-white">
                       <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/55">Available now</p>
                       <p className="mt-3 text-5xl font-black tracking-tight-brand">{wallet?.balance ?? 0}</p>
-                      <p className="mt-2 text-sm font-medium text-white/70">1 credit anchors to ₹200 on the website. Bonus-value packs can still beat straight conversion math.</p>
+                      <p className="mt-2 text-sm font-medium text-white/70">
+                        {walletValueLabel ? `Estimated wallet value ${walletValueLabel}.` : 'Switch the wallet currency to preview value.'}
+                      </p>
                     </div>
+
                     <div className="mt-5 space-y-3">
                       {creditPacks.map((pack) => (
                         <div key={pack.slug} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-4">
                           <div className="flex items-center justify-between gap-4">
                             <div>
                               <h3 className="text-lg font-black">{pack.name}</h3>
-                              <p className="text-sm font-medium text-brand-black/58">{pack.credits} credits for ₹{Math.round(pack.amount_minor / 100).toLocaleString('en-IN')}</p>
+                              <p className="text-sm font-medium text-brand-black/58">
+                                {pack.credits} credits for {formatMoneyMinor(pack.price_options_minor?.[preferredCurrency] ?? pack.amount_minor, preferredCurrency)}
+                              </p>
                             </div>
-                            <button disabled={submitting} onClick={() => handlePackCheckout(pack.slug)} className="btn-cta !py-2 !px-4 !text-sm">
+                            <button disabled={submitting} onClick={() => handlePackCheckout({ packSlug: pack.slug })} className="btn-cta !py-2 !px-4 !text-sm">
                               Buy pack
                             </button>
                           </div>
                         </div>
                       ))}
                     </div>
+
+                    <div className="mt-5 rounded-[24px] border-2 border-brand-black/10 bg-brand-cream px-5 py-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="text-lg font-black">Custom amount</h3>
+                          <p className="mt-1 text-sm font-medium text-brand-black/58">Choose the exact number of credits you want instead of using a preset pack.</p>
+                        </div>
+                        <span className="rounded-full border border-brand-black/10 bg-white px-3 py-1 text-xs font-black uppercase tracking-[0.14em]">
+                          {customCreditCost || 'Select credits'}
+                        </span>
+                      </div>
+                      <div className="mt-4 flex flex-wrap items-end gap-3">
+                        <label className="flex-1 min-w-[160px]">
+                          <span className="mb-2 block text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Credits</span>
+                          <input
+                            type="number"
+                            min="1"
+                            max="500"
+                            value={customCredits}
+                            onChange={(event) => setCustomCredits(Math.min(500, Math.max(1, Number(event.target.value || 1))))}
+                            className="w-full rounded-2xl border-2 border-brand-black bg-white px-4 py-3 font-semibold outline-none focus:border-brand-orange"
+                          />
+                        </label>
+                        <button disabled={submitting} onClick={() => handlePackCheckout({ credits: customCredits })} className="btn-cta !py-3 !px-5 !text-sm">
+                          Buy {customCredits} credits
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
                   <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-                    <h3 className="text-xl font-black tracking-tight-brand">Entitlements</h3>
+                    <h3 className="text-xl font-black tracking-tight-brand">Unlocked products</h3>
                     <div className="mt-4 space-y-3">
                       {entitlements.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No unlocked products yet.</p> : entitlements.map((item) => (
                         <div key={item.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <p className="text-sm font-black">{titleCase(item.product_slug)}</p>
+                          <p className="text-sm font-black">{getProductName(item.product_slug)}</p>
                           <p className="text-xs font-semibold text-brand-black/50">{titleCase(item.status)} since {formatDate(item.starts_at)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
+
+                <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+                  <h3 className="text-xl font-black tracking-tight-brand">Wallet ledger</h3>
+                  <p className="mt-2 text-sm font-medium text-brand-black/58">Every credit purchase, unlock, and spend shows up here.</p>
+                  <div className="mt-4 space-y-3">
+                    {ledger.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No credit activity yet.</p> : ledger.map((entry) => (
+                      <div key={entry.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-black">{titleCase(entry.reason)}</p>
+                            <p className="text-xs font-semibold text-brand-black/50">{entry.product_slug ? getProductName(entry.product_slug) : 'Workspace wallet'} - {formatDate(entry.created_at)}</p>
+                          </div>
+                          <span className={`rounded-full px-3 py-1 text-xs font-black ${entry.delta >= 0 ? 'bg-green-100 text-green-700' : 'bg-brand-black text-white'}`}>
+                            {entry.delta > 0 ? `+${entry.delta}` : entry.delta} credits
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : null}
+
+            {activeTab === 'History' ? (
+              <section className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+                  <h3 className="text-xl font-black tracking-tight-brand">Purchase history</h3>
+                  <p className="mt-2 text-sm font-medium text-brand-black/58">Direct product purchases and credit-wallet top-ups live together here.</p>
+                  <div className="mt-4 space-y-3">
+                    {purchases.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No purchases yet.</p> : purchases.map((purchase) => (
+                      <div key={purchase.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-black">{getPurchaseDisplayName(purchase)}</p>
+                            <p className="text-xs font-semibold text-brand-black/50">
+                              {titleCase(purchase.status)} - {formatMoneyMinor(purchase.amount_minor || 0, purchase.currency || preferredCurrency)} - {formatDate(purchase.created_at)}
+                            </p>
+                          </div>
+                          <span className="rounded-full border border-brand-black/10 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em]">
+                            {purchase.currency || preferredCurrency}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="space-y-6">
                   <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-                    <h3 className="text-xl font-black tracking-tight-brand">Wallet ledger</h3>
+                    <h3 className="text-xl font-black tracking-tight-brand">Product usage</h3>
                     <div className="mt-4 space-y-3">
-                      {ledger.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No credit activity yet.</p> : ledger.map((entry) => (
-                        <div key={entry.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <p className="text-sm font-black">{titleCase(entry.reason)}</p>
-                              <p className="text-xs font-semibold text-brand-black/50">{entry.product_slug ? titleCase(entry.product_slug) : 'Workspace wallet'} • {formatDate(entry.created_at)}</p>
-                            </div>
-                            <span className={`rounded-full px-3 py-1 text-xs font-black ${entry.delta >= 0 ? 'bg-green-100 text-green-700' : 'bg-brand-black text-white'}`}>
-                              {entry.delta > 0 ? `+${entry.delta}` : entry.delta} credits
-                            </span>
-                          </div>
+                      {usageEvents.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No usage events yet.</p> : usageEvents.map((event) => (
+                        <div key={event.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                          <p className="text-sm font-black">{getProductName(event.product_slug)}</p>
+                          <p className="text-xs font-semibold text-brand-black/50">{titleCase(event.action)} - {event.credits_spent} credits - {formatDate(event.created_at)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
+
                   <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-                    <h3 className="text-xl font-black tracking-tight-brand">Usage and purchases</h3>
-                    <div className="mt-4 grid gap-4 md:grid-cols-2">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Product usage</p>
-                        <div className="mt-3 space-y-3">
-                          {usageEvents.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No usage events yet.</p> : usageEvents.map((event) => (
-                            <div key={event.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                              <p className="text-sm font-black">{titleCase(event.product_slug)}</p>
-                              <p className="text-xs font-semibold text-brand-black/50">{titleCase(event.action)} • {event.credits_spent} credits • {formatDate(event.created_at)}</p>
-                            </div>
-                          ))}
+                    <h3 className="text-xl font-black tracking-tight-brand">Active entitlements</h3>
+                    <div className="mt-4 space-y-3">
+                      {entitlements.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No active entitlements yet.</p> : entitlements.map((item) => (
+                        <div key={item.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                          <p className="text-sm font-black">{getProductName(item.product_slug)}</p>
+                          <p className="text-xs font-semibold text-brand-black/50">{titleCase(item.status)} since {formatDate(item.starts_at)}</p>
                         </div>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Purchases</p>
-                        <div className="mt-3 space-y-3">
-                          {purchases.length === 0 ? <p className="text-sm font-medium text-brand-black/55">No purchases yet.</p> : purchases.map((purchase) => (
-                            <div key={purchase.id} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                              <p className="text-sm font-black">{titleCase(purchase.items?.[0]?.product_slug || purchase.metadata?.pack_slug || 'purchase')}</p>
-                              <p className="text-xs font-semibold text-brand-black/50">{titleCase(purchase.status)} • ₹{Math.round((purchase.amount_minor || 0) / 100).toLocaleString('en-IN')} • {formatDate(purchase.created_at)}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -518,14 +657,7 @@ function Account() {
             {activeTab === 'Settings' ? (
               <section className="grid gap-5 xl:grid-cols-3">
                 {PRODUCT_CONNECTIONS.map((product) => {
-                  const preference = getPreferenceForProduct(product.slug) || {
-                    import_mode: 'ask',
-                    allow_product_read: true,
-                    allow_product_write: true,
-                    allow_inferred_suggestions: true,
-                    allow_save_to_workspace: true,
-                    start_fresh_by_default: false,
-                  };
+                  const preference = getDefaultPreference(product.slug, preferences);
                   return (
                     <article key={product.slug} className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
                       <h2 className="text-xl font-black tracking-tight-brand">{product.name}</h2>
@@ -539,14 +671,16 @@ function Account() {
                             <option value="start_fresh">Start fresh</option>
                           </select>
                         </label>
-                        <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <span>Allow saving confirmed memory back to the workspace</span>
-                          <input type="checkbox" checked={preference.allow_save_to_workspace} onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_save_to_workspace: event.target.checked })} />
-                        </label>
-                        <label className="flex items-center justify-between gap-4 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
-                          <span>Start this product fresh by default</span>
-                          <input type="checkbox" checked={preference.start_fresh_by_default} onChange={(event) => handlePreferenceSave(product.slug, { ...preference, start_fresh_by_default: event.target.checked })} />
-                        </label>
+                        <PreferenceToggle
+                          label="Allow saving confirmed memory back to the workspace"
+                          checked={preference.allow_save_to_workspace}
+                          onChange={(event) => handlePreferenceSave(product.slug, { ...preference, allow_save_to_workspace: event.target.checked })}
+                        />
+                        <PreferenceToggle
+                          label="Start this product fresh by default"
+                          checked={preference.start_fresh_by_default}
+                          onChange={(event) => handlePreferenceSave(product.slug, { ...preference, start_fresh_by_default: event.target.checked })}
+                        />
                       </div>
                     </article>
                   );

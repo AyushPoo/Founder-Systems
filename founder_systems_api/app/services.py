@@ -42,32 +42,47 @@ CREDIT_PACKS = {
     "starter": {
         "slug": "starter",
         "name": "Starter",
-        "currency": "INR",
-        "amount_minor": 200000,
+        "prices_minor": {
+            "INR": 200000,
+            "USD": 3000,
+        },
         "credits": 10,
         "bonus_credits": 0,
     },
     "builder": {
         "slug": "builder",
         "name": "Builder",
-        "currency": "INR",
-        "amount_minor": 450000,
+        "prices_minor": {
+            "INR": 450000,
+            "USD": 6500,
+        },
         "credits": 25,
         "bonus_credits": 0,
     },
     "scale": {
         "slug": "scale",
         "name": "Scale",
-        "currency": "INR",
-        "amount_minor": 1000000,
+        "prices_minor": {
+            "INR": 1000000,
+            "USD": 14500,
+        },
         "credits": 60,
         "bonus_credits": 0,
     },
 }
 
+WALLET_CREDIT_UNIT_AMOUNTS_MINOR = {
+    "INR": 20000,
+    "USD": 300,
+}
+
 
 def get_credit_pack(pack_slug: str) -> dict[str, Any] | None:
     return CREDIT_PACKS.get(str(pack_slug or "").strip().lower())
+
+
+def get_credit_unit_amount_minor(currency: str) -> int:
+    return int(WALLET_CREDIT_UNIT_AMOUNTS_MINOR.get(str(currency or "").strip().upper()) or 0)
 
 
 def derive_credit_price(inr_price: int) -> int:
@@ -92,17 +107,27 @@ def _catalog_index_path() -> Path:
     return current.parents[2] / "public" / "products" / "index.json"
 
 
-def load_product_seed_catalog(settings: Settings) -> list[dict]:
-    catalog_path = _catalog_index_path()
+def _embedded_catalog_path() -> Path:
+    return Path(__file__).with_name("default_product_catalog.json")
+
+
+def _load_catalog_rows(path: Path) -> list[dict]:
     try:
-        rows = json.loads(catalog_path.read_text(encoding="utf-8"))
+        rows = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         rows = []
     except json.JSONDecodeError:
         rows = []
+    return rows if isinstance(rows, list) else []
+
+
+def load_product_seed_catalog(settings: Settings) -> list[dict]:
+    rows = _load_catalog_rows(_catalog_index_path())
+    if not rows:
+        rows = _load_catalog_rows(_embedded_catalog_path())
 
     normalized: list[dict] = []
-    for row in rows if isinstance(rows, list) else []:
+    for row in rows:
         if not isinstance(row, dict):
             continue
         slug = str(row.get("id") or row.get("slug") or "").strip()
@@ -519,6 +544,47 @@ def get_product_credit_price(product: Product | None) -> int:
     return 0
 
 
+def quote_wallet_credit_checkout(*, currency: str, pack_slug: str | None = None, credits: int | None = None) -> dict[str, Any]:
+    normalized_currency = str(currency or "").strip().upper() or "INR"
+    if normalized_currency not in WALLET_CREDIT_UNIT_AMOUNTS_MINOR:
+        raise ValueError("Unsupported currency for credit pack")
+
+    if pack_slug:
+        pack = get_credit_pack(pack_slug)
+        if pack is None:
+            raise ValueError("Credit pack not found")
+        amount_minor = int((pack.get("prices_minor") or {}).get(normalized_currency) or 0)
+        if amount_minor <= 0:
+            raise ValueError("Unsupported currency for credit pack")
+        return {
+            "pack_slug": pack["slug"],
+            "pack_name": pack["name"],
+            "credits_granted": int(pack["credits"]),
+            "amount_minor": amount_minor,
+            "currency": normalized_currency,
+            "bonus_credits": int(pack.get("bonus_credits") or 0),
+            "unit_amount_minor": get_credit_unit_amount_minor(normalized_currency),
+        }
+
+    requested_credits = int(credits or 0)
+    if requested_credits <= 0:
+        raise ValueError("Credits must be greater than zero")
+
+    unit_amount_minor = get_credit_unit_amount_minor(normalized_currency)
+    if unit_amount_minor <= 0:
+        raise ValueError("Unsupported currency for credit pack")
+
+    return {
+        "pack_slug": "custom",
+        "pack_name": f"{requested_credits} Credits",
+        "credits_granted": requested_credits,
+        "amount_minor": requested_credits * unit_amount_minor,
+        "currency": normalized_currency,
+        "bonus_credits": 0,
+        "unit_amount_minor": unit_amount_minor,
+    }
+
+
 def grant_credit_pack_purchase(
     db: Session,
     *,
@@ -528,8 +594,10 @@ def grant_credit_pack_purchase(
 ) -> CreditWallet:
     pack_slug = str((purchase.metadata_json or {}).get("pack_slug") or "").strip().lower()
     pack = get_credit_pack(pack_slug)
-    if pack is None:
+    granted_credits = int((purchase.metadata_json or {}).get("credits_granted") or (pack or {}).get("credits") or 0)
+    if granted_credits <= 0:
         raise ValueError("Unknown credit pack")
+    pack_name = str((purchase.metadata_json or {}).get("pack_name") or (pack or {}).get("name") or "Credits").strip()
 
     wallet = get_or_create_credit_wallet(db, workspace_id=workspace_id, user_id=user_id)
     existing = db.scalar(
@@ -545,10 +613,14 @@ def grant_credit_pack_purchase(
             wallet=wallet,
             user_id=user_id,
             workspace_id=workspace_id,
-            delta=int(pack["credits"]),
+            delta=granted_credits,
             reason="credit_pack_purchase",
             purchase_id=purchase.id,
-            metadata={"pack_slug": pack["slug"], "pack_name": pack["name"]},
+            metadata={
+                "pack_slug": pack_slug or "custom",
+                "pack_name": pack_name,
+                "currency": str((purchase.metadata_json or {}).get("currency") or purchase.currency or "").upper(),
+            },
         )
     db.commit()
     db.refresh(wallet)
