@@ -1,4 +1,4 @@
-﻿[
+[
     {
         "slug":  "saas-financial-model",
         "productId":  "FS001",
@@ -327,7 +327,7 @@
         "catalogCategory":  "Finance",
         "title":  "The D2C Brand Financial Model",
         "subtitle":  "Know Exactly When to Reorder. Prove Unit Economics to Investors.",
-        "descriptionBody":  "\"When do we reorder inventory?\" \"Are our Facebook ads actually profitable after COGS, shipping, and returns?\" Running a consumer brand means cash flow is king and inventory is the silent killer. Most founders fly blind on reorder points, or they try to force their brand into a generic SaaS spreadsheetâ€"a guaranteed way to stock out of your hero product or burn runway on unprofitable ad campaigns. This model solves both.",
+        "descriptionBody":  "\"When do we reorder inventory?\" \"Are our Facebook ads actually profitable after COGS, shipping, and returns?\" Running a consumer brand means cash flow is king and inventory is the silent killer. Most founders fly blind on reorder points, or they try to force their brand into a generic SaaS spreadsheet\u2014a guaranteed way to stock out of your hero product or burn runway on unprofitable ad campaigns. This model solves both.",
         "section1Title":  "The Multi-Channel Ecommerce Engine",
         "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
         "featuresTitle":  "The Good Stuff:",
@@ -385,38 +385,6 @@
                            "Consumer brands with physical inventory (not dropshipping)",
                            "Brands running paid ads who need to prove unit economics"
                        ],
-        "whyTitle":  "Why invest",
-        "whyPoints":  [
-                          {
-                              "title":  "Save 40+ Hours",
-                              "desc":  "Building an accurate inventory forecast and repeat-purchase cohort model from scratch is a massive headache. Skip the broken formulas and get back to growing your brand."
-                          },
-                          {
-                              "title":  "Pass Due Diligence",
-                              "desc":  "When an investor or lender asks for your financials, you won\u0027t send a messy CSV. You\u0027ll send a structured, professional model that shows you deeply understand your margins."
-                          },
-                          {
-                              "title":  "Total Peace of Mind",
-                              "desc":  "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting."
-                          }
-                      ],
-        "footerSummaryTitle":  "The Price",
-        "footerSummaryDetails":  "(Cheaper than stocking out of your hero product).",
-        "footerResultTitle":  "The Result",
-        "footerResultDetails":  "Total clarity on your brand\u0027s financial future and inventory needs.",
-        "whatYouGet":  [
-                           "A complete, unlocked 3-year financial projection spreadsheet (Excel format).",
-                           "Traffic \u0026 Conversion Tracker to automatically calculate your Blended CAC.",
-                           "Fully automated 36-month cohort retention matrix to track repeat purchases.",
-                           "Inventory Cash Flow Planner with automated reorder forecasting.",
-                           "Two-Method Valuation Engine (Revenue Multiples \u0026 DCF).",
-                           "Step-by-step \"Start Here\" manual to plug in your numbers in under 30 minutes."
-                       ],
-        "whoThisIsFor":  [
-                             "D2C and ecommerce founders preparing for VC due diligence or debt financing.",
-                             "Scaling consumer brands managing complex physical inventory and supply chains.",
-                             "Founders who need clear visibility into their contribution margins and blended ROAS."
-                         ],
         "faq":  [
                     {
                         "q":  "Does this work for dropshipping, or just for brands holding inventory?",
