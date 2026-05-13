@@ -72,7 +72,7 @@
     },
     {
       "q": "Does it save my work?",
-      "a": "Not in v1. This beta is intentionally simple: generate, review, copy, and download."
+      "a": "Yes. Your draft stays on this device so you can refresh and keep going without starting over."
     },
     {
       "q": "Can I use this for India-first startups?",

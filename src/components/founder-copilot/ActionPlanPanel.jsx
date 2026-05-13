@@ -36,6 +36,7 @@ const ActionPlanPanel = ({
   copied,
   onCopy,
   onDownload,
+  compact = false,
 }) => {
   const steps = normalizeSteps(actionPlan, brief);
   const proofPoints =
@@ -51,9 +52,9 @@ const ActionPlanPanel = ({
 
   if (!steps.length && !hasVerdict && !hasBrief) {
     return (
-      <div className="rounded-[18px] border border-brand-black/10 bg-brand-cream/25 p-5">
-        <p className="text-base font-black tracking-tight-brand mb-2">Action plan</p>
-        <p className="text-sm font-bold text-brand-black/50 leading-relaxed">
+      <div className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-5'} border border-brand-black/10 bg-brand-cream/25`}>
+        <p className={`${compact ? 'text-[14px]' : 'text-base'} mb-2 font-black tracking-tight-brand`}>Action plan</p>
+        <p className={`${compact ? 'text-[12px]' : 'text-sm'} font-semibold leading-relaxed text-brand-black/50`}>
           The next move list can live here once the brief or backend exposes structured execution
           steps.
         </p>
@@ -62,17 +63,17 @@ const ActionPlanPanel = ({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {hasVerdict ? (
-        <article className="rounded-[18px] border border-brand-black/10 bg-brand-black p-5 text-white shadow-[0_18px_44px_rgba(27,28,26,0.16)]">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/80 mb-2">
+        <article className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-5'} border border-brand-black/10 bg-brand-black text-white shadow-[0_12px_30px_rgba(27,28,26,0.12)]`}>
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-white/80">
             Final verdict
           </p>
-          <p className="text-lg font-black tracking-tight-brand">
+          <p className={`${compact ? 'text-[14px]' : 'text-lg'} font-black tracking-tight-brand`}>
             {verdict.summary || verdict.standing || 'Founder verdict'}
           </p>
           {verdict.nextGate ? (
-            <p className="mt-3 text-sm font-bold text-white/90 leading-relaxed">
+            <p className={`mt-2 ${compact ? 'text-[12.5px] leading-6' : 'text-sm leading-relaxed'} font-semibold text-white/90`}>
               Next gate: {verdict.nextGate}
             </p>
           ) : null}
@@ -82,25 +83,25 @@ const ActionPlanPanel = ({
       {steps.map((step, index) => (
         <article
           key={`${step}-${index}`}
-          className="rounded-[18px] border border-brand-black/10 bg-white p-4"
+          className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-4'} border border-brand-black/10 bg-white`}
         >
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-black text-xs font-black text-white">
+            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-black text-[10px] font-black text-white">
               {index + 1}
             </span>
-            <p className="text-sm font-bold text-brand-black/75 leading-relaxed">{step}</p>
+            <p className={`${compact ? 'text-[12.5px] leading-6' : 'text-sm leading-relaxed'} font-semibold text-brand-black/75`}>{step}</p>
           </div>
         </article>
       ))}
 
       {proofPoints.length ? (
-        <article className="rounded-[18px] border border-brand-black/10 bg-white p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
+        <article className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-4'} border border-brand-black/10 bg-white`}>
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/55">
             Proof points
           </p>
           <ul className="space-y-2">
             {proofPoints.map((item, index) => (
-              <li key={`${item}-${index}`} className="text-sm font-bold text-brand-black/75 leading-relaxed">
+              <li key={`${item}-${index}`} className={`${compact ? 'text-[12.5px] leading-6' : 'text-sm leading-relaxed'} font-semibold text-brand-black/75`}>
                 {item}
               </li>
             ))}
@@ -109,13 +110,13 @@ const ActionPlanPanel = ({
       ) : null}
 
       {killCriteria.length ? (
-        <article className="rounded-[18px] border border-brand-black/10 bg-white p-4">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/55 mb-2">
+        <article className={`${compact ? 'rounded-[14px] p-3.5' : 'rounded-[18px] p-4'} border border-brand-black/10 bg-white`}>
+          <p className="mb-2 text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/55">
             Kill criteria
           </p>
           <ul className="space-y-2">
             {killCriteria.map((item, index) => (
-              <li key={`${item}-${index}`} className="text-sm font-bold text-brand-black/75 leading-relaxed">
+              <li key={`${item}-${index}`} className={`${compact ? 'text-[12.5px] leading-6' : 'text-sm leading-relaxed'} font-semibold text-brand-black/75`}>
                 {item}
               </li>
             ))}

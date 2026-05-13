@@ -5,6 +5,7 @@ import ConversationPane from '../components/founder-copilot/ConversationPane';
 import RecommendationPane from '../components/founder-copilot/RecommendationPane';
 import CopilotShell from '../components/founder-copilot/CopilotShell';
 import ModeSelector from '../components/founder-copilot/ModeSelector';
+import { getFounderBenchmarkMatches } from '../data/founderBenchmarks';
 import { copyText, downloadMarkdown, normalizeFounderSpecResponse } from '../utils/founderSpec';
 import {
   appendFounderCopilotMessage,
@@ -20,6 +21,7 @@ const API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
 const MAX_ATTACHMENT_CHARS = 1800;
 const MAX_ATTACHMENTS = 4;
+const LOCAL_STORAGE_KEY = 'founder-spec-generator:v1';
 
 function toFilename(mode, recommendationTitle) {
   const base = String(recommendationTitle || mode || 'founder-strategy-brief')
@@ -83,6 +85,35 @@ function buildAttachmentContext(attachments) {
   return lines.join('\n');
 }
 
+function restoreFounderCopilotState() {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    return {
+      session:
+        parsed.session && typeof parsed.session === 'object'
+          ? {
+              ...createFounderCopilotSession(),
+              ...parsed.session,
+            }
+          : null,
+      inputValue: typeof parsed.inputValue === 'string' ? parsed.inputValue : '',
+      mobilePane: parsed.mobilePane === 'analysis' ? 'analysis' : 'chat',
+      showAnalysis: Boolean(parsed.showAnalysis),
+    };
+  } catch {
+    return null;
+  }
+}
+
 const FounderSpecGenerator = () => {
   const [session, setSession] = useState(createFounderCopilotSession);
   const [inputValue, setInputValue] = useState('');
@@ -91,7 +122,9 @@ const FounderSpecGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [showActiveShell, setShowActiveShell] = useState(false);
-  const [mobileAnalysisOpen, setMobileAnalysisOpen] = useState(false);
+  const [mobilePane, setMobilePane] = useState('chat');
+  const [storageReady, setStorageReady] = useState(false);
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   const recommendationTitle = useMemo(
     () => session.recommendation?.title || session.recommendation?.what || '',
@@ -100,6 +133,32 @@ const FounderSpecGenerator = () => {
 
   const hasActiveMode = Boolean(session.selectedMode);
   const canGenerateSpec = hasActiveMode && shouldAllowRecommendation(session);
+  const benchmarkMatches = useMemo(() => getFounderBenchmarkMatches(session), [session]);
+
+  useEffect(() => {
+    const restored = restoreFounderCopilotState();
+    if (restored?.session) {
+      setSession(restored.session);
+      setInputValue(restored.inputValue || '');
+      setMobilePane(restored.mobilePane || 'chat');
+      setShowAnalysis(Boolean(restored.showAnalysis));
+    }
+    setStorageReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady || typeof window === 'undefined') return;
+
+    window.localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        session,
+        inputValue,
+        mobilePane,
+        showAnalysis,
+      })
+    );
+  }, [inputValue, mobilePane, session, showAnalysis, storageReady]);
 
   useEffect(() => {
     if (!hasActiveMode) {
@@ -110,6 +169,13 @@ const FounderSpecGenerator = () => {
     const frame = window.requestAnimationFrame(() => setShowActiveShell(true));
     return () => window.cancelAnimationFrame(frame);
   }, [hasActiveMode]);
+
+  useEffect(() => {
+    if (session.recommendation || session.brief || session.verdict) {
+      setMobilePane('analysis');
+      setShowAnalysis(true);
+    }
+  }, [session.recommendation, session.brief, session.verdict]);
 
   async function submitPayload({ message = '', selection = null, nextSession = session, documents = [] }) {
     setLoading(true);
@@ -169,7 +235,8 @@ const FounderSpecGenerator = () => {
 
   function handleModeSelect(modeId) {
     setShowActiveShell(false);
-    setMobileAnalysisOpen(false);
+    setMobilePane('chat');
+    setShowAnalysis(false);
     const nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
     setSession(nextSession);
     setInputValue('');
@@ -211,6 +278,7 @@ const FounderSpecGenerator = () => {
 
     const optimisticSession = appendFounderCopilotMessage(session, 'user', chatLabel);
     setSession(optimisticSession);
+    setMobilePane('chat');
     setInputValue('');
     const submittedAttachments = attachments;
     setAttachments([]);
@@ -227,7 +295,8 @@ const FounderSpecGenerator = () => {
 
   async function handleShortlistSelect(item) {
     if (!item || loading) return;
-    setMobileAnalysisOpen(false);
+    setMobilePane('analysis');
+    setShowAnalysis(true);
     await submitPayload({
       message: item.title || '',
       selection: item,
@@ -256,27 +325,42 @@ const FounderSpecGenerator = () => {
     downloadMarkdown(toFilename(session.selectedMode, recommendationTitle), session.markdown);
   }
 
+  function handleStartNewPlan() {
+    setSession(createFounderCopilotSession());
+    setInputValue('');
+    setAttachments([]);
+    setError('');
+    setCopied(false);
+    setShowActiveShell(false);
+    setMobilePane('chat');
+    setShowAnalysis(false);
+
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
       <SEO
-        title="Founder Spec Generator"
+        title="Founder Strategy Copilot"
         description="A guided founder copilot that helps you discover, sharpen, and scope businesses with recommendation-first output backed by evidence."
         canonical="/tools/founder-spec-generator"
       />
       <Navbar />
 
-      <main className="flex-grow pb-6 pt-16 sm:pt-18 lg:pt-22 lg:h-[calc(100vh-88px)] lg:overflow-hidden">
+      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] lg:h-[calc(100vh-74px)] lg:overflow-hidden">
         <div className="mx-auto h-full max-w-[1480px] px-4 sm:px-5 lg:px-8">
           {!hasActiveMode ? (
             <section className="flex h-full items-start lg:items-center">
               <div className="w-full max-w-[1120px] pt-2 sm:pt-4 lg:pt-0">
-                <div className="mb-6 max-w-[760px] sm:mb-8 lg:mb-10">
-                  <h1 className="text-[2rem] leading-[0.94] sm:text-[2.5rem] lg:text-[4rem] font-black tracking-tight-brand">
-                    Founder Spec Generator
+                <div className="mb-5 max-w-[660px] sm:mb-7 lg:mb-8">
+                  <h1 className="text-[1.8rem] leading-[0.98] sm:text-[2.15rem] lg:text-[2.8rem] font-black tracking-tight-brand">
+                    Founder Strategy Copilot
                   </h1>
-                  <p className="mt-2 max-w-[420px] text-[13px] font-bold leading-relaxed text-brand-black/50 sm:mt-3 sm:text-sm lg:mt-4 lg:max-w-[520px] lg:text-lg">
-                    Validate the idea, audit the strategy, and turn the best next move into a
-                    founder-ready spec.
+                  <p className="mt-2 max-w-[520px] text-[14px] font-medium leading-6 text-brand-black/52 sm:text-[14px] lg:mt-3 lg:max-w-[560px] lg:text-[15px]">
+                    Validate the direction, pressure-test the strategy, and turn the best next
+                    move into a founder-ready plan.
                   </p>
                 </div>
 
@@ -289,28 +373,80 @@ const FounderSpecGenerator = () => {
             </section>
           ) : (
             <section className="flex h-full min-h-0 flex-col overflow-hidden">
-              <div className="mb-4 hidden items-end justify-between gap-6 lg:flex">
-                <div className="min-w-0">
-                  <h1 className="text-[2.1rem] leading-none lg:text-[2.9rem] font-black tracking-tight-brand">
-                    Founder Spec Generator
-                  </h1>
+                <div className="mb-3 hidden items-center justify-between gap-6 lg:flex">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/28">
+                      Founder strategy copilot
+                    </p>
+                    <p className="mt-1 text-[12.5px] font-medium text-brand-black/42">
+                      Your draft stays on this device if the page refreshes.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleStartNewPlan}
+                    className="rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18"
+                  >
+                    New plan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAnalysis((current) => !current)}
+                    className={`rounded-full border px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] transition ${
+                      showAnalysis
+                        ? 'border-brand-black bg-brand-black text-white'
+                        : 'border-brand-black/10 bg-white text-brand-black/62'
+                    }`}
+                  >
+                    {showAnalysis ? 'Hide analysis' : 'View analysis'}
+                  </button>
                 </div>
               </div>
 
-              <div className="mb-3 flex items-center justify-between gap-3 rounded-[20px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_14px_32px_rgba(27,28,26,0.06)] lg:hidden">
+              <div className="mb-3 flex items-center justify-between gap-3 rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 shadow-[0_8px_18px_rgba(27,28,26,0.045)] lg:hidden">
                 <div className="min-w-0">
-                  <h1 className="text-lg font-black tracking-tight-brand">Founder copilot</h1>
-                  <p className="mt-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-black/48">
+                  <h1 className="text-[1rem] font-black tracking-tight-brand">Founder Strategy Copilot</h1>
+                  <p className="mt-1 text-[10.5px] font-medium text-brand-black/48">
                     {String(session.selectedMode || '').replace(/_/g, ' ')}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileAnalysisOpen(true)}
-                  className="shrink-0 rounded-full border border-brand-black/12 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-brand-black shadow-[0_10px_24px_rgba(27,28,26,0.06)]"
-                >
-                  View analysis
-                </button>
+                <div className="flex items-center rounded-full border border-brand-black/10 bg-brand-cream/55 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setMobilePane('chat')}
+                    className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
+                      mobilePane === 'chat'
+                        ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
+                        : 'text-brand-black/56'
+                    }`}
+                  >
+                    Chat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleStartNewPlan();
+                    }}
+                    className="rounded-full px-3 py-2 text-[11px] font-black text-brand-black/56 transition"
+                  >
+                    New
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobilePane('analysis');
+                      setShowAnalysis(true);
+                    }}
+                    className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
+                      mobilePane === 'analysis'
+                        ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
+                        : 'text-brand-black/56'
+                    }`}
+                  >
+                    Analysis
+                  </button>
+                </div>
               </div>
 
               <div
@@ -319,7 +455,8 @@ const FounderSpecGenerator = () => {
                 }`}
               >
                 <CopilotShell
-                  showRightPaneOnMobile={mobileAnalysisOpen}
+                  mobileActivePane={mobilePane === 'analysis' ? 'right' : 'left'}
+                  showRightPane={showAnalysis || mobilePane === 'analysis'}
                   leftPane={
                     <ConversationPane
                       session={session}
@@ -328,7 +465,6 @@ const FounderSpecGenerator = () => {
                       onSubmit={handleSubmit}
                       loading={loading}
                       error={error}
-                      disabled={!hasActiveMode}
                       canGenerateSpec={canGenerateSpec}
                       onGenerateSpec={handleGenerateSpec}
                       attachments={attachments}
@@ -357,8 +493,8 @@ const FounderSpecGenerator = () => {
                       selectedMode={session.selectedMode}
                       session={session}
                       loading={loading}
-                      mobileOpen={mobileAnalysisOpen}
-                      onMobileClose={() => setMobileAnalysisOpen(false)}
+                      benchmarkMatches={benchmarkMatches}
+                      mobilePresentation="inline"
                       mobileTitle="Analysis"
                     />
                   }

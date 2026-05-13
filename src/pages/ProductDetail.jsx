@@ -5,6 +5,11 @@ import Footer from '../components/Footer';
 import { openINRCheckout, openUSDCheckout } from '../utils/checkout';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 
+const LEGACY_PRODUCT_REDIRECTS = {
+    'pitch-deck-maker': '/products/promptdeck-ai',
+    'fundraising-suite': '/products/promptdeck-ai',
+};
+
 const FaqItem = ({ q, a }) => {
     const [open, setOpen] = useState(false);
     return (
@@ -57,6 +62,11 @@ const ProductDetail = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        const redirectTarget = LEGACY_PRODUCT_REDIRECTS[id];
+        if (redirectTarget) {
+            navigate(redirectTarget, { replace: true });
+            return undefined;
+        }
         // The detail page reuses the same component across product ids, so we clear stale data before refetching.
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true); setNotFound(false); setProduct(null);
@@ -64,10 +74,11 @@ const ProductDetail = () => {
             .then(res => { if (!res.ok) throw new Error('Not found'); return res.json(); })
             .then(data => { setProduct(data); setLoading(false); })
             .catch(() => { setNotFound(true); setLoading(false); });
-    }, [id]);
+    }, [id, navigate]);
 
     const productAction = getProductPrimaryAction(product);
     const showPricing = hasProductPricing(product);
+    const showRetiredFundraisingBanner = false;
 
     if (loading) {
         return (
@@ -332,8 +343,8 @@ const ProductDetail = () => {
                             </div>
                         )}
 
-                        {/* Bundle Upsell (For Individual Products) */}
-                        {!product.isBundle && (product.slug === 'saas-financial-model' || product.slug === 'advanced-saas-model' || product.slug === 'pitch-deck-maker' || product.slug === 'marketplace-financial-model' || product.slug === 'd2c-ecommerce-model') && (
+                        {/* Legacy fundraising bundle removed in favor of PromptDeck AI. */}
+                        {showRetiredFundraisingBanner && (
                             <div className="bg-brand-orange border-4 border-brand-black p-8 rounded-xl shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] text-white group relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <svg width="120" height="120" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 8.25c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg>

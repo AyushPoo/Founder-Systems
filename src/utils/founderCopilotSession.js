@@ -19,6 +19,8 @@ const MODE_METADATA = {
   },
 };
 
+const STRATEGY_MODE_IDS = new Set(Object.keys(MODE_METADATA));
+
 const DEFAULT_ASSISTANT_MESSAGE =
   'Pick the starting point that matches where you are. I can validate the idea, audit the strategy, and package the plan into a founder-ready brief.';
 
@@ -116,6 +118,123 @@ function normalizeAnswers(value) {
     .filter(Boolean);
 }
 
+function getRecentUserMessages(session) {
+  return normalizeArray(session?.messages)
+    .filter((message) => message?.role === 'user')
+    .map((message) => cleanText(message.content))
+    .filter(Boolean)
+    .slice(-5);
+}
+
+function getLastAssistantMessage(session) {
+  const messages = normalizeArray(session?.messages);
+  return [...messages]
+    .reverse()
+    .find((message) => message?.role === 'assistant' && cleanText(message.content));
+}
+
+function refineQuestionPrompt(session, submittedValue, question) {
+  if (!question?.prompt) return question;
+
+  const prompt = cleanText(question.prompt);
+  const context = [submittedValue, ...getRecentUserMessages(session)].join(' ').toLowerCase();
+  const lastAssistantPrompt = cleanText(getLastAssistantMessage(session)?.content);
+  const isGenericFounderInventoryQuestion =
+    /what do you actually have more of than most early founders/i.test(prompt) ||
+    /customer access, execution ability, niche insight, or distribution/i.test(prompt);
+  const isRepeatOfPreviousAssistantPrompt =
+    lastAssistantPrompt && lastAssistantPrompt.toLowerCase() === prompt.toLowerCase();
+
+  if (
+    isGenericFounderInventoryQuestion &&
+    /\bsupplier\b|\bwhite label\b|\bwhitelabel\b/.test(context) &&
+    /\bsnack\b|\bmillet\b|\bfood\b|\boffice\b|\bcorporate\b/.test(context)
+  ) {
+    return {
+      ...question,
+      prompt:
+        'Who is the first buyer you can reach fastest for this: office teams, gyms, retail stores, or direct online consumers?',
+      helperText:
+        question.helperText ||
+        'Pick the channel where you can realistically get the first 10 to 20 sales.',
+    };
+  }
+
+  if (
+    isGenericFounderInventoryQuestion &&
+    /\boffice\b|\bcorporate\b|\bhr\b|\bgifting\b/.test(context)
+  ) {
+    return {
+      ...question,
+      prompt:
+        'For the first 10 to 20 sales, do you want to sell through HR/admin teams, pantry distributors, or directly to professionals online?',
+      helperText:
+        question.helperText || 'Choose the route that feels fastest to test, not the biggest long-term market.',
+    };
+  }
+
+  if (
+    isRepeatOfPreviousAssistantPrompt &&
+    /\boffice\b|\bscaler\b|\belectronic city\b|\bcompany\b|\bcompanies\b|\bhr\b|\badmin\b/.test(context)
+  ) {
+    return {
+      ...question,
+      prompt:
+        'Good, office is the wedge. For the first pilot, who exactly will say yes fastest: HR teams, office admins, pantry managers, or founders?',
+      helperText:
+        'Name the buyer you can realistically reach first, not the broad market.',
+    };
+  }
+
+  if (
+    isRepeatOfPreviousAssistantPrompt &&
+    /\bgym\b|\bfitness\b|\btrainer\b|\bcoach\b/.test(context)
+  ) {
+    return {
+      ...question,
+      prompt:
+        'Good, gyms look reachable. For the first pilot, are you selling to gym owners, trainers, or members at the counter?',
+      helperText:
+        'Pick the exact buyer so the first offer and distribution test become obvious.',
+    };
+  }
+
+  if (
+    isRepeatOfPreviousAssistantPrompt &&
+    /\bonline\b|\bd2c\b|\binstagram\b|\bwebsite\b|\bconsumer\b/.test(context)
+  ) {
+    return {
+      ...question,
+      prompt:
+        'Good, direct online is the wedge. What is the first product format people will buy online: trial box, monthly snack box, or single repeatable SKU?',
+      helperText:
+        'Choose the first format that is easiest to explain and easiest to reorder.',
+    };
+  }
+
+  return question;
+}
+
+function inferFounderContext(session, submittedMessage = '') {
+  const joined = [submittedMessage, ...getRecentUserMessages(session)].join(' ').toLowerCase();
+  const hints = [];
+
+  if (/\bsupplier\b|\bmanufacturer\b|\bwhite label\b|\bwhitelabel\b/.test(joined)) {
+    hints.push('The founder appears to have supply-side access or white-label manufacturing access.');
+  }
+  if (/\bsnack\b|\bmillet\b|\bragi\b|\bjowar\b|\bprotein\b|\bfood\b/.test(joined)) {
+    hints.push('The idea likely sits in packaged food / healthy snacks / millet-based consumer products.');
+  }
+  if (/\boffice\b|\bcorporate\b|\bhr\b|\bgifting\b/.test(joined)) {
+    hints.push('Possible B2B or office-distribution wedge detected.');
+  }
+  if (/\bgym\b|\bfitness\b|\bhealthy\b/.test(joined)) {
+    hints.push('Health-conscious positioning or fitness-led wedge may be relevant.');
+  }
+
+  return hints;
+}
+
 function normalizeRuntime(value) {
   if (!value || typeof value !== 'object') return { ...DEFAULT_RUNTIME };
 
@@ -141,19 +260,6 @@ function normalizeAdvisory(value) {
     currentRead,
     nextQuestion,
   };
-}
-
-function formatAdvisoryMessage(advisory, { includeNextQuestion = true } = {}) {
-  const normalized = normalizeAdvisory(advisory);
-  if (!normalized) return '';
-
-  const lines = [];
-  if (normalized.whatIHeard) lines.push(`What I heard: ${normalized.whatIHeard}`);
-  if (normalized.currentRead) lines.push(`Current read: ${normalized.currentRead}`);
-  if (includeNextQuestion && normalized.nextQuestion) {
-    lines.push(`Next question: ${normalized.nextQuestion}`);
-  }
-  return lines.join('\n');
 }
 
 function inferStageFromMode(mode) {
@@ -290,7 +396,7 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
   const cleanedMessage = cleanText(message);
   const normalizedSelection = selection && typeof selection === 'object' ? selection : null;
   const visibleMessages = normalizeArray(session.messages)
-    .slice(-4)
+    .slice(-8)
     .map((entry) => ({
       role: cleanText(entry.role),
       content: truncateForRequest(entry.content),
@@ -306,8 +412,9 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
       /generate|verdict|spec|plan|business plan|final/i.test(cleanedMessage),
     maxQuestionCount: getAnswerLimit(session),
     strategyLenses: COPILOT_STRATEGY_LENSES.map((lens) => lens.id),
+    founderContextHints: inferFounderContext(session, cleanedMessage),
     expectedOutput:
-      'Evaluate the idea through idea validation, strategy audit, SWOT-style strategic risk, and business-plan packaging. Do not keep asking questions forever. Once maxQuestionCount answers are present, or requestFinal is true, stop asking and return a provisional verdict, recommendation, actionPlan, brief, and markdown even if confidence is imperfect. If one assumption is unknown, state it as an assumption instead of asking another broad question.',
+      'Evaluate the idea through idea validation, strategy audit, SWOT-style strategic risk, and business-plan packaging. Be specific to what the founder actually said. If they mention supplier access, white-label manufacturing, a customer group, or a product category, use that directly instead of asking a generic founder question. Ask only one sharp follow-up at a time, and prefer wedge/channel/customer questions over abstract self-reflection. Do not keep asking questions forever. Once maxQuestionCount answers are present, or requestFinal is true, stop asking and return a provisional verdict, recommendation, actionPlan, brief, and markdown even if confidence is imperfect. If one assumption is unknown, state it as an assumption instead of asking another broad question.',
     attachments: normalizeArray(attachments).map((file) => ({
       name: cleanText(file?.name),
       type: cleanText(file?.type),
@@ -346,20 +453,17 @@ function normalizeEvidenceList(value) {
 }
 
 export function applyFounderCopilotResponse({ session, payload, submittedValue = '' }) {
-  const normalizedQuestion = normalizeQuestion(payload?.question);
+  const normalizedQuestion = refineQuestionPrompt(
+    session,
+    submittedValue,
+    normalizeQuestion(payload?.question)
+  );
   const normalizedAdvisory = normalizeAdvisory(payload?.advisory);
   let nextMessages = [...normalizeArray(session.messages)];
   const cleanedSubmittedValue = cleanText(submittedValue);
 
   if (cleanedSubmittedValue) {
     nextMessages = appendUniqueMessage(nextMessages, 'user', cleanedSubmittedValue);
-  }
-
-  const advisoryMessage = formatAdvisoryMessage(normalizedAdvisory, {
-    includeNextQuestion: !normalizedQuestion?.prompt,
-  });
-  if (advisoryMessage) {
-    nextMessages = appendUniqueMessage(nextMessages, 'assistant', advisoryMessage);
   }
 
   if (normalizedQuestion?.prompt) {
@@ -382,7 +486,10 @@ export function applyFounderCopilotResponse({ session, payload, submittedValue =
     );
   }
 
-  const nextMode = cleanText(payload?.session?.mode) || session.selectedMode;
+  const payloadSessionMode = cleanText(payload?.session?.mode);
+  const nextMode = STRATEGY_MODE_IDS.has(payloadSessionMode)
+    ? payloadSessionMode
+    : session.selectedMode;
   const nextAnswers = normalizeAnswers(
     Array.isArray(payload?.session?.answers) ? payload.session.answers : session.answers
   );

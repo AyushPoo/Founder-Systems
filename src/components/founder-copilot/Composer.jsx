@@ -12,15 +12,25 @@ const Composer = ({
 }) => {
   const buttonLabel = loading ? 'Working' : 'Send';
 
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (!disabled && !loading) {
+        onSubmit?.(event);
+      }
+    }
+  }
+
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-2.5">
       <textarea
         rows={1}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onKeyDown={handleKeyDown}
         disabled={disabled}
         placeholder={placeholder}
-        className="min-h-[72px] w-full resize-none rounded-[22px] border border-brand-black/12 bg-white px-4 py-3 text-[15px] font-medium leading-relaxed shadow-[0_10px_24px_rgba(27,28,26,0.06)] outline-none transition placeholder:text-brand-black/32 focus:border-brand-black/25 focus:ring-2 focus:ring-brand-black/5 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[88px] lg:min-h-[104px]"
+        className="min-h-[68px] w-full resize-none rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 text-[14px] font-medium leading-6 shadow-[0_6px_16px_rgba(27,28,26,0.025)] outline-none transition placeholder:text-brand-black/28 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[74px] lg:min-h-[82px]"
       />
 
       {attachments.length ? (
@@ -28,13 +38,13 @@ const Composer = ({
           {attachments.map((file) => (
             <div
               key={file.id}
-              className="flex items-center gap-2 rounded-full border border-brand-black/12 bg-brand-cream/45 px-3 py-2 text-xs font-black text-brand-black/72"
+              className="flex items-center gap-2 rounded-full border border-brand-black/8 bg-brand-cream/28 px-3 py-1 text-[11px] font-black text-brand-black/62"
             >
               <span className="max-w-[220px] truncate">{file.name}</span>
               <button
                 type="button"
                 onClick={() => onRemoveAttachment?.(file.id)}
-                className="h-5 w-5 rounded-full bg-white text-[10px] leading-none text-brand-black/55 transition hover:text-brand-black"
+                className="h-5 w-5 rounded-full bg-white text-[10px] leading-none text-brand-black/45 transition hover:text-brand-black"
                 aria-label={`Remove ${file.name}`}
               >
                 x
@@ -47,8 +57,8 @@ const Composer = ({
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2">
           <label
-            className={`inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-black/12 bg-white text-brand-black shadow-[0_10px_24px_rgba(27,28,26,0.06)] transition sm:h-11 sm:w-11 ${
-              disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-brand-black/25'
+            className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-brand-black/8 bg-white text-brand-black shadow-[0_6px_14px_rgba(27,28,26,0.03)] transition ${
+              disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-brand-black/16'
             }`}
             aria-label="Attach files"
             title="Attach files"
@@ -63,14 +73,17 @@ const Composer = ({
             />
             <span className="text-lg font-black leading-none">+</span>
           </label>
+          <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            Attach context
+          </span>
           {helperText ? (
-            <p className="truncate text-[11px] font-bold leading-relaxed text-brand-black/40 sm:text-xs">{helperText}</p>
+            <p className="truncate text-[11px] font-medium leading-relaxed text-brand-black/32">{helperText}</p>
           ) : null}
         </div>
         <button
           type="submit"
           disabled={disabled || loading}
-          className={`inline-flex h-10 min-w-[84px] items-center justify-center gap-2 rounded-full bg-brand-black px-4 text-[12px] font-black uppercase tracking-[0.14em] text-white shadow-[0_14px_28px_rgba(27,28,26,0.18)] transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-70 sm:h-11 sm:min-w-[88px] sm:px-5 sm:text-sm`}
+          className="inline-flex h-9 min-w-[76px] items-center justify-center gap-2 rounded-full bg-brand-black px-4 text-[11px] font-black uppercase tracking-[0.12em] text-white shadow-[0_8px_16px_rgba(27,28,26,0.09)] transition disabled:pointer-events-none disabled:opacity-70"
         >
           {loading ? <span className="h-2 w-2 animate-pulse rounded-full bg-white" /> : null}
           {buttonLabel}
