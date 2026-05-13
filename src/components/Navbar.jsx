@@ -5,6 +5,7 @@ const NAV_LINKS = [
     { label: 'Toolkit', href: '/#toolkit' },
     { label: 'Products', href: '/products' },
     { label: 'Guides', href: '/guides' },
+    { label: 'Account', href: '/account' },
     { label: 'About', href: '/about' },
     { label: 'Access Purchases', href: '/access' },
 ];

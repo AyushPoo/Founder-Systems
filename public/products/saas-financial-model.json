@@ -55,6 +55,7 @@
   "productId": "FS001",
   "priceInr": 1499,
   "priceUsd": 20,
+  "creditPrice": 8,
   "originalPriceInr": 1999,
   "originalPriceUsd": 25,
   "gumroadUrl": "https://ayushpoojary.gumroad.com/l/saas-investor-model",

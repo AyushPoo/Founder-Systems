@@ -5,6 +5,7 @@ import { ChatPanel } from './components/layout/ChatPanel'
 import { CanvasPanel } from './components/layout/CanvasPanel'
 import { NavigatorPanel } from './components/layout/NavigatorPanel'
 import { PaymentGate } from './components/payment/PaymentGate'
+import { WorkspaceMemoryBar } from './components/workspace/WorkspaceMemoryBar'
 import './index.css'
 
 function AppInner() {
@@ -66,6 +67,7 @@ function AppInner() {
         </div>
         <PaymentGate />
       </div>
+      <WorkspaceMemoryBar />
 
       {/* Main panels */}
       <div className="flex-1 flex overflow-hidden min-h-0">

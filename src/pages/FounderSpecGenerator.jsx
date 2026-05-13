@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import ConversationPane from '../components/founder-copilot/ConversationPane';
 import RecommendationPane from '../components/founder-copilot/RecommendationPane';
 import CopilotShell from '../components/founder-copilot/CopilotShell';
 import ModeSelector from '../components/founder-copilot/ModeSelector';
+import WorkspaceImportPrompt from '../components/workspace/WorkspaceImportPrompt';
+import WorkspaceOutcomePanel from '../components/workspace/WorkspaceOutcomePanel';
+import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { getFounderBenchmarkMatches } from '../data/founderBenchmarks';
 import { copyText, downloadMarkdown, normalizeFounderSpecResponse } from '../utils/founderSpec';
 import {
@@ -16,12 +19,23 @@ import {
   shouldAllowRecommendation,
   selectFounderCopilotMode,
 } from '../utils/founderCopilotSession';
+import { buildSpecMemoryCandidates } from '../utils/workspaceMemory';
 
 const API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
 const MAX_ATTACHMENT_CHARS = 1800;
 const MAX_ATTACHMENTS = 4;
 const LOCAL_STORAGE_KEY = 'founder-spec-generator:v1';
+const RELEVANT_MEMORY_TYPES = new Set([
+  'venture_summary',
+  'target_customer',
+  'buyer_role',
+  'problem_statement',
+  'offer',
+  'proof_point',
+  'pricing_hypothesis',
+  'brand_tone',
+]);
 
 function toFilename(mode, recommendationTitle) {
   const base = String(recommendationTitle || mode || 'founder-strategy-brief')
@@ -125,6 +139,19 @@ const FounderSpecGenerator = () => {
   const [mobilePane, setMobilePane] = useState('chat');
   const [storageReady, setStorageReady] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [workspaceNotice, setWorkspaceNotice] = useState('');
+  const [workspaceRecommendations, setWorkspaceRecommendations] = useState([]);
+  const [workspaceSaveBusy, setWorkspaceSaveBusy] = useState(false);
+  const [pendingWorkspaceContext, setPendingWorkspaceContext] = useState('');
+  const [hasAppliedWorkspaceImport, setHasAppliedWorkspaceImport] = useState(false);
+  const {
+    authenticated,
+    fetchRecommendations,
+    getPreferenceForProduct,
+    memoryItems,
+    saveMemoryItem,
+    savePreference,
+  } = useFounderWorkspace();
 
   const recommendationTitle = useMemo(
     () => session.recommendation?.title || session.recommendation?.what || '',
@@ -134,6 +161,15 @@ const FounderSpecGenerator = () => {
   const hasActiveMode = Boolean(session.selectedMode);
   const canGenerateSpec = hasActiveMode && shouldAllowRecommendation(session);
   const benchmarkMatches = useMemo(() => getFounderBenchmarkMatches(session), [session]);
+  const relevantWorkspaceMemory = useMemo(
+    () => memoryItems.filter((item) => item.status === 'active' && RELEVANT_MEMORY_TYPES.has(item.type)),
+    [memoryItems]
+  );
+  const workspaceCandidates = useMemo(
+    () => buildSpecMemoryCandidates(session),
+    [session]
+  );
+  const preference = getPreferenceForProduct('founder-spec-generator');
 
   useEffect(() => {
     const restored = restoreFounderCopilotState();
@@ -176,6 +212,73 @@ const FounderSpecGenerator = () => {
       setShowAnalysis(true);
     }
   }, [session.recommendation, session.brief, session.verdict]);
+
+  const buildWorkspaceContextSummary = useCallback(() => {
+    if (!relevantWorkspaceMemory.length) {
+      return '';
+    }
+
+    const lines = ['Workspace context to use in this strategy session:'];
+    relevantWorkspaceMemory.slice(0, 8).forEach((item) => {
+      const summary = String(item?.value_json?.text || item?.summary_text || '').trim();
+      if (summary) {
+        lines.push(`- ${String(item.label || item.type).replace(/_/g, ' ')}: ${summary}`);
+      }
+    });
+    return lines.join('\n');
+  }, [relevantWorkspaceMemory]);
+
+  const applyWorkspaceContextOnce = useCallback(() => {
+    const summary = buildWorkspaceContextSummary();
+    if (!summary) {
+      return;
+    }
+
+    if (hasActiveMode) {
+      setSession((current) => appendFounderCopilotMessage(current, 'user', summary));
+    } else {
+      setPendingWorkspaceContext(summary);
+    }
+    setHasAppliedWorkspaceImport(true);
+    setWorkspaceNotice(
+      hasActiveMode
+        ? 'Workspace context added to the strategy session. The next turn will use it.'
+        : 'Workspace context queued. Pick a mode and the copilot will start with it.'
+    );
+  }, [buildWorkspaceContextSummary, hasActiveMode]);
+
+  useEffect(() => {
+    if (!authenticated || !relevantWorkspaceMemory.length || hasAppliedWorkspaceImport) {
+      return;
+    }
+    if (preference?.import_mode === 'always_allow' && !preference?.start_fresh_by_default) {
+      applyWorkspaceContextOnce();
+    }
+  }, [applyWorkspaceContextOnce, authenticated, hasAppliedWorkspaceImport, preference, relevantWorkspaceMemory, hasActiveMode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!authenticated || !(session.recommendation || session.brief || session.verdict)) {
+      setWorkspaceRecommendations([]);
+      return undefined;
+    }
+
+    fetchRecommendations('founder-spec-generator')
+      .then((payload) => {
+        if (!cancelled) {
+          setWorkspaceRecommendations(payload.recommendations || []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWorkspaceRecommendations([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated, fetchRecommendations, session.brief, session.recommendation, session.verdict]);
 
   async function submitPayload({ message = '', selection = null, nextSession = session, documents = [] }) {
     setLoading(true);
@@ -237,7 +340,11 @@ const FounderSpecGenerator = () => {
     setShowActiveShell(false);
     setMobilePane('chat');
     setShowAnalysis(false);
-    const nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
+    let nextSession = selectFounderCopilotMode(createFounderCopilotSession(), modeId);
+    if (pendingWorkspaceContext) {
+      nextSession = appendFounderCopilotMessage(nextSession, 'user', pendingWorkspaceContext);
+      setPendingWorkspaceContext('');
+    }
     setSession(nextSession);
     setInputValue('');
     setAttachments([]);
@@ -334,9 +441,31 @@ const FounderSpecGenerator = () => {
     setShowActiveShell(false);
     setMobilePane('chat');
     setShowAnalysis(false);
+    setWorkspaceRecommendations([]);
+    setWorkspaceNotice('');
+    setPendingWorkspaceContext('');
+    setHasAppliedWorkspaceImport(false);
 
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
+
+  async function handleSaveToWorkspace() {
+    setWorkspaceSaveBusy(true);
+    setWorkspaceNotice('');
+    try {
+      for (const candidate of workspaceCandidates) {
+        await saveMemoryItem('', {
+          ...candidate,
+          source_session_id: session.selectedMode || 'founder-spec-session',
+        });
+      }
+      setWorkspaceNotice('Spec Generator insights saved into your Founder Workspace.');
+    } catch (saveError) {
+      setWorkspaceNotice(saveError.message || 'Could not save this strategy output to workspace memory.');
+    } finally {
+      setWorkspaceSaveBusy(false);
     }
   }
 
@@ -351,6 +480,33 @@ const FounderSpecGenerator = () => {
 
       <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] lg:h-[calc(100vh-74px)] lg:overflow-hidden">
         <div className="mx-auto h-full max-w-[1480px] px-4 sm:px-5 lg:px-8">
+          {authenticated && relevantWorkspaceMemory.length > 0 && !hasAppliedWorkspaceImport ? (
+            <div className="mb-3">
+              <WorkspaceImportPrompt
+                title="Use workspace memory in Founder Strategy Copilot?"
+                description="Bring in shared company context, offer, customer, proof, and pricing assumptions before you ask the copilot to sharpen the strategy."
+                memoryItems={relevantWorkspaceMemory}
+                onUseOnce={applyWorkspaceContextOnce}
+                onAlwaysAllow={async () => {
+                  await savePreference('founder-spec-generator', {
+                    ...(preference || {}),
+                    import_mode: 'always_allow',
+                    start_fresh_by_default: false,
+                  });
+                  applyWorkspaceContextOnce();
+                }}
+                onStartFresh={async () => {
+                  await savePreference('founder-spec-generator', {
+                    ...(preference || {}),
+                    import_mode: 'start_fresh',
+                    start_fresh_by_default: true,
+                  });
+                  setHasAppliedWorkspaceImport(true);
+                  setWorkspaceNotice('Keeping this strategy session fresh. You can still manage shared memory from Account.');
+                }}
+              />
+            </div>
+          ) : null}
           {!hasActiveMode ? (
             <section className="flex h-full items-start lg:items-center">
               <div className="w-full max-w-[1120px] pt-2 sm:pt-4 lg:pt-0">
@@ -373,6 +529,17 @@ const FounderSpecGenerator = () => {
             </section>
           ) : (
             <section className="flex h-full min-h-0 flex-col overflow-hidden">
+                <div className="mb-3">
+                  <WorkspaceOutcomePanel
+                    productSlug="founder-spec-generator"
+                    canSave={Boolean(session.recommendation || session.brief || session.verdict)}
+                    saveLabel={`Save ${workspaceCandidates.length || 0} memory items to workspace`}
+                    onSave={handleSaveToWorkspace}
+                    saveBusy={workspaceSaveBusy}
+                    recommendations={workspaceRecommendations}
+                    notice={workspaceNotice}
+                  />
+                </div>
                 <div className="mb-3 hidden items-center justify-between gap-6 lg:flex">
                   <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/28">

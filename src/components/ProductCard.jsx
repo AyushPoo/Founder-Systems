@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ id, name, description, thumbnail, priceUsd, isBundle, isComingSoon }) => {
+const ProductCard = ({ id, name, description, thumbnail, priceUsd, priceInr, creditPrice, isBundle, isComingSoon }) => {
     return (
         <div className="card-elevated group flex flex-col overflow-hidden bg-white">
             {/* Thumbnail */}
@@ -47,9 +47,18 @@ const ProductCard = ({ id, name, description, thumbnail, priceUsd, isBundle, isC
                     <h3 className="font-black text-xl text-brand-black group-hover:text-brand-orange transition-colors duration-200 line-clamp-2">
                         {name}
                     </h3>
-                    {priceUsd && (
-                        <div className="bg-white px-2 py-1 rounded-md border-2 border-brand-black font-black text-sm shrink-0 shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-brand-black translate-y-1">
-                            ${priceUsd}
+                    {(priceUsd || creditPrice) && (
+                        <div className="flex flex-col items-end gap-1 shrink-0 translate-y-1">
+                            {priceUsd ? (
+                                <div className="bg-white px-2 py-1 rounded-md border-2 border-brand-black font-black text-sm shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-brand-black">
+                                    ₹{priceInr} / ${priceUsd}
+                                </div>
+                            ) : null}
+                            {creditPrice ? (
+                                <div className="rounded-full border border-brand-black/15 bg-brand-cream px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/65">
+                                    {creditPrice} credits
+                                </div>
+                            ) : null}
                         </div>
                     )}
                 </div>

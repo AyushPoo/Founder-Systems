@@ -53,6 +53,7 @@
   "productId": "FS004",
   "priceInr": 1999,
   "priceUsd": 25,
+  "creditPrice": 10,
   "originalPriceInr": 2499,
   "originalPriceUsd": 30,
   "gumroadUrl": "https://ayushpoojary.gumroad.com/l/sbdyuh",

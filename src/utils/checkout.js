@@ -98,6 +98,57 @@ const openCheckout = ({
     return false;
 };
 
+export const openBackendRazorpayCheckout = ({
+    key,
+    amount,
+    currency,
+    orderId,
+    description,
+    customerEmail,
+    customerName,
+    notes = {},
+    onSuccess,
+    onFailure
+}) => {
+    if (!orderId || !key || !Number.isFinite(Number(amount)) || Number(amount) <= 0) {
+        console.error('Backend checkout called without order details');
+        return false;
+    }
+
+    const options = {
+        key,
+        amount,
+        currency,
+        name: 'Founder Systems',
+        description,
+        order_id: orderId,
+        prefill: {
+            email: customerEmail || undefined,
+            name: customerName || undefined
+        },
+        notes,
+        handler: (response) => {
+            if (onSuccess) {
+                onSuccess(response);
+            }
+        }
+    };
+
+    if (typeof window !== 'undefined' && window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (response) => {
+            console.error('Payment failed:', response.error);
+            if (onFailure) {
+                onFailure(response.error);
+            }
+        });
+        rzp.open();
+        return true;
+    }
+
+    return false;
+};
+
 /**
  * Opens Razorpay checkout in INR.
  */

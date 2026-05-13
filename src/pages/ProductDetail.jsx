@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { openINRCheckout, openUSDCheckout } from '../utils/checkout';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
+import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 
 const LEGACY_PRODUCT_REDIRECTS = {
     'pitch-deck-maker': '/products/promptdeck-ai',
@@ -51,14 +51,16 @@ const ProductDetail = () => {
     const [customerEmail, setCustomerEmail] = useState('');
     const [customerName, setCustomerName] = useState('');
     const [emailError, setEmailError] = useState('');
+    const [checkoutNotice, setCheckoutNotice] = useState('');
+    const [checkoutBusy, setCheckoutBusy] = useState(false);
 
-    const [currentAmount, setCurrentAmount] = useState(0);
     const [currentCurrency, setCurrentCurrency] = useState('');
     const [currentProduct, setCurrentProduct] = useState('');
 
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
+    const { authenticated, redeemCreditsForProduct, launchProductCheckout, user } = useFounderWorkspace();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -68,13 +70,21 @@ const ProductDetail = () => {
             return undefined;
         }
         // The detail page reuses the same component across product ids, so we clear stale data before refetching.
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true); setNotFound(false); setProduct(null);
         fetch(`/products/${id}.json`)
             .then(res => { if (!res.ok) throw new Error('Not found'); return res.json(); })
             .then(data => { setProduct(data); setLoading(false); })
             .catch(() => { setNotFound(true); setLoading(false); });
     }, [id, navigate]);
+
+    useEffect(() => {
+        if (user?.email) {
+            setCustomerEmail(user.email);
+        }
+        if (user?.name) {
+            setCustomerName(user.name);
+        }
+    }, [user]);
 
     const productAction = getProductPrimaryAction(product);
     const showPricing = hasProductPricing(product);
@@ -116,37 +126,60 @@ const ProductDetail = () => {
         if (!showPricing) {
             return;
         }
+        if (!authenticated) {
+            navigate(`/account?tab=credits&returnTo=${encodeURIComponent(`/products/${id}`)}`);
+            return;
+        }
         // Use the explicit dual-button logic here to buy in either INR or USD.
-        const isInr = currency === 'INR';
-        setCurrentAmount(isInr ? product.priceInr * 100 : product.priceUsd * 100);
         setCurrentCurrency(currency);
         setCurrentProduct(product.title);
         setIsModalOpen(true);
+        setCheckoutNotice('');
     };
 
-    const proceedToPayment = () => {
+    const proceedToPayment = async () => {
+        if (!authenticated) {
+            navigate(`/account?tab=credits&returnTo=${encodeURIComponent(`/products/${id}`)}`);
+            return;
+        }
         if (!customerEmail || !/^\S+@\S+\.\S+$/.test(customerEmail)) {
-            setEmailError('Please enter a valid email address');
+            setEmailError('Please sign in with a valid Founder Systems account first.');
             return;
         }
         setEmailError('');
-        
-        const config = {
-            productName: currentProduct,
-            productId: product.productId,
-            productSlug: id,
-            customerEmail,
-            customerName,
-            amount: currentAmount,
-            onSuccess: () => {
-                setIsModalOpen(false);
-                navigate(`/download`);
-            }
-        };
+        setCheckoutBusy(true);
+        setCheckoutNotice('');
 
-        const success = currentCurrency === 'INR' ? openINRCheckout(config) : openUSDCheckout(config);
-        if (success) {
+        try {
+            await launchProductCheckout({
+                productSlug: id,
+                currency: currentCurrency || 'INR',
+                productName: currentProduct || product.title,
+            });
             setIsModalOpen(false);
+            setCheckoutNotice('Payment window opened. The entitlement will show up in Account as soon as the webhook confirms it.');
+            navigate('/account?tab=credits');
+        } catch (checkoutError) {
+            setEmailError(checkoutError.message || 'Could not start the checkout.');
+        } finally {
+            setCheckoutBusy(false);
+        }
+    };
+
+    const handleUnlockWithCredits = async () => {
+        if (!authenticated) {
+            navigate(`/account?tab=credits&returnTo=${encodeURIComponent(`/products/${id}`)}`);
+            return;
+        }
+        setCheckoutBusy(true);
+        setCheckoutNotice('');
+        try {
+            const response = await redeemCreditsForProduct(id);
+            setCheckoutNotice(`Unlocked with credits. ${response.wallet.balance} credits remaining in your workspace wallet.`);
+        } catch (unlockError) {
+            setCheckoutNotice(unlockError.message || 'Could not unlock this product with credits.');
+        } finally {
+            setCheckoutBusy(false);
         }
     };
 
@@ -175,6 +208,11 @@ const ProductDetail = () => {
 
             {/* ── Main Content ─────────────────────────────────────────── */}
             <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24">
+                {checkoutNotice && (
+                    <div className="mb-6 rounded-2xl border-2 border-brand-black bg-white px-5 py-4 font-semibold shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                        {checkoutNotice}
+                    </div>
+                )}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
 
                     {/* ─── Left Column: Sales Copy ───────────────────────── */}
@@ -492,22 +530,38 @@ const ProductDetail = () => {
                                         <>
                                             <button
                                                 onClick={() => handleBuyClick('INR')}
+                                                disabled={checkoutBusy}
                                                 className="btn-cta w-full !text-lg !py-5"
                                             >
                                                 Buy for ₹{product.priceInr} (India) &rarr;
                                             </button>
                                             <button
                                                 onClick={() => handleBuyClick('USD')}
+                                                disabled={checkoutBusy}
                                                 className="btn-outline w-full !py-4"
                                             >
                                                 Buy for ${product.priceUsd} (International) &rarr;
                                             </button>
+                                            {product.creditPrice ? (
+                                                <button
+                                                    onClick={handleUnlockWithCredits}
+                                                    disabled={checkoutBusy}
+                                                    className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-4 font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all"
+                                                >
+                                                    Unlock with {product.creditPrice} credits
+                                                </button>
+                                            ) : null}
                                         </>
                                     )}
                                 </div>
 
                                 <p className="text-center text-xs text-brand-black/45 mt-5 font-medium">
                                     Instant download &bull; One-time purchase &bull; Lifetime access
+                                </p>
+                                <p className="text-center text-xs text-brand-black/50 mt-2 font-medium">
+                                    {authenticated
+                                        ? 'Purchases and credit unlocks now attach to your Founder Systems account.'
+                                        : 'Sign in to your Founder Systems account to buy directly or use credits.'}
                                 </p>
                                 <div className="flex flex-col items-center gap-1.5 mt-3 text-xs text-brand-black/50">
                                     <div className="flex flex-wrap items-center justify-center gap-4">
@@ -563,8 +617,8 @@ const ProductDetail = () => {
                         >
                             ✕
                         </button>
-                        <h3 className="text-2xl font-black tracking-tight-brand mb-2">Where should we send it?</h3>
-                        <p className="text-brand-black/70 font-bold mb-7">Enter your details to receive the download link directly to your inbox.</p>
+                        <h3 className="text-2xl font-black tracking-tight-brand mb-2">Confirm your account checkout</h3>
+                        <p className="text-brand-black/70 font-bold mb-7">This order is tied to your Founder Systems account, so we prefill the session email below before opening Razorpay.</p>
 
                         <div className="space-y-5">
                             <div>
@@ -588,6 +642,7 @@ const ProductDetail = () => {
                                     }}
                                     placeholder="jane@startup.com"
                                     className={`w-full border-2 rounded-lg p-3.5 bg-brand-cream/50 focus:outline-none focus:bg-white shadow-[inset_2px_2px_0px_rgba(27,28,26,0.1)] transition-all ${emailError ? 'border-red-500' : 'border-brand-black'}`}
+                                    disabled
                                 />
                                 {emailError && <p className="text-red-600 text-sm font-black mt-1.5">{emailError}</p>}
                             </div>
@@ -595,9 +650,10 @@ const ProductDetail = () => {
 
                         <button
                             onClick={proceedToPayment}
+                            disabled={checkoutBusy}
                             className="btn-cta w-full mt-8 !text-base"
                         >
-                            Continue to Payment &rarr;
+                            {checkoutBusy ? 'Opening payment...' : 'Continue to Payment →'}
                         </button>
                     </div>
                 </div>

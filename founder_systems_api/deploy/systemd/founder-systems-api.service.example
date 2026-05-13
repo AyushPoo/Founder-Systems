@@ -1,0 +1,18 @@
+[Unit]
+Description=Founder Systems API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=founder
+Group=founder
+WorkingDirectory=/opt/founder-systems/founder_systems_api
+ExecStart=/opt/founder-systems/founder_systems_api/.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

@@ -1,10 +1,12 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import OutreachIntakeForm from './OutreachIntakeForm';
 import OutreachCoachPanel from './OutreachCoachPanel';
 import OutreachOutputTabs from './OutreachOutputTabs';
 import SavedCampaignsDrawer from './SavedCampaignsDrawer';
 import ResultsTrackerPanel from './ResultsTrackerPanel';
 import OutreachMemoryPanel from './OutreachMemoryPanel';
+import WorkspaceImportPrompt from '../workspace/WorkspaceImportPrompt';
+import WorkspaceOutcomePanel from '../workspace/WorkspaceOutcomePanel';
 import {
   createOutreachDraft,
   createOutreachInputSignature,
@@ -29,6 +31,8 @@ import {
   writeSavedCampaigns,
 } from '../../utils/outreachCampaignStorage';
 import { buildOutreachMemorySummary } from '../../utils/outreachMemory';
+import { useFounderWorkspace } from '../../context/FounderWorkspaceContext';
+import { buildOutreachMemoryCandidates, mapMemoryItemsToOutreachDraft } from '../../utils/workspaceMemory';
 
 const INTAKE_STEPS = [
   {
@@ -48,6 +52,16 @@ const INTAKE_STEPS = [
   },
 ];
 const REQUIRED_FIELD_COUNT = 8;
+const RELEVANT_MEMORY_TYPES = new Set([
+  'venture_summary',
+  'offer',
+  'target_customer',
+  'buyer_role',
+  'problem_statement',
+  'proof_point',
+  'pricing_hypothesis',
+  'brand_tone',
+]);
 
 function formatFieldName(field) {
   return field.replace(/([A-Z])/g, ' $1').replace(/^./, (value) => value.toUpperCase());
@@ -66,8 +80,20 @@ const OutreachWorkspace = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [saveState, setSaveState] = useState({ status: 'idle', message: '' });
+  const [workspaceNotice, setWorkspaceNotice] = useState('');
+  const [workspaceSaveBusy, setWorkspaceSaveBusy] = useState(false);
+  const [workspaceRecommendations, setWorkspaceRecommendations] = useState([]);
+  const [hasAppliedWorkspaceImport, setHasAppliedWorkspaceImport] = useState(false);
   const generationTrackerRef = useRef({ latestRequestId: 0 });
   const activeGenerateControllerRef = useRef(null);
+  const {
+    authenticated,
+    fetchRecommendations,
+    getPreferenceForProduct,
+    memoryItems,
+    saveMemoryItem,
+    savePreference,
+  } = useFounderWorkspace();
 
   const feedback = useMemo(() => getOutreachFieldFeedback(draft), [draft]);
   const validation = useMemo(() => validateOutreachInput(draft), [draft]);
@@ -88,6 +114,15 @@ const OutreachWorkspace = () => {
     () => buildOutreachMemorySummary(savedCampaigns),
     [savedCampaigns]
   );
+  const relevantWorkspaceMemory = useMemo(
+    () => memoryItems.filter((item) => item.status === 'active' && RELEVANT_MEMORY_TYPES.has(item.type)),
+    [memoryItems]
+  );
+  const preference = getPreferenceForProduct('founder-outreach-kit');
+  const workspaceCandidates = useMemo(
+    () => buildOutreachMemoryCandidates({ draft, result }),
+    [draft, result]
+  );
 
   const activeStep = useMemo(() => {
     if (loading || result) {
@@ -101,14 +136,64 @@ const OutreachWorkspace = () => {
     return 0;
   }, [intakeStage, isDraftApproved, loading, result]);
 
-  function updateDraft(updater) {
+  const updateDraft = useCallback((updater) => {
     setDraft((current) => {
       const next = typeof updater === 'function' ? updater(current) : updater;
       return normalizeOutreachInput(next);
     });
     setError('');
     setSaveState((current) => (current.message ? { status: 'idle', message: '' } : current));
-  }
+  }, []);
+
+  const applyWorkspaceMemory = useCallback(() => {
+    const importedDraft = mapMemoryItemsToOutreachDraft(relevantWorkspaceMemory);
+    updateDraft((current) => ({
+      ...current,
+      productName: current.productName || importedDraft.productName,
+      offer: current.offer || importedDraft.offer,
+      targetCustomer: current.targetCustomer || importedDraft.targetCustomer,
+      buyerRole: current.buyerRole || importedDraft.buyerRole,
+      painPoint: current.painPoint || importedDraft.painPoint,
+      proof: current.proof || importedDraft.proof,
+      pricing: current.pricing || importedDraft.pricing,
+      tone: current.tone || importedDraft.tone,
+    }));
+    setHasAppliedWorkspaceImport(true);
+    setWorkspaceNotice('Workspace memory imported into the outreach draft. You can edit every field before approval.');
+  }, [relevantWorkspaceMemory, updateDraft]);
+
+  useEffect(() => {
+    if (!authenticated || !relevantWorkspaceMemory.length || hasAppliedWorkspaceImport) {
+      return;
+    }
+    if (preference?.import_mode === 'always_allow' && !preference?.start_fresh_by_default) {
+      applyWorkspaceMemory();
+    }
+  }, [applyWorkspaceMemory, authenticated, hasAppliedWorkspaceImport, preference, relevantWorkspaceMemory]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!authenticated || !result) {
+      setWorkspaceRecommendations([]);
+      return undefined;
+    }
+
+    fetchRecommendations('founder-outreach-kit')
+      .then((payload) => {
+        if (!cancelled) {
+          setWorkspaceRecommendations(payload.recommendations || []);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setWorkspaceRecommendations([]);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated, fetchRecommendations, result]);
 
   function cancelActiveGenerate() {
     if (activeGenerateControllerRef.current) {
@@ -252,6 +337,27 @@ const OutreachWorkspace = () => {
     });
   }
 
+  async function handleSaveToWorkspace() {
+    if (!result) {
+      return;
+    }
+    setWorkspaceSaveBusy(true);
+    setWorkspaceNotice('');
+    try {
+      for (const candidate of workspaceCandidates) {
+        await saveMemoryItem('', {
+          ...candidate,
+          source_session_id: currentSavedCampaignId || approvedSignature || createOutreachInputSignature(draft),
+        });
+      }
+      setWorkspaceNotice('Outreach strategy and learnings saved into your Founder Workspace.');
+    } catch (saveError) {
+      setWorkspaceNotice(saveError.message || 'Could not save outreach memory to the workspace.');
+    } finally {
+      setWorkspaceSaveBusy(false);
+    }
+  }
+
   function handleOpenSavedCampaign(record) {
     cancelActiveGenerate();
 
@@ -306,6 +412,32 @@ const OutreachWorkspace = () => {
 
   return (
     <section className="space-y-4">
+      {authenticated && relevantWorkspaceMemory.length > 0 && !hasAppliedWorkspaceImport ? (
+        <WorkspaceImportPrompt
+          title="Import shared context into Founder Outreach Kit?"
+          description="Bring in offer, ICP, buyer role, proof, pricing, and tone from your workspace without overwriting what you already typed."
+          memoryItems={relevantWorkspaceMemory}
+          onUseOnce={applyWorkspaceMemory}
+          onAlwaysAllow={async () => {
+            await savePreference('founder-outreach-kit', {
+              ...(preference || {}),
+              import_mode: 'always_allow',
+              start_fresh_by_default: false,
+            });
+            applyWorkspaceMemory();
+          }}
+          onStartFresh={async () => {
+            await savePreference('founder-outreach-kit', {
+              ...(preference || {}),
+              import_mode: 'start_fresh',
+              start_fresh_by_default: true,
+            });
+            setHasAppliedWorkspaceImport(true);
+            setWorkspaceNotice('Keeping this outreach session fresh. You can still import memory later from Account.');
+          }}
+        />
+      ) : null}
+
       <div className="flex flex-col gap-4 rounded-[20px] border border-brand-black/10 bg-white px-4 py-4 shadow-[0_14px_30px_rgba(27,28,26,0.05)] lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0 max-w-[780px]">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">
@@ -395,6 +527,15 @@ const OutreachWorkspace = () => {
           onChange={handleUpdateResults}
         />
         <OutreachMemoryPanel summary={memorySummary} />
+        <WorkspaceOutcomePanel
+          productSlug="founder-outreach-kit"
+          canSave={Boolean(result)}
+          saveLabel={`Save ${workspaceCandidates.length || 0} memory items to workspace`}
+          onSave={handleSaveToWorkspace}
+          saveBusy={workspaceSaveBusy}
+          recommendations={workspaceRecommendations}
+          notice={workspaceNotice}
+        />
       </aside>
       </section>
     </section>
