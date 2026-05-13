@@ -17,13 +17,13 @@ const CTASection = () => {
                         Ready to build?
                     </span>
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight-brand text-brand-black mb-6 leading-tight">
-                        Stop building spreadsheets.{' '}
+                        Stop patching founder chaos manually.{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-cta">
                             Start building systems.
                         </span>
                     </h2>
                     <p className="text-lg md:text-xl text-brand-black/50 mb-10 max-w-xl mx-auto leading-relaxed">
-                        Join hundreds of founders who've replaced guesswork with data-driven tools. Browse the toolkit and get started today.
+                        Get practical tools for strategy, outreach, decks, and execution. Browse products and get started today.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link to="/products" className="btn-cta text-lg">

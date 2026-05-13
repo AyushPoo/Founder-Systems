@@ -3,8 +3,8 @@ import useReveal from '../hooks/useReveal';
 const STEPS = [
     {
         number: '01',
-        title: 'Choose your system',
-        description: 'Browse our curated library of founder-tested financial models, operating frameworks, and strategy templates.',
+        title: 'Get clear on what matters',
+        description: 'Start with practical guidance that helps you see the next priorities across strategy, outreach, decks, and execution.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -13,8 +13,8 @@ const STEPS = [
     },
     {
         number: '02',
-        title: 'Customize to fit',
-        description: 'Every template is fully editable. Plug in your numbers, adapt assumptions, and make it yours in minutes.',
+        title: 'Use tools that remove friction',
+        description: 'Apply founder-ready systems that cut repetitive operational work and turn messy processes into something you can actually run.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
@@ -23,8 +23,8 @@ const STEPS = [
     },
     {
         number: '03',
-        title: 'Scale with confidence',
-        description: 'Present to investors, align your team, and make data-driven decisions — all with tools that grow with you.',
+        title: 'Move faster with confidence',
+        description: 'Keep momentum with clearer decisions, stronger execution, and systems that help you operate without constant reinvention.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
@@ -37,7 +37,7 @@ const HowItWorks = () => {
     const ref = useReveal();
 
     return (
-        <section ref={ref} className="py-24 md:py-32">
+        <section id="how-it-works" ref={ref} className="scroll-mt-28 py-24 md:scroll-mt-32 md:py-32">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
                 <div className="reveal text-center mb-16 md:mb-20">

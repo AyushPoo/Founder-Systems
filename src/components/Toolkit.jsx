@@ -46,7 +46,7 @@ const Toolkit = () => {
                         </span>
                     </h2>
                     <p className="text-lg text-brand-black/70 font-bold max-w-2xl mx-auto leading-relaxed">
-                        Professional-grade templates across finance, operations, and strategy — built by founders, for founders.
+                        Professional-grade templates across finance, operations, and strategy - built by founders, for founders.
                     </p>
                 </div>
 

@@ -30,43 +30,42 @@ const Hero = () => {
                     <div className="reveal">
                         <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-sm font-black text-brand-black">
                             <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
-                            Built for ambitious founders
+                            Built for founders who want clarity and momentum
                         </span>
                     </div>
 
                     <h1 className="reveal text-5xl md:text-6xl lg:text-7xl font-black tracking-tight-brand text-brand-black leading-[1.05]">
-                        Build, Automate &{' '}
+                        Turn Founder Chaos Into{' '}
                         <span className="text-brand-orange">
-                            Scale
+                            Clear
                         </span>{' '}
-                        Agentic Workflows.
+                        Systems.
                     </h1>
 
                     <p className="reveal text-lg md:text-xl text-brand-black/70 max-w-lg leading-relaxed font-bold">
-                        Founder Systems is an AI infrastructure platform that helps founders build, automate, and scale operations with professional-grade models and logic.
+                        Founder Systems helps new founders get guidance, and helps experienced founders get rid of repetitive headaches through practical tools for strategy, outreach, decks, and execution.
                     </p>
 
                     {/* CTAs */}
                     <div className="reveal flex flex-col sm:flex-row gap-4">
-                        <a
-                            href="#toolkit"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                document.getElementById('toolkit')?.scrollIntoView({ behavior: 'smooth' });
-                            }}
+                        <Link
+                            to="/products"
                             className="btn-cta"
                         >
-                            Explore Toolkit
-                            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </a>
-                        <Link to="/products" className="btn-outline">
-                            View Products
+                            Explore Products
                             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
                         </Link>
+                        <a
+                            href="#how-it-works"
+                            className="btn-outline"
+                        >
+                            See How It Works
+                            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </a>
                     </div>
 
                     {/* Micro social proof */}
@@ -81,7 +80,7 @@ const Hero = () => {
                             ))}
                         </div>
                         <p className="text-sm text-brand-black/50 font-bold">
-                            Trusted by <span className="text-brand-black font-black">500+</span> founders
+                            Built to help founders move with more clarity and less repetition
                         </p>
                     </div>
                 </div>

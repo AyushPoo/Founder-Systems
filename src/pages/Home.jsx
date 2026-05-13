@@ -12,8 +12,8 @@ const Home = () => {
     return (
         <>
             <SEO 
-                title="Home" 
-                description="Founder Systems is an AI infrastructure platform that helps founders build, automate, and scale agentic workflows with professional-grade models." 
+                title="Guidance and Systems for Founders" 
+                description="Founder Systems helps founders get guidance, reduce operational headaches, and move faster with practical tools for strategy, outreach, decks, and execution." 
                 canonical="/"
             />
             <Navbar />
