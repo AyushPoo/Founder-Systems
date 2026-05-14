@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import FoundersVisualCard from '../components/FoundersVisualCard';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
+import { getVisualThemeFromCategory } from '../utils/visualTheme';
 import {
     detectPreferredCurrency,
     formatCreditValue,
@@ -210,20 +212,32 @@ const ProductDetail = () => {
 
             {/* ── Hero Header ──────────────────────────────────────────── */}
             <div className="w-full bg-white pt-32 md:pt-40 pb-12 md:pb-16 px-6 md:px-12 border-b-2 border-brand-black">
-                <div className="max-w-7xl mx-auto">
-                    <Link
-                        to="/products"
-                        className="inline-flex items-center gap-2 mb-8 text-brand-orange font-semibold text-sm tracking-wide uppercase hover:text-brand-orange-dark transition-colors group"
-                    >
-                        <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
-                        Back to Catalog
-                    </Link>
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-brand-black tracking-tight-brand leading-[1.08] mb-5">
-                        {product.title}
-                    </h1>
-                    <p className="text-lg md:text-xl text-brand-black/60 max-w-2xl font-medium">
-                        {product.subtitle}
-                    </p>
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
+                    <div>
+                        <Link
+                            to="/products"
+                            className="inline-flex items-center gap-2 mb-8 text-brand-orange font-semibold text-sm tracking-wide uppercase hover:text-brand-orange-dark transition-colors group"
+                        >
+                            <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
+                            Back to Catalog
+                        </Link>
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-brand-black tracking-tight-brand leading-[1.08] mb-5">
+                            {product.title}
+                        </h1>
+                        <p className="text-lg md:text-xl text-brand-black/60 max-w-2xl font-medium">
+                            {product.subtitle}
+                        </p>
+                    </div>
+                    <div className="lg:max-w-[30rem] lg:justify-self-end">
+                        <FoundersVisualCard
+                            variant="hero"
+                            theme={getVisualThemeFromCategory(product.category)}
+                            eyebrow={product.category || 'Founder Product'}
+                            meta={product.productId}
+                            title={product.title}
+                            subtitle={product.subtitle}
+                        />
+                    </div>
                 </div>
             </div>
 

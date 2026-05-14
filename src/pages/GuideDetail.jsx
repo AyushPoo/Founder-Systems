@@ -5,7 +5,9 @@ import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import FoundersVisualCard from '../components/FoundersVisualCard';
 import { guidesData } from '../data/guidesData';
+import { getVisualThemeFromCategory } from '../utils/visualTheme';
 
 const GuideDetail = () => {
     const { id } = useParams();
@@ -90,17 +92,31 @@ const GuideDetail = () => {
                         <span aria-hidden="true">←</span>
                         Back to Guides
                     </Link>
-                    <div className="mt-6 bg-white rounded-[2rem] border-2 border-brand-black px-8 py-10 md:px-12 md:py-12 shadow-[10px_10px_0px_0px_rgba(27,28,26,1)]">
-                        <div className="flex flex-wrap items-center gap-3 text-xs font-black uppercase tracking-[0.24em] text-brand-black/55">
-                            <span className="rounded-full border border-brand-black px-3 py-1">Founder Guide</span>
-                            {guide.readTime && <span>{guide.readTime}</span>}
+                    <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 bg-white rounded-[2rem] border-2 border-brand-black px-8 py-10 md:px-12 md:py-12 shadow-[10px_10px_0px_0px_rgba(27,28,26,1)]">
+                        <div>
+                            <div className="flex flex-wrap items-center gap-3 text-xs font-black uppercase tracking-[0.24em] text-brand-black/55">
+                                <span className="rounded-full border border-brand-black px-3 py-1">Founder Guide</span>
+                                {guide.readTime && <span>{guide.readTime}</span>}
+                            </div>
+                            <h1 className="mt-6 max-w-4xl text-4xl md:text-5xl font-black tracking-tight-brand leading-[0.95]">
+                                {guide.title}
+                            </h1>
+                            <p className="mt-5 max-w-3xl text-lg md:text-xl leading-relaxed text-brand-black/72 font-semibold">
+                                {guide.description}
+                            </p>
                         </div>
-                        <h1 className="mt-6 max-w-4xl text-4xl md:text-5xl font-black tracking-tight-brand leading-[0.95]">
-                            {guide.title}
-                        </h1>
-                        <p className="mt-5 max-w-3xl text-lg md:text-xl leading-relaxed text-brand-black/72 font-semibold">
-                            {guide.description}
-                        </p>
+                        <div className="lg:max-w-[28rem] lg:justify-self-end">
+                            <FoundersVisualCard
+                                variant="guide"
+                                theme={getVisualThemeFromCategory(guide.category)}
+                                eyebrow="Long-form founder guide"
+                                meta={guide.readTime}
+                                title={guide.title}
+                                subtitle={guide.description}
+                                displayTitle={guide.coverTitle}
+                                displaySubtitle={guide.coverSubtitle}
+                            />
+                        </div>
                     </div>
                 </section>
 
@@ -123,6 +139,7 @@ const GuideDetail = () => {
                                 name={relatedProduct.name} 
                                 description={relatedProduct.description} 
                                 thumbnail={relatedProduct.thumbnail}
+                                category={relatedProduct.category}
                                 priceUsd={relatedProduct.priceUsd}
                             />
                         </div>

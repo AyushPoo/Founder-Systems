@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+import FoundersVisualCard from '../components/FoundersVisualCard';
 import { guidesData } from '../data/guidesData';
+import { getVisualThemeFromCategory } from '../utils/visualTheme';
 
 const Guides = () => {
     useEffect(() => {
@@ -34,21 +36,19 @@ const Guides = () => {
                             to={`/guides/${guide.id}`}
                             className="group rounded-xl border-2 border-brand-black bg-white p-6 md:p-8 flex flex-col md:flex-row gap-6 transition-all duration-300 hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] relative overflow-hidden"
                         >
-                            {guide.thumbnail && (
-                                <div className="w-full md:w-48 h-48 md:h-auto rounded-lg border-2 border-brand-black overflow-hidden flex-shrink-0 relative bg-brand-cream">
-                                    <div className="absolute inset-0 bg-brand-black/5 flex items-center justify-center p-4">
-                                        <div className="w-full h-full border-2 border-dashed border-brand-black/20 rounded"></div>
-                                    </div>
-                                    <img 
-                                        src={guide.thumbnail} 
-                                        alt={guide.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 z-10 relative"
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                        }}
-                                    />
-                                </div>
-                            )}
+                            <div className="w-full md:w-72 flex-shrink-0">
+                                <FoundersVisualCard
+                                    variant="guide"
+                                    theme={getVisualThemeFromCategory(guide.category)}
+                                    eyebrow="Founder Guide"
+                                    meta={guide.readTime}
+                                    title={guide.title}
+                                    subtitle={guide.description}
+                                    displayTitle={guide.coverTitle}
+                                    displaySubtitle={guide.coverSubtitle}
+                                    compact
+                                />
+                            </div>
                             <div className="flex flex-col flex-grow justify-center">
                                 <div className="flex items-center gap-3 mb-3">
                                     <span className="text-xs font-black uppercase tracking-widest bg-brand-black text-white px-3 py-1 rounded-full">{guide.readTime}</span>

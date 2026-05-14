@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
+import FoundersVisualCard from './FoundersVisualCard';
+import { getVisualThemeFromCategory } from '../utils/visualTheme';
 
-const ProductCard = ({ id, name, description, thumbnail, priceUsd, priceInr, creditPrice, isBundle, isComingSoon }) => {
+const ProductCard = ({ id, name, description, priceUsd, priceInr, creditPrice, isBundle, isComingSoon, category }) => {
     return (
         <div className="card-elevated group flex flex-col overflow-hidden bg-white">
             {/* Thumbnail */}
-            {thumbnail && (
-                <Link to={`/products/${id}`} className="block relative aspect-[4/3] w-full overflow-hidden border-b-2 border-brand-black bg-surface-low">
+            <Link to={`/products/${id}`} className="block relative w-full overflow-hidden border-b-2 border-brand-black bg-surface-low p-3">
                         {isBundle && (
                             <div className="absolute top-4 left-4 z-10">
                                 <span className="bg-brand-orange text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] rotate-[-2deg] inline-block">
@@ -20,13 +21,16 @@ const ProductCard = ({ id, name, description, thumbnail, priceUsd, priceInr, cre
                                 </span>
                             </div>
                         )}
-                        <img 
-                            src={thumbnail} 
-                            alt={name} 
-                            className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${isComingSoon ? 'grayscale-[0.5] opacity-80' : ''}`} 
+                        <FoundersVisualCard
+                            variant="product"
+                            theme={getVisualThemeFromCategory(category)}
+                            eyebrow={category || 'Founder Product'}
+                            title={name}
+                            subtitle={description}
+                            compact
+                            className={isComingSoon ? 'grayscale-[0.35] opacity-90 transition-transform duration-500 group-hover:scale-[1.01]' : 'transition-transform duration-500 group-hover:scale-[1.01]'}
                         />
-                </Link>
-            )}
+            </Link>
             
             {/* Content */}
             <div className="p-6 flex flex-col flex-grow">
