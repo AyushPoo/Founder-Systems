@@ -2,49 +2,91 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://foundersystems.in/</loc>
-    <lastmod>2024-04-09</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://foundersystems.in/products</loc>
-    <lastmod>2024-04-09</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/about</loc>
-    <lastmod>2024-04-09</lastmod>
-    <changefreq>yearly</changefreq>
+    <loc>https://foundersystems.in/products/saas-financial-model</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://foundersystems.in/products/advanced-saas-model</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/marketplace-financial-model</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/d2c-ecommerce-model</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/founder-spec-generator</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/founder-outreach-kit</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/promptdeck-ai</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/about</loc>
+    <lastmod>2026-05-14</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://foundersystems.in/terms</loc>
-    <lastmod>2024-04-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://foundersystems.in/privacy-policy</loc>
-    <lastmod>2024-04-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://foundersystems.in/refund-policy</loc>
-    <lastmod>2024-04-09</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://foundersystems.in/guides</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://foundersystems.in/guides/saas-financial-model-guide</loc>
-    <lastmod>2026-04-17</lastmod>
+    <lastmod>2026-05-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
