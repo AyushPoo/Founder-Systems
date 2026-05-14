@@ -3,46 +3,82 @@
   "slug": "saas-financial-model",
   "title": "The 10-Minute SaaS Financial Model",
   "subtitle": "Stop Guessing Your Runway. Start Winning Your Pitch.",
-  "descriptionBody": "\"How much cash do we have left?\" \"What's our CAC Payback if we hire two devs?\" If these questions keep you up at 3:00 AM, welcome to the club. Most founders treat their financial models like a scary basement, terrified of what they'll find or lost in a sea of broken formulas.",
+  "descriptionBody": "\"How much cash do we have left?\" \"What is our CAC Payback if we hire two devs?\" If these questions keep you up at night, you are not alone. Most founders either avoid their financials entirely or lose hours to spreadsheets that do not add up. This model solves both problems at once — a clean, investor-ready SaaS financial model you can build in an afternoon, not a week.",
   "section1Title": "The Investor-Ready SaaS Model (B2B Edition)",
   "section1Body": "A battle-tested, \"clean-code\" version of the exact spreadsheets used by venture-backed startups to track growth, burn, and valuation.",
   "featuresTitle": "The Good Stuff:",
   "features": [
-    { "name": "The Vibe Check Dashboard", "desc": "One-page summary of MRR, ARR, LTV/CAC, and Runway." },
-    { "name": "The Growth Engine", "desc": "No \"magic\" numbers—input your pricing and churn to see the waterfall." },
-    { "name": "The Crystal Ball", "desc": "Instant sensitivity analysis—toggle one cell and see your 3-year valuation update." },
-    { "name": "OpEx Planner", "desc": "Simple hiring and team growth planning." },
-    { "name": "Valuation Engine", "desc": "ARR Multiples + DCF for the finance nerds." }
+    {
+      "name": "The Vibe Check Dashboard",
+      "desc": "One-page summary of MRR, ARR, LTV/CAC, and Runway — the four numbers VCs always ask about first."
+    },
+    {
+      "name": "The Growth Engine",
+      "desc": "No magic numbers. Input your pricing and churn; watch your revenue waterfall build itself."
+    },
+    {
+      "name": "The Crystal Ball",
+      "desc": "Toggle one input cell. See your 3-year valuation update instantly — no manual recalculation."
+    },
+    {
+      "name": "The Hiring Planner",
+      "desc": "Map out your team growth month by month. Know exactly when you hit your burn threshold."
+    },
+    {
+      "name": "The Valuation Engine",
+      "desc": "ARR Multiples + DCF. Both methods, so you can answer \"what are we worth?\" either way."
+    }
   ],
   "whyTitle": "Why invest",
   "whyPoints": [
-    { "title": "Save 20+ Hours", "desc": "Your time is worth more than $1.50/hour. Spend it selling instead." },
-    { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by an accountant who actually likes this stuff (me)." },
-    { "title": "Look Like a Pro", "desc": "Stop sending messy CSVs. Send a structured model that proves you know your numbers." }
+    {
+      "title": "Save 20+ Hours",
+      "desc": "Skip the late-night formula debugging. This model is built and sanity-checked — plug in your numbers and present."
+    },
+    {
+      "title": "No More Excel Panic",
+      "desc": "Every cell is linked, protected, and traceable. No orphan formulas, no mystery numbers."
+    },
+    {
+      "title": "Look Like a Pro on Day One",
+      "desc": "Send an investor a structured model on your first call. Not a messy CSV they have to reverse-engineer."
+    }
   ],
   "footerSummaryTitle": "The Price",
   "footerSummaryDetails": "(About three cups of decent coffee).",
   "footerResultTitle": "The Result",
   "footerResultDetails": "Total clarity on your startup's future.",
   "whatYouGet": [
-    "Investor-ready SaaS financial model",
-    "Automatic ARR / MRR / CAC dashboards",
-    "Valuation calculator",
-    "3-year projections",
-    "Fully editable model",
-    "Instant download"
+    "Investor-ready SaaS financial model (fully unlocked Excel)",
+    "Automatic ARR / MRR / CAC Payback dashboards",
+    "ARR Multiples + DCF valuation engine",
+    "3-year revenue and burn projections",
+    "Fully editable — plug in your own numbers",
+    "Instant download after purchase"
   ],
   "whoThisIsFor": [
-    "SaaS founders raising a seed round",
-    "Indie hackers planning pricing",
-    "Startup operators building projections",
-    "MBA / VC analysts modeling SaaS startups"
+    "SaaS founders building their first financial model for a seed pitch",
+    "Indie hackers who need one clean model instead of ten conflicting spreadsheets",
+    "Startup operators preparing board slides or investor updates",
+    "MBA/VC analysts who need a fast SaaS starter template"
   ],
   "faq": [
-    { "q": "Is this Excel or Google Sheets?", "a": "The model works in Excel and can be imported into Google Sheets." },
-    { "q": "Can I modify the model?", "a": "Yes, the model is fully editable." },
-    { "q": "Do I get lifetime access?", "a": "Yes, one purchase gives you lifetime access." },
-    { "q": "Is this suitable for early-stage startups?", "a": "Yes, it is designed for founders building SaaS financial projections." }
+    {
+      "q": "Is this Excel or Google Sheets?",
+      "a": "The model works in Excel and can be imported into Google Sheets."
+    },
+    {
+      "q": "Can I modify the model?",
+      "a": "Yes, the model is fully editable."
+    },
+    {
+      "q": "Do I get lifetime access?",
+      "a": "Yes, one purchase gives you lifetime access."
+    },
+    {
+      "q": "Is this suitable for early-stage startups?",
+      "a": "Yes, it is designed for founders building SaaS financial projections."
+    }
   ],
   "images": [
     "/images/products/saas-model/saas-thumbnail.jpg",
