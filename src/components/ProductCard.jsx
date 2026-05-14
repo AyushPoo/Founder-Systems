@@ -1,60 +1,145 @@
 import { Link } from 'react-router-dom';
-import FoundersVisualCard from './FoundersVisualCard';
-import { getVisualThemeFromCategory } from '../utils/visualTheme';
 
-const ProductCard = ({ id, name, description, priceUsd, priceInr, creditPrice, isBundle, isComingSoon, category }) => {
+const PRODUCT_ART_DIRECTION = {
+    'saas-financial-model': {
+        hook: 'Know your runway before investors do.',
+        chips: ['Runway', 'Burn', 'CAC'],
+        badge: 'Template',
+    },
+    'advanced-saas-model': {
+        hook: 'Fix your unit economics before growth gets expensive.',
+        chips: ['Cohorts', 'Benchmarks', 'Valuation'],
+        badge: 'Investor-grade',
+    },
+    'marketplace-financial-model': {
+        hook: 'See exactly where marketplace growth starts leaking.',
+        chips: ['GMV', 'Supply', 'Demand'],
+        badge: 'Marketplace',
+    },
+    'd2c-ecommerce-model': {
+        hook: 'Stop scaling ad spend before the math earns it.',
+        chips: ['ROAS', 'Inventory', 'Retention'],
+        badge: 'Ecommerce',
+    },
+    'promptdeck-ai': {
+        hook: 'Turn a rough story into a sharper deck fast.',
+        chips: ['Story', 'Slides', 'Exports'],
+        badge: 'AI app',
+    },
+    'founder-outreach-kit': {
+        hook: 'Turn your offer into founder-grade outbound.',
+        chips: ['Email', 'LinkedIn', 'Objections'],
+        badge: 'Workspace',
+    },
+    'fundraising-suite': {
+        hook: 'Get your fundraising stack in one sharp bundle.',
+        chips: ['Finance', 'Deck', 'Bundle'],
+        badge: 'Bundle',
+    },
+};
+
+const FALLBACK_ART_DIRECTION = {
+    hook: 'A practical founder tool built to remove one real headache.',
+    chips: ['Founder tool', 'Practical', 'Fast'],
+    badge: 'Founder Systems',
+};
+
+const ProductCard = ({
+    id,
+    name,
+    description,
+    thumbnail,
+    priceUsd,
+    priceInr,
+    creditPrice,
+    isBundle,
+    isComingSoon,
+    category,
+}) => {
+    const artDirection = PRODUCT_ART_DIRECTION[id] || FALLBACK_ART_DIRECTION;
+    const chips = artDirection.chips?.slice(0, 3) || [];
+
     return (
         <div className="card-elevated group flex flex-col overflow-hidden bg-white">
-            {/* Thumbnail */}
-            <Link to={`/products/${id}`} className="block relative w-full overflow-hidden border-b-2 border-brand-black bg-surface-low p-3">
-                        {isBundle && (
-                            <div className="absolute top-4 left-4 z-10">
-                                <span className="bg-brand-orange text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] rotate-[-2deg] inline-block">
-                                    🔥 Best Value
+            <Link
+                to={`/products/${id}`}
+                className="relative block aspect-[4/3] w-full overflow-hidden border-b-2 border-brand-black bg-brand-black"
+            >
+                {thumbnail ? (
+                    <img
+                        src={thumbnail}
+                        alt={name}
+                        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${isComingSoon ? 'grayscale-[0.2] opacity-85' : ''}`}
+                    />
+                ) : null}
+
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.18)_26%,rgba(15,23,42,0.88)_100%)]" />
+
+                <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
+                    <span className="rounded-full border border-white/65 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-sm">
+                        {category || 'Founder Product'}
+                    </span>
+                    <span className="rounded-full border border-white/20 bg-brand-black/55 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+                        {artDirection.badge}
+                    </span>
+                </div>
+
+                {isBundle && (
+                    <div className="absolute left-4 top-14 z-10">
+                        <span className="inline-block rotate-[-2deg] rounded-sm border-2 border-brand-black bg-brand-orange px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            Best Value
+                        </span>
+                    </div>
+                )}
+
+                {isComingSoon && (
+                    <div className="absolute right-4 top-14 z-10">
+                        <span className="inline-block rotate-[2deg] rounded-sm border-2 border-brand-black bg-yellow-400 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            Coming Soon
+                        </span>
+                    </div>
+                )}
+
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                    <div className="rounded-[28px] border border-white/15 bg-brand-black/72 p-4 text-white shadow-[0_18px_44px_rgba(15,23,42,0.28)] backdrop-blur-sm">
+                        <p className="max-w-[22ch] text-[1.72rem] font-black uppercase leading-[0.94] tracking-[-0.05em] text-white">
+                            {artDirection.hook}
+                        </p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {chips.map((chip) => (
+                                <span
+                                    key={chip}
+                                    className="rounded-full border border-white/14 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/90"
+                                >
+                                    {chip}
                                 </span>
-                            </div>
-                        )}
-                        {isComingSoon && (
-                            <div className="absolute top-4 right-4 z-10">
-                                <span className="bg-yellow-400 text-brand-black text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] rotate-[2deg] inline-block animate-pulse">
-                                    🚀 Coming Soon
-                                </span>
-                            </div>
-                        )}
-                        <FoundersVisualCard
-                            variant="product"
-                            theme={getVisualThemeFromCategory(category)}
-                            eyebrow={category || 'Founder Product'}
-                            title={name}
-                            subtitle={description}
-                            compact
-                            className={isComingSoon ? 'grayscale-[0.35] opacity-90 transition-transform duration-500 group-hover:scale-[1.01]' : 'transition-transform duration-500 group-hover:scale-[1.01]'}
-                        />
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </Link>
-            
-            {/* Content */}
-            <div className="p-6 flex flex-col flex-grow">
-                {/* Creator & Rating */}
-                <div className="flex items-center justify-between mb-4">
+
+            <div className="flex flex-grow flex-col p-6">
+                <div className="mb-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-brand-orange text-white flex items-center justify-center font-bold text-xs border-2 border-brand-black">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-brand-black bg-brand-orange text-xs font-bold text-white">
                             A
                         </div>
-                        <span className="text-xs font-bold text-brand-black uppercase tracking-wider">by Ayush</span>
+                        <span className="text-xs font-bold uppercase tracking-wider text-brand-black">by Ayush</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span className="text-brand-orange text-sm leading-none">★★★★★</span>
+                        <span className="text-sm leading-none text-brand-orange">★★★★★</span>
                     </div>
                 </div>
 
-                <div className="flex justify-between items-start gap-4 mb-2">
-                    <h3 className="font-black text-xl text-brand-black group-hover:text-brand-orange transition-colors duration-200 line-clamp-2">
+                <div className="mb-2 flex items-start justify-between gap-4">
+                    <h3 className="line-clamp-2 text-xl font-black text-brand-black transition-colors duration-200 group-hover:text-brand-orange">
                         {name}
                     </h3>
                     {(priceUsd || creditPrice) && (
-                        <div className="flex flex-col items-end gap-1 shrink-0 translate-y-1">
+                        <div className="translate-y-1 shrink-0 flex flex-col items-end gap-1">
                             {priceUsd ? (
-                                <div className="bg-white px-2 py-1 rounded-md border-2 border-brand-black font-black text-sm shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-brand-black">
+                                <div className="rounded-md border-2 border-brand-black bg-white px-2 py-1 text-sm font-black text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
                                     ₹{priceInr} / ${priceUsd}
                                 </div>
                             ) : null}
@@ -66,14 +151,14 @@ const ProductCard = ({ id, name, description, priceUsd, priceInr, creditPrice, i
                         </div>
                     )}
                 </div>
-                
-                <p className="text-brand-black/70 font-medium text-sm leading-relaxed mb-6 flex-grow line-clamp-3">
+
+                <p className="mb-6 flex-grow line-clamp-3 text-sm font-medium leading-relaxed text-brand-black/70">
                     {description}
                 </p>
 
                 <Link
                     to={`/products/${id}`}
-                    className={`text-sm text-center w-full !py-3 ${isComingSoon ? 'bg-brand-black/10 text-brand-black/40 border-2 border-brand-black/20 rounded-lg pointer-events-none cursor-not-allowed font-black' : 'btn-cta'}`}
+                    className={`w-full text-center text-sm !py-3 ${isComingSoon ? 'pointer-events-none cursor-not-allowed rounded-lg border-2 border-brand-black/20 bg-brand-black/10 font-black text-brand-black/40' : 'btn-cta'}`}
                 >
                     {isComingSoon ? 'Launching Soon' : 'I want this!'}
                 </Link>
