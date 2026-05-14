@@ -1,25 +1,29 @@
 {
   "id": "promptdeck-ai",
-  "title": "PromptDeck AI — Pitch Deck Builder",
+  "title": "PromptDeck AI - Pitch Deck Builder",
   "subtitle": "Build a fundable pitch deck in 15 minutes. Just talk to the AI.",
-  "descriptionBody": "Stop staring at a blank slide. PromptDeck AI is a conversational pitch deck builder — you describe your startup in plain English and the AI builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
+  "descriptionBody": "Stop staring at a blank slide. PromptDeck AI is a conversational pitch deck builder - you describe your startup in plain English and the AI builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
   "launchUrl": "https://promptdeck.foundersystems.in",
   "category": "Strategy",
   "features": [
-    { "name": "AI-Powered Conversation", "desc": "The AI asks smart questions across 8 startup dimensions — problem, solution, market, traction, team, business model, and ask — then builds your deck." },
-    { "name": "Live Three-Panel UI", "desc": "Chat panel on the left, live slide preview in the center, navigator on the right. Edit text by clicking directly on slides." },
-    { "name": "12 Professional Slide Types", "desc": "Hero, Problem, Solution, Market, Traction, Team, Competitor, Business Model, Financials, Ask, Timeline, and Quote — all auto-populated from your conversation." },
-    { "name": "PDF Export", "desc": "Export a high-resolution PDF (1920×1080 per slide) rendered server-side. ₹500 for 3 deck exports." },
-    { "name": "Per-Slide Regeneration", "desc": "Not happy with a slide? Click ⟳ to regenerate it, or ask the AI to edit it in the chat." }
+    { "name": "AI-powered conversation", "desc": "The AI asks smart questions across startup dimensions like problem, solution, market, traction, team, business model, and ask, then builds slides from your answers." },
+    { "name": "Live three-panel UI", "desc": "Chat on the left, live slide preview in the center, and navigation around the artifact while you edit the deck in place." },
+    { "name": "12 professional slide types", "desc": "From hero and problem to traction, financials, milestones, and ask - all assembled from your conversation." },
+    { "name": "PDF export", "desc": "Export a high-resolution PDF rendered server-side once the deck is ready to share." },
+    { "name": "Per-slide regeneration", "desc": "Refine individual slides or use Artifact Copilot to push the deck one clear step at a time." }
   ],
   "whoThisIsFor": [
     "Early-stage founders preparing for fundraising conversations.",
     "Startup teams who need a professional deck fast without hiring a designer.",
-    "Founders who've been putting off the deck because starting from scratch is painful."
+    "Founders who have the story in their head but not on the slides yet."
   ],
   "faq": [
-    { "q": "How does the AI know what to put in the deck?", "a": "It asks you questions about your startup across 8 dimensions and builds slides from your answers. The more you share, the better the output." },
-    { "q": "Can I edit the slides after they're generated?", "a": "Yes — click any text directly on the slide to edit it inline, or tell the AI what to change in the chat." },
-    { "q": "What does ₹500 get me?", "a": "3 PDF exports. You can generate and edit as many decks as you like — you only pay when you want to download." }
+    { "q": "How does the AI know what to put in the deck?", "a": "It asks targeted questions about your startup and turns your answers into a deck structure with editable slides." },
+    { "q": "Can I edit the slides after they are generated?", "a": "Yes. You can edit slide text inline and request focused changes through the copilot." },
+    { "q": "Can I export the deck?", "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck." }
+  ],
+  "images": [
+    "/images/products/promptdeck-ai/thumbnail.svg",
+    "/images/products/pitch-deck/thumbnail.png"
   ]
 }

@@ -1,0 +1,59 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
+  <rect x="34" y="34" width="1132" height="832" rx="44" fill="url(#bg)" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="72" y="76" width="238" height="58" rx="29" fill="white" fill-opacity="0.94" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="107" cy="105" r="8" fill="#FF5A1F"/>
+  <text x="128" y="114" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3.6">MARKETING</text>
+  <rect x="936" y="76" width="198" height="58" rx="29" fill="#1B1C1A" fill-opacity="0.78"/>
+  <text x="987" y="113" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2.2">WORKSPACE</text>
+
+  <circle cx="954" cy="256" r="126" fill="#FF5A1F" fill-opacity="0.12"/>
+  <circle cx="218" cy="716" r="96" fill="#101828" fill-opacity="0.06"/>
+
+  <g filter="url(#shadow)">
+    <rect x="88" y="198" width="434" height="492" rx="38" fill="url(#panel)" stroke="#1B1C1A" stroke-width="4"/>
+    <text x="128" y="284" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="38" font-weight="800">Turn a rough offer into</text>
+    <text x="128" y="334" fill="#FF5A1F" font-family="Arial, sans-serif" font-size="52" font-weight="900">founder-grade outbound</text>
+    <text x="128" y="390" fill="#1B1C1A" fill-opacity="0.66" font-family="Arial, sans-serif" font-size="26" font-weight="600">Tighten the angle, then generate the</text>
+    <text x="128" y="428" fill="#1B1C1A" fill-opacity="0.66" font-family="Arial, sans-serif" font-size="26" font-weight="600">emails, LinkedIn flow, and objections.</text>
+
+    <rect x="128" y="484" width="122" height="54" rx="23" fill="#101828" fill-opacity="0.1"/>
+    <text x="161" y="518" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Email</text>
+    <rect x="266" y="484" width="152" height="54" rx="23" fill="#101828" fill-opacity="0.1"/>
+    <text x="303" y="518" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">LinkedIn</text>
+    <rect x="128" y="556" width="170" height="54" rx="23" fill="#FF5A1F"/>
+    <text x="154" y="590" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Objections</text>
+  </g>
+
+  <g transform="translate(556 170)">
+    <rect x="72" y="88" width="520" height="520" rx="40" fill="white" fill-opacity="0.58"/>
+    <image href="../../systems.png" x="20" y="0" width="620" height="620" preserveAspectRatio="xMidYMid meet"/>
+    <g filter="url(#miniShadow)">
+      <rect x="320" y="72" width="212" height="94" rx="24" fill="white"/>
+      <text x="352" y="114" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="26" font-weight="800">Subject line</text>
+      <text x="352" y="144" fill="#1B1C1A" fill-opacity="0.58" font-family="Arial, sans-serif" font-size="22" font-weight="600">Worth 14 seconds?</text>
+    </g>
+    <g filter="url(#miniShadow)">
+      <rect x="286" y="350" width="244" height="104" rx="24" fill="#FFF8F2"/>
+      <text x="320" y="396" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="26" font-weight="800">CTA</text>
+      <text x="374" y="396" fill="#1B1C1A" fill-opacity="0.72" font-family="Arial, sans-serif" font-size="24" font-weight="700">15-min founder fit?</text>
+    </g>
+  </g>
+
+  <defs>
+    <linearGradient id="bg" x1="134" y1="72" x2="1112" y2="838" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF9"/>
+      <stop offset="1" stop-color="#F0EBE2"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="110" y1="212" x2="470" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="white"/>
+      <stop offset="1" stop-color="#FFF5EC"/>
+    </linearGradient>
+    <filter id="shadow" x="80" y="190" width="454" height="512" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="12" dy="12" stdDeviation="0" flood-color="#1B1C1A"/>
+    </filter>
+    <filter id="miniShadow" x="280" y="70" width="264" height="118" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="8" dy="8" stdDeviation="0" flood-color="#1B1C1A" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+</svg>

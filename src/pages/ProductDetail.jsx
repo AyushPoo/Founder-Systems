@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import FoundersVisualCard from '../components/FoundersVisualCard';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
-import { getVisualThemeFromCategory } from '../utils/visualTheme';
 import {
     detectPreferredCurrency,
     formatCreditValue,
@@ -112,6 +110,7 @@ const ProductDetail = () => {
         : '';
     const primaryCheckoutCurrency = preferredCurrency === 'USD' ? 'USD' : 'INR';
     const secondaryCheckoutCurrency = primaryCheckoutCurrency === 'INR' ? 'USD' : 'INR';
+    const heroImage = product?.images?.[0] || product?.thumbnail;
 
     if (loading) {
         return (
@@ -228,15 +227,29 @@ const ProductDetail = () => {
                             {product.subtitle}
                         </p>
                     </div>
-                    <div className="lg:max-w-[30rem] lg:justify-self-end">
-                        <FoundersVisualCard
-                            variant="hero"
-                            theme={getVisualThemeFromCategory(product.category)}
-                            eyebrow={product.category || 'Founder Product'}
-                            meta={product.productId}
-                            title={product.title}
-                            subtitle={product.subtitle}
-                        />
+                    <div className="lg:max-w-[30rem] lg:justify-self-end w-full">
+                        <div className="relative overflow-hidden rounded-[2rem] border-2 border-brand-black bg-brand-black shadow-[10px_10px_0px_0px_rgba(27,28,26,1)] aspect-[4/5]">
+                            {heroImage ? (
+                                <img
+                                    src={heroImage}
+                                    alt={product.title}
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
+                            )}
+                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.08)_46%,rgba(15,23,42,0.28)_100%)]" />
+                            <div className="absolute left-4 top-4 flex gap-2">
+                                <span className="rounded-full border border-white/70 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black">
+                                    {product.category || 'Founder Product'}
+                                </span>
+                                {product.productId ? (
+                                    <span className="rounded-full border border-white/18 bg-brand-black/52 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white">
+                                        {product.productId}
+                                    </span>
+                                ) : null}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

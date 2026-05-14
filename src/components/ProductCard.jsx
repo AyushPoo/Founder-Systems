@@ -22,19 +22,19 @@ const PRODUCT_ART_DIRECTION = {
         badge: 'Ecommerce',
     },
     'promptdeck-ai': {
-        hook: 'Turn a rough story into a sharper deck fast.',
-        chips: ['Story', 'Slides', 'Exports'],
+        hook: 'Go from rough founder story to a cleaner investor deck.',
+        chips: ['Story', 'Slides', 'Export'],
         badge: 'AI app',
     },
+    'founder-spec-generator': {
+        hook: 'Pressure-test the venture before you build the wrong v1.',
+        chips: ['Idea', 'Scope', 'GTM'],
+        badge: 'Strategy',
+    },
     'founder-outreach-kit': {
-        hook: 'Turn your offer into founder-grade outbound.',
+        hook: 'Tighten the offer before it becomes outbound copy.',
         chips: ['Email', 'LinkedIn', 'Objections'],
         badge: 'Workspace',
-    },
-    'fundraising-suite': {
-        hook: 'Get your fundraising stack in one sharp bundle.',
-        chips: ['Finance', 'Deck', 'Bundle'],
-        badge: 'Bundle',
     },
 };
 
@@ -69,17 +69,19 @@ const ProductCard = ({
                     <img
                         src={thumbnail}
                         alt={name}
-                        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${isComingSoon ? 'grayscale-[0.2] opacity-85' : ''}`}
+                        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${isComingSoon ? 'grayscale-[0.2] opacity-85' : ''}`}
                     />
-                ) : null}
+                ) : (
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
+                )}
 
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.18)_26%,rgba(15,23,42,0.88)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.06)_0%,rgba(15,23,42,0.1)_40%,rgba(15,23,42,0.38)_100%)]" />
 
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
-                    <span className="rounded-full border border-white/65 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-sm">
+                    <span className="rounded-full border border-white/70 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-sm">
                         {category || 'Founder Product'}
                     </span>
-                    <span className="rounded-full border border-white/20 bg-brand-black/55 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+                    <span className="rounded-full border border-white/22 bg-brand-black/55 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
                         {artDirection.badge}
                     </span>
                 </div>
@@ -100,23 +102,20 @@ const ProductCard = ({
                     </div>
                 )}
 
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                    <div className="rounded-[28px] border border-white/15 bg-brand-black/72 p-4 text-white shadow-[0_18px_44px_rgba(15,23,42,0.28)] backdrop-blur-sm">
-                        <p className="max-w-[22ch] text-[1.72rem] font-black uppercase leading-[0.94] tracking-[-0.05em] text-white">
-                            {artDirection.hook}
-                        </p>
-                        <div className="mt-4 flex flex-wrap gap-2">
+                {chips.length > 0 ? (
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                        <div className="inline-flex flex-wrap gap-2 rounded-full border border-white/14 bg-brand-black/42 px-3 py-2 backdrop-blur-sm">
                             {chips.map((chip) => (
                                 <span
                                     key={chip}
-                                    className="rounded-full border border-white/14 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/90"
+                                    className="rounded-full border border-white/14 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/92"
                                 >
                                     {chip}
                                 </span>
                             ))}
                         </div>
                     </div>
-                </div>
+                ) : null}
             </Link>
 
             <div className="flex flex-grow flex-col p-6">
@@ -132,7 +131,7 @@ const ProductCard = ({
                     </div>
                 </div>
 
-                <div className="mb-2 flex items-start justify-between gap-4">
+                <div className="mb-3 flex items-start justify-between gap-4">
                     <h3 className="line-clamp-2 text-xl font-black text-brand-black transition-colors duration-200 group-hover:text-brand-orange">
                         {name}
                     </h3>
@@ -151,6 +150,10 @@ const ProductCard = ({
                         </div>
                     )}
                 </div>
+
+                <p className="mb-3 text-sm font-black uppercase tracking-[0.14em] text-brand-black/60">
+                    {artDirection.hook}
+                </p>
 
                 <p className="mb-6 flex-grow line-clamp-3 text-sm font-medium leading-relaxed text-brand-black/70">
                     {description}

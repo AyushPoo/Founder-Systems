@@ -1,0 +1,41 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
+  <rect x="34" y="34" width="1132" height="832" rx="44" fill="url(#bg)" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="80" y="82" width="242" height="58" rx="29" fill="white" fill-opacity="0.94" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="114" cy="111" r="8" fill="#FF5A1F"/>
+  <text x="136" y="120" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3.2">FOUNDER GUIDE</text>
+  <rect x="952" y="82" width="182" height="58" rx="29" fill="#1B1C1A" fill-opacity="0.82"/>
+  <text x="997" y="119" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2.4">7 MIN READ</text>
+
+  <g transform="translate(84 186)">
+    <rect x="0" y="0" width="442" height="514" rx="36" fill="white" stroke="#1B1C1A" stroke-width="4"/>
+    <image href="../finance.png" x="34" y="26" width="374" height="374" preserveAspectRatio="xMidYMid meet"/>
+    <rect x="44" y="390" width="354" height="82" rx="24" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="2"/>
+    <text x="78" y="438" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Model revenue, CAC, burn,</text>
+    <text x="78" y="474" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">headcount, and runway.</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="622" y="178" width="500" height="390" rx="34" fill="white" stroke="#1B1C1A" stroke-width="4"/>
+    <image href="../products/saas-model/saas-model-1.png" x="656" y="214" width="432" height="320" preserveAspectRatio="xMidYMid slice"/>
+  </g>
+
+  <g>
+    <rect x="628" y="618" width="150" height="54" rx="22" fill="#FF5A1F"/>
+    <text x="667" y="651" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Runway</text>
+    <rect x="794" y="618" width="108" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
+    <text x="829" y="651" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">CAC</text>
+    <rect x="918" y="618" width="120" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
+    <text x="952" y="651" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Burn</text>
+  </g>
+
+  <defs>
+    <linearGradient id="bg" x1="122" y1="74" x2="1124" y2="836" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF9"/>
+      <stop offset="1" stop-color="#F5EBDD"/>
+    </linearGradient>
+    <filter id="shadow" x="614" y="170" width="524" height="414" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="12" dy="12" stdDeviation="0" flood-color="#1B1C1A"/>
+    </filter>
+  </defs>
+</svg>

@@ -1,0 +1,33 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="56" fill="#0F172A"/>
+  <rect x="34" y="34" width="1132" height="832" rx="44" fill="url(#bg)" stroke="#1B1C1A" stroke-width="4"/>
+  <circle cx="164" cy="134" r="8" fill="#B787FF"/>
+  <text x="184" y="143" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="800" letter-spacing="3.6">PROMPTDECK AI</text>
+  <rect x="886" y="92" width="248" height="52" rx="26" fill="white" fill-opacity="0.08" stroke="white" stroke-opacity="0.18"/>
+  <text x="939" y="126" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="2">LIVE PRODUCT</text>
+
+  <g filter="url(#shadow)">
+    <rect x="92" y="188" width="1016" height="566" rx="38" fill="#0F1220" stroke="white" stroke-opacity="0.12" stroke-width="3"/>
+    <image href="../pitch-deck/thumbnail.png" x="132" y="228" width="936" height="486" preserveAspectRatio="xMidYMid slice"/>
+  </g>
+
+  <g filter="url(#cardShadow)">
+    <rect x="86" y="612" width="446" height="170" rx="34" fill="#161B2C" fill-opacity="0.94" stroke="white" stroke-opacity="0.12"/>
+    <text x="126" y="676" fill="white" font-family="Arial, sans-serif" font-size="48" font-weight="900">Talk. Build. Export.</text>
+    <text x="126" y="726" fill="white" fill-opacity="0.72" font-family="Arial, sans-serif" font-size="24" font-weight="600">From rough startup story to deck structure,</text>
+    <text x="126" y="760" fill="white" fill-opacity="0.72" font-family="Arial, sans-serif" font-size="24" font-weight="600">slides, and investor-ready PDF.</text>
+  </g>
+
+  <defs>
+    <linearGradient id="bg" x1="120" y1="80" x2="1120" y2="840" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12192D"/>
+      <stop offset="1" stop-color="#0D1324"/>
+    </linearGradient>
+    <filter id="shadow" x="84" y="184" width="1040" height="590" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="16" dy="16" stdDeviation="0" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+    <filter id="cardShadow" x="80" y="606" width="474" height="198" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="10" dy="10" stdDeviation="0" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+</svg>
