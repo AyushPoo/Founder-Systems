@@ -67,6 +67,8 @@ const About = () => {
                                 Email Me
                             </a>
                         </div>
+
+                        <CreditMilestoneSection />
                     </div>
 
                     {/* Right Column: Photo */}
@@ -81,8 +83,6 @@ const About = () => {
                     </div>
 
                 </div>
-
-                <CreditMilestoneSection />
             </main>
 
             <Footer />
