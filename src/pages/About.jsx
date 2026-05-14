@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
+import CreditMilestoneSection from '../components/CreditMilestoneSection';
 
 const About = () => {
     useEffect(() => {
@@ -80,6 +81,8 @@ const About = () => {
                     </div>
 
                 </div>
+
+                <CreditMilestoneSection />
             </main>
 
             <Footer />

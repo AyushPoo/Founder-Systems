@@ -4,7 +4,6 @@ import Hero from '../components/Hero';
 import SocialProof from '../components/SocialProof';
 import Toolkit from '../components/Toolkit';
 import HowItWorks from '../components/HowItWorks';
-import CreditMilestoneSection from '../components/CreditMilestoneSection';
 import Testimonials from '../components/Testimonials';
 import CTASection from '../components/CTASection';
 import Footer from '../components/Footer';
@@ -22,7 +21,6 @@ const Home = () => {
             <SocialProof />
             <Toolkit />
             <HowItWorks />
-            <CreditMilestoneSection />
             <Testimonials />
             <CTASection />
             <Footer />

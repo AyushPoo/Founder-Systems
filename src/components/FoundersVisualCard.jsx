@@ -3,7 +3,7 @@ const THEME_MAP = {
         shell: 'bg-white',
         panel: 'bg-[#fff7ef]',
         accent: 'bg-brand-orange',
-        accentSoft: 'bg-brand-orange/10',
+        accentSoft: 'bg-brand-orange/12',
         text: 'text-brand-black',
         muted: 'text-brand-black/62',
         chip: 'bg-white',
@@ -112,25 +112,6 @@ function buildCardContent({ title, subtitle, variant, displayTitle, displaySubti
     };
 }
 
-function AbstractArtwork({ theme }) {
-    const tone = getTheme(theme);
-
-    return (
-        <div className="relative min-h-[180px] overflow-hidden rounded-[1.6rem] border-2 border-brand-black">
-            <div className={cx('absolute inset-0', tone.panel)} />
-            <div className="absolute inset-0 opacity-50" style={{
-                backgroundImage: 'linear-gradient(rgba(26,26,26,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(26,26,26,0.06) 1px, transparent 1px)',
-                backgroundSize: '52px 52px',
-            }} />
-            <div className={cx('absolute top-[16%] right-[10%] h-[44%] w-[34%] rounded-[1.8rem] border-4 border-brand-black shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]', tone.accent)} />
-            <div className="absolute bottom-[12%] left-[7%] h-[28%] w-[22%] rounded-[1.4rem] border-4 border-brand-black bg-white shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]" />
-            <div className="absolute bottom-[22%] left-[28%] h-[20%] w-[16%] rounded-[1.1rem] bg-brand-black shadow-[4px_4px_0px_0px_rgba(255,95,21,1)]" />
-            <div className="absolute left-[42%] top-[44%] h-[33%] w-[33%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-brand-black" />
-            <div className="absolute left-[42%] top-[44%] h-[21%] w-[21%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-brand-orange" />
-        </div>
-    );
-}
-
 const FoundersVisualCard = ({
     title,
     subtitle,
@@ -142,6 +123,7 @@ const FoundersVisualCard = ({
     displayTitle,
     displaySubtitle,
     compact = false,
+    showAccents = true,
 }) => {
     const tone = getTheme(theme);
     const content = buildCardContent({ title, subtitle, variant, displayTitle, displaySubtitle });
@@ -196,7 +178,18 @@ const FoundersVisualCard = ({
                     </p>
                 ) : null}
 
-                <AbstractArtwork theme={theme} />
+                {showAccents ? (
+                    <div className={cx(
+                        'mt-2 rounded-[1.4rem] border border-brand-black/10 px-4 py-4',
+                        tone.panel,
+                    )}>
+                        <div className="flex items-center gap-3">
+                            <span className={cx('h-3 rounded-full border border-brand-black/15', compact ? 'w-16' : 'w-20', tone.accent)} />
+                            <span className={cx('h-3 rounded-full border border-brand-black/15', compact ? 'w-10' : 'w-14', tone.accentSoft)} />
+                            <span className="h-px flex-1 bg-brand-black/10" />
+                        </div>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

@@ -1,9 +1,11 @@
 export const creditMilestone = {
     goalCredits: 10000,
-    eyebrow: 'Founder milestone',
+    eyebrow: 'Founder note',
     title: 'Road to 10,000 Credits',
     subtitle:
-        'Every credit purchased pushes Founder Systems and GradeSense closer to full-time focus, which means faster releases, sharper tools, and better support for founders.',
+        'Founder Systems is being built slowly, honestly, and independently. Every purchase helps me keep going, keep improving the tools, and move closer to working on Founder Systems and GradeSense full-time.',
+    personalNote:
+        "If you've bought something here already, thank you. You're not just buying a product — you're helping an independent founder keep building useful things with more focus and less compromise.",
     checkpointTitle: 'What this unlocks',
     checkpoints: [
         'Faster product shipping across founder tools',
