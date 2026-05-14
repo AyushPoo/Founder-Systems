@@ -1,5 +1,4 @@
 export const creditMilestone = {
-    currentCredits: 0,
     goalCredits: 10000,
     eyebrow: 'Founder milestone',
     title: 'Road to 10,000 Credits',

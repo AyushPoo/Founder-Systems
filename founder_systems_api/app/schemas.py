@@ -335,6 +335,11 @@ class CreditWalletLedgerEnvelope(BaseModel):
     entries: list[CreditLedgerEntryResponse] = Field(default_factory=list)
 
 
+class PublicCreditMilestoneResponse(BaseModel):
+    current_credits: int
+    goal_credits: int
+
+
 class CreditUnlockResponse(BaseModel):
     ok: bool = True
     entitlement: EntitlementResponse

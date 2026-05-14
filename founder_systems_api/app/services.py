@@ -829,6 +829,35 @@ def get_credit_balance(db: Session, *, user_id: str, product_slug: str, credit_t
     return int(balance or 0)
 
 
+def get_public_credit_milestone_total(db: Session) -> int:
+    total = 0
+    paid_purchases = db.scalars(select(Purchase).where(Purchase.status == "paid")).all()
+
+    for purchase in paid_purchases:
+        metadata = purchase.metadata_json or {}
+        purchase_kind = str(metadata.get("kind") or "").strip().lower()
+
+        if purchase_kind == "credit_pack":
+            total += int(metadata.get("credits_granted") or 0)
+            continue
+
+        for item in purchase.items:
+            item_metadata = item.metadata_json or {}
+            product = item.product or (db.get(Product, item.product_id) if item.product_id else None)
+            quantity = max(int(item.quantity or 1), 1)
+            credit_equivalent = 0
+
+            if product is not None:
+                credit_equivalent = get_product_credit_price(product)
+
+            if credit_equivalent <= 0:
+                credit_equivalent = int(item_metadata.get("credits_granted") or 0)
+
+            total += credit_equivalent * quantity
+
+    return int(total)
+
+
 def grant_promptdeck_purchase(db: Session, *, user_id: str, purchase: Purchase, settings: Settings) -> Entitlement:
     return grant_product_purchase(
         db,

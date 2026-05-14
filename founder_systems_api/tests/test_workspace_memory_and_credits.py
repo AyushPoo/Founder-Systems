@@ -271,6 +271,71 @@ def test_credit_packs_fund_wallet_and_can_unlock_products(monkeypatch, tmp_path)
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_public_credit_milestone_counts_paid_credit_packs_and_paid_products(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+
+        pack_order = await client.post("/wallet/packs/checkout", json={"pack_slug": "starter", "currency": "INR"})
+        assert pack_order.status_code == 200, pack_order.text
+        pack_order_body = pack_order.json()
+
+        pack_webhook_payload = {
+            "event": "payment.captured",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_wallet_pack_milestone_001",
+                        "order_id": pack_order_body["razorpay_order_id"],
+                    }
+                }
+            },
+        }
+        pack_webhook = await client.post(
+            "/webhooks/razorpay",
+            content=json.dumps(pack_webhook_payload),
+            headers={
+                "Content-Type": "application/json",
+                "X-Razorpay-Signature": "mock-signature",
+            },
+        )
+        assert pack_webhook.status_code == 200, pack_webhook.text
+
+        product_order = await client.post("/checkout/orders", json={"product_slug": "saas-financial-model", "currency": "INR"})
+        assert product_order.status_code == 200, product_order.text
+        product_order_body = product_order.json()
+
+        product_webhook_payload = {
+            "event": "payment.captured",
+            "payload": {
+                "payment": {
+                    "entity": {
+                        "id": "pay_product_milestone_001",
+                        "order_id": product_order_body["razorpay_order_id"],
+                    }
+                }
+            },
+        }
+        product_webhook = await client.post(
+            "/webhooks/razorpay",
+            content=json.dumps(product_webhook_payload),
+            headers={
+                "Content-Type": "application/json",
+                "X-Razorpay-Signature": "mock-signature",
+            },
+        )
+        assert product_webhook.status_code == 200, product_webhook.text
+
+        milestone = await client.get("/public/credits/milestone")
+        assert milestone.status_code == 200, milestone.text
+        body = milestone.json()
+        assert body["current_credits"] == 18
+        assert body["goal_credits"] == 10000
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def test_credit_checkout_supports_custom_credit_amounts_in_usd(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 

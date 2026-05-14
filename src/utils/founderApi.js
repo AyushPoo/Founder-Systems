@@ -36,6 +36,10 @@ export function getAuthSession() {
   return apiFetch('/auth/session', { method: 'GET' });
 }
 
+export function getPublicCreditMilestone() {
+  return apiFetch('/public/credits/milestone', { method: 'GET' });
+}
+
 export function startMagicLink(payload) {
   return apiFetch('/auth/magic-link/start', {
     method: 'POST',

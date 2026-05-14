@@ -40,6 +40,7 @@ from .schemas import (
     CreditPackCheckoutRequest,
     CreditPackCheckoutResponse,
     CreditPackResponse,
+    PublicCreditMilestoneResponse,
     CreditUnlockResponse,
     CreditWalletEnvelope,
     CreditWalletLedgerEnvelope,
@@ -86,6 +87,7 @@ from .services import (
     get_or_create_credit_wallet,
     get_or_create_workspace,
     get_credit_balance,
+    get_public_credit_milestone_total,
     get_product_credit_price,
     get_or_create_user,
     grant_promptdeck_purchase,
@@ -406,6 +408,14 @@ def require_current_user(user: User | None = Depends(get_optional_current_user))
 @app.get("/health")
 def health() -> dict[str, Any]:
     return {"status": "ok", "service": settings.app_name, "env": settings.env}
+
+
+@app.get("/public/credits/milestone", response_model=PublicCreditMilestoneResponse)
+def public_credit_milestone(db: Session = Depends(get_db)) -> PublicCreditMilestoneResponse:
+    return PublicCreditMilestoneResponse(
+        current_credits=get_public_credit_milestone_total(db),
+        goal_credits=10000,
+    )
 
 
 @app.post("/auth/magic-link/start", response_model=MagicLinkStartResponse)

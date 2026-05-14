@@ -1,15 +1,37 @@
+import { useEffect, useState } from 'react';
 import FoundersVisualCard from './FoundersVisualCard';
 import { creditMilestone } from '../data/creditMilestone';
+import { getPublicCreditMilestone } from '../utils/founderApi';
 
 function formatCredits(value) {
     return new Intl.NumberFormat('en-IN').format(value);
 }
 
 const CreditMilestoneSection = () => {
+    const [currentCredits, setCurrentCredits] = useState(0);
+
+    useEffect(() => {
+        let cancelled = false;
+        getPublicCreditMilestone()
+            .then((payload) => {
+                if (!cancelled) {
+                    setCurrentCredits(Number(payload?.current_credits || 0));
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setCurrentCredits(0);
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
     const progressRatio = Math.min(1, creditMilestone.goalCredits > 0
-        ? creditMilestone.currentCredits / creditMilestone.goalCredits
+        ? currentCredits / creditMilestone.goalCredits
         : 0);
-    const progressWidth = `${Math.max(progressRatio * 100, creditMilestone.currentCredits > 0 ? 8 : 0)}%`;
+    const progressWidth = `${Math.max(progressRatio * 100, currentCredits > 0 ? 8 : 0)}%`;
 
     return (
         <section className="px-6 md:px-12 py-20 md:py-24">
@@ -36,7 +58,7 @@ const CreditMilestoneSection = () => {
                                     Progress so far
                                 </p>
                                 <p className="mt-2 text-3xl md:text-4xl font-black tracking-tight-brand">
-                                    {formatCredits(creditMilestone.currentCredits)} / {formatCredits(creditMilestone.goalCredits)}
+                                    {formatCredits(currentCredits)} / {formatCredits(creditMilestone.goalCredits)}
                                 </p>
                             </div>
                             <p className="text-sm font-semibold text-brand-black/54">
