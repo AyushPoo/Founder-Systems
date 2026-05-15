@@ -227,13 +227,13 @@ const ProductDetail = () => {
                             {product.subtitle}
                         </p>
                     </div>
-                    <div className="lg:max-w-[30rem] lg:justify-self-end w-full">
-                        <div className="relative overflow-hidden rounded-[2rem] border-2 border-brand-black bg-brand-black shadow-[10px_10px_0px_0px_rgba(27,28,26,1)] aspect-[4/5]">
+                    <div className="lg:max-w-[24rem] lg:justify-self-end w-full">
+                        <div className="relative h-[18rem] sm:h-[22rem] lg:h-[28rem] overflow-hidden rounded-[2rem] border-2 border-brand-black bg-brand-black shadow-[10px_10px_0px_0px_rgba(27,28,26,1)]">
                             {heroImage ? (
                                 <img
                                     src={heroImage}
                                     alt={product.title}
-                                    className="absolute inset-0 h-full w-full object-cover"
+                                    className="absolute inset-0 h-full w-full object-contain"
                                 />
                             ) : (
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
@@ -243,11 +243,6 @@ const ProductDetail = () => {
                                 <span className="rounded-full border border-white/70 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black">
                                     {product.category || 'Founder Product'}
                                 </span>
-                                {product.productId ? (
-                                    <span className="rounded-full border border-white/18 bg-brand-black/52 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white">
-                                        {product.productId}
-                                    </span>
-                                ) : null}
                             </div>
                         </div>
                     </div>
