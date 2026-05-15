@@ -81,8 +81,7 @@
   ],
   "images": [
     "/images/products/founder-spec-generator/thumbnail.svg",
-    "/images/hero.png",
-    "/images/strategy.png"
+    "/images/hero.png"
   ],
   "launchUrl": "/tools/founder-spec-generator",
   "category": "Strategy"

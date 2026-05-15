@@ -238,12 +238,7 @@ const ProductDetail = () => {
                             ) : (
                                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
                             )}
-                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.08)_46%,rgba(15,23,42,0.28)_100%)]" />
-                            <div className="absolute left-4 top-4 flex gap-2">
-                                <span className="rounded-full border border-white/70 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black">
-                                    {product.category || 'Founder Product'}
-                                </span>
-                            </div>
+                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(15,23,42,0.04)_46%,rgba(15,23,42,0.16)_100%)]" />
                         </div>
                     </div>
                 </div>

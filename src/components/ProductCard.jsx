@@ -75,13 +75,13 @@ const ProductCard = ({
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
                 )}
 
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.06)_0%,rgba(15,23,42,0.1)_40%,rgba(15,23,42,0.38)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.06)_42%,rgba(15,23,42,0.16)_100%)]" />
 
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
-                    <span className="rounded-full border border-white/70 bg-white/92 px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-sm">
+                    <span className="rounded-full border-2 border-brand-black bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
                         {category || 'Founder Product'}
                     </span>
-                    <span className="rounded-full border border-white/22 bg-brand-black/55 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white backdrop-blur-sm">
+                    <span className="rounded-full border-2 border-brand-black bg-brand-black px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
                         {artDirection.badge}
                     </span>
                 </div>
@@ -104,11 +104,11 @@ const ProductCard = ({
 
                 {chips.length > 0 ? (
                     <div className="absolute inset-x-0 bottom-0 p-4">
-                        <div className="inline-flex flex-wrap gap-2 rounded-full border border-white/14 bg-brand-black/42 px-3 py-2 backdrop-blur-sm">
+                        <div className="inline-flex flex-wrap gap-2">
                             {chips.map((chip) => (
                                 <span
                                     key={chip}
-                                    className="rounded-full border border-white/14 bg-white/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/92"
+                                    className="rounded-full border-2 border-brand-black bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]"
                                 >
                                     {chip}
                                 </span>
