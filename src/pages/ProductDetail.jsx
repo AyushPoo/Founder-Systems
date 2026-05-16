@@ -54,6 +54,19 @@ const BundleItem = ({ name, desc, icon }) => (
     </div>
 );
 
+const getProductMediaLabel = (product, productAction, imageCount) => {
+    if (!product) {
+        return 'Product preview';
+    }
+    if (productAction?.kind === 'launch') {
+        return imageCount > 1 ? 'Tool preview' : 'Tool snapshot';
+    }
+    if (product.previewUrl) {
+        return imageCount > 1 ? 'Model preview' : 'Model snapshot';
+    }
+    return imageCount > 1 ? 'Product preview' : 'Product snapshot';
+};
+
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -127,7 +140,9 @@ const ProductDetail = () => {
                 .filter((imagePath) => !NON_PRODUCT_GALLERY_IMAGES.has(imagePath))
         )
     );
+    const hasProductMedia = galleryImages.length > 0;
     const showProductGallery = galleryImages.length > 1;
+    const mediaLabel = getProductMediaLabel(product, productAction, galleryImages.length);
 
     if (loading) {
         return (
@@ -441,9 +456,19 @@ const ProductDetail = () => {
                     {/* ─── Right Column: Media + Purchase ─────────────────── */}
                     <div className="lg:col-span-5 flex flex-col gap-10 sticky top-32">
 
-                        {/* Image Carousel */}
-                        {showProductGallery && (
+                        {/* Product Media */}
+                        {hasProductMedia && (
                             <div className="bg-white rounded-xl border-2 border-brand-black p-3 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] flex flex-col gap-3">
+                                <div className="px-2 pt-2">
+                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">
+                                        {mediaLabel}
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-brand-black/58">
+                                        {showProductGallery
+                                            ? 'Browse the actual screens, sheets, or working views before you buy.'
+                                            : 'A quick look at the actual product surface so the page is not just sales copy.'}
+                                    </p>
+                                </div>
                                 {/* Main Image */}
                                 <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[380px] rounded-lg bg-surface-lowest flex items-center justify-center overflow-hidden group border-2 border-brand-black">
                                     <img
