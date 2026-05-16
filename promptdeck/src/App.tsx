@@ -6,20 +6,22 @@ import { CanvasPanel } from './components/layout/CanvasPanel'
 import { NavigatorPanel } from './components/layout/NavigatorPanel'
 import { PaymentGate } from './components/payment/PaymentGate'
 import { WorkspaceMemoryBar } from './components/workspace/WorkspaceMemoryBar'
+import { getPromptDeckDemoParams } from './demo/promptdeckDemo'
 import './index.css'
 
 function AppInner() {
   const { state } = useDeck()
-  const [chatWidth, setChatWidth] = useState(300)
-  const [chatCollapsed, setChatCollapsed] = useState(false)
+  const demo = getPromptDeckDemoParams()
+  const [chatWidth, setChatWidth] = useState(demo.enabled ? 336 : 300)
+  const [chatCollapsed, setChatCollapsed] = useState(demo.enabled ? demo.chatCollapsed : false)
   const [navWidth, setNavWidth] = useState(196)
 
   // Auto-collapse chat when deck is built to give more canvas space
   useEffect(() => {
-    if (state.deckBuilt) {
+    if (state.deckBuilt && !demo.enabled) {
       setChatCollapsed(true)
     }
-  }, [state.deckBuilt])
+  }, [demo.enabled, state.deckBuilt])
   const dragging = useRef<null | 'chat' | 'nav'>(null)
   const startX = useRef(0)
   const startW = useRef(0)

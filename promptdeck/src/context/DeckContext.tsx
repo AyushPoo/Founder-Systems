@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import type { DeckState, SlideConfig, Message, Dimensions, ConfirmationCardData, SlideDelta } from '../types'
 import { DEFAULT_DECK_STATE } from '../constants'
 import { guardSlideProps } from '../lib/slideGuards'
+import { createPromptDeckDemoState, getPromptDeckDemoParams } from '../demo/promptdeckDemo'
 
 export interface Reference {
   ref_id: string
@@ -139,15 +140,20 @@ const DeckContext = createContext<{
 } | null>(null)
 
 export function DeckProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, {
-    ...(DEFAULT_DECK_STATE as DeckState),
-    references: [],
-    dragMode: false,
-    deckStyle: 'dark',
-    prevSlideIndex: 0,
-    customStyleUrl: undefined,
-    assets: { logoDataUrl: undefined, founderPhotos: [], productScreenshot: undefined },
-  } as FullDeckState)
+  const [state, dispatch] = useReducer(reducer, undefined, () => {
+    const demo = getPromptDeckDemoParams()
+    const baseDeckState = demo.enabled ? createPromptDeckDemoState() : (DEFAULT_DECK_STATE as DeckState)
+
+    return {
+      ...baseDeckState,
+      references: [],
+      dragMode: false,
+      deckStyle: demo.enabled ? demo.deckStyle : 'dark',
+      prevSlideIndex: 0,
+      customStyleUrl: undefined,
+      assets: { logoDataUrl: undefined, founderPhotos: [], productScreenshot: undefined },
+    } as FullDeckState
+  })
   return <DeckContext.Provider value={{ state, dispatch }}>{children}</DeckContext.Provider>
 }
 

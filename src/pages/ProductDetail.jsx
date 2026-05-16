@@ -24,6 +24,7 @@ const NON_PRODUCT_GALLERY_IMAGES = new Set([
 const INLINE_TOOL_GALLERY_IDS = new Set([
     'founder-spec-generator',
     'founder-outreach-kit',
+    'promptdeck-ai',
 ]);
 
 const PRODUCT_MEDIA_CAPTIONS = {
@@ -39,7 +40,10 @@ const PRODUCT_MEDIA_CAPTIONS = {
         'The output area breaks the finished campaign into strategy, emails, LinkedIn, objections, and export.',
     ],
     'promptdeck-ai': [
-        'PromptDeck is still missing a trustworthy public screenshot set here, so we do not fake the gallery.',
+        'The full workspace keeps founder chat, live slide canvas, and slide navigation visible in one place.',
+        'Each deck section stays editable while the story structure tightens in the middle canvas.',
+        'Traction and proof points update in real time while the AI conversation remains on the left.',
+        'The final ask stays inside the same artifact flow instead of forcing founders into a separate export tool.',
     ],
 };
 
@@ -171,7 +175,6 @@ const ProductDetail = () => {
     const showProductGallery = galleryImages.length > 1;
     const mediaLabel = getProductMediaLabel(product, productAction, galleryImages.length);
     const useInlineToolGallery = productAction?.kind === 'launch' && INLINE_TOOL_GALLERY_IDS.has(id) && hasProductMedia;
-    const currentMediaCaption = getProductMediaCaption(id, currentImageIndex);
 
     if (loading) {
         return (
@@ -314,61 +317,29 @@ const ProductDetail = () => {
                         </div>
 
                         <div className="rounded-[24px] border-2 border-brand-black bg-brand-cream p-3 md:p-5">
-                            <div className="mx-auto max-w-5xl">
-                            <div className="relative overflow-hidden rounded-[18px] border-2 border-brand-black bg-white">
-                                <img
-                                    src={galleryImages[currentImageIndex]}
-                                    alt={`${product.title} - Preview ${currentImageIndex + 1}`}
-                                    className="h-auto max-h-[560px] w-full object-contain object-top"
-                                />
-
-                                {galleryImages.length > 1 && (
-                                    <>
-                                        <button
-                                            onClick={() => setCurrentImageIndex((prev) => prev === 0 ? galleryImages.length - 1 : prev - 1)}
-                                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border-2 border-brand-black bg-white px-3 py-2 text-sm font-black text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] transition-transform hover:-translate-y-[55%]"
-                                            aria-label="Previous image"
-                                        >
-                                            &larr;
-                                        </button>
-                                        <button
-                                            onClick={() => setCurrentImageIndex((prev) => prev === galleryImages.length - 1 ? 0 : prev + 1)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border-2 border-brand-black bg-white px-3 py-2 text-sm font-black text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] transition-transform hover:-translate-y-[55%]"
-                                            aria-label="Next image"
-                                        >
-                                            &rarr;
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-
-                            {currentMediaCaption ? (
-                                <p className="mt-4 text-sm font-medium leading-relaxed text-brand-black/68">
-                                    {currentMediaCaption}
-                                </p>
-                            ) : null}
-
-                            {galleryImages.length > 1 && (
-                                <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-                                    {galleryImages.map((img, idx) => (
-                                        <button
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {galleryImages.map((img, idx) => {
+                                    const caption = getProductMediaCaption(id, idx);
+                                    return (
+                                        <figure
                                             key={img}
-                                            onClick={() => setCurrentImageIndex(idx)}
-                                            className={`shrink-0 overflow-hidden rounded-2xl border-2 bg-white transition-all ${currentImageIndex === idx
-                                                ? 'border-brand-black shadow-[3px_3px_0px_0px_rgba(27,28,26,1)]'
-                                                : 'border-brand-black/20 opacity-70 hover:opacity-100'
-                                                }`}
-                                            aria-label={`View product image ${idx + 1}`}
+                                            className="overflow-hidden rounded-[18px] border-2 border-brand-black bg-white shadow-[3px_3px_0px_0px_rgba(27,28,26,1)]"
                                         >
-                                            <img
-                                                src={img}
-                                                alt={`Thumbnail ${idx + 1}`}
-                                                className="h-20 w-28 object-cover object-top md:h-24 md:w-36"
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                                            <div className="aspect-[16/10] overflow-hidden bg-brand-cream p-3">
+                                                <img
+                                                    src={img}
+                                                    alt={`${product.title} - Preview ${idx + 1}`}
+                                                    className="h-full w-full object-contain object-center"
+                                                />
+                                            </div>
+                                            {caption ? (
+                                                <figcaption className="border-t-2 border-brand-black/10 px-4 py-3 text-sm font-medium leading-relaxed text-brand-black/70">
+                                                    {caption}
+                                                </figcaption>
+                                            ) : null}
+                                        </figure>
+                                    );
+                                })}
                             </div>
                         </div>
                     </section>
