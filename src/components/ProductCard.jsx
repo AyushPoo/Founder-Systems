@@ -44,6 +44,12 @@ const FALLBACK_ART_DIRECTION = {
     badge: 'Founder Systems',
 };
 
+const SCREENSHOT_LED_PRODUCTS = new Set([
+    'founder-spec-generator',
+    'founder-outreach-kit',
+    'promptdeck-ai',
+]);
+
 const ProductCard = ({
     id,
     name,
@@ -58,6 +64,7 @@ const ProductCard = ({
 }) => {
     const artDirection = PRODUCT_ART_DIRECTION[id] || FALLBACK_ART_DIRECTION;
     const chips = artDirection.chips?.slice(0, 3) || [];
+    const isScreenshotLed = SCREENSHOT_LED_PRODUCTS.has(id);
 
     return (
         <div className="card-elevated group flex flex-col overflow-hidden bg-white">
@@ -69,21 +76,26 @@ const ProductCard = ({
                     <img
                         src={thumbnail}
                         alt={name}
-                        className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${isComingSoon ? 'grayscale-[0.2] opacity-85' : ''}`}
+                        className={`absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02] ${isComingSoon ? 'grayscale-[0.2] opacity-85' : ''}`}
                     />
                 ) : (
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
                 )}
 
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.06)_42%,rgba(15,23,42,0.16)_100%)]" />
+                <div className={`absolute inset-0 ${isScreenshotLed
+                    ? 'bg-[linear-gradient(180deg,rgba(255,255,255,0.06)_0%,rgba(255,255,255,0.02)_48%,rgba(15,23,42,0.08)_100%)]'
+                    : 'bg-[linear-gradient(180deg,rgba(15,23,42,0.04)_0%,rgba(15,23,42,0.06)_42%,rgba(15,23,42,0.16)_100%)]'
+                    }`} />
 
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
                     <span className="rounded-full border-2 border-brand-black bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
                         {category || 'Founder Product'}
                     </span>
-                    <span className="rounded-full border-2 border-brand-black bg-brand-black px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
-                        {artDirection.badge}
-                    </span>
+                    {!isScreenshotLed ? (
+                        <span className="rounded-full border-2 border-brand-black bg-brand-black px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">
+                            {artDirection.badge}
+                        </span>
+                    ) : null}
                 </div>
 
                 {isBundle && (
@@ -102,7 +114,7 @@ const ProductCard = ({
                     </div>
                 )}
 
-                {chips.length > 0 ? (
+                {chips.length > 0 && !isScreenshotLed ? (
                     <div className="absolute inset-x-0 bottom-0 p-4">
                         <div className="inline-flex flex-wrap gap-2">
                             {chips.map((chip) => (
@@ -114,6 +126,14 @@ const ProductCard = ({
                                 </span>
                             ))}
                         </div>
+                    </div>
+                ) : null}
+
+                {isScreenshotLed ? (
+                    <div className="absolute bottom-4 left-4">
+                        <span className="rounded-full border border-white/70 bg-black/70 px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white">
+                            Real product view
+                        </span>
                     </div>
                 ) : null}
             </Link>

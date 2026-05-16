@@ -49,7 +49,7 @@
     "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
     "category": "Strategy",
     "productId": "FS011",
-    "thumbnail": "/images/products/founder-spec-generator/thumbnail.svg"
+    "thumbnail": "/images/products/founder-spec-generator/preview-1.png"
   },
   {
     "id": "founder-outreach-kit",
@@ -57,13 +57,13 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
-    "thumbnail": "/images/products/founder-outreach-kit/thumbnail.svg"
+    "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
   },
   {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
     "category": "Strategy",
-    "thumbnail": "/images/products/pitch-deck/thumbnail.png"
+    "thumbnail": "/images/products/pitch-deck/preview-1.png"
   }
 ]

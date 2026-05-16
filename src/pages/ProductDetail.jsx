@@ -21,6 +21,32 @@ const NON_PRODUCT_GALLERY_IMAGES = new Set([
     '/images/systems.png',
 ]);
 
+const INLINE_TOOL_GALLERY_IDS = new Set([
+    'founder-spec-generator',
+    'founder-outreach-kit',
+    'promptdeck-ai',
+]);
+
+const PRODUCT_MEDIA_CAPTIONS = {
+    'founder-spec-generator': [
+        'Choose the founder job you actually need: validate the direction, stress-test the idea, or package the plan.',
+        'The first paths keep the thinking sharp instead of turning into vague startup notes.',
+        'The packaging path turns the strongest answer into a tighter execution brief.',
+    ],
+    'founder-outreach-kit': [
+        'One workspace ties the founder intake, approval step, and campaign generation flow together.',
+        'The left side keeps the input conversational so the offer gets clearer before copy is generated.',
+        'The analysis rail flags gaps in offer, pain, proof, and CTA before the outbound sequence is approved.',
+        'The output area breaks the finished campaign into strategy, emails, LinkedIn, objections, and export.',
+    ],
+    'promptdeck-ai': [
+        'The deck builder starts as a structured storyboard instead of a blank slide deck.',
+        'PromptDeck keeps the core problem, notes, and deck structure visible in one editing surface.',
+        'The slide grid shows how the narrative builds across solution, GTM, traction, and ask.',
+        'Save, export, and present controls stay close to the live deck while you refine it.',
+    ],
+};
+
 const FaqItem = ({ q, a }) => {
     const [open, setOpen] = useState(false);
     return (
@@ -65,6 +91,11 @@ const getProductMediaLabel = (product, productAction, imageCount) => {
         return imageCount > 1 ? 'Model preview' : 'Model snapshot';
     }
     return imageCount > 1 ? 'Product preview' : 'Product snapshot';
+};
+
+const getProductMediaCaption = (productId, index) => {
+    const captions = PRODUCT_MEDIA_CAPTIONS[productId] || [];
+    return captions[index] || '';
 };
 
 const ProductDetail = () => {
@@ -143,6 +174,8 @@ const ProductDetail = () => {
     const hasProductMedia = galleryImages.length > 0;
     const showProductGallery = galleryImages.length > 1;
     const mediaLabel = getProductMediaLabel(product, productAction, galleryImages.length);
+    const useInlineToolGallery = productAction?.kind === 'launch' && INLINE_TOOL_GALLERY_IDS.has(id) && hasProductMedia;
+    const currentMediaCaption = getProductMediaCaption(id, currentImageIndex);
 
     if (loading) {
         return (
@@ -267,6 +300,82 @@ const ProductDetail = () => {
                         {checkoutNotice}
                     </div>
                 )}
+
+                {useInlineToolGallery && (
+                    <section className="mb-14 rounded-[28px] border-2 border-brand-black bg-white p-5 md:p-8 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+                        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">
+                                    Inside the tool
+                                </p>
+                                <h2 className="mt-2 text-2xl font-black tracking-tight-brand text-brand-black">
+                                    Actual product screens
+                                </h2>
+                            </div>
+                            <p className="max-w-2xl text-sm font-medium leading-relaxed text-brand-black/58">
+                                Browse the real workflow before you launch it. These are actual captures from the live product surface, not placeholder art.
+                            </p>
+                        </div>
+
+                        <div className="rounded-[24px] border-2 border-brand-black bg-brand-cream p-3 md:p-5">
+                            <div className="relative overflow-hidden rounded-[18px] border-2 border-brand-black bg-white">
+                                <img
+                                    src={galleryImages[currentImageIndex]}
+                                    alt={`${product.title} - Preview ${currentImageIndex + 1}`}
+                                    className="h-auto w-full object-cover object-top"
+                                />
+
+                                {galleryImages.length > 1 && (
+                                    <>
+                                        <button
+                                            onClick={() => setCurrentImageIndex((prev) => prev === 0 ? galleryImages.length - 1 : prev - 1)}
+                                            className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border-2 border-brand-black bg-white px-3 py-2 text-sm font-black text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] transition-transform hover:-translate-y-[55%]"
+                                            aria-label="Previous image"
+                                        >
+                                            &larr;
+                                        </button>
+                                        <button
+                                            onClick={() => setCurrentImageIndex((prev) => prev === galleryImages.length - 1 ? 0 : prev + 1)}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border-2 border-brand-black bg-white px-3 py-2 text-sm font-black text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] transition-transform hover:-translate-y-[55%]"
+                                            aria-label="Next image"
+                                        >
+                                            &rarr;
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+
+                            {currentMediaCaption ? (
+                                <p className="mt-4 text-sm font-medium leading-relaxed text-brand-black/68">
+                                    {currentMediaCaption}
+                                </p>
+                            ) : null}
+
+                            {galleryImages.length > 1 && (
+                                <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+                                    {galleryImages.map((img, idx) => (
+                                        <button
+                                            key={img}
+                                            onClick={() => setCurrentImageIndex(idx)}
+                                            className={`shrink-0 overflow-hidden rounded-2xl border-2 bg-white transition-all ${currentImageIndex === idx
+                                                ? 'border-brand-black shadow-[3px_3px_0px_0px_rgba(27,28,26,1)]'
+                                                : 'border-brand-black/20 opacity-70 hover:opacity-100'
+                                                }`}
+                                            aria-label={`View product image ${idx + 1}`}
+                                        >
+                                            <img
+                                                src={img}
+                                                alt={`Thumbnail ${idx + 1}`}
+                                                className="h-20 w-28 object-cover object-top md:h-24 md:w-36"
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
 
                     {/* ─── Left Column: Sales Copy ───────────────────────── */}
@@ -457,7 +566,7 @@ const ProductDetail = () => {
                     <div className="lg:col-span-5 flex flex-col gap-10 sticky top-32">
 
                         {/* Product Media */}
-                        {hasProductMedia && (
+                        {hasProductMedia && !useInlineToolGallery && (
                             <div className="bg-white rounded-xl border-2 border-brand-black p-3 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] flex flex-col gap-3">
                                 <div className="px-2 pt-2">
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">

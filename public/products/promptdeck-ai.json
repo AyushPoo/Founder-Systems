@@ -23,7 +23,9 @@
     { "q": "Can I export the deck?", "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck." }
   ],
   "images": [
-    "/images/products/pitch-deck/thumbnail.png",
-    "/images/products/pitch-deck/thumbnail.png"
+    "/images/products/pitch-deck/preview-1.png",
+    "/images/products/pitch-deck/preview-2.png",
+    "/images/products/pitch-deck/preview-3.png",
+    "/images/products/pitch-deck/preview-4.png"
   ]
 }
