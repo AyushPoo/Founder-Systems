@@ -13,6 +13,9 @@ import GuideDetail from './pages/GuideDetail';
 import FounderSpecGenerator from './pages/FounderSpecGenerator';
 import FounderOutreachKit from './pages/FounderOutreachKit';
 import Account from './pages/Account';
+import SignIn from './pages/SignIn';
+import AuthVerify from './pages/AuthVerify';
+import NotFound from './pages/NotFound';
 import { FounderWorkspaceProvider } from './context/FounderWorkspaceContext';
 
 function App() {
@@ -35,6 +38,10 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/access" element={<Access />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/sign-in" element={<SignIn />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/auth/verify" element={<AuthVerify />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </Router>

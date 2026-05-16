@@ -47,6 +47,13 @@ export function startMagicLink(payload) {
   });
 }
 
+export function verifyMagicLink(payload) {
+  return apiFetch('/auth/magic-link/verify', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 export function signOutFounderSession() {
   return apiFetch('/auth/logout', { method: 'POST', body: JSON.stringify({}) });
 }
