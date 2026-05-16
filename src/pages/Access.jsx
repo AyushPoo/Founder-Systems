@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const API_URL = "https://script.google.com/macros/s/AKfycbz2L8mFZLt5Kh0oTlCbmYRNC8CD5kn84RDrQvUTuZRifAWWN6pWtB8k_d97rDyLuxoCUA/exec";
@@ -36,6 +37,11 @@ const Access = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Access Your Purchase" 
+                description="Access and download your Founder Systems purchases. Enter your email to retrieve your financial models, templates, and tools."
+                canonical="/access"
+            />
             <Navbar />
 
             {/* Page header */}

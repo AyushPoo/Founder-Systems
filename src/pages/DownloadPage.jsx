@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 
 const API_URL = "https://script.google.com/macros/s/AKfycbwXGFM0900uVZjEtLeiumxzHqKQQvxh5lHGR0dzCjMr-Z2KTu7bDp2KnOSVhBdkGO9uRw/exec";
@@ -40,6 +41,11 @@ const DownloadPage = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
+            <SEO 
+                title="Download Your Product" 
+                description="Download your Founder Systems product. Get instant access to financial models, pitch deck tools, and business planning templates."
+                canonical="/download"
+            />
             <Navbar />
             <div className="flex-grow flex flex-col items-center justify-center px-6 pt-32 pb-20 md:pt-40 md:pb-20">
                 <div className="max-w-3xl bg-white border-4 border-brand-black p-10 md:p-16 shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] text-center relative overflow-hidden w-full">
