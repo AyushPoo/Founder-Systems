@@ -15,6 +15,12 @@ const LEGACY_PRODUCT_REDIRECTS = {
     'fundraising-suite': '/products/promptdeck-ai',
 };
 
+const NON_PRODUCT_GALLERY_IMAGES = new Set([
+    '/images/hero.png',
+    '/images/strategy.png',
+    '/images/systems.png',
+]);
+
 const FaqItem = ({ q, a }) => {
     const [open, setOpen] = useState(false);
     return (
@@ -94,6 +100,10 @@ const ProductDetail = () => {
     }, []);
 
     useEffect(() => {
+        setCurrentImageIndex(0);
+    }, [id]);
+
+    useEffect(() => {
         if (user?.email) {
             setCustomerEmail(user.email);
         }
@@ -110,7 +120,14 @@ const ProductDetail = () => {
         : '';
     const primaryCheckoutCurrency = preferredCurrency === 'USD' ? 'USD' : 'INR';
     const secondaryCheckoutCurrency = primaryCheckoutCurrency === 'INR' ? 'USD' : 'INR';
-    const heroImage = product?.images?.[0] || product?.thumbnail;
+    const galleryImages = Array.from(
+        new Set(
+            (product?.images || [])
+                .filter(Boolean)
+                .filter((imagePath) => !NON_PRODUCT_GALLERY_IMAGES.has(imagePath))
+        )
+    );
+    const showProductGallery = galleryImages.length > 1;
 
     if (loading) {
         return (
@@ -211,36 +228,20 @@ const ProductDetail = () => {
 
             {/* ── Hero Header ──────────────────────────────────────────── */}
             <div className="w-full bg-white pt-32 md:pt-40 pb-12 md:pb-16 px-6 md:px-12 border-b-2 border-brand-black">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-8 items-center">
-                    <div>
-                        <Link
-                            to="/products"
-                            className="inline-flex items-center gap-2 mb-8 text-brand-orange font-semibold text-sm tracking-wide uppercase hover:text-brand-orange-dark transition-colors group"
-                        >
-                            <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
-                            Back to Catalog
-                        </Link>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-brand-black tracking-tight-brand leading-[1.08] mb-5">
-                            {product.title}
-                        </h1>
-                        <p className="text-lg md:text-xl text-brand-black/60 max-w-2xl font-medium">
-                            {product.subtitle}
-                        </p>
-                    </div>
-                    <div className="lg:max-w-[24rem] lg:justify-self-end w-full">
-                        <div className="relative h-[18rem] sm:h-[22rem] lg:h-[28rem] overflow-hidden rounded-[2rem] border-2 border-brand-black bg-brand-black shadow-[10px_10px_0px_0px_rgba(27,28,26,1)]">
-                            {heroImage ? (
-                                <img
-                                    src={heroImage}
-                                    alt={product.title}
-                                    className="absolute inset-0 h-full w-full object-contain"
-                                />
-                            ) : (
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_#fff7ef_0%,_#f2e1cf_42%,_#101828_100%)]" />
-                            )}
-                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(15,23,42,0.04)_46%,rgba(15,23,42,0.16)_100%)]" />
-                        </div>
-                    </div>
+                <div className="max-w-5xl mx-auto">
+                    <Link
+                        to="/products"
+                        className="inline-flex items-center gap-2 mb-8 text-brand-orange font-semibold text-sm tracking-wide uppercase hover:text-brand-orange-dark transition-colors group"
+                    >
+                        <span className="group-hover:-translate-x-1 transition-transform">&larr;</span>
+                        Back to Catalog
+                    </Link>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-brand-black tracking-tight-brand leading-[1.08] mb-5">
+                        {product.title}
+                    </h1>
+                    <p className="text-lg md:text-xl text-brand-black/60 max-w-3xl font-medium">
+                        {product.subtitle}
+                    </p>
                 </div>
             </div>
 
@@ -441,27 +442,27 @@ const ProductDetail = () => {
                     <div className="lg:col-span-5 flex flex-col gap-10 sticky top-32">
 
                         {/* Image Carousel */}
-                        {product.images && product.images.length > 0 && (
+                        {showProductGallery && (
                             <div className="bg-white rounded-xl border-2 border-brand-black p-3 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] flex flex-col gap-3">
                                 {/* Main Image */}
                                 <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[380px] rounded-lg bg-surface-lowest flex items-center justify-center overflow-hidden group border-2 border-brand-black">
                                     <img
-                                        src={product.images[currentImageIndex]}
+                                        src={galleryImages[currentImageIndex]}
                                         alt={`${product.title} - Preview ${currentImageIndex + 1}`}
                                         className="w-full h-full max-h-[480px] object-contain transition-all duration-500 group-hover:scale-[1.03] p-3 md:p-5"
                                     />
                                     {/* Arrows */}
-                                    {product.images.length > 1 && (
+                                    {galleryImages.length > 1 && (
                                         <>
                                             <button
-                                                onClick={() => setCurrentImageIndex((prev) => prev === 0 ? product.images.length - 1 : prev - 1)}
+                                                onClick={() => setCurrentImageIndex((prev) => prev === 0 ? galleryImages.length - 1 : prev - 1)}
                                                 className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border border-brand-black/10 w-9 h-9 rounded-full flex items-center justify-center text-brand-black/70 shadow-sm hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
                                                 aria-label="Previous image"
                                             >
                                                 &larr;
                                             </button>
                                             <button
-                                                onClick={() => setCurrentImageIndex((prev) => prev === product.images.length - 1 ? 0 : prev + 1)}
+                                                onClick={() => setCurrentImageIndex((prev) => prev === galleryImages.length - 1 ? 0 : prev + 1)}
                                                 className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm border border-brand-black/10 w-9 h-9 rounded-full flex items-center justify-center text-brand-black/70 shadow-sm hover:bg-brand-orange hover:text-white hover:border-brand-orange transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 z-10"
                                                 aria-label="Next image"
                                             >
@@ -471,9 +472,9 @@ const ProductDetail = () => {
                                     )}
                                 </div>
                                 {/* Thumbnails */}
-                                {product.images.length > 1 && (
+                                {galleryImages.length > 1 && (
                                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide w-full snap-x px-1">
-                                        {product.images.map((img, idx) => (
+                                        {galleryImages.map((img, idx) => (
                                             <button
                                                 key={idx}
                                                 onClick={() => setCurrentImageIndex(idx)}
