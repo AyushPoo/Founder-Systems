@@ -21,12 +21,6 @@ const NON_PRODUCT_GALLERY_IMAGES = new Set([
     '/images/systems.png',
 ]);
 
-const INLINE_TOOL_GALLERY_IDS = new Set([
-    'founder-spec-generator',
-    'founder-outreach-kit',
-    'promptdeck-ai',
-]);
-
 const PRODUCT_MEDIA_CAPTIONS = {
     'founder-spec-generator': [
         'Choose the founder job you actually need: validate the direction, stress-test the idea, or package the plan.',
@@ -174,7 +168,7 @@ const ProductDetail = () => {
     const hasProductMedia = galleryImages.length > 0;
     const showProductGallery = galleryImages.length > 1;
     const mediaLabel = getProductMediaLabel(product, productAction, galleryImages.length);
-    const useInlineToolGallery = productAction?.kind === 'launch' && INLINE_TOOL_GALLERY_IDS.has(id) && hasProductMedia;
+    const currentMediaCaption = getProductMediaCaption(id, currentImageIndex);
 
     if (loading) {
         return (
@@ -298,51 +292,6 @@ const ProductDetail = () => {
                     <div className="mb-6 rounded-2xl border-2 border-brand-black bg-white px-5 py-4 font-semibold shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                         {checkoutNotice}
                     </div>
-                )}
-
-                {useInlineToolGallery && (
-                    <section className="mb-14 rounded-[28px] border-2 border-brand-black bg-white p-5 md:p-8 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
-                        <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                            <div>
-                                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">
-                                    Inside the tool
-                                </p>
-                                <h2 className="mt-2 text-2xl font-black tracking-tight-brand text-brand-black">
-                                    Actual product screens
-                                </h2>
-                            </div>
-                            <p className="max-w-2xl text-sm font-medium leading-relaxed text-brand-black/58">
-                                Browse the real workflow before you launch it. These are actual captures from the live product surface, not placeholder art.
-                            </p>
-                        </div>
-
-                        <div className="rounded-[24px] border-2 border-brand-black bg-brand-cream p-3 md:p-5">
-                            <div className="grid gap-4 md:grid-cols-2">
-                                {galleryImages.map((img, idx) => {
-                                    const caption = getProductMediaCaption(id, idx);
-                                    return (
-                                        <figure
-                                            key={img}
-                                            className="overflow-hidden rounded-[18px] border-2 border-brand-black bg-white shadow-[3px_3px_0px_0px_rgba(27,28,26,1)]"
-                                        >
-                                            <div className="aspect-[16/10] overflow-hidden bg-brand-cream p-3">
-                                                <img
-                                                    src={img}
-                                                    alt={`${product.title} - Preview ${idx + 1}`}
-                                                    className="h-full w-full object-contain object-center"
-                                                />
-                                            </div>
-                                            {caption ? (
-                                                <figcaption className="border-t-2 border-brand-black/10 px-4 py-3 text-sm font-medium leading-relaxed text-brand-black/70">
-                                                    {caption}
-                                                </figcaption>
-                                            ) : null}
-                                        </figure>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </section>
                 )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
@@ -535,24 +484,28 @@ const ProductDetail = () => {
                     <div className="lg:col-span-5 flex flex-col gap-10 sticky top-32">
 
                         {/* Product Media */}
-                        {hasProductMedia && !useInlineToolGallery && (
+                        {hasProductMedia && (
                             <div className="bg-white rounded-xl border-2 border-brand-black p-3 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] flex flex-col gap-3">
                                 <div className="px-2 pt-2">
                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">
                                         {mediaLabel}
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-brand-black/58">
-                                        {showProductGallery
-                                            ? 'Browse the actual screens, sheets, or working views before you buy.'
-                                            : 'A quick look at the actual product surface so the page is not just sales copy.'}
+                                        {productAction?.kind === 'launch'
+                                            ? (showProductGallery
+                                                ? 'Flip through the real workflow before you launch it.'
+                                                : 'A quick look at the actual tool before you launch it.')
+                                            : (showProductGallery
+                                                ? 'Browse the actual screens, sheets, or working views before you buy.'
+                                                : 'A quick look at the actual product surface so the page is not just sales copy.')}
                                     </p>
                                 </div>
                                 {/* Main Image */}
-                                <div className="relative w-full aspect-[4/3] md:aspect-auto md:min-h-[380px] rounded-lg bg-surface-lowest flex items-center justify-center overflow-hidden group border-2 border-brand-black">
+                                <div className="relative w-full aspect-[16/10] rounded-lg bg-surface-lowest flex items-center justify-center overflow-hidden group border-2 border-brand-black">
                                     <img
                                         src={galleryImages[currentImageIndex]}
                                         alt={`${product.title} - Preview ${currentImageIndex + 1}`}
-                                        className="w-full h-full max-h-[480px] object-contain transition-all duration-500 group-hover:scale-[1.03] p-3 md:p-5"
+                                        className="w-full h-full object-contain transition-all duration-500 group-hover:scale-[1.02] p-3 md:p-4"
                                     />
                                     {/* Arrows */}
                                     {galleryImages.length > 1 && (
@@ -574,6 +527,11 @@ const ProductDetail = () => {
                                         </>
                                     )}
                                 </div>
+                                {currentMediaCaption ? (
+                                    <div className="px-3 text-sm font-medium leading-relaxed text-brand-black/68">
+                                        {currentMediaCaption}
+                                    </div>
+                                ) : null}
                                 {/* Thumbnails */}
                                 {galleryImages.length > 1 && (
                                     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide w-full snap-x px-1">
