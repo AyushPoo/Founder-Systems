@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import FoundersVisualCard from '../components/FoundersVisualCard';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
@@ -208,6 +209,13 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-surface text-brand-black flex flex-col font-sans">
+            {product && (
+                <SEO 
+                    title={product.title} 
+                    description={product.description || product.subtitle}
+                    canonical={`/products/${id}`}
+                />
+            )}
             <Navbar />
 
             {/* ── Hero Header ──────────────────────────────────────────── */}
