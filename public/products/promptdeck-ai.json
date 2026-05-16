@@ -6,26 +6,65 @@
   "launchUrl": "https://promptdeck.foundersystems.in",
   "category": "Strategy",
   "features": [
-    { "name": "AI-powered conversation", "desc": "The AI asks smart questions across startup dimensions like problem, solution, market, traction, team, business model, and ask, then builds slides from your answers." },
-    { "name": "Live three-panel UI", "desc": "Chat on the left, live slide preview in the center, and navigation around the artifact while you edit the deck in place." },
-    { "name": "12 professional slide types", "desc": "From hero and problem to traction, financials, milestones, and ask - all assembled from your conversation." },
-    { "name": "PDF export", "desc": "Export a high-resolution PDF rendered server-side once the deck is ready to share." },
-    { "name": "Per-slide regeneration", "desc": "Refine individual slides or use Artifact Copilot to push the deck one clear step at a time." }
+    {
+      "name": "AI Conversation, Not Form Filling",
+      "desc": "Just talk. The AI asks the right questions in the right order — problem, solution, traction, team — and builds your slides as you answer."
+    },
+    {
+      "name": "Three-Panel Live Editor",
+      "desc": "See your deck, the AI suggestions, and your edit history simultaneously. Change anything, regenerate anything, at any point."
+    },
+    {
+      "name": "12 Professional Slide Types",
+      "desc": "Problem, Solution, TAM, Business Model, Traction, Team, Use of Funds, Timeline, Market, Competition, Vision, and closing slides — each with expert-level framing."
+    },
+    {
+      "name": "Per-Slide Regeneration",
+      "desc": "Not happy with a slide? Regenerate just that one while keeping the rest of your deck intact."
+    },
+    {
+      "name": "PDF Export",
+      "desc": "Download a clean, professional PDF ready to share with investors or present live."
+    }
   ],
   "whoThisIsFor": [
-    "Early-stage founders preparing for fundraising conversations.",
-    "Startup teams who need a professional deck fast without hiring a designer.",
-    "Founders who have the story in their head but not on the slides yet."
+    "Early-stage founders preparing for their first investor conversations",
+    "Startup teams who need a professional deck fast without hiring a designer",
+    "Founders who have been putting off the deck because starting from scratch is painful",
+    "Founders preparing for demo day, accelerators, or seed round meetings"
   ],
   "faq": [
-    { "q": "How does the AI know what to put in the deck?", "a": "It asks targeted questions about your startup and turns your answers into a deck structure with editable slides." },
-    { "q": "Can I edit the slides after they are generated?", "a": "Yes. You can edit slide text inline and request focused changes through the copilot." },
-    { "q": "Can I export the deck?", "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck." }
+    {
+      "q": "How does the AI know what to put in the deck?",
+      "a": "It asks targeted questions about your startup and turns your answers into a deck structure with editable slides."
+    },
+    {
+      "q": "Can I edit the slides after they are generated?",
+      "a": "Yes. You can edit slide text inline and request focused changes through the copilot."
+    },
+    {
+      "q": "Can I export the deck?",
+      "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck."
+    }
   ],
   "images": [
     "/images/products/promptdeck-ai/preview-1.png",
     "/images/products/promptdeck-ai/preview-2.png",
     "/images/products/promptdeck-ai/preview-3.png",
     "/images/products/promptdeck-ai/preview-4.png"
+  ],
+  "whyPoints": [
+    {
+      "title": "No More Blank Slide Syndrome",
+      "desc": "Starting from scratch is the hardest part. This conversation removes the blank page problem entirely — just talk and watch your deck build."
+    },
+    {
+      "title": "Fundable Framing, Not Just Pretty Slides",
+      "desc": "Every slide is built using the same framing that investors recognize from successful pitch decks. It is not a design tool — it is a narrative tool."
+    },
+    {
+      "title": "Done in 15 Minutes, Ready to Present",
+      "desc": "No design skills needed. No agency. No template. Just a conversation with an AI that knows what investors want to see."
+    }
   ]
 }

@@ -8,17 +8,41 @@
   "section1Body": "This is a battle-tested, clean-code 3-year projection engine built specifically for horizontal two-sided marketplaces. It handles the heavy lifting of dual-sided acquisition, GMV waterfalls, and marketplace-specific valuation so you can stop wrestling with formulas and get back to matching supply and demand.",
   "featuresTitle": "The Good Stuff:",
   "features": [
-    { "name": "The Dual-Sided Growth Engine", "desc": "Buyers and Sellers are not the same. This model lets you project supply growth, demand growth, and churn entirely separately to see exactly how your network effects scale." },
-    { "name": "The GMV to Revenue Waterfall", "desc": "No more confusion. Input your Average Order Value (AOV), transaction frequency, and Take Rate, and watch your Gross Merchandise Value (GMV) cleanly translate into actual Net Revenue." },
-    { "name": "The Marketplace Benchmarks", "desc": "Automatically compare your outputs—like your Buyer-to-Seller Ratio, Take Rate, and Contribution Margin—against top-tier marketplace industry standards." },
-    { "name": "The \"Base / Bull / Bear\" Scenarios", "desc": "Instantly switch your entire model between Conservative, Base, and Optimistic cases with one click to show investors exactly what happens if growth accelerates." },
-    { "name": "The Triple-Method Valuation Engine", "desc": "Marketplaces are valued differently. Get your Pre-Money Valuation estimated using GMV Multiples, Net Revenue Multiples, and a Discounted Cash Flow (DCF)." }
+    {
+      "name": "The Dual-Sided Growth Engine",
+      "desc": "Buyers and Sellers are not the same. This model lets you project supply and demand entirely separately so you can prove your network effects scale."
+    },
+    {
+      "name": "The GMV to Revenue Waterfall",
+      "desc": "Stop confusing GMV with net revenue. Input your AOV, take rate, and frequency; watch your GMV cleanly translate into the actual revenue you keep."
+    },
+    {
+      "name": "The Marketplace Benchmarks",
+      "desc": "Automatically compare your Buyer-to-Seller Ratio, Take Rate, and Contribution Margin against the top-tier marketplaces investors already know."
+    },
+    {
+      "name": "The Base / Bull / Bear Scenarios",
+      "desc": "Switch your entire model between Conservative, Base, and Optimistic cases with one click. Walk into your pitch with the right story ready."
+    },
+    {
+      "name": "The Triple-Method Valuation Engine",
+      "desc": "Marketplaces are valued differently. Get your Pre-Money estimated using GMV Multiples, Net Revenue Multiples, and DCF — the three methods VCs actually use."
+    }
   ],
   "whyTitle": "Why invest",
   "whyPoints": [
-    { "title": "Save 40+ Hours", "desc": "Modeling two-sided acquisition costs from scratch is a massive headache. Skip the broken formulas and get back to growing your network." },
-    { "title": "Look Like a Pro", "desc": "When an investor asks to see your metrics, you won't send a messy CSV that accidentally double-counts revenue. You'll send a structured, professional model." },
-    { "title": "No \"Broken Formula\" Panic", "desc": "Every cell is linked, protected, and sanity-checked by someone who actually likes accounting." }
+    {
+      "title": "Marketplaces Are Not SaaS",
+      "desc": "Trying to fit your marketplace into a SaaS template is a guaranteed way to confuse investors and misprice your round. This model speaks the right language."
+    },
+    {
+      "title": "Prove Your Network Effects",
+      "desc": "VCs want to see that supply and demand grow together and reinforce each other. This model shows exactly that — in a clean, single spreadsheet."
+    },
+    {
+      "title": "Pitch-Ready from Day One",
+      "desc": "Built-in scenario planner so you can walk into every investor meeting with Conservative, Base, and Optimistic cases ready to present."
+    }
   ],
   "footerSummaryTitle": "The Price",
   "footerSummaryDetails": "(Cheaper than outsourcing your headache).",
@@ -38,9 +62,18 @@
     "Founders who need to prove their network effects and unit economics actually scale."
   ],
   "faq": [
-    { "q": "Does this work for both B2B and B2C marketplaces?", "a": "Yes! Whether you are matching freelancers with enterprises (B2B) or individuals selling used sneakers (B2C), the core dual-sided mechanics (supply vs. demand, GMV, take rate) remain exactly the same." },
-    { "q": "I'm not a finance person. Is this too complex?", "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting." },
-    { "q": "Can I run different growth scenarios for my pitch deck?", "a": "Absolutely. There is a built-in Scenario Selector tab. You can plug in your conservative, base, and optimistic assumptions, and flip the entire model between them with a single drop-down menu." }
+    {
+      "q": "Does this work for both B2B and B2C marketplaces?",
+      "a": "Yes! Whether you are matching freelancers with enterprises (B2B) or individuals selling used sneakers (B2C), the core dual-sided mechanics (supply vs. demand, GMV, take rate) remain exactly the same."
+    },
+    {
+      "q": "I'm not a finance person. Is this too complex?",
+      "a": "Not at all. I survived the trenches of CA prep so you don't have to. Just follow the step-by-step \"Start Here\" guide and plug your numbers into the blue cells. The model automatically does the heavy lifting."
+    },
+    {
+      "q": "Can I run different growth scenarios for my pitch deck?",
+      "a": "Absolutely. There is a built-in Scenario Selector tab. You can plug in your conservative, base, and optimistic assumptions, and flip the entire model between them with a single drop-down menu."
+    }
   ],
   "images": [
     "/images/products/marketplace-model/thumbnail.jpg",

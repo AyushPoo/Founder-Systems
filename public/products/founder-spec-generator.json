@@ -12,35 +12,35 @@
   "featuresTitle": "What the beta helps with:",
   "features": [
     {
-      "name": "Idea validation",
-      "desc": "Tests whether the direction is worth pursuing, what evidence is still missing, and what first proof would make it real."
+      "name": "The Idea X-Ray",
+      "desc": "Stress-test your concept from seven angles: TAM, differentiation, demand signal, pricing validity, competition, timing, and team readiness."
     },
     {
-      "name": "Strategy audit",
-      "desc": "Calls out weak assumptions, founder-fit gaps, wedge problems, and what not to build in v1."
+      "name": "The Strategy Audit",
+      "desc": "Challenge your go-to-market assumptions. Map out the strongest 3 paths to customers and rate each honestly."
     },
     {
-      "name": "Business-plan packaging",
-      "desc": "Turns the decision into problem clarity, ICP, MVP scope, pricing hypothesis, GTM plan, and next steps."
+      "name": "The Execution Spec",
+      "desc": "Turn your winning path into a structured spec: sprint goals, first feature, success metrics, and what \"good enough\" looks like for v1."
     },
     {
-      "name": "Markdown export",
-      "desc": "Copy or download the resulting founder brief as a clean .md file for Notion, docs, or team review."
+      "name": "Markdown Export",
+      "desc": "Export everything to a clean Markdown file you can share with cofounders, investors, or your future self."
     }
   ],
   "whyTitle": "Why use this instead of a blank document?",
   "whyPoints": [
     {
-      "title": "Avoid fake clarity",
-      "desc": "A lot of founders feel productive while writing long notes that never become product decisions. This forces a sharper verdict."
+      "title": "No More Fake Clarity",
+      "desc": "Most founders have a mental model that evaporates the moment someone asks a hard question. This spec forces you to answer those questions first."
     },
     {
-      "title": "Scope before building",
-      "desc": "The most expensive mistake in v1 is building too much. The copilot keeps the first version smaller and more testable."
+      "title": "Scope Before You Build",
+      "desc": "The best way to save weeks of building is 20 minutes of honest spec work. Know what you are shipping and why before you write a line of code."
     },
     {
-      "title": "Useful for India and global angles",
-      "desc": "The output can lean India-first, global-first, or mixed depending on the market you want to target."
+      "title": "Works for India and Global Markets",
+      "desc": "Frameworks are adapted for both Indian founder contexts (B2B, B2C, D2C) and global fundraising narratives."
     }
   ],
   "footerSummaryTitle": "Beta Access",
@@ -60,10 +60,10 @@
     "Markdown export"
   ],
   "whoThisIsFor": [
-    "Founders moving from idea to MVP.",
-    "Solo builders who need a first execution spec before coding.",
-    "Operators or cofounders aligning on what v1 should actually be.",
-    "Teams validating niche founder tools quickly."
+    "Founders moving from idea to first spec before building",
+    "Solo builders who need a structured scope document before coding starts",
+    "Cofounders aligning on what v1 should actually be",
+    "Teams validating niche founder tools quickly"
   ],
   "faq": [
     {

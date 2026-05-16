@@ -12,35 +12,39 @@
   "featuresTitle": "What the beta helps with:",
   "features": [
     {
-      "name": "Strategy review",
-      "desc": "Pressure-tests the offer, target customer, pain point, proof, and CTA before the sequence is generated."
+      "name": "Strategy First, Copy Second",
+      "desc": "Before generating a single email, you audit your offer and positioning. Wrong strategy produces wrong copy — this tool makes you do the strategy first."
     },
     {
-      "name": "Email sequence generation",
-      "desc": "Creates sendable founder-style emails that stay aligned with the offer and the proof you provided."
+      "name": "The Email Sequence Generator",
+      "desc": "Structured cold outreach sequences with opening hooks, value frames, objection handles, and clear CTAs — adapted for founder-to-founder context."
     },
     {
-      "name": "LinkedIn messaging flow",
-      "desc": "Builds connection, follow-up, and nurture messages for LinkedIn without forcing the same copy into every step."
+      "name": "The LinkedIn Message Flow",
+      "desc": "Short, high-signal LinkedIn outreach flows designed for founders reaching out to other founders, investors, or early customers."
     },
     {
-      "name": "Objection handling and exports",
-      "desc": "Drafts replies for common objections and lets you copy or export the campaign for sheets, CRM import, or manual sending."
+      "name": "Objection Library",
+      "desc": "Pre-built objection handling for the most common founder outreach responses — so you are never caught off guard."
+    },
+    {
+      "name": "Local Draft Saves",
+      "desc": "Everything exports and saves locally. Your drafts, your data, your workflow — no cloud dependency, no account needed."
     }
   ],
   "whyTitle": "Why use this instead of drafting from scratch?",
   "whyPoints": [
     {
-      "title": "Strategy before copy",
-      "desc": "The tool does not jump straight to wordsmithing. It tightens the offer first so the messaging has something real to stand on."
+      "title": "Strategy Before Copy",
+      "desc": "Most outreach fails because the offer is vague, not because the email is badly written. This tool forces you to sharpen the offer first."
     },
     {
-      "title": "Local saves for working drafts",
-      "desc": "Save campaigns locally while you iterate, without needing to wire up a separate system just to keep progress."
+      "title": "Built for Founder Motion",
+      "desc": "Designed for early-stage founder-led sales — not growth team playbooks. Every message is written to sound like a founder, not a template."
     },
     {
-      "title": "Built for founder motion",
-      "desc": "Useful when the founder is still doing early outbound, refining positioning, and learning from objections in real time."
+      "title": "Your Drafts Stay Yours",
+      "desc": "No cloud, no account required. Export your sequence, edit in your own editor, and run the campaign from your own inbox."
     }
   ],
   "footerSummaryTitle": "Beta Access",
@@ -58,10 +62,10 @@
     "Free beta access"
   ],
   "whoThisIsFor": [
-    "Founders shaping outbound before hiring a growth team.",
-    "Early-stage teams testing founder-led sales messages.",
-    "Operators who need campaign structure without a heavy CRM workflow.",
-    "Builders refining outbound copy from live market feedback."
+    "Founders shaping outbound before hiring a growth team",
+    "Early-stage teams testing founder-led sales messages",
+    "Operators who need campaign structure without a heavy CRM workflow",
+    "Builders refining outbound copy from live market feedback"
   ],
   "faq": [
     {
