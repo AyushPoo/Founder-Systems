@@ -24,7 +24,6 @@ const NON_PRODUCT_GALLERY_IMAGES = new Set([
 const INLINE_TOOL_GALLERY_IDS = new Set([
     'founder-spec-generator',
     'founder-outreach-kit',
-    'promptdeck-ai',
 ]);
 
 const PRODUCT_MEDIA_CAPTIONS = {
@@ -40,10 +39,7 @@ const PRODUCT_MEDIA_CAPTIONS = {
         'The output area breaks the finished campaign into strategy, emails, LinkedIn, objections, and export.',
     ],
     'promptdeck-ai': [
-        'The deck builder starts as a structured storyboard instead of a blank slide deck.',
-        'PromptDeck keeps the core problem, notes, and deck structure visible in one editing surface.',
-        'The slide grid shows how the narrative builds across solution, GTM, traction, and ask.',
-        'Save, export, and present controls stay close to the live deck while you refine it.',
+        'PromptDeck is still missing a trustworthy public screenshot set here, so we do not fake the gallery.',
     ],
 };
 
@@ -318,11 +314,12 @@ const ProductDetail = () => {
                         </div>
 
                         <div className="rounded-[24px] border-2 border-brand-black bg-brand-cream p-3 md:p-5">
+                            <div className="mx-auto max-w-5xl">
                             <div className="relative overflow-hidden rounded-[18px] border-2 border-brand-black bg-white">
                                 <img
                                     src={galleryImages[currentImageIndex]}
                                     alt={`${product.title} - Preview ${currentImageIndex + 1}`}
-                                    className="h-auto w-full object-cover object-top"
+                                    className="h-auto max-h-[560px] w-full object-contain object-top"
                                 />
 
                                 {galleryImages.length > 1 && (
@@ -372,6 +369,7 @@ const ProductDetail = () => {
                                     ))}
                                 </div>
                             )}
+                            </div>
                         </div>
                     </section>
                 )}
