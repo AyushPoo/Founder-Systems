@@ -150,6 +150,48 @@ const ProductDetail = () => {
         }
     }, [user]);
 
+    useEffect(() => {
+        if (!product || loading || notFound) return;
+        
+        const existingScript = document.getElementById('product-schema');
+        if (existingScript) {
+            existingScript.remove();
+        }
+
+        const productSchema = {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": product.title,
+            "description": product.subtitle || product.descriptionBody?.substring(0, 160),
+            "image": galleryImages[0] ? `https://foundersystems.in${galleryImages[0]}` : 'https://foundersystems.in/logo.png',
+            "offers": {
+                "@type": "Offer",
+                "priceCurrency": primaryCheckoutCurrency,
+                "price": product.priceInr || product.priceUsd || "0",
+                "availability": product.isComingSoon ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
+                "url": `https://foundersystems.in/products/${id}`
+            },
+            "brand": {
+                "@type": "Brand",
+                "name": "Founder Systems"
+            },
+            "category": product.category
+        };
+
+        const script = document.createElement('script');
+        script.id = 'product-schema';
+        script.type = 'application/ld+json';
+        script.textContent = JSON.stringify(productSchema);
+        document.head.appendChild(script);
+
+        return () => {
+            const scriptToRemove = document.getElementById('product-schema');
+            if (scriptToRemove) {
+                scriptToRemove.remove();
+            }
+        };
+    }, [product, loading, notFound, id, galleryImages, primaryCheckoutCurrency]);
+
     const productAction = getProductPrimaryAction(product);
     const showPricing = hasProductPricing(product);
     const showRetiredFundraisingBanner = false;

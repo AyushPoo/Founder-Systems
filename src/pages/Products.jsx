@@ -36,8 +36,8 @@ const Products = () => {
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
             <SEO 
-                title="Products" 
-                description="Explore our toolkit of AI-powered systems and financial models designed for founders to turn chaos into clarity." 
+                title="Startup Tools for Founders – Financial Models, Pitch Decks & Business Planners" 
+                description="AI-powered startup tools for founders. Build financial models, pitch decks, business plans, and validate ideas. Download templates or launch interactive tools." 
                 canonical="/products"
             />
             <Navbar />

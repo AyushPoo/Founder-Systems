@@ -13,8 +13,8 @@ const Guides = () => {
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
             <SEO
-                title="Founder Guides & Strategy"
-                description="Actionable guides and strategies for founders to build, scale, and optimize their startups."
+                title="Founder Guides – Startup Strategy, Financial Planning & Growth"
+                description="Step-by-step founder guides on financial modeling, pitch decks, business planning, idea validation, and startup growth strategies. Free guides for early-stage founders."
                 canonical="/guides"
             />
             <Navbar />
