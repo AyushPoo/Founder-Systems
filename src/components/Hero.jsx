@@ -68,7 +68,7 @@ const Hero = () => {
                         </a>
                     </div>
 
-                    {/* Micro social proof */}
+                    {/* Early-stage credibility */}
                     <div className="reveal flex items-center gap-3 pt-2">
                         <div className="flex -space-x-2">
                             {['#ff5f15', '#a93800', '#1A1A1A', '#5b4138'].map((color, i) => (
@@ -80,7 +80,7 @@ const Hero = () => {
                             ))}
                         </div>
                         <p className="text-sm text-brand-black/50 font-bold">
-                            Built to help founders move with more clarity and less repetition
+                            Built in public for founders who want more clarity and less repetition
                         </p>
                     </div>
                 </div>
