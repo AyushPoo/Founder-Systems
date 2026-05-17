@@ -1,4 +1,4 @@
-﻿[
+[
     {
         "slug":  "saas-financial-model",
         "productId":  "FS001",
@@ -325,32 +325,47 @@
         "catalogName":  "D2C \u0026 Ecommerce Financial Model",
         "catalogDescription":  "Stop guessing ROAS. This D2C model features automated cohort retention, multi-channel growth forecasting, and an inventory cash flow planner.",
         "catalogCategory":  "Finance",
-        "title":  "The Investor-Ready D2C \u0026 Ecommerce Financial Model",
-        "subtitle":  "Stop Guessing Your ROAS. Start Scaling Profitably.",
-        "descriptionBody":  "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS templateâ€”a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
+"title":  "The D2C Brand Financial Model",
+        "subtitle":  "Know Exactly When to Reorder. Prove Unit Economics to Investors.",
+        "descriptionBody":  "\"When do we reorder inventory?\" \"Are our Facebook ads actually profitable after COGS, shipping, and returns?\" Running a consumer brand means cash flow is king and inventory is the silent killer. Most founders fly blind on reorder points, or they try to force their brand into a generic SaaS spreadsheet - a guaranteed way to stock out of your hero product or burn runway on unprofitable ad campaigns. This model solves both.",
         "section1Title":  "The Multi-Channel Ecommerce Engine",
-        "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
+        "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of inventory forecasting, ad profitability analysis, cohort retention, and D2C-specific valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
         "featuresTitle":  "The Good Stuff:",
         "features":  [
                          {
-                             "name":  "The Multi-Channel Growth Engine",
-                             "desc":  "Not all revenue is equal. Forecast your sales across standard D2C, Subscriptions, Bundles, and Wholesale channels, complete with different Average Order Values (AOVs) for each."
+                             "name":  "Inventory Cash Flow Radar",
+                             "desc":  "Never stock out again. Input your safety stock and lead times; the model tells you exactly when to reorder and how much cash it drains."
                          },
                          {
-                             "name":  "The Cohort \u0026 Retention Tracker",
-                             "desc":  "A fully automated 36-month cohort table. Watch exactly how your repeat purchase rates stack up by acquisition month to calculate your true Lifetime Value (LTV)."
+                             "name":  "Ad Profitability Calculator",
+                             "desc":  "Input your ad spend, ROAS, COGS, and shipping. See true contribution margin per channel, not just revenue."
                          },
                          {
-                             "name":  "The Inventory \u0026 Cash Flow Planner",
-                             "desc":  "Stop stocking out. Input your starting inventory, safety stock, and lead times, and the model will automatically tell you exactly when to reorder and how much cash it will cost."
+                             "name":  "36-Month Cohort Tracker",
+                             "desc":  "Watch repeat purchase rates by acquisition month. Calculate real LTV for subscription and subscription-adjacent brands."
                          },
                          {
-                             "name":  "Live D2C Industry Benchmarks",
-                             "desc":  "Automatically compare your Website Conversion Rate, Gross Margin, Contribution Margin, and Blended CAC against top-tier ecommerce industry standards."
+                             "name":  "Multi-Channel Revenue Engine",
+                             "desc":  "Forecast D2C, Wholesale, Bundles, and Subscriptions separately with distinct AOVs for each."
                          },
                          {
-                             "name":  "The \"What-If\" Sensitivity Engine",
-                             "desc":  "Toggle your conversion rates, AOV, and marketing spend levers by +/- 20% and watch your 3-year runway and profitability update instantly."
+                             "name":  "D2C Valuation Bridge",
+                             "desc":  "Revenue Multiples + DCF tailored for consumer brands, not SaaS metrics."
+                         }
+                     ],
+        "whyTitle":  "Why invest",
+        "whyPoints":  [
+                         {
+                             "title":  "Never Stock Out of Your Hero Product",
+                             "desc":  "Input safety stock and lead times; get automated reorder alerts before you lose a sale."
+                         },
+                         {
+                             "title":  "Know Your True Ad Profitability",
+                             "desc":  "Most founders calculate ROAS wrong. This model subtracts COGS, shipping, and returns to show real contribution margin."
+                         },
+                         {
+                             "title":  "Prove Unit Economics to Investors",
+                             "desc":  "VCs and banks for consumer brands care about inventory turns and contribution margins, not just ARR. Show them you understand your business."
                          }
                      ],
         "whyTitle":  "Why invest",
@@ -380,11 +395,11 @@
                            "Two-Method Valuation Engine (Revenue Multiples \u0026 DCF).",
                            "Step-by-step \"Start Here\" manual to plug in your numbers in under 30 minutes."
                        ],
-        "whoThisIsFor":  [
-                             "D2C and ecommerce founders preparing for VC due diligence or debt financing.",
-                             "Scaling consumer brands managing complex physical inventory and supply chains.",
-                             "Founders who need clear visibility into their contribution margins and blended ROAS."
-                         ],
+"whoThisIsFor":  [
+                         "D2C founders preparing for investor pitch or bank loan",
+                         "Consumer brands with physical inventory (not dropshipping)",
+                         "Brands running paid ads who need to prove unit economics"
+                     ],
         "faq":  [
                     {
                         "q":  "Does this work for dropshipping, or just for brands holding inventory?",
@@ -420,7 +435,115 @@
                             "gumroadProductId":  "LJ5Uy-hGQqHsT5socW_R0g==",
                             "lemonSqueezyProductId":  "879372",
                             "lemonSqueezyVariantId":  "1384533",
-                            "instamojoProductId":  ""
+"instamojoProductId":  ""
                         }
+                    },
+    {
+        "slug":  "promptdeck-ai",
+        "productId":  "FS013",
+        "catalogName":  "PromptDeck AI",
+        "catalogDescription":  "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
+        "catalogCategory":  "Strategy",
+        "title":  "Build Your Pitch Deck in 15 Minutes — Just Talk to the AI",
+        "subtitle":  "Stop Wrestling with Slides. Start Pitching.",
+        "descriptionBody":  "\"We need a deck for the investor meeting tomorrow.\" If that sentence makes your stomach drop, you're not alone. Most founders spend hours dragging slides, rewriting bullet points, and second-guessing their messaging—only to end up with something that doesn't actually tell their story. PromptDeck AI changes that. Just chat with the AI, answer its questions, and watch your pitch deck build itself slide by slide.",
+        "section1Title":  "Your Personal Pitch Coach",
+        "section1Body":  "No more blank canvases or endless formatting battles. PromptDeck AI asks you the right questions—about your problem, solution, market, business model, and traction—so you can't accidentally skip the stuff investors actually care about.",
+        "featuresTitle":  "What You Get:",
+        "features":  [
+                        {
+                            "name":  "AI Conversation Builder",
+                            "desc":  "Chat with an AI that knows what investors want to hear. It asks smart questions, captures your answers, and turns them into compelling slide content."
+                        },
+                        {
+                            "name":  "Live Slide Editor",
+                            "desc":  "See your deck build in real-time. Edit any slide text, reorder sections, or tweak the messaging directly—everything stays in sync."
+                        },
+                        {
+                            "name":  "Investor-Ready Structure",
+                            "desc":  "Pre-built slide templates that cover the exact story arc investors expect: Problem, Solution, Market, Product, Business Model, Traction, Team, and Ask."
+                        },
+                        {
+                            "name":  "One-Click PDF Export",
+                            "desc":  "Export a clean, professional PDF ready to send to investors. No formatting glitches, no broken layouts."
+                        },
+                        {
+                            "name":  "Multiple Revisions Included",
+                            "desc":  "Keep iterating. The AI remembers your previous answers so you can refine your story without starting from scratch."
+                        }
+                    ],
+        "whyTitle":  "Why use PromptDeck",
+        "whyPoints":  [
+                        {
+                            "title":  "15 Minutes, Not 15 Hours",
+                            "desc":  "Skip the slide formatting nightmare. Just talk through your business and let the AI handle the rest."
+                        },
+                        {
+                            "title":  "Can't Miss a Key Slide",
+                            "desc":  "The AI guides you through every critical section—so your deck doesn't accidentally skip the stuff that gets you funded."
+                        },
+                        {
+                            "title":  "Edit Until It's Right",
+                            "desc":  "Nothing is locked in. Tweak the copy, reorder slides, or rewrite entire sections until your story lands."
+                        }
+                    ],
+        "footerSummaryTitle":  "The Price",
+        "footerSummaryDetails":  "(Less than a single design agency revision).",
+        "footerResultTitle":  "The Result",
+        "footerResultDetails":  "A fundable pitch deck you actually feel confident about.",
+        "whatYouGet":  [
+                        "AI-powered pitch deck builder",
+                        "Live slide editor with real-time updates",
+                        "Investor-ready slide structure (Problem to Ask)",
+                        "One-click PDF export",
+                        "Multiple revision rounds included",
+                        "Direct download—no sign-up required"
+                    ],
+        "whoThisIsFor":  [
+                        "First-time founders who need a deck fast",
+                        "Founders who hate slide design and formatting",
+                        "Anyone prepping for investor meetings on short notice",
+                        "Founders who want a second set of eyes on their pitch story"
+                    ],
+        "faq":  [
+                    {
+                        "q":  "How does the AI know what to ask?",
+                        "a":  "PromptDeck AI was trained on hundreds of successful pitch decks and investor feedback. It knows which questions matter and in what order."
+                    },
+                    {
+                        "q":  "Can I edit the slides after the AI builds them?",
+                        "a":  "Absolutely. The live editor lets you tweak any text, reorder slides, and adjust messaging as much as you want."
+                    },
+                    {
+                        "q":  "What format do I get?",
+                        "a":  "You get a clean, professional PDF—ready to email directly to investors or upload to your data room."
+                    },
+                    {
+                        "q":  "How is this different from using ChatGPT?",
+                        "a":  "PromptDeck AI is purpose-built for pitch decks. It knows the structure investors expect, asks the right questions in order, and outputs a ready-to-use slide deck—not just text."
+                    }
+                ],
+        "images":  [
+                    "/images/products/promptdeck-ai/thumbnail.jpg",
+                    "/images/products/promptdeck-ai/preview-1.png",
+                    "/images/products/promptdeck-ai/preview-2.png",
+                    "/images/products/promptdeck-ai/preview-3.png"
+                ],
+        "priceInr":  500,
+        "priceUsd":  0,
+        "originalPriceInr":  0,
+        "originalPriceUsd":  0,
+        "previewUrl":  "",
+        "platformUrls":  {
+                        "gumroad":  "",
+                        "instamojo":  "",
+                        "lemonSqueezy":  ""
+                    },
+        "platformIds":  {
+                        "gumroadProductId":  "",
+                        "lemonSqueezyProductId":  "",
+                        "lemonSqueezyVariantId":  "",
+                        "instamojoProductId":  ""
+                    }
     }
 ]
