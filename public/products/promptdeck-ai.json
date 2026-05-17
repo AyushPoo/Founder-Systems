@@ -1,31 +1,100 @@
 {
-  "id": "promptdeck-ai",
+  "slug": "promptdeck-ai",
+  "productId": "FS013",
+  "catalogName": "PromptDeck AI",
+  "catalogDescription": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
+  "catalogCategory": "Strategy",
   "title": "PromptDeck AI - Pitch Deck Builder",
-  "subtitle": "Build a fundable pitch deck in 15 minutes. Just talk to the AI.",
-  "descriptionBody": "Stop staring at a blank slide. PromptDeck AI is a conversational pitch deck builder - you describe your startup in plain English and the AI builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
-  "launchUrl": "https://promptdeck.foundersystems.in",
-  "category": "Strategy",
+  "subtitle": "Build a Fundable Pitch Deck in 15 Minutes. Just Talk to the AI.",
+  "descriptionBody": "Stop staring at a blank slide. Most founders have the story in their head but not on the slides — and by the time they find a designer, the investor meeting is tomorrow.\n\nPromptDeck AI is a conversational pitch deck builder. You describe your startup in plain English, the AI asks smart questions across the key dimensions (problem, solution, market, traction, team, business model, and ask), and builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
+  "section1Title": "Your startup story, assembled slide by slide",
+  "section1Body": "PromptDeck AI replaces the painful deck-building phase with a guided conversation. The AI knows what investors look for — it asks targeted questions about your startup and turns your answers into a structured deck with editable slides. You stay in control of the narrative while the tool handles the assembly.",
+  "featuresTitle": "The Good Stuff:",
   "features": [
-    { "name": "AI-powered conversation", "desc": "The AI asks smart questions across startup dimensions like problem, solution, market, traction, team, business model, and ask, then builds slides from your answers." },
-    { "name": "Live three-panel UI", "desc": "Chat on the left, live slide preview in the center, and navigation around the artifact while you edit the deck in place." },
-    { "name": "12 professional slide types", "desc": "From hero and problem to traction, financials, milestones, and ask - all assembled from your conversation." },
-    { "name": "PDF export", "desc": "Export a high-resolution PDF rendered server-side once the deck is ready to share." },
-    { "name": "Per-slide regeneration", "desc": "Refine individual slides or use Artifact Copilot to push the deck one clear step at a time." }
+    {
+      "name": "AI-Powered Conversation",
+      "desc": "The AI asks smart questions across startup dimensions — problem, solution, market, traction, team, business model, and ask — then builds slides from your answers."
+    },
+    {
+      "name": "Live Three-Panel UI",
+      "desc": "Chat on the left, live slide preview in the center, and deck navigation around the artifact while you edit everything in place."
+    },
+    {
+      "name": "12 Professional Slide Types",
+      "desc": "From hero and problem to traction, financials, milestones, and ask — all assembled from your conversation, ready for investor review."
+    },
+    {
+      "name": "Per-Slide Regeneration",
+      "desc": "Refine individual slides or use the Artifact Copilot to push the deck one clear step at a time without rebuilding everything."
+    },
+    {
+      "name": "PDF Export",
+      "desc": "Export a high-resolution PDF rendered server-side once the deck is ready to share with investors."
+    }
+  ],
+  "whyTitle": "Why invest",
+  "whyPoints": [
+    {
+      "title": "Save 10+ Hours",
+      "desc": "The average founder spends a full day formatting slides. This builds your deck in minutes, not hours."
+    },
+    {
+      "title": "No Designer Needed",
+      "desc": "Professional slide design is built in. Skip the Fiverr queue and get investor-ready visuals instantly."
+    },
+    {
+      "title": "Story Before Slides",
+      "desc": "The AI forces you to answer the hard questions (market size, traction, ask) before assembling the deck — which is exactly what investors want to hear."
+    }
+  ],
+  "footerSummaryTitle": "The Price",
+  "footerSummaryDetails": "(Cheaper than one hour with a slide designer).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "A fundable pitch deck you can export and send to investors today.",
+  "whatYouGet": [
+    "Conversational pitch deck builder",
+    "12 professional slide types",
+    "Live slide editing and regeneration",
+    "AI-powered question flow",
+    "High-resolution PDF export",
+    "Editable deck artifacts",
+    "Instant access"
   ],
   "whoThisIsFor": [
-    "Early-stage founders preparing for fundraising conversations.",
-    "Startup teams who need a professional deck fast without hiring a designer.",
-    "Founders who have the story in their head but not on the slides yet."
+    "Early-stage founders preparing for fundraising conversations",
+    "Startup teams who need a professional deck fast without hiring a designer",
+    "Founders who have the story in their head but not on the slides yet",
+    "Founders who want to stress-test their pitch before investor meetings"
   ],
   "faq": [
-    { "q": "How does the AI know what to put in the deck?", "a": "It asks targeted questions about your startup and turns your answers into a deck structure with editable slides." },
-    { "q": "Can I edit the slides after they are generated?", "a": "Yes. You can edit slide text inline and request focused changes through the copilot." },
-    { "q": "Can I export the deck?", "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck." }
+    {
+      "q": "How does the AI know what to put in the deck?",
+      "a": "It asks targeted questions about your startup — covering problem, solution, market, traction, team, business model, and ask — and turns your answers into a deck structure with editable slides."
+    },
+    {
+      "q": "Can I edit the slides after they are generated?",
+      "a": "Yes. You can edit slide text inline and request focused changes through the copilot. The deck stays editable until you export."
+    },
+    {
+      "q": "What format can I export to?",
+      "a": "PromptDeck generates a high-resolution PDF once you're happy with the deck. The PDF is formatted for investor sharing."
+    },
+    {
+      "q": "Do I need to sign up to try it?",
+      "a": "You can start building your deck immediately. Sign up saves your work so you can return and continue editing."
+    }
   ],
   "images": [
     "/images/products/promptdeck-ai/preview-1.png",
     "/images/products/promptdeck-ai/preview-2.png",
     "/images/products/promptdeck-ai/preview-3.png",
     "/images/products/promptdeck-ai/preview-4.png"
-  ]
+  ],
+  "launchUrl": "https://promptdeck.foundersystems.in",
+  "category": "Strategy",
+  "priceInr": 499,
+  "priceUsd": 7,
+  "originalPriceInr": 999,
+  "originalPriceUsd": 12,
+  "creditPrice": 3
 }

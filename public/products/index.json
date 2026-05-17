@@ -62,8 +62,12 @@
   {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
-    "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
+    "description": "Build a fundable pitch deck in 15 minutes — just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for ₹500.",
     "category": "Strategy",
+    "productId": "FS013",
+    "priceInr": 499,
+    "priceUsd": 7,
+    "creditPrice": 3,
     "thumbnail": "/images/products/promptdeck-ai/preview-1.png"
   }
 ]
