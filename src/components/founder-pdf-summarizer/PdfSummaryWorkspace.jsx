@@ -301,7 +301,7 @@ const PdfSummaryWorkspace = () => {
             </button>
           </div>
 
-          <div className="flex-1 space-y-3 px-4 py-4">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
             <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/18 px-3.5 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
@@ -424,10 +424,10 @@ const PdfSummaryWorkspace = () => {
               <textarea
                 value={focus}
                 onChange={(event) => setFocus(event.target.value)}
-                rows={4}
+                rows={3}
                 disabled={loading}
                 placeholder="Optional: pressure-test the moat, highlight diligence gaps, or extract claims that need evidence."
-                className="mt-2 min-h-[96px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 min-h-[72px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
 
