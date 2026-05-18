@@ -12,8 +12,8 @@ const FounderPdfSummarizer = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pb-6 pt-16 sm:pt-18 lg:pt-22">
-        <div className="mx-auto max-w-[1480px] px-4 sm:px-5 lg:px-8">
+      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] lg:h-[calc(100vh-74px)] lg:overflow-hidden">
+        <div className="mx-auto h-full max-w-[1480px] px-4 sm:px-5 lg:px-8">
           <PdfSummaryWorkspace />
         </div>
       </main>
