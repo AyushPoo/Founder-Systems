@@ -82,6 +82,13 @@ async function readJsonBody(req) {
 
 function buildUserPrompt(input) {
   const modeGuidance = {
+    auto: [
+      'Mode guidance: auto-detect',
+      'Infer the document type from the PDF before summarizing it.',
+      'Choose the closest lens from: general, pitch-deck, investor-memo, grant-doc, market-report.',
+      'Set the mode field in your JSON to the lens you actually used after reading the document.',
+      'If the PDF does not clearly match one category, fall back to general.',
+    ],
     general: [
       'Mode guidance: general',
       'Focus on the document purpose, the clearest useful takeaways, missing proof, practical risks, and the next questions a founder should answer.',
@@ -103,13 +110,13 @@ function buildUserPrompt(input) {
       'Focus on relevant market signals, founder implications, weak evidence, risks in the readout, and the next questions that matter for decisions.',
     ],
   };
-  const selectedGuidance = modeGuidance[input.mode] || modeGuidance.general;
+  const selectedGuidance = modeGuidance[input.mode] || modeGuidance.auto;
 
   return [
     'Summarize this founder PDF for decision-making.',
     '',
     `Filename: ${input.filename}`,
-    `Mode: ${input.mode}`,
+    `Requested mode: ${input.mode}`,
     `Focus: ${input.focus || 'General summary with no extra emphasis.'}`,
     '',
     ...selectedGuidance,

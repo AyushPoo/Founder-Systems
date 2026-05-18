@@ -1,11 +1,13 @@
 import assert from 'assert';
 import { Buffer } from 'node:buffer';
 import {
+  DEFAULT_PDF_SUMMARY_MODE,
   PDF_SUMMARY_MODES,
   MAX_PDF_SIZE_BYTES,
   buildFounderPdfSummaryMarkdown,
   createFounderPdfSummaryDraft,
   derivePdfFileSizeFromDataUrl,
+  getFounderPdfSummaryModeLabel,
   normalizeFounderPdfSummaryRequest,
   normalizeFounderPdfSummaryResponse,
   resolveFounderPdfSummaryApiConfig,
@@ -17,13 +19,15 @@ function createPdfDataUrl(byteLength) {
 }
 
 const draft = createFounderPdfSummaryDraft();
-assert.equal(draft.mode, 'general');
+assert.equal(draft.mode, DEFAULT_PDF_SUMMARY_MODE);
 assert.equal(draft.focus, '');
 assert.equal(draft.filename, '');
 
 assert.equal(Array.isArray(PDF_SUMMARY_MODES), true);
+assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'auto'), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'pitch-deck'), true);
 assert.equal(MAX_PDF_SIZE_BYTES, Math.round(3.25 * 1024 * 1024));
+assert.equal(getFounderPdfSummaryModeLabel('pitch-deck'), 'Pitch deck');
 
 const normalized = normalizeFounderPdfSummaryRequest({
   filename: 'deck.pdf',
@@ -47,7 +51,7 @@ const invalidModeNormalized = normalizeFounderPdfSummaryRequest({
   mode: 'wrong-mode',
 });
 
-assert.equal(invalidModeNormalized.mode, 'general');
+assert.equal(invalidModeNormalized.mode, DEFAULT_PDF_SUMMARY_MODE);
 
 const negativeFileSizeNormalized = normalizeFounderPdfSummaryRequest({
   filename: 'notes.pdf',
@@ -161,5 +165,6 @@ const markdown = buildFounderPdfSummaryMarkdown({
 assert.match(markdown, /^# Founder PDF Summary: seed-deck\.pdf/m);
 assert.match(markdown, /## Executive Summary/m);
 assert.match(markdown, /## Key Takeaways/m);
+assert.match(markdown, /\*\*Mode:\*\* Pitch deck/m);
 
 console.log('founderPdfSummary tests passed');

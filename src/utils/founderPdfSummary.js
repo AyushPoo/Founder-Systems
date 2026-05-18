@@ -1,6 +1,13 @@
 export const MAX_PDF_SIZE_BYTES = Math.round(3.25 * 1024 * 1024);
+export const DEFAULT_PDF_SUMMARY_MODE = 'auto';
 
 export const PDF_SUMMARY_MODES = [
+  {
+    id: 'auto',
+    label: 'Auto-detect',
+    description:
+      'Read the PDF first, infer what kind of founder document it is, and use the best lens automatically.',
+  },
   {
     id: 'general',
     label: 'General founder PDF',
@@ -38,9 +45,17 @@ function cleanList(values) {
   return Array.isArray(values) ? values.map(cleanText).filter(Boolean) : [];
 }
 
-function normalizeMode(value) {
+export function getFounderPdfSummaryMode(modeId) {
+  return PDF_SUMMARY_MODES.find((mode) => mode.id === modeId) || null;
+}
+
+export function getFounderPdfSummaryModeLabel(modeId) {
+  return getFounderPdfSummaryMode(modeId)?.label || 'Founder lens';
+}
+
+function normalizeMode(value, fallback = DEFAULT_PDF_SUMMARY_MODE) {
   const mode = cleanText(value).toLowerCase();
-  return VALID_MODES.has(mode) ? mode : 'general';
+  return VALID_MODES.has(mode) ? mode : fallback;
 }
 
 function normalizeFileSize(value) {
@@ -98,7 +113,7 @@ export function createFounderPdfSummaryDraft() {
     mimeType: '',
     fileData: '',
     fileSize: 0,
-    mode: 'general',
+    mode: DEFAULT_PDF_SUMMARY_MODE,
     focus: '',
   };
 }
@@ -149,7 +164,7 @@ export function validateFounderPdfSummaryRequest(input = {}) {
       normalized,
       missing: [],
       isValid: false,
-      error: 'Please upload a PDF smaller than 3.3 MB for the first version.',
+      error: 'Please upload a PDF smaller than 3.3 MB for the current direct-upload beta.',
     };
   }
 
@@ -182,7 +197,7 @@ export function normalizeFounderPdfSummaryResponse(payload = {}) {
     ok: true,
     documentType: cleanText(payload.documentType) || 'Founder PDF',
     title: cleanText(payload.title) || 'Founder PDF Summary',
-    mode: normalizeMode(payload.mode),
+    mode: normalizeMode(payload.mode, 'general'),
     executiveSummary,
     keyTakeaways,
     riskFlags,
@@ -205,7 +220,7 @@ export function buildFounderPdfSummaryMarkdown({ filename = '', summary = {} }) 
   const lines = [`# Founder PDF Summary: ${safeFilename}`, ''];
 
   lines.push(`**Document type:** ${normalized.documentType}`);
-  lines.push(`**Mode:** ${normalized.mode}`);
+  lines.push(`**Mode:** ${getFounderPdfSummaryModeLabel(normalized.mode)}`);
   lines.push('');
   lines.push('## Executive Summary', '');
   lines.push(normalized.executiveSummary, '');

@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   buildFounderPdfSummaryMarkdown,
+  DEFAULT_PDF_SUMMARY_MODE,
+  getFounderPdfSummaryModeLabel,
   MAX_PDF_SIZE_BYTES,
   normalizeFounderPdfSummaryResponse,
   PDF_SUMMARY_MODES,
@@ -43,7 +45,8 @@ function readFileAsDataUrl(file) {
 const PdfSummaryWorkspace = () => {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
-  const [mode, setMode] = useState(PDF_SUMMARY_MODES[0]?.id || 'general');
+  const [mode, setMode] = useState(DEFAULT_PDF_SUMMARY_MODE);
+  const [showAdvancedModes, setShowAdvancedModes] = useState(false);
   const [focus, setFocus] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -74,6 +77,11 @@ const PdfSummaryWorkspace = () => {
     [mode]
   );
 
+  const manualModes = useMemo(
+    () => PDF_SUMMARY_MODES.filter((option) => option.id !== DEFAULT_PDF_SUMMARY_MODE),
+    []
+  );
+
   function handleFileChange(event) {
     const nextFile = event.target.files?.[0] || null;
     setCopied(false);
@@ -101,7 +109,7 @@ const PdfSummaryWorkspace = () => {
       }
       setFile(null);
       setResult(null);
-      setError('Please upload a PDF smaller than 3.3 MB for the first version.');
+      setError('Please upload a PDF smaller than 3.3 MB for the current direct-upload beta.');
       return;
     }
 
@@ -113,11 +121,13 @@ const PdfSummaryWorkspace = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    setFile(null);
-    setFocus('');
-    setResult(null);
-    setError('');
-    setCopied(false);
+      setFile(null);
+      setFocus('');
+      setMode(DEFAULT_PDF_SUMMARY_MODE);
+      setShowAdvancedModes(false);
+      setResult(null);
+      setError('');
+      setCopied(false);
   }
 
   async function handleSummarize(event) {
@@ -220,10 +230,10 @@ const PdfSummaryWorkspace = () => {
             PDF only
           </div>
           <div className="rounded-full border border-brand-black/10 bg-brand-cream px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/54">
-            Max {formatFileSize(MAX_PDF_SIZE_BYTES)}
+            Current upload path: {formatFileSize(MAX_PDF_SIZE_BYTES)} max
           </div>
           <div className="rounded-full border border-brand-black/10 bg-brand-cream px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/54">
-            Founder lens
+            Auto-detect lens
           </div>
         </div>
       </div>
@@ -239,8 +249,8 @@ const PdfSummaryWorkspace = () => {
                 Upload and summarize
               </p>
               <p className="mt-1 text-sm font-medium leading-relaxed text-brand-black/56">
-                Pick the PDF, choose the reading mode, and optionally tell the tool what to focus
-                on.
+                Pick the PDF, let the tool infer the document type, and optionally tell it what to
+                focus on.
               </p>
             </div>
             <button
@@ -271,6 +281,10 @@ const PdfSummaryWorkspace = () => {
                   The current flow reads the PDF locally in your browser, then sends it to the
                   summary endpoint.
                 </p>
+                <p className="mt-2 text-[12px] font-medium text-brand-black/46">
+                  For the first branch-ready beta, this direct upload path supports files up to{' '}
+                  {formatFileSize(MAX_PDF_SIZE_BYTES)}.
+                </p>
                 {apiConfig.localDevMessage ? (
                   <div className="mt-3 rounded-[16px] border border-amber-300 bg-amber-50 px-4 py-3 text-[12px] font-semibold leading-relaxed text-amber-900">
                     {apiConfig.localDevMessage}
@@ -288,38 +302,85 @@ const PdfSummaryWorkspace = () => {
             </label>
 
             <div>
-              <span className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/45">
-                Mode
-              </span>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {PDF_SUMMARY_MODES.map((option) => {
-                  const isSelected = option.id === mode;
+              <div className="flex flex-col gap-3 rounded-[18px] border border-brand-black/10 bg-brand-cream/45 px-4 py-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/45">
+                      Detection
+                    </span>
+                    <p className="mt-1 text-sm font-semibold text-brand-black">
+                      Auto-detect is on by default.
+                    </p>
+                    <p className="mt-1 text-[12px] font-medium leading-relaxed text-brand-black/52">
+                      The summarizer will read the PDF, infer whether it is a deck, memo, grant
+                      document, market report, or general founder file, then use that lens.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModes((value) => !value)}
+                    disabled={loading}
+                    className="rounded-full border border-brand-black/12 bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-brand-black/65 disabled:cursor-not-allowed disabled:text-brand-black/30"
+                  >
+                    {showAdvancedModes ? 'Hide override' : 'Override lens'}
+                  </button>
+                </div>
 
-                  return (
+                {showAdvancedModes ? (
+                  <div className="grid gap-2 sm:grid-cols-2">
                     <button
-                      key={option.id}
                       type="button"
-                      onClick={() => setMode(option.id)}
+                      onClick={() => setMode(DEFAULT_PDF_SUMMARY_MODE)}
                       disabled={loading}
                       className={`rounded-[18px] border px-4 py-3 text-left transition ${
-                        isSelected
+                        mode === DEFAULT_PDF_SUMMARY_MODE
                           ? 'border-brand-black bg-brand-black text-white shadow-[0_14px_26px_rgba(27,28,26,0.14)]'
                           : 'border-brand-black/10 bg-white text-brand-black hover:border-brand-black/20'
                       }`}
                     >
                       <p className="text-[12px] font-black uppercase tracking-[0.12em]">
-                        {option.label}
+                        Auto-detect
                       </p>
                       <p
                         className={`mt-1 text-[12px] font-medium leading-relaxed ${
-                          isSelected ? 'text-white/78' : 'text-brand-black/56'
+                          mode === DEFAULT_PDF_SUMMARY_MODE
+                            ? 'text-white/78'
+                            : 'text-brand-black/56'
                         }`}
                       >
-                        {option.description}
+                        Let the tool decide the best founder lens after reading the PDF.
                       </p>
                     </button>
-                  );
-                })}
+                    {manualModes.map((option) => {
+                      const isSelected = option.id === mode;
+
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setMode(option.id)}
+                          disabled={loading}
+                          className={`rounded-[18px] border px-4 py-3 text-left transition ${
+                            isSelected
+                              ? 'border-brand-black bg-brand-black text-white shadow-[0_14px_26px_rgba(27,28,26,0.14)]'
+                              : 'border-brand-black/10 bg-white text-brand-black hover:border-brand-black/20'
+                          }`}
+                        >
+                          <p className="text-[12px] font-black uppercase tracking-[0.12em]">
+                            {option.label}
+                          </p>
+                          <p
+                            className={`mt-1 text-[12px] font-medium leading-relaxed ${
+                              isSelected ? 'text-white/78' : 'text-brand-black/56'
+                            }`}
+                          >
+                            {option.description}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -336,7 +397,9 @@ const PdfSummaryWorkspace = () => {
                 className="mt-2 min-h-[120px] w-full resize-none rounded-[18px] border border-brand-black/12 bg-white px-4 py-3 text-sm font-medium leading-relaxed text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] transition placeholder:text-brand-black/30 focus:border-brand-black/24 focus:outline-none focus:ring-2 focus:ring-brand-black/5 disabled:cursor-not-allowed disabled:opacity-60"
               />
               <p className="mt-2 text-[12px] font-medium text-brand-black/46">
-                Current mode: {selectedMode?.label || 'General founder PDF'}.
+                {mode === DEFAULT_PDF_SUMMARY_MODE
+                  ? 'Current lens: Auto-detect.'
+                  : `Current manual lens: ${getFounderPdfSummaryModeLabel(selectedMode?.id)}.`}
               </p>
             </label>
           </div>

@@ -8,12 +8,12 @@
   "subtitle": "Turn a dense founder PDF into a fast, structured read.",
   "descriptionBody": "Founders do not just deal with pitch decks. They deal with investor memos, grant documents, market reports, and long internal PDFs that take too long to parse when a decision is needed quickly.\n\nFounder PDF Summarizer turns one uploaded PDF into a concise founder-facing summary with key takeaways, risk flags, and next questions so you can understand the file before you disappear into a full read.",
   "section1Title": "A fast read before the deep read",
-  "section1Body": "Upload the PDF, choose the lens, and get a structured summary that focuses on what matters for a founder or startup operator. The result is meant to speed up decisions, not replace careful review where the stakes are high.",
+  "section1Body": "Upload the PDF, let the tool infer the document type by default, and get a structured summary that focuses on what matters for a founder or startup operator. A manual lens override is still available when you want to force a specific read.",
   "featuresTitle": "What the beta helps with:",
   "features": [
     {
-      "name": "Founder-specific summary modes",
-      "desc": "Choose a general founder read, pitch deck lens, investor memo lens, grant document lens, or market report lens."
+      "name": "Automatic document detection",
+      "desc": "The default flow reads the PDF first and decides whether it should be treated like a deck, memo, grant document, market report, or general founder file."
     },
     {
       "name": "Structured takeaways",
@@ -36,7 +36,7 @@
     },
     {
       "title": "Founder lens instead of generic chat",
-      "desc": "The output is designed around startup decisions, missing proof, and practical next questions."
+      "desc": "The output is designed around startup decisions, missing proof, and practical next questions, without making the user pick a mode first."
     },
     {
       "title": "Works across multiple founder document types",
@@ -52,7 +52,7 @@
     "Key takeaways",
     "Risk flags",
     "Next questions",
-    "Founder-specific mode selection",
+    "Auto-detect lens with manual override",
     "Markdown export",
     "Free beta access"
   ],
@@ -68,7 +68,7 @@
     },
     {
       "q": "What files work in the first version?",
-      "a": "The MVP is focused on PDF uploads under the file-size limit shown in the tool."
+      "a": "The MVP is focused on PDF uploads under the direct-upload limit shown in the tool. That limit comes from the current beta upload path, not the long-term product vision."
     },
     {
       "q": "Can I export the result?",
