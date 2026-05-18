@@ -1,0 +1,83 @@
+{
+  "slug": "founder-pdf-summarizer",
+  "productId": "FS013",
+  "catalogName": "Founder PDF Summarizer",
+  "catalogDescription": "Upload a founder document and get a concise summary with takeaways, risks, and next questions.",
+  "catalogCategory": "Strategy",
+  "title": "Founder PDF Summarizer",
+  "subtitle": "Turn a dense founder PDF into a fast, structured read.",
+  "descriptionBody": "Founders do not just deal with pitch decks. They deal with investor memos, grant documents, market reports, and long internal PDFs that take too long to parse when a decision is needed quickly.\n\nFounder PDF Summarizer turns one uploaded PDF into a concise founder-facing summary with key takeaways, risk flags, and next questions so you can understand the file before you disappear into a full read.",
+  "section1Title": "A fast read before the deep read",
+  "section1Body": "Upload the PDF, choose the lens, and get a structured summary that focuses on what matters for a founder or startup operator. The result is meant to speed up decisions, not replace careful review where the stakes are high.",
+  "featuresTitle": "What the beta helps with:",
+  "features": [
+    {
+      "name": "Founder-specific summary modes",
+      "desc": "Choose a general founder read, pitch deck lens, investor memo lens, grant document lens, or market report lens."
+    },
+    {
+      "name": "Structured takeaways",
+      "desc": "Get one executive summary, key takeaways, risk flags, and next questions instead of a vague paragraph."
+    },
+    {
+      "name": "Image-heavy PDF support",
+      "desc": "The first version sends the full PDF directly for analysis so image-heavy pages still contribute to the result."
+    },
+    {
+      "name": "Markdown export",
+      "desc": "Copy or download the summary as a clean Markdown file for docs, Notion, or founder notes."
+    }
+  ],
+  "whyTitle": "Why use this instead of skimming manually?",
+  "whyPoints": [
+    {
+      "title": "Faster first-pass clarity",
+      "desc": "Useful when you need to understand the file before deciding whether to keep reading, share it, or act on it."
+    },
+    {
+      "title": "Founder lens instead of generic chat",
+      "desc": "The output is designed around startup decisions, missing proof, and practical next questions."
+    },
+    {
+      "title": "Works across multiple founder document types",
+      "desc": "The same tool can help on decks, memos, grant documents, and market research PDFs."
+    }
+  ],
+  "footerSummaryTitle": "Beta Access",
+  "footerSummaryDetails": "(Free while we validate quality, file limits, and the strongest document modes).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "A concise founder-ready summary you can copy, export, and use as a decision brief.",
+  "whatYouGet": [
+    "Executive summary",
+    "Key takeaways",
+    "Risk flags",
+    "Next questions",
+    "Founder-specific mode selection",
+    "Markdown export",
+    "Free beta access"
+  ],
+  "whoThisIsFor": [
+    "Founders reviewing pitch decks, memos, and market documents quickly.",
+    "Operators preparing for investor, customer, or grant conversations.",
+    "Advisors or analysts who need a fast structured read before deeper review."
+  ],
+  "faq": [
+    {
+      "q": "Does this replace legal or financial review?",
+      "a": "No. It is a founder-first summary tool, not a substitute for legal or expert advice."
+    },
+    {
+      "q": "What files work in the first version?",
+      "a": "The MVP is focused on PDF uploads under the file-size limit shown in the tool."
+    },
+    {
+      "q": "Can I export the result?",
+      "a": "Yes. You can copy the summary or download it as Markdown."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/founder-pdf-summarizer",
+  "category": "Strategy"
+}

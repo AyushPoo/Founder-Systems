@@ -60,6 +60,14 @@
     "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
   },
   {
+    "id": "founder-pdf-summarizer",
+    "name": "Founder PDF Summarizer",
+    "description": "Upload a founder PDF and get a concise summary with key takeaways, risks, and next questions.",
+    "category": "Strategy",
+    "productId": "FS013",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
