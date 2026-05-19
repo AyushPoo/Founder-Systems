@@ -1,13 +1,22 @@
 import { useMemo, useRef, useState } from 'react';
 import {
+  ACCEPTED_DOCUMENT_INPUT_ACCEPT,
   buildFounderPdfSummaryMarkdown,
-  DEFAULT_PDF_SUMMARY_MODE,
-  getFounderPdfSummaryModeLabel,
   MAX_PDF_SIZE_BYTES,
   normalizeFounderPdfSummaryResponse,
-  PDF_SUMMARY_MODES,
-  resolveFounderPdfSummaryApiConfig,
+  isSupportedFounderDocumentFile,
 } from '../../utils/founderPdfSummary';
+import {
+  buildFounderSafeExplainerMarkdown,
+  normalizeFounderSafeExplainerResponse,
+} from '../../utils/founderSafeExplainer';
+import {
+  DEFAULT_DOCUMENT_INTELLIGENCE_MODE,
+  DOCUMENT_INTELLIGENCE_MODES,
+  getDocumentIntelligenceApiConfig,
+  getDocumentIntelligenceModeLabel,
+  isFinancingDocumentMode,
+} from '../../utils/founderDocumentIntelligence';
 import { copyText, downloadMarkdown } from '../../utils/founderSpec';
 
 function formatFileSize(bytes) {
@@ -22,22 +31,25 @@ function formatFileSize(bytes) {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-function createDownloadFilename(filename) {
-  const baseName = String(filename || 'founder-pdf-summary')
+function createDownloadFilename(filename, isFinancingMode) {
+  const baseName = String(filename || 'founder-document-intelligence')
     .trim()
     .toLowerCase()
     .replace(/\.pdf$/i, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-  return `${baseName || 'founder-pdf-summary'}-summary.md`;
+  return `${baseName || 'founder-document-intelligence'}-${
+    isFinancingMode ? 'brief' : 'summary'
+  }.md`;
 }
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(new Error('I could not read that PDF. Please try another file.'));
+    reader.onerror = () =>
+      reject(new Error('I could not read that document. Please try another file.'));
     reader.readAsDataURL(file);
   });
 }
@@ -76,23 +88,108 @@ function SummarySection({ title, items = [], emptyText = '' }) {
   );
 }
 
+function ClauseCard({ clause }) {
+  return (
+    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            {clause.clause}
+          </p>
+          {clause.value ? (
+            <p className="mt-1 text-[13px] font-black tracking-tight-brand text-brand-black">
+              {clause.value}
+            </p>
+          ) : null}
+        </div>
+        <MetaPill>Clause</MetaPill>
+      </div>
+
+      <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/72">
+        {clause.explanation}
+      </p>
+
+      {clause.founderImpact ? (
+        <div className="mt-3 rounded-[12px] border border-brand-black/7 bg-brand-cream/18 px-3 py-2.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            Founder impact
+          </p>
+          <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/72">
+            {clause.founderImpact}
+          </p>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function MetricCard({ metric }) {
+  return (
+    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+        {metric.label}
+      </p>
+      <p className="mt-2 text-[15px] font-black tracking-tight-brand text-brand-black">
+        {metric.value}
+      </p>
+      {metric.note ? (
+        <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
+          {metric.note}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function BreakdownSectionCard({ section }) {
+  return (
+    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
+      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+        {section.title}
+      </p>
+      <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
+        {section.summary}
+      </p>
+      {section.focusPoints?.length ? (
+        <ul className="mt-3 space-y-1.5">
+          {section.focusPoints.map((item, index) => (
+            <li
+              key={`${section.title}-${index}`}
+              className="text-[12.5px] font-medium leading-6 text-brand-black/62"
+            >
+              {item}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </section>
+  );
+}
+
 const PdfSummaryWorkspace = () => {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
-  const [mode, setMode] = useState(DEFAULT_PDF_SUMMARY_MODE);
+  const [mode, setMode] = useState(DEFAULT_DOCUMENT_INTELLIGENCE_MODE);
   const [showAdvancedModes, setShowAdvancedModes] = useState(false);
+  const [roundContext, setRoundContext] = useState('');
   const [focus, setFocus] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const isFinancingMode = useMemo(() => isFinancingDocumentMode(mode), [mode]);
+  const isDeepDocumentMode = useMemo(
+    () => ['annual-report', 'financial-statement'].includes(mode),
+    [mode]
+  );
   const apiConfig = useMemo(
     () =>
-      resolveFounderPdfSummaryApiConfig({
+      getDocumentIntelligenceApiConfig({
+        mode,
         env: import.meta.env,
         hostname: typeof window === 'undefined' ? '' : window.location.hostname,
       }),
-    []
+    [mode]
   );
 
   const markdown = useMemo(() => {
@@ -100,19 +197,29 @@ const PdfSummaryWorkspace = () => {
       return '';
     }
 
-    return buildFounderPdfSummaryMarkdown({
-      filename: file.name,
-      summary: result,
-    });
+    return result.kind === 'financing'
+      ? buildFounderSafeExplainerMarkdown({
+          filename: file.name,
+          analysis: result.data,
+        })
+      : buildFounderPdfSummaryMarkdown({
+          filename: file.name,
+          summary: result.data,
+        });
   }, [file, result]);
 
   const selectedMode = useMemo(
-    () => PDF_SUMMARY_MODES.find((option) => option.id === mode) || PDF_SUMMARY_MODES[0],
+    () =>
+      DOCUMENT_INTELLIGENCE_MODES.find((option) => option.id === mode) ||
+      DOCUMENT_INTELLIGENCE_MODES[0],
     [mode]
   );
 
   const manualModes = useMemo(
-    () => PDF_SUMMARY_MODES.filter((option) => option.id !== DEFAULT_PDF_SUMMARY_MODE),
+    () =>
+      DOCUMENT_INTELLIGENCE_MODES.filter(
+        (option) => option.id !== DEFAULT_DOCUMENT_INTELLIGENCE_MODE
+      ),
     []
   );
 
@@ -127,13 +234,15 @@ const PdfSummaryWorkspace = () => {
       return;
     }
 
-    if (nextFile.type && nextFile.type !== 'application/pdf') {
+    if (!isSupportedFounderDocumentFile({ filename: nextFile.name, mimeType: nextFile.type })) {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
       setFile(null);
       setResult(null);
-      setError('Please choose a PDF file.');
+      setError(
+        'Please choose a supported document, deck, or spreadsheet such as PDF, DOCX, PPTX, XLSX, CSV, or TSV.'
+      );
       return;
     }
 
@@ -158,18 +267,19 @@ const PdfSummaryWorkspace = () => {
 
     setFile(null);
     setFocus('');
-    setMode(DEFAULT_PDF_SUMMARY_MODE);
+    setRoundContext('');
+    setMode(DEFAULT_DOCUMENT_INTELLIGENCE_MODE);
     setShowAdvancedModes(false);
     setResult(null);
     setError('');
     setCopied(false);
   }
 
-  async function handleSummarize(event) {
+  async function handleAnalyze(event) {
     event.preventDefault();
 
     if (!file || loading) {
-      setError('Choose a PDF before summarizing.');
+      setError('Choose a PDF before analyzing it.');
       return;
     }
 
@@ -195,25 +305,46 @@ const PdfSummaryWorkspace = () => {
           fileSize: file.size,
           fileData,
           mode,
+          roundContext,
           focus,
         }),
       });
 
       const payload = await response.json().catch(() => null);
-      const normalized = normalizeFounderPdfSummaryResponse(payload);
+      const normalized = isFinancingMode
+        ? normalizeFounderSafeExplainerResponse(payload)
+        : normalizeFounderPdfSummaryResponse(payload);
 
       if (!response.ok) {
-        throw new Error(payload?.error || 'Founder PDF summarization failed.');
+        throw new Error(
+          payload?.error ||
+            (isFinancingMode
+              ? 'Financing document analysis failed.'
+              : 'Founder PDF summarization failed.')
+        );
       }
 
       if (!normalized.ok) {
-        throw new Error(normalized.error || 'Founder PDF summary response was incomplete.');
+        throw new Error(
+          normalized.error ||
+            (isFinancingMode
+              ? 'Financing document response was incomplete.'
+              : 'Founder PDF summary response was incomplete.')
+        );
       }
 
-      setResult(normalized);
+      setResult({
+        kind: isFinancingMode ? 'financing' : 'summary',
+        data: normalized,
+      });
     } catch (submitError) {
       setResult(null);
-      setError(submitError?.message || 'Founder PDF summarization failed. Please try again.');
+      setError(
+        submitError?.message ||
+          (isFinancingMode
+            ? 'Financing document analysis failed. Please try again.'
+            : 'Founder PDF summarization failed. Please try again.')
+      );
     } finally {
       setLoading(false);
     }
@@ -239,7 +370,14 @@ const PdfSummaryWorkspace = () => {
       return;
     }
 
-    downloadMarkdown(createDownloadFilename(file.name), markdown);
+    downloadMarkdown(createDownloadFilename(file.name, isFinancingMode), markdown);
+  }
+
+  function handleModeSelect(nextMode) {
+    setMode(nextMode);
+    setResult(null);
+    setError('');
+    setCopied(false);
   }
 
   return (
@@ -247,24 +385,25 @@ const PdfSummaryWorkspace = () => {
       <div className="mb-3 hidden items-center justify-between gap-6 lg:flex">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/28">
-            Founder PDF summarizer
+            Founder document intelligence
           </p>
           <p className="mt-1 text-[12.5px] font-medium text-brand-black/42">
-            Upload one PDF, get a compact founder readout, then export it as Markdown.
+            Upload one PDF, analyze decks, memos, or financing docs, then export the founder
+            readout.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <MetaPill>PDF only</MetaPill>
+          <MetaPill>Docs + sheets</MetaPill>
           <MetaPill>{formatFileSize(MAX_PDF_SIZE_BYTES)} max</MetaPill>
-          <MetaPill>Auto-detect</MetaPill>
+          <MetaPill>{isFinancingMode ? 'Clause-first' : 'Auto-detect'}</MetaPill>
         </div>
       </div>
 
       <div className="mb-3 flex items-center justify-between gap-3 rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 shadow-[0_8px_18px_rgba(27,28,26,0.045)] lg:hidden">
         <div className="min-w-0">
-          <h1 className="text-[1rem] font-black tracking-tight-brand">Founder PDF Summarizer</h1>
+          <h1 className="text-[1rem] font-black tracking-tight-brand">Founder Document Intelligence</h1>
           <p className="mt-1 text-[10.5px] font-medium text-brand-black/48">
-            PDF only · {formatFileSize(MAX_PDF_SIZE_BYTES)} max
+            Docs, decks, sheets · {formatFileSize(MAX_PDF_SIZE_BYTES)} max
           </p>
         </div>
         <button
@@ -277,9 +416,9 @@ const PdfSummaryWorkspace = () => {
         </button>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(640px,1fr)_380px] xl:gap-5">
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(640px,1fr)_400px] xl:gap-5">
         <form
-          onSubmit={handleSummarize}
+          onSubmit={handleAnalyze}
           className="flex min-h-0 flex-col rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]"
         >
           <div className="flex items-start justify-between gap-4 border-b border-brand-black/7 px-4 py-3">
@@ -288,7 +427,7 @@ const PdfSummaryWorkspace = () => {
                 Input
               </p>
               <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                Upload the PDF and add an optional focus prompt.
+                Upload the file and add optional focus context for the exact document type.
               </p>
             </div>
             <button
@@ -305,16 +444,16 @@ const PdfSummaryWorkspace = () => {
             <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/18 px-3.5 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                  PDF file
+                  Document file
                 </span>
                 <span className="text-[11px] font-medium text-brand-black/38">
-                  Direct browser upload for the current beta.
+                  Direct browser upload for docs, decks, and spreadsheets in the current beta.
                 </span>
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="application/pdf,.pdf"
+                accept={ACCEPTED_DOCUMENT_INPUT_ACCEPT}
                 onChange={handleFileChange}
                 disabled={loading}
                 className="mt-3 block w-full cursor-pointer text-[13px] font-medium text-brand-black file:mr-3 file:rounded-full file:border-0 file:bg-brand-black file:px-3.5 file:py-2 file:text-[10.5px] file:font-black file:uppercase file:tracking-[0.12em] file:text-white"
@@ -339,7 +478,8 @@ const PdfSummaryWorkspace = () => {
                     Detection
                   </p>
                   <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
-                    Auto-detect is on. Override only if you want to force a specific reading lens.
+                    Auto-detect is still the default. Override only if you want to force a
+                    specific reading lens.
                   </p>
                 </div>
                 <button
@@ -357,19 +497,19 @@ const PdfSummaryWorkspace = () => {
               </div>
 
               <p className="mt-2 text-[11px] font-medium text-brand-black/42">
-                {mode === DEFAULT_PDF_SUMMARY_MODE
+                {mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
                   ? 'Current lens: Auto-detect.'
-                  : `Manual lens: ${getFounderPdfSummaryModeLabel(selectedMode?.id)}.`}
+                  : `Manual lens: ${getDocumentIntelligenceModeLabel(selectedMode?.id)}.`}
               </p>
 
               {showAdvancedModes ? (
                 <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   <button
                     type="button"
-                    onClick={() => setMode(DEFAULT_PDF_SUMMARY_MODE)}
+                    onClick={() => handleModeSelect(DEFAULT_DOCUMENT_INTELLIGENCE_MODE)}
                     disabled={loading}
                     className={`rounded-[14px] border px-3 py-2.5 text-left transition ${
-                      mode === DEFAULT_PDF_SUMMARY_MODE
+                      mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
                         ? 'border-brand-black bg-brand-black text-white'
                         : 'border-brand-black/8 bg-white text-brand-black hover:border-brand-black/18'
                     }`}
@@ -379,23 +519,25 @@ const PdfSummaryWorkspace = () => {
                     </p>
                     <p
                       className={`mt-1 text-[11.5px] font-medium leading-5 ${
-                        mode === DEFAULT_PDF_SUMMARY_MODE ? 'text-white/78' : 'text-brand-black/54'
+                        mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
+                          ? 'text-white/78'
+                          : 'text-brand-black/54'
                       }`}
                     >
                       Infer the document type first.
                     </p>
                   </button>
                   {manualModes.map((option) => {
-                    const isSelected = option.id === mode;
+                    const selected = option.id === mode;
 
                     return (
                       <button
                         key={option.id}
                         type="button"
-                        onClick={() => setMode(option.id)}
+                        onClick={() => handleModeSelect(option.id)}
                         disabled={loading}
                         className={`rounded-[14px] border px-3 py-2.5 text-left transition ${
-                          isSelected
+                          selected
                             ? 'border-brand-black bg-brand-black text-white'
                             : 'border-brand-black/8 bg-white text-brand-black hover:border-brand-black/18'
                         }`}
@@ -405,7 +547,7 @@ const PdfSummaryWorkspace = () => {
                         </p>
                         <p
                           className={`mt-1 text-[11.5px] font-medium leading-5 ${
-                            isSelected ? 'text-white/78' : 'text-brand-black/54'
+                            selected ? 'text-white/78' : 'text-brand-black/54'
                           }`}
                         >
                           {option.description}
@@ -417,6 +559,21 @@ const PdfSummaryWorkspace = () => {
               ) : null}
             </div>
 
+            {isFinancingMode ? (
+              <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+                  Round context
+                </span>
+                <input
+                  value={roundContext}
+                  onChange={(event) => setRoundContext(event.target.value)}
+                  disabled={loading}
+                  placeholder="Optional: pre-seed extension, priced seed, bridge note, or investor name."
+                  className="mt-2 w-full rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+              </label>
+            ) : null}
+
             <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
               <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
                 Focus
@@ -426,10 +583,26 @@ const PdfSummaryWorkspace = () => {
                 onChange={(event) => setFocus(event.target.value)}
                 rows={3}
                 disabled={loading}
-                placeholder="Optional: pressure-test the moat, highlight diligence gaps, or extract claims that need evidence."
+                placeholder={
+                  isFinancingMode
+                    ? 'Optional: pressure-test control terms, compare economics, or flag anything that feels founder-unfriendly.'
+                    : 'Optional: pressure-test the moat, highlight diligence gaps, or extract claims that need evidence.'
+                }
                 className="mt-2 min-h-[72px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
+
+            {isFinancingMode ? (
+              <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-2.5">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-900/70">
+                  Guardrail
+                </p>
+                <p className="mt-1 text-[12.5px] font-semibold leading-6 text-amber-900">
+                  Financing-doc mode is educational only. It helps founders understand clauses
+                  faster, then bring sharper questions to counsel.
+                </p>
+              </div>
+            ) : null}
 
             {apiConfig.localDevMessage ? (
               <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[12px] font-semibold leading-6 text-amber-900">
@@ -446,14 +619,24 @@ const PdfSummaryWorkspace = () => {
 
           <div className="flex flex-col gap-3 border-t border-brand-black/7 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] font-medium leading-5 text-brand-black/42">
-              Returns summary, takeaways, risks, questions, and extraction notes.
+              {isFinancingMode
+                ? 'Returns clause explanations, founder watch-outs, unusual terms, and counsel questions.'
+                : isDeepDocumentMode
+                  ? 'Returns a deeper breakdown with key metrics, focus areas, important sections, and questions.'
+                  : 'Returns summary, takeaways, risks, questions, and extraction notes.'}
             </p>
             <button
               type="submit"
               disabled={!file || loading}
               className="inline-flex items-center justify-center rounded-full bg-brand-black px-4 py-2 text-[10.5px] font-black uppercase tracking-[0.12em] text-white shadow-[0_8px_16px_rgba(27,28,26,0.09)] transition disabled:pointer-events-none disabled:opacity-70"
             >
-              {loading ? 'Summarizing...' : 'Summarize PDF'}
+              {loading
+                ? isFinancingMode
+                  ? 'Explaining...'
+                  : 'Summarizing...'
+                : isFinancingMode
+                  ? 'Explain financing file'
+                  : 'Analyze file'}
             </button>
           </div>
         </form>
@@ -463,7 +646,7 @@ const PdfSummaryWorkspace = () => {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                  Summary output
+                  Analysis output
                 </p>
                 <p className="mt-1 text-[13px] font-medium text-brand-black/52">
                   Review, copy, or download the readout.
@@ -490,9 +673,11 @@ const PdfSummaryWorkspace = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <MetaPill>{result?.documentType || 'Waiting for PDF'}</MetaPill>
+              <MetaPill>{result?.data?.documentType || 'Waiting for PDF'}</MetaPill>
               <MetaPill>
-                {result?.extractionQuality?.label ? `${result.extractionQuality.label} extraction` : 'No summary yet'}
+                {result?.data?.extractionQuality?.label
+                  ? `${result.data.extractionQuality.label} extraction`
+                  : 'No analysis yet'}
               </MetaPill>
             </div>
           </div>
@@ -501,11 +686,11 @@ const PdfSummaryWorkspace = () => {
             {!loading && !result ? (
               <div className="rounded-[14px] border border-dashed border-brand-black/10 bg-brand-cream/16 px-4 py-4">
                 <p className="text-[13px] font-semibold text-brand-black/68">
-                  Upload a PDF to unlock the founder summary.
+                  Upload a document, deck, or spreadsheet to unlock the founder analysis.
                 </p>
                 <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/48">
                   The result pane stays compact and scrollable, so the overall workspace does not
-                  balloon as the summary gets longer.
+                  balloon as the analysis gets longer.
                 </p>
               </div>
             ) : null}
@@ -516,7 +701,9 @@ const PdfSummaryWorkspace = () => {
                   In progress
                 </p>
                 <p className="mt-2 text-[13px] font-semibold text-brand-black">
-                  Reading the PDF and building the founder summary now.
+                  {isFinancingMode
+                    ? 'Reading the financing PDF and building the founder briefing now.'
+                    : 'Reading the PDF and building the founder summary now.'}
                 </p>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
                   <div className="h-full w-2/3 animate-pulse rounded-full bg-brand-black" />
@@ -524,35 +711,116 @@ const PdfSummaryWorkspace = () => {
               </div>
             ) : null}
 
-            {result ? (
+            {result?.kind === 'summary' ? (
               <div className="space-y-3">
                 <section className="rounded-[14px] border border-brand-black/8 bg-brand-cream/14 px-3.5 py-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
                     Executive summary
                   </p>
                   <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
-                    {result.executiveSummary}
+                    {result.data.executiveSummary}
                   </p>
                 </section>
 
                 <SummarySection
                   title="Key takeaways"
-                  items={result.keyTakeaways}
+                  items={result.data.keyTakeaways}
                   emptyText="No key takeaways were returned."
                 />
                 <SummarySection
                   title="Risk flags"
-                  items={result.riskFlags}
+                  items={result.data.riskFlags}
                   emptyText="No explicit risk flags were returned for this document."
                 />
                 <SummarySection
+                  title="What to focus on"
+                  items={result.data.focusAreas || []}
+                  emptyText="No specific focus areas were returned."
+                />
+                {result.data.keyMetrics?.length ? (
+                  <section className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+                      Key metrics
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {result.data.keyMetrics.map((metric, index) => (
+                        <MetricCard key={`${metric.label}-${index}`} metric={metric} />
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                {result.data.breakdownSections?.length ? (
+                  <section className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+                      Important sections
+                    </p>
+                    <div className="space-y-3">
+                      {result.data.breakdownSections.map((section, index) => (
+                        <BreakdownSectionCard
+                          key={`${section.title}-${index}`}
+                          section={section}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
+                <SummarySection
                   title="Next questions"
-                  items={result.nextQuestions}
+                  items={result.data.nextQuestions}
                   emptyText="No follow-up questions were returned."
                 />
                 <SummarySection
                   title="Extraction notes"
-                  items={result.extractionQuality?.notes || []}
+                  items={result.data.extractionQuality?.notes || []}
+                  emptyText="No extraction notes were returned."
+                />
+              </div>
+            ) : null}
+
+            {result?.kind === 'financing' ? (
+              <div className="space-y-3">
+                <section className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-900/70">
+                    Disclaimer
+                  </p>
+                  <p className="mt-2 text-[12.5px] font-semibold leading-6 text-amber-900">
+                    {result.data.disclaimer}
+                  </p>
+                </section>
+
+                <section className="rounded-[14px] border border-brand-black/8 bg-brand-cream/14 px-3.5 py-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+                    Plain-English summary
+                  </p>
+                  <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
+                    {result.data.summary}
+                  </p>
+                </section>
+
+                <div className="space-y-3">
+                  {result.data.clauseHighlights.map((clause, index) => (
+                    <ClauseCard key={`${clause.clause}-${index}`} clause={clause} />
+                  ))}
+                </div>
+
+                <SummarySection
+                  title="Founder watch-outs"
+                  items={result.data.founderWatchouts}
+                  emptyText="No specific founder watch-outs were returned."
+                />
+                <SummarySection
+                  title="Unusual clauses"
+                  items={result.data.unusualClauses}
+                  emptyText="No unusual clauses were called out."
+                />
+                <SummarySection
+                  title="Lawyer discussion checklist"
+                  items={result.data.counselQuestions}
+                  emptyText="No specific counsel questions were returned."
+                />
+                <SummarySection
+                  title="Extraction notes"
+                  items={result.data.extractionQuality?.notes || []}
                   emptyText="No extraction notes were returned."
                 />
               </div>

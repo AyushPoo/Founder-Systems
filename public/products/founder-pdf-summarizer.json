@@ -1,14 +1,14 @@
 {
   "slug": "founder-pdf-summarizer",
   "productId": "FS013",
-  "catalogName": "Founder PDF Summarizer",
-  "catalogDescription": "Upload a founder document and get a concise summary with takeaways, risks, and next questions.",
+  "catalogName": "Founder Document Intelligence",
+  "catalogDescription": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one compact workflow.",
   "catalogCategory": "Strategy",
-  "title": "Founder PDF Summarizer",
-  "subtitle": "Turn a dense founder PDF into a fast, structured read.",
-  "descriptionBody": "Founders do not just deal with pitch decks. They deal with investor memos, grant documents, market reports, and long internal PDFs that take too long to parse when a decision is needed quickly.\n\nFounder PDF Summarizer turns one uploaded PDF into a concise founder-facing summary with key takeaways, risk flags, and next questions so you can understand the file before you disappear into a full read.",
-  "section1Title": "A fast read before the deep read",
-  "section1Body": "Upload the PDF, let the tool infer the document type by default, and get a structured summary that focuses on what matters for a founder or startup operator. A manual lens override is still available when you want to force a specific read.",
+  "title": "Founder Document Intelligence",
+  "subtitle": "One compact workflow for founder docs, decks, sheets, and financing files.",
+  "descriptionBody": "Founders do not just deal with pitch decks. They deal with investor memos, grant documents, market reports, annual reports, financial statements, SAFEs, term sheets, spreadsheets, and long internal documents that take too long to parse when a decision is needed quickly.\n\nFounder Document Intelligence turns one uploaded file into a concise founder-facing summary, financial readout, or financing-doc explainer with structured takeaways, focus areas, risk flags, clause notes, and next questions so you can understand the file before you disappear into a full read or legal review.",
+  "section1Title": "A fast read before the deep read or lawyer call",
+  "section1Body": "Upload the file, let the tool infer the document type by default, and get a structured readout that focuses on what matters for a founder or startup operator. When the file is clearly a financing doc, you can force a SAFE, term sheet, or convertible-note lens and get clause-first output instead of a generic summary.",
   "featuresTitle": "What the beta helps with:",
   "features": [
     {
@@ -20,12 +20,20 @@
       "desc": "Get one executive summary, key takeaways, risk flags, and next questions instead of a vague paragraph."
     },
     {
+      "name": "Financing-doc modes",
+      "desc": "SAFE, term sheet, and convertible-note lenses turn the same workflow into a clause explainer with founder watch-outs and sharper lawyer questions."
+    },
+    {
+      "name": "Financial statement and annual-report modes",
+      "desc": "Annual reports and spreadsheets can be read through a financial lens that surfaces what changed, where pressure is building, and what deserves deeper inspection."
+    },
+    {
       "name": "Image-heavy PDF support",
       "desc": "The first version sends the full PDF directly for analysis so image-heavy pages still contribute to the result."
     },
     {
       "name": "Markdown export",
-      "desc": "Copy or download the summary as a clean Markdown file for docs, Notion, or founder notes."
+      "desc": "Copy or download the summary or briefing note as a clean Markdown file for docs, Notion, or founder notes."
     }
   ],
   "whyTitle": "Why use this instead of skimming manually?",
@@ -36,11 +44,11 @@
     },
     {
       "title": "Founder lens instead of generic chat",
-      "desc": "The output is designed around startup decisions, missing proof, and practical next questions, without making the user pick a mode first."
+      "desc": "The output is designed around startup decisions, financing implications, number movement, missing proof, and practical next steps without forcing the user through three separate products."
     },
     {
       "title": "Works across multiple founder document types",
-      "desc": "The same tool can help on decks, memos, grant documents, and market research PDFs."
+      "desc": "The same tool can help on decks, memos, grants, annual reports, market research, and financing files."
     }
   ],
   "footerSummaryTitle": "Beta Access",
@@ -51,24 +59,27 @@
     "Executive summary",
     "Key takeaways",
     "Risk flags",
+    "What to focus on next",
     "Next questions",
+    "Clause-first financing mode",
+    "Annual report and financial statement modes",
     "Auto-detect lens with manual override",
     "Markdown export",
     "Free beta access"
   ],
   "whoThisIsFor": [
-    "Founders reviewing pitch decks, memos, and market documents quickly.",
+    "Founders reviewing pitch decks, memos, annual reports, and operating documents quickly.",
     "Operators preparing for investor, customer, or grant conversations.",
     "Advisors or analysts who need a fast structured read before deeper review."
   ],
   "faq": [
     {
       "q": "Does this replace legal or financial review?",
-      "a": "No. It is a founder-first summary tool, not a substitute for legal or expert advice."
+      "a": "No. It is a founder-first analysis tool, not a substitute for legal or expert advice. Financing-doc modes are explicitly educational only."
     },
     {
       "q": "What files work in the first version?",
-      "a": "The MVP is focused on PDF uploads under the direct-upload limit shown in the tool. That limit comes from the current beta upload path, not the long-term product vision."
+      "a": "The current version supports common documents, decks, and spreadsheets such as PDF, DOCX, PPTX, XLSX, CSV, and TSV under the direct-upload size limit shown in the tool."
     },
     {
       "q": "Can I export the result?",

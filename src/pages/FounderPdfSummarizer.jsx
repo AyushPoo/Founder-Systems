@@ -6,8 +6,8 @@ const FounderPdfSummarizer = () => {
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
       <SEO
-        title="Founder PDF Summarizer"
-        description="Upload a founder PDF and turn it into an executive summary with takeaways, risks, next questions, and exportable Markdown."
+        title="Founder Document Intelligence"
+        description="Upload a founder document, spreadsheet, or deck and turn it into a summary, financial readout, or financing-doc explainer with exportable Markdown."
         canonical="/tools/founder-pdf-summarizer"
       />
       <Navbar />

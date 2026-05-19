@@ -1,5 +1,44 @@
 export const MAX_PDF_SIZE_BYTES = Math.round(3.25 * 1024 * 1024);
 export const DEFAULT_PDF_SUMMARY_MODE = 'auto';
+export const ACCEPTED_DOCUMENT_EXTENSIONS = [
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.rtf',
+  '.odt',
+  '.ppt',
+  '.pptx',
+  '.csv',
+  '.tsv',
+  '.xls',
+  '.xlsx',
+  '.txt',
+  '.md',
+  '.json',
+  '.html',
+  '.xml',
+];
+export const ACCEPTED_DOCUMENT_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/rtf',
+  'application/vnd.oasis.opendocument.text',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'text/csv',
+  'application/csv',
+  'text/tab-separated-values',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'text/plain',
+  'text/markdown',
+  'application/json',
+  'text/html',
+  'application/xml',
+  'text/xml',
+];
+export const ACCEPTED_DOCUMENT_INPUT_ACCEPT = ACCEPTED_DOCUMENT_EXTENSIONS.join(',');
 
 export const PDF_SUMMARY_MODES = [
   {
@@ -33,6 +72,18 @@ export const PDF_SUMMARY_MODES = [
     label: 'Market report',
     description: 'Focus on relevant market signals, implications, and open questions.',
   },
+  {
+    id: 'annual-report',
+    label: 'Annual report',
+    description:
+      'Focus on what changed in the business, management narrative versus numbers, risks, and where to dig deeper.',
+  },
+  {
+    id: 'financial-statement',
+    label: 'Financial statement',
+    description:
+      'Focus on revenue, margins, cash flow quality, balance-sheet pressure, anomalies, and what to inspect next.',
+  },
 ];
 
 const VALID_MODES = new Set(PDF_SUMMARY_MODES.map((mode) => mode.id));
@@ -43,6 +94,52 @@ function cleanText(value) {
 
 function cleanList(values) {
   return Array.isArray(values) ? values.map(cleanText).filter(Boolean) : [];
+}
+
+function cleanMetric(item) {
+  if (!item || typeof item !== 'object') {
+    return null;
+  }
+
+  const label = cleanText(item.label);
+  const value = cleanText(item.value);
+  const note = cleanText(item.note);
+
+  if (!label || !value) {
+    return null;
+  }
+
+  return {
+    label,
+    value,
+    note,
+  };
+}
+
+function cleanBreakdownSection(item) {
+  if (!item || typeof item !== 'object') {
+    return null;
+  }
+
+  const title = cleanText(item.title);
+  const summary = cleanText(item.summary);
+  const focusPoints = cleanList(item.focusPoints);
+
+  if (!title || !summary) {
+    return null;
+  }
+
+  return {
+    title,
+    summary,
+    focusPoints,
+  };
+}
+
+function getExtension(filename) {
+  const normalized = cleanText(filename).toLowerCase();
+  const dotIndex = normalized.lastIndexOf('.');
+  return dotIndex >= 0 ? normalized.slice(dotIndex) : '';
 }
 
 export function getFounderPdfSummaryMode(modeId) {
@@ -82,8 +179,46 @@ export function derivePdfFileSizeFromDataUrl(value) {
   return Math.max(0, Math.floor((base64Payload.length * 3) / 4) - paddingLength);
 }
 
-function isPdfDataUrl(value) {
-  return /^data:application\/pdf;base64,[\s\S]+$/i.test(cleanText(value));
+function parseDataUrlMetadata(value) {
+  const match = cleanText(value).match(/^data:([^;,]+);base64,([\s\S]+)$/i);
+  return {
+    mimeType: cleanText(match?.[1]).toLowerCase(),
+    base64Payload: cleanText(match?.[2]),
+  };
+}
+
+export function isAcceptedDocumentMimeType(mimeType) {
+  return ACCEPTED_DOCUMENT_MIME_TYPES.includes(cleanText(mimeType).toLowerCase());
+}
+
+export function isAcceptedDocumentExtension(filename) {
+  return ACCEPTED_DOCUMENT_EXTENSIONS.includes(getExtension(filename));
+}
+
+export function isSupportedFounderDocumentFile({ filename = '', mimeType = '' } = {}) {
+  return isAcceptedDocumentMimeType(mimeType) || isAcceptedDocumentExtension(filename);
+}
+
+function isAcceptedDocumentDataUrl(value, mimeType, filename) {
+  const { mimeType: dataUrlMimeType, base64Payload } = parseDataUrlMetadata(value);
+  const normalizedMimeType = cleanText(mimeType).toLowerCase();
+
+  if (!base64Payload) {
+    return false;
+  }
+
+  if (dataUrlMimeType && normalizedMimeType && dataUrlMimeType !== normalizedMimeType) {
+    return false;
+  }
+
+  if (dataUrlMimeType && isAcceptedDocumentMimeType(dataUrlMimeType)) {
+    return true;
+  }
+
+  return (
+    (!dataUrlMimeType || dataUrlMimeType === normalizedMimeType) &&
+    isSupportedFounderDocumentFile({ filename, mimeType })
+  );
 }
 
 export function resolveFounderPdfSummaryApiConfig({ env = {}, hostname = '' } = {}) {
@@ -125,7 +260,7 @@ export function normalizeFounderPdfSummaryRequest(input = {}) {
   return {
     ...createFounderPdfSummaryDraft(),
     filename: cleanText(input.filename),
-    mimeType: cleanText(input.mimeType) || 'application/pdf',
+    mimeType: cleanText(input.mimeType).toLowerCase() || 'application/pdf',
     fileData,
     fileSize: derivedFileSize || normalizeFileSize(input.fileSize),
     mode: normalizeMode(input.mode),
@@ -139,7 +274,7 @@ export function validateFounderPdfSummaryRequest(input = {}) {
 
   if (!normalized.filename) missing.push('filename');
   if (!normalized.fileData) missing.push('fileData');
-  if (normalized.mimeType !== 'application/pdf') missing.push('mimeType');
+  if (!normalized.mimeType) missing.push('mimeType');
 
   if (missing.length > 0) {
     return {
@@ -150,12 +285,22 @@ export function validateFounderPdfSummaryRequest(input = {}) {
     };
   }
 
-  if (!isPdfDataUrl(normalized.fileData)) {
+  if (!isSupportedFounderDocumentFile(normalized)) {
     return {
       normalized,
       missing: [],
       isValid: false,
-      error: 'Please upload a valid PDF file.',
+      error:
+        'Please upload a supported document, deck, or spreadsheet file such as PDF, DOCX, PPTX, XLSX, CSV, or TSV.',
+    };
+  }
+
+  if (!isAcceptedDocumentDataUrl(normalized.fileData, normalized.mimeType, normalized.filename)) {
+    return {
+      normalized,
+      missing: [],
+      isValid: false,
+      error: 'Please upload a valid supported document file.',
     };
   }
 
@@ -184,7 +329,14 @@ export function normalizeFounderPdfSummaryResponse(payload = {}) {
   const executiveSummary = cleanText(payload.executiveSummary);
   const keyTakeaways = cleanList(payload.keyTakeaways);
   const riskFlags = cleanList(payload.riskFlags);
+  const focusAreas = cleanList(payload.focusAreas);
   const nextQuestions = cleanList(payload.nextQuestions);
+  const keyMetrics = Array.isArray(payload.keyMetrics)
+    ? payload.keyMetrics.map(cleanMetric).filter(Boolean)
+    : [];
+  const breakdownSections = Array.isArray(payload.breakdownSections)
+    ? payload.breakdownSections.map(cleanBreakdownSection).filter(Boolean)
+    : [];
 
   if (!executiveSummary || keyTakeaways.length === 0) {
     return {
@@ -201,7 +353,10 @@ export function normalizeFounderPdfSummaryResponse(payload = {}) {
     executiveSummary,
     keyTakeaways,
     riskFlags,
+    focusAreas,
     nextQuestions,
+    keyMetrics,
+    breakdownSections,
     extractionQuality: {
       label: cleanText(payload?.extractionQuality?.label) || 'unknown',
       notes: cleanList(payload?.extractionQuality?.notes),
@@ -234,10 +389,36 @@ export function buildFounderPdfSummaryMarkdown({ filename = '', summary = {} }) 
     lines.push('');
   }
 
+  if (normalized.focusAreas.length > 0) {
+    lines.push('## What To Focus On', '');
+    normalized.focusAreas.forEach((item) => lines.push(`- ${item}`));
+    lines.push('');
+  }
+
   if (normalized.nextQuestions.length > 0) {
     lines.push('## Next Questions', '');
     normalized.nextQuestions.forEach((item) => lines.push(`- ${item}`));
     lines.push('');
+  }
+
+  if (normalized.keyMetrics.length > 0) {
+    lines.push('## Key Metrics', '');
+    normalized.keyMetrics.forEach((item) => {
+      lines.push(`- ${item.label}: ${item.value}${item.note ? ` (${item.note})` : ''}`);
+    });
+    lines.push('');
+  }
+
+  if (normalized.breakdownSections.length > 0) {
+    lines.push('## Important Sections', '');
+    normalized.breakdownSections.forEach((section) => {
+      lines.push(`### ${section.title}`, '');
+      lines.push(section.summary, '');
+      if (section.focusPoints.length > 0) {
+        section.focusPoints.forEach((item) => lines.push(`- ${item}`));
+        lines.push('');
+      }
+    });
   }
 
   if (normalized.extractionQuality.notes.length > 0) {

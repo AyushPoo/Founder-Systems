@@ -1,6 +1,8 @@
 import assert from 'assert';
 import { Buffer } from 'node:buffer';
 import {
+  ACCEPTED_DOCUMENT_EXTENSIONS,
+  ACCEPTED_DOCUMENT_MIME_TYPES,
   DEFAULT_PDF_SUMMARY_MODE,
   PDF_SUMMARY_MODES,
   MAX_PDF_SIZE_BYTES,
@@ -26,8 +28,17 @@ assert.equal(draft.filename, '');
 assert.equal(Array.isArray(PDF_SUMMARY_MODES), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'auto'), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'pitch-deck'), true);
+assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'annual-report'), true);
+assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'financial-statement'), true);
 assert.equal(MAX_PDF_SIZE_BYTES, Math.round(3.25 * 1024 * 1024));
 assert.equal(getFounderPdfSummaryModeLabel('pitch-deck'), 'Pitch deck');
+assert.equal(ACCEPTED_DOCUMENT_EXTENSIONS.includes('.xlsx'), true);
+assert.equal(
+  ACCEPTED_DOCUMENT_MIME_TYPES.includes(
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+  ),
+  true
+);
 
 const normalized = normalizeFounderPdfSummaryRequest({
   filename: 'deck.pdf',
@@ -42,6 +53,19 @@ assert.equal(normalized.filename, 'deck.pdf');
 assert.equal(normalized.mimeType, 'application/pdf');
 assert.equal(normalized.mode, 'pitch-deck');
 assert.equal(normalized.focus, 'Focus on market clarity');
+
+const xlsxNormalized = normalizeFounderPdfSummaryRequest({
+  filename: 'board-metrics.xlsx',
+  mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  fileData:
+    'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,QUJDRA==',
+  fileSize: 1024,
+  mode: 'financial-statement',
+  focus: 'Explain margin movement',
+});
+
+assert.equal(xlsxNormalized.mimeType, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+assert.equal(xlsxNormalized.mode, 'financial-statement');
 
 const invalidModeNormalized = normalizeFounderPdfSummaryRequest({
   filename: 'memo.pdf',
@@ -99,6 +123,18 @@ const oversizedViaPayload = validateFounderPdfSummaryRequest({
 assert.equal(oversizedViaPayload.isValid, false);
 assert.match(oversizedViaPayload.error, /smaller than/i);
 
+const validPptxPayload = validateFounderPdfSummaryRequest({
+  filename: 'investor-update.pptx',
+  mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  fileData:
+    'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,QUJDRA==',
+  fileSize: 4,
+  mode: 'investor-memo',
+  focus: '',
+});
+
+assert.equal(validPptxPayload.isValid, true);
+
 const invalidPdfPayload = validateFounderPdfSummaryRequest({
   filename: 'fake.pdf',
   mimeType: 'application/pdf',
@@ -109,7 +145,7 @@ const invalidPdfPayload = validateFounderPdfSummaryRequest({
 });
 
 assert.equal(invalidPdfPayload.isValid, false);
-assert.match(invalidPdfPayload.error, /pdf/i);
+assert.match(invalidPdfPayload.error, /valid|supported|document/i);
 
 assert.equal(
   derivePdfFileSizeFromDataUrl(createPdfDataUrl(3210)),
@@ -145,6 +181,7 @@ const normalizedResponse = normalizeFounderPdfSummaryResponse({
   executiveSummary: 'The deck is clear on the problem but weak on proof.',
   keyTakeaways: ['Problem is clear', 'Traction proof is thin'],
   riskFlags: ['Traction slide lacks hard numbers'],
+  focusAreas: ['Verify whether retention claims are backed by cohort data.'],
   nextQuestions: ['What retention evidence exists?'],
   extractionQuality: {
     label: 'mixed',
@@ -155,7 +192,42 @@ const normalizedResponse = normalizeFounderPdfSummaryResponse({
 assert.equal(normalizedResponse.ok, true);
 assert.equal(normalizedResponse.mode, 'pitch-deck');
 assert.equal(normalizedResponse.keyTakeaways.length, 2);
+assert.equal(normalizedResponse.focusAreas.length, 1);
 assert.equal(normalizedResponse.extractionQuality.label, 'mixed');
+
+const annualReportResponse = normalizeFounderPdfSummaryResponse({
+  documentType: 'Annual report',
+  title: 'FY25 annual report',
+  mode: 'annual-report',
+  executiveSummary: 'Growth remained solid, but cash conversion and leverage need closer inspection.',
+  keyTakeaways: ['Revenue grew 22% year over year'],
+  riskFlags: ['Receivables expanded faster than revenue'],
+  focusAreas: ['Check whether operating cash flow is lagging earnings quality.'],
+  nextQuestions: ['What drove the jump in receivables?'],
+  keyMetrics: [
+    {
+      label: 'Revenue growth',
+      value: '22%',
+      note: 'Reported year over year increase.',
+    },
+  ],
+  breakdownSections: [
+    {
+      title: 'Financial performance',
+      summary: 'Revenue rose, but margin expansion did not fully follow.',
+      focusPoints: ['Separate pricing gains from mix shifts.'],
+    },
+  ],
+  extractionQuality: {
+    label: 'high',
+    notes: ['The report was machine-readable.'],
+  },
+});
+
+assert.equal(annualReportResponse.ok, true);
+assert.equal(annualReportResponse.keyMetrics.length, 1);
+assert.equal(annualReportResponse.breakdownSections.length, 1);
+assert.equal(annualReportResponse.breakdownSections[0].title, 'Financial performance');
 
 const markdown = buildFounderPdfSummaryMarkdown({
   filename: 'seed-deck.pdf',
@@ -165,6 +237,16 @@ const markdown = buildFounderPdfSummaryMarkdown({
 assert.match(markdown, /^# Founder PDF Summary: seed-deck\.pdf/m);
 assert.match(markdown, /## Executive Summary/m);
 assert.match(markdown, /## Key Takeaways/m);
+assert.match(markdown, /## What To Focus On/m);
 assert.match(markdown, /\*\*Mode:\*\* Pitch deck/m);
+
+const annualReportMarkdown = buildFounderPdfSummaryMarkdown({
+  filename: 'fy25-annual-report.pdf',
+  summary: annualReportResponse,
+});
+
+assert.match(annualReportMarkdown, /## Key Metrics/m);
+assert.match(annualReportMarkdown, /## Important Sections/m);
+assert.match(annualReportMarkdown, /### Financial performance/m);
 
 console.log('founderPdfSummary tests passed');

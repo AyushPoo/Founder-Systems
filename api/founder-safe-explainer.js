@@ -1,45 +1,41 @@
 import { Buffer } from 'node:buffer';
 import process from 'node:process';
 import {
-  normalizeFounderPdfSummaryResponse,
-  validateFounderPdfSummaryRequest,
-} from '../src/utils/founderPdfSummary.js';
+  SAFE_EXPLAINER_DISCLAIMER,
+  normalizeFounderSafeExplainerResponse,
+  validateFounderSafeExplainerRequest,
+} from '../src/utils/founderSafeExplainer.js';
 
 const SYSTEM_PROMPT = [
-  'You are a founder-specific document analyst.',
-  'Read the file carefully and analyze only what is actually supported by the document.',
-  'Go beyond generic summary: explain what matters, what changed, what looks weak, and what to focus on next.',
-  'Do not give legal or financial certainty.',
+  'You are a founder-focused financing document explainer.',
+  'Explain only what is actually supported by the uploaded PDF.',
+  'Translate dense financing clauses into plain English without pretending to be legal counsel.',
+  'Highlight founder-sensitive terms, unusual provisions, and questions for a lawyer.',
+  'Do not provide legal advice or certainty.',
   'Always return valid JSON only.',
 ].join('\n');
 
 const RESPONSE_SHAPE = {
   documentType: '',
   title: '',
-  mode: 'general',
-  executiveSummary: '',
-  keyTakeaways: [''],
-  riskFlags: [''],
-  focusAreas: [''],
-  nextQuestions: [''],
-  keyMetrics: [
+  mode: 'safe',
+  summary: '',
+  clauseHighlights: [
     {
-      label: '',
+      clause: '',
       value: '',
-      note: '',
+      explanation: '',
+      founderImpact: '',
     },
   ],
-  breakdownSections: [
-    {
-      title: '',
-      summary: '',
-      focusPoints: [''],
-    },
-  ],
+  founderWatchouts: [''],
+  unusualClauses: [''],
+  counselQuestions: [''],
   extractionQuality: {
     label: '',
     notes: [''],
   },
+  disclaimer: SAFE_EXPLAINER_DISCLAIMER,
 };
 
 function json(res, status, body) {
@@ -71,7 +67,10 @@ async function readJsonBody(req) {
     try {
       return JSON.parse(req.body);
     } catch (error) {
-      throw createHttpError(400, `Malformed JSON request body: ${cleanText(error.message) || 'Unable to parse JSON.'}`);
+      throw createHttpError(
+        400,
+        `Malformed JSON request body: ${cleanText(error.message) || 'Unable to parse JSON.'}`
+      );
     }
   }
 
@@ -91,7 +90,10 @@ async function readJsonBody(req) {
   try {
     return JSON.parse(rawText);
   } catch (error) {
-    throw createHttpError(400, `Malformed JSON request body: ${cleanText(error.message) || 'Unable to parse JSON.'}`);
+    throw createHttpError(
+      400,
+      `Malformed JSON request body: ${cleanText(error.message) || 'Unable to parse JSON.'}`
+    );
   }
 }
 
@@ -99,61 +101,51 @@ function buildUserPrompt(input) {
   const modeGuidance = {
     auto: [
       'Mode guidance: auto-detect',
-      'Infer the document type from the PDF before summarizing it.',
-      'Choose the closest lens from: general, pitch-deck, investor-memo, grant-doc, market-report.',
-      'Set the mode field in your JSON to the lens you actually used after reading the document.',
-      'If the PDF does not clearly match one category, fall back to general.',
+      'Infer whether this is closest to a SAFE, a term sheet, or a convertible note.',
+      'Set the mode field to the lens you actually used after reading the document.',
+      'If uncertain, choose the closest financing document lens and say what stayed ambiguous.',
     ],
-    general: [
-      'Mode guidance: general',
-      'Focus on the document purpose, the clearest useful takeaways, missing proof, practical risks, and the next questions a founder should answer.',
+    safe: [
+      'Mode guidance: SAFE',
+      'Focus on valuation cap, discount, MFN, pro rata, side letters, investor rights, and anything unusual for founders.',
     ],
-    'pitch-deck': [
-      'Mode guidance: pitch-deck',
-      'Focus on story clarity, traction proof, investor credibility gaps, major risks, and the next investor questions this deck invites.',
+    'term-sheet': [
+      'Mode guidance: term-sheet',
+      'Focus on valuation, option pool treatment, liquidation preference, governance, protective provisions, and founder control.',
     ],
-    'investor-memo': [
-      'Mode guidance: investor-memo',
-      'Focus on market, business model, evidence quality, diligence gaps, risks, and the next questions an investor would ask before conviction.',
-    ],
-    'grant-doc': [
-      'Mode guidance: grant-doc',
-      'Focus on eligibility, deliverables, timeline realism, compliance or execution risks, missing proof, and the next questions needed before submission.',
-    ],
-    'market-report': [
-      'Mode guidance: market-report',
-      'Focus on relevant market signals, founder implications, weak evidence, risks in the readout, and the next questions that matter for decisions.',
-    ],
-    'annual-report': [
-      'Mode guidance: annual-report',
-      'Focus on revenue, margin movement, cash generation, debt or balance-sheet pressure, auditor or governance flags, management claims versus reported numbers, and what deserves deeper inspection.',
-    ],
-    'financial-statement': [
-      'Mode guidance: financial-statement',
-      'Focus on what changed in revenue, gross margin, operating margin, cash flow, working capital, leverage, and any anomalies or contradictions that deserve follow-up.',
+    'convertible-note': [
+      'Mode guidance: convertible-note',
+      'Focus on maturity, interest, conversion triggers, repayment risk, security, and any founder obligations.',
     ],
   };
+
   const selectedGuidance = modeGuidance[input.mode] || modeGuidance.auto;
 
   return [
-    'Analyze this founder document for decision-making.',
+    'Explain this startup financing PDF for a founder.',
     '',
     `Filename: ${input.filename}`,
-    `File type: ${input.mimeType}`,
     `Requested mode: ${input.mode}`,
-    `Focus: ${input.focus || 'General summary with no extra emphasis.'}`,
+    `Round context: ${input.roundContext || 'Not provided.'}`,
+    `Focus: ${input.focus || 'General founder-oriented explanation.'}`,
     '',
     ...selectedGuidance,
     '',
-    'For every document, give specific value beyond a generic summary.',
-    'Use focusAreas for the highest-leverage things the founder should inspect, challenge, or verify next.',
-    'If the document is financial, prefer concrete explanations of number movement, pressure points, and contradictions.',
+    'Use this glossary when relevant so outputs stay stable:',
+    '- Valuation cap: maximum valuation used for SAFE conversion pricing.',
+    '- Discount: percentage reduction applied at conversion.',
+    '- MFN: lets the investor benefit from better later SAFE terms.',
+    '- Pro rata: investor right to maintain ownership in later rounds.',
+    '- Liquidation preference: payout priority before common shareholders.',
+    '- Protective provisions: actions requiring investor approval.',
+    '',
     'Return JSON only.',
     'Match this shape and keep every top-level key present:',
     JSON.stringify(RESPONSE_SHAPE, null, 2),
     '',
-    'Use concise bullet-ready phrasing for list items.',
-    'If the PDF is ambiguous or extraction quality is weak, say that in extractionQuality.notes.',
+    'Keep clauseHighlights concrete and clause-first.',
+    'If the PDF is ambiguous or the scan quality is weak, say that in extractionQuality.notes.',
+    `Set disclaimer to exactly: ${SAFE_EXPLAINER_DISCLAIMER}`,
   ].join('\n');
 }
 
@@ -212,17 +204,7 @@ function parseModelJson(text) {
   }
 }
 
-function mergeDetailedBreakdown(basePayload, detailPayload) {
-  return {
-    ...basePayload,
-    keyMetrics: Array.isArray(detailPayload?.keyMetrics) ? detailPayload.keyMetrics : [],
-    breakdownSections: Array.isArray(detailPayload?.breakdownSections)
-      ? detailPayload.breakdownSections
-      : [],
-  };
-}
-
-async function summarizeWithModel(input) {
+async function explainWithModel(input) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -278,23 +260,6 @@ async function summarizeWithModel(input) {
   return parseModelJson(extractResponseText(payload));
 }
 
-async function summarizeLongDocumentWithModel(input) {
-  const baseSummary = await summarizeWithModel(input);
-  const detailPromptInput = {
-    ...input,
-    focus: [
-      input.focus,
-      'Return the most important sections, important numbers, and where a founder should look more closely.',
-    ]
-      .filter(Boolean)
-      .join(' '),
-  };
-
-  const detailResponse = await summarizeWithModel(detailPromptInput);
-
-  return mergeDetailedBreakdown(baseSummary, detailResponse);
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -303,7 +268,9 @@ export default async function handler(req, res) {
 
   try {
     const requestBody = await readJsonBody(req);
-    const { normalized, missing, isValid, error } = validateFounderPdfSummaryRequest(requestBody || {});
+    const { normalized, missing, isValid, error } = validateFounderSafeExplainerRequest(
+      requestBody || {}
+    );
 
     if (!isValid) {
       return json(res, 400, {
@@ -313,14 +280,12 @@ export default async function handler(req, res) {
       });
     }
 
-    const rawOutput =
-      normalized.mode === 'annual-report'
-        ? await summarizeLongDocumentWithModel(normalized)
-        : await summarizeWithModel(normalized);
-    const normalizedOutput = normalizeFounderPdfSummaryResponse({
+    const rawOutput = await explainWithModel(normalized);
+    const normalizedOutput = normalizeFounderSafeExplainerResponse({
       ...rawOutput,
       mode: rawOutput?.mode || normalized.mode,
       title: rawOutput?.title || normalized.filename,
+      disclaimer: rawOutput?.disclaimer || SAFE_EXPLAINER_DISCLAIMER,
     });
 
     if (!normalizedOutput.ok) {
@@ -337,7 +302,7 @@ export default async function handler(req, res) {
     }
 
     const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
-    const message = cleanText(error?.message) || 'Founder PDF summarization failed.';
+    const message = cleanText(error?.message) || 'SAFE / term sheet explainer failed.';
 
     return json(res, statusCode, {
       ok: false,

@@ -61,8 +61,8 @@
   },
   {
     "id": "founder-pdf-summarizer",
-    "name": "Founder PDF Summarizer",
-    "description": "Upload a founder PDF and get a concise summary with key takeaways, risks, and next questions.",
+    "name": "Founder Document Intelligence",
+    "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
     "category": "Strategy",
     "productId": "FS013",
     "thumbnail": "/images/strategy.png"
