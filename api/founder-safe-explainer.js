@@ -260,6 +260,22 @@ async function explainWithModel(input) {
   return parseModelJson(extractResponseText(payload));
 }
 
+export async function explainFounderSafeDocument(input) {
+  const rawOutput = await explainWithModel(input);
+  const normalizedOutput = normalizeFounderSafeExplainerResponse({
+    ...rawOutput,
+    mode: rawOutput?.mode || input.mode,
+    title: rawOutput?.title || input.filename,
+    disclaimer: rawOutput?.disclaimer || SAFE_EXPLAINER_DISCLAIMER,
+  });
+
+  if (!normalizedOutput.ok) {
+    throw createHttpError(502, normalizedOutput.error);
+  }
+
+  return normalizedOutput;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -280,17 +296,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const rawOutput = await explainWithModel(normalized);
-    const normalizedOutput = normalizeFounderSafeExplainerResponse({
-      ...rawOutput,
-      mode: rawOutput?.mode || normalized.mode,
-      title: rawOutput?.title || normalized.filename,
-      disclaimer: rawOutput?.disclaimer || SAFE_EXPLAINER_DISCLAIMER,
-    });
-
-    if (!normalizedOutput.ok) {
-      return json(res, 502, normalizedOutput);
-    }
+    const normalizedOutput = await explainFounderSafeDocument(normalized);
 
     return json(res, 200, normalizedOutput);
   } catch (error) {

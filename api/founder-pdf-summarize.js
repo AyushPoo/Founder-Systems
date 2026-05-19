@@ -1,9 +1,23 @@
 import { Buffer } from 'node:buffer';
 import process from 'node:process';
 import {
+  normalizeFounderPdfSummaryRequest,
   normalizeFounderPdfSummaryResponse,
   validateFounderPdfSummaryRequest,
 } from '../src/utils/founderPdfSummary.js';
+import {
+  createWorkspaceFileAnalysisFromFinancing,
+  createWorkspaceFileAnalysisFromSummary,
+  normalizeFounderDocumentWorkspaceResponse,
+  validateFounderDocumentWorkspaceRequest,
+} from '../src/utils/founderDocumentWorkspace.js';
+import {
+  classifyFounderDocumentType,
+  isFinancingDocumentMode,
+  mapDocumentTypeToSummaryMode,
+} from '../src/utils/founderDocumentIntelligence.js';
+import { normalizeFounderSafeExplainerRequest } from '../src/utils/founderSafeExplainer.js';
+import { explainFounderSafeDocument } from './founder-safe-explainer.js';
 
 const SYSTEM_PROMPT = [
   'You are a founder-specific document analyst.',
@@ -40,6 +54,19 @@ const RESPONSE_SHAPE = {
     label: '',
     notes: [''],
   },
+};
+
+const WORKSPACE_RESPONSE_SHAPE = {
+  workspaceTitle: '',
+  filesAnalyzed: [''],
+  overallRead: '',
+  whatMattersMost: [''],
+  contradictions: [''],
+  missingProof: [''],
+  watchouts: [''],
+  priorityQuestions: [''],
+  nextActions: [''],
+  extractionNotes: [''],
 };
 
 function json(res, status, body) {
@@ -222,7 +249,7 @@ function mergeDetailedBreakdown(basePayload, detailPayload) {
   };
 }
 
-async function summarizeWithModel(input) {
+async function requestJsonModel(inputItems) {
   const apiKey = process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
@@ -237,26 +264,7 @@ async function summarizeWithModel(input) {
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
-      input: [
-        {
-          role: 'system',
-          content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_file',
-              filename: input.filename,
-              file_data: input.fileData,
-            },
-            {
-              type: 'input_text',
-              text: buildUserPrompt(input),
-            },
-          ],
-        },
-      ],
+      input: inputItems,
       text: {
         format: {
           type: 'json_object',
@@ -278,6 +286,29 @@ async function summarizeWithModel(input) {
   return parseModelJson(extractResponseText(payload));
 }
 
+async function summarizeWithModel(input) {
+  return requestJsonModel([
+    {
+      role: 'system',
+      content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
+    },
+    {
+      role: 'user',
+      content: [
+        {
+          type: 'input_file',
+          filename: input.filename,
+          file_data: input.fileData,
+        },
+        {
+          type: 'input_text',
+          text: buildUserPrompt(input),
+        },
+      ],
+    },
+  ]);
+}
+
 async function summarizeLongDocumentWithModel(input) {
   const baseSummary = await summarizeWithModel(input);
   const detailPromptInput = {
@@ -295,6 +326,153 @@ async function summarizeLongDocumentWithModel(input) {
   return mergeDetailedBreakdown(baseSummary, detailResponse);
 }
 
+function buildWorkspaceSynthesisPrompt({ focus = '', fileAnalyses = [], invalidFiles = [] } = {}) {
+  return [
+    'Synthesize this founder document workspace into one founder-facing brief.',
+    '',
+    `Focus: ${focus || 'General founder-oriented synthesis.'}`,
+    '',
+    'You are given normalized fileAnalyses rather than raw files.',
+    'Use them to identify contradictions, missing proof, repeated risks, priority questions, and the next best actions.',
+    'If some files were rejected or weakly extracted, mention that in extractionNotes without overstating certainty.',
+    'Return JSON only.',
+    'Match this shape and keep every top-level key present:',
+    JSON.stringify(WORKSPACE_RESPONSE_SHAPE, null, 2),
+    '',
+    `fileAnalyses: ${JSON.stringify(fileAnalyses, null, 2)}`,
+    `invalidFiles: ${JSON.stringify(invalidFiles, null, 2)}`,
+  ].join('\n');
+}
+
+async function summarizeWorkspaceWithModel({ focus = '', fileAnalyses = [], invalidFiles = [] } = {}) {
+  return requestJsonModel([
+    {
+      role: 'system',
+      content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
+    },
+    {
+      role: 'user',
+      content: [
+        {
+          type: 'input_text',
+          text: buildWorkspaceSynthesisPrompt({
+            focus,
+            fileAnalyses,
+            invalidFiles,
+          }),
+        },
+      ],
+    },
+  ]);
+}
+
+async function analyzeWorkspaceFile(file, focus) {
+  let detectedType = classifyFounderDocumentType({
+    filename: file.filename,
+    mimeType: file.mimeType,
+  });
+
+  if (isFinancingDocumentMode(detectedType) && file.mimeType !== 'application/pdf') {
+    detectedType = 'general-founder-doc';
+  }
+
+  if (isFinancingDocumentMode(detectedType)) {
+    const financingInput = normalizeFounderSafeExplainerRequest({
+      filename: file.filename,
+      mimeType: file.mimeType,
+      fileData: file.fileData,
+      fileSize: file.fileSize,
+      mode: detectedType,
+      roundContext: file.roundContext,
+      focus: focus || file.focus,
+    });
+    const financingOutput = await explainFounderSafeDocument(financingInput);
+
+    return createWorkspaceFileAnalysisFromFinancing({
+      file,
+      detectedType,
+      analysis: financingOutput,
+    });
+  }
+
+  const summaryMode = mapDocumentTypeToSummaryMode(detectedType);
+  const summaryInput = normalizeFounderPdfSummaryRequest({
+    filename: file.filename,
+    mimeType: file.mimeType,
+    fileData: file.fileData,
+    fileSize: file.fileSize,
+    mode: summaryMode,
+    focus: focus || file.focus,
+  });
+
+  const rawOutput =
+    summaryMode === 'annual-report'
+      ? await summarizeLongDocumentWithModel(summaryInput)
+      : await summarizeWithModel(summaryInput);
+
+  const normalizedOutput = normalizeFounderPdfSummaryResponse({
+    ...rawOutput,
+    mode: rawOutput?.mode || summaryInput.mode,
+    title: rawOutput?.title || summaryInput.filename,
+  });
+
+  if (!normalizedOutput.ok) {
+    throw createHttpError(502, normalizedOutput.error);
+  }
+
+  return createWorkspaceFileAnalysisFromSummary({
+    file,
+    detectedType,
+    summary: normalizedOutput,
+  });
+}
+
+async function analyzeWorkspaceRequest(requestBody) {
+  const validation = validateFounderDocumentWorkspaceRequest(requestBody || {});
+  const { normalized, validFiles, invalidFiles } = validation;
+
+  if (validFiles.length === 0) {
+    throw createHttpError(
+      400,
+      validation.error || 'Upload at least one supported founder document file.'
+    );
+  }
+
+  const fileAnalyses = [];
+
+  for (const file of validFiles) {
+    fileAnalyses.push(await analyzeWorkspaceFile(file, normalized.focus));
+  }
+
+  const workspaceRawOutput = await summarizeWorkspaceWithModel({
+    focus: normalized.focus,
+    fileAnalyses,
+    invalidFiles,
+  });
+
+  const normalizedOutput = normalizeFounderDocumentWorkspaceResponse({
+    ...workspaceRawOutput,
+    workspaceTitle: workspaceRawOutput?.workspaceTitle || 'Founder document workspace',
+    filesAnalyzed:
+      Array.isArray(workspaceRawOutput?.filesAnalyzed) && workspaceRawOutput.filesAnalyzed.length > 0
+        ? workspaceRawOutput.filesAnalyzed
+        : validFiles.map((file) => file.filename),
+    fileAnalyses,
+    extractionNotes: [
+      ...(Array.isArray(workspaceRawOutput?.extractionNotes)
+        ? workspaceRawOutput.extractionNotes
+        : []),
+      ...invalidFiles.map((file) => `${file.filename || 'Unsupported file'}: ${file.error}`),
+    ],
+  });
+
+  if (!normalizedOutput.ok) {
+    throw createHttpError(502, normalizedOutput.error);
+  }
+
+  return normalizedOutput;
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -303,6 +481,11 @@ export default async function handler(req, res) {
 
   try {
     const requestBody = await readJsonBody(req);
+    if (Array.isArray(requestBody?.files)) {
+      const workspaceOutput = await analyzeWorkspaceRequest(requestBody);
+      return json(res, 200, workspaceOutput);
+    }
+
     const { normalized, missing, isValid, error } = validateFounderPdfSummaryRequest(requestBody || {});
 
     if (!isValid) {

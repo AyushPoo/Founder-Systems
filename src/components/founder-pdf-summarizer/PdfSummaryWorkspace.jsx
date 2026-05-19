@@ -1,22 +1,14 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   ACCEPTED_DOCUMENT_INPUT_ACCEPT,
-  buildFounderPdfSummaryMarkdown,
   MAX_PDF_SIZE_BYTES,
-  normalizeFounderPdfSummaryResponse,
   isSupportedFounderDocumentFile,
 } from '../../utils/founderPdfSummary';
 import {
-  buildFounderSafeExplainerMarkdown,
-  normalizeFounderSafeExplainerResponse,
-} from '../../utils/founderSafeExplainer';
-import {
-  DEFAULT_DOCUMENT_INTELLIGENCE_MODE,
-  DOCUMENT_INTELLIGENCE_MODES,
-  getDocumentIntelligenceApiConfig,
-  getDocumentIntelligenceModeLabel,
-  isFinancingDocumentMode,
-} from '../../utils/founderDocumentIntelligence';
+  buildFounderDocumentWorkspaceMarkdown,
+  normalizeFounderDocumentWorkspaceResponse,
+} from '../../utils/founderDocumentWorkspace';
+import { getDocumentIntelligenceApiConfig } from '../../utils/founderDocumentIntelligence';
 import { copyText, downloadMarkdown } from '../../utils/founderSpec';
 
 function formatFileSize(bytes) {
@@ -31,17 +23,23 @@ function formatFileSize(bytes) {
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-function createDownloadFilename(filename, isFinancingMode) {
-  const baseName = String(filename || 'founder-document-intelligence')
-    .trim()
-    .toLowerCase()
-    .replace(/\.pdf$/i, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+function createDownloadFilename(files = []) {
+  if (files.length === 1) {
+    const baseName = String(files[0]?.name || 'founder-document-workspace')
+      .trim()
+      .toLowerCase()
+      .replace(/\.[a-z0-9]+$/i, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
 
-  return `${baseName || 'founder-document-intelligence'}-${
-    isFinancingMode ? 'brief' : 'summary'
-  }.md`;
+    return `${baseName || 'founder-document-workspace'}-workspace-brief.md`;
+  }
+
+  return 'founder-document-workspace-brief.md';
+}
+
+function buildFileSignature(file) {
+  return `${file.name}-${file.size}-${file.lastModified}`;
 }
 
 function readFileAsDataUrl(file) {
@@ -49,7 +47,7 @@ function readFileAsDataUrl(file) {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
     reader.onerror = () =>
-      reject(new Error('I could not read that document. Please try another file.'));
+      reject(new Error('I could not read one of those files. Please try another upload set.'));
     reader.readAsDataURL(file);
   });
 }
@@ -88,41 +86,6 @@ function SummarySection({ title, items = [], emptyText = '' }) {
   );
 }
 
-function ClauseCard({ clause }) {
-  return (
-    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            {clause.clause}
-          </p>
-          {clause.value ? (
-            <p className="mt-1 text-[13px] font-black tracking-tight-brand text-brand-black">
-              {clause.value}
-            </p>
-          ) : null}
-        </div>
-        <MetaPill>Clause</MetaPill>
-      </div>
-
-      <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/72">
-        {clause.explanation}
-      </p>
-
-      {clause.founderImpact ? (
-        <div className="mt-3 rounded-[12px] border border-brand-black/7 bg-brand-cream/18 px-3 py-2.5">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            Founder impact
-          </p>
-          <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/72">
-            {clause.founderImpact}
-          </p>
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
 function MetricCard({ metric }) {
   return (
     <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
@@ -141,26 +104,111 @@ function MetricCard({ metric }) {
   );
 }
 
-function BreakdownSectionCard({ section }) {
+function ClauseCard({ clause }) {
   return (
     <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-        {section.title}
+        {clause.clause}
       </p>
-      <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
-        {section.summary}
+      {clause.value ? (
+        <p className="mt-1 text-[13px] font-black tracking-tight-brand text-brand-black">
+          {clause.value}
+        </p>
+      ) : null}
+      <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/72">
+        {clause.explanation}
       </p>
-      {section.focusPoints?.length ? (
-        <ul className="mt-3 space-y-1.5">
-          {section.focusPoints.map((item, index) => (
-            <li
-              key={`${section.title}-${index}`}
-              className="text-[12.5px] font-medium leading-6 text-brand-black/62"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
+      {clause.founderImpact ? (
+        <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/58">
+          {clause.founderImpact}
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function WorkspaceFileCard({ fileAnalysis }) {
+  return (
+    <section className="rounded-[16px] border border-brand-black/8 bg-white px-3.5 py-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            {fileAnalysis.filename}
+          </p>
+          <p className="mt-1 text-[12.5px] font-medium text-brand-black/52">
+            {fileAnalysis.detectedType}
+          </p>
+        </div>
+        <MetaPill>{fileAnalysis.extractionQuality.label} extraction</MetaPill>
+      </div>
+
+      <p className="mt-3 text-[13px] font-medium leading-6 text-brand-black/74">
+        {fileAnalysis.summary}
+      </p>
+
+      <div className="mt-3 grid gap-3 lg:grid-cols-2">
+        <SummarySection
+          title="Strongest signals"
+          items={fileAnalysis.strongestSignals}
+          emptyText="No strongest signals were returned for this file."
+        />
+        <SummarySection
+          title="Biggest concerns"
+          items={fileAnalysis.concerns}
+          emptyText="No explicit concerns were returned for this file."
+        />
+      </div>
+
+      <div className="mt-3">
+        <SummarySection
+          title="What to inspect next"
+          items={fileAnalysis.focusAreas}
+          emptyText="No next inspection areas were returned for this file."
+        />
+      </div>
+
+      {fileAnalysis.keyMetrics?.length ? (
+        <section className="mt-3 space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            Key metrics
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {fileAnalysis.keyMetrics.map((metric, index) => (
+              <MetricCard key={`${fileAnalysis.fileId}-metric-${index}`} metric={metric} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {fileAnalysis.clauseHighlights?.length ? (
+        <section className="mt-3 space-y-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            Clause highlights
+          </p>
+          <div className="space-y-3">
+            {fileAnalysis.clauseHighlights.map((clause, index) => (
+              <ClauseCard key={`${fileAnalysis.fileId}-clause-${index}`} clause={clause} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {fileAnalysis.extractionQuality?.notes?.length ? (
+        <div className="mt-3 rounded-[12px] border border-brand-black/7 bg-brand-cream/18 px-3 py-2.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+            Extraction notes
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {fileAnalysis.extractionQuality.notes.map((item, index) => (
+              <li
+                key={`${fileAnalysis.fileId}-note-${index}`}
+                className="text-[12.5px] font-medium leading-6 text-brand-black/58"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </section>
   );
@@ -168,96 +216,92 @@ function BreakdownSectionCard({ section }) {
 
 const PdfSummaryWorkspace = () => {
   const fileInputRef = useRef(null);
-  const [file, setFile] = useState(null);
-  const [mode, setMode] = useState(DEFAULT_DOCUMENT_INTELLIGENCE_MODE);
-  const [showAdvancedModes, setShowAdvancedModes] = useState(false);
-  const [roundContext, setRoundContext] = useState('');
+  const [files, setFiles] = useState([]);
   const [focus, setFocus] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isFinancingMode = useMemo(() => isFinancingDocumentMode(mode), [mode]);
-  const isDeepDocumentMode = useMemo(
-    () => ['annual-report', 'financial-statement'].includes(mode),
-    [mode]
-  );
+
   const apiConfig = useMemo(
     () =>
       getDocumentIntelligenceApiConfig({
-        mode,
         env: import.meta.env,
         hostname: typeof window === 'undefined' ? '' : window.location.hostname,
+        fileCount: files.length,
       }),
-    [mode]
+    [files.length]
   );
 
   const markdown = useMemo(() => {
-    if (!result || !file) {
+    if (!result) {
       return '';
     }
 
-    return result.kind === 'financing'
-      ? buildFounderSafeExplainerMarkdown({
-          filename: file.name,
-          analysis: result.data,
-        })
-      : buildFounderPdfSummaryMarkdown({
-          filename: file.name,
-          summary: result.data,
-        });
-  }, [file, result]);
-
-  const selectedMode = useMemo(
-    () =>
-      DOCUMENT_INTELLIGENCE_MODES.find((option) => option.id === mode) ||
-      DOCUMENT_INTELLIGENCE_MODES[0],
-    [mode]
-  );
-
-  const manualModes = useMemo(
-    () =>
-      DOCUMENT_INTELLIGENCE_MODES.filter(
-        (option) => option.id !== DEFAULT_DOCUMENT_INTELLIGENCE_MODE
-      ),
-    []
-  );
+    return buildFounderDocumentWorkspaceMarkdown({
+      workspaceName:
+        files.length === 1 ? files[0]?.name || 'Founder document workspace' : 'Founder workspace',
+      analysis: result.data,
+    });
+  }, [files, result]);
 
   function handleFileChange(event) {
-    const nextFile = event.target.files?.[0] || null;
+    const incomingFiles = Array.from(event.target.files || []);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+
     setCopied(false);
     setError('');
 
-    if (!nextFile) {
-      setFile(null);
-      setResult(null);
+    if (incomingFiles.length === 0) {
       return;
     }
 
-    if (!isSupportedFounderDocumentFile({ filename: nextFile.name, mimeType: nextFile.type })) {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    const nextValidFiles = [];
+    const rejectedMessages = [];
+    const seen = new Set(files.map(buildFileSignature));
+
+    incomingFiles.forEach((file) => {
+      const signature = buildFileSignature(file);
+
+      if (seen.has(signature)) {
+        return;
       }
-      setFile(null);
-      setResult(null);
-      setError(
-        'Please choose a supported document, deck, or spreadsheet such as PDF, DOCX, PPTX, XLSX, CSV, or TSV.'
-      );
-      return;
-    }
 
-    if (nextFile.size > MAX_PDF_SIZE_BYTES) {
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      if (!isSupportedFounderDocumentFile({ filename: file.name, mimeType: file.type })) {
+        rejectedMessages.push(
+          `${file.name}: choose a supported document, deck, or spreadsheet such as PDF, DOCX, PPTX, XLSX, CSV, or TSV.`
+        );
+        return;
       }
-      setFile(null);
+
+      if (file.size > MAX_PDF_SIZE_BYTES) {
+        rejectedMessages.push(
+          `${file.name}: keep each file under ${formatFileSize(MAX_PDF_SIZE_BYTES)} in the current direct-upload beta.`
+        );
+        return;
+      }
+
+      seen.add(signature);
+      nextValidFiles.push(file);
+    });
+
+    if (nextValidFiles.length > 0) {
+      setFiles((current) => [...current, ...nextValidFiles]);
       setResult(null);
-      setError('Please upload a PDF smaller than 3.3 MB for the current direct-upload beta.');
-      return;
     }
 
-    setFile(nextFile);
+    if (rejectedMessages.length > 0) {
+      setError(rejectedMessages[0]);
+    }
+  }
+
+  function handleRemoveFile(indexToRemove) {
+    setFiles((current) => current.filter((_, index) => index !== indexToRemove));
     setResult(null);
+    setCopied(false);
+    setError('');
   }
 
   function handleClear() {
@@ -265,11 +309,8 @@ const PdfSummaryWorkspace = () => {
       fileInputRef.current.value = '';
     }
 
-    setFile(null);
+    setFiles([]);
     setFocus('');
-    setRoundContext('');
-    setMode(DEFAULT_DOCUMENT_INTELLIGENCE_MODE);
-    setShowAdvancedModes(false);
     setResult(null);
     setError('');
     setCopied(false);
@@ -278,8 +319,8 @@ const PdfSummaryWorkspace = () => {
   async function handleAnalyze(event) {
     event.preventDefault();
 
-    if (!file || loading) {
-      setError('Choose a PDF before analyzing it.');
+    if (files.length === 0 || loading) {
+      setError('Choose at least one founder-related file before analyzing.');
       return;
     }
 
@@ -293,57 +334,46 @@ const PdfSummaryWorkspace = () => {
     setCopied(false);
 
     try {
-      const fileData = await readFileAsDataUrl(file);
+      const filePayloads = await Promise.all(
+        files.map(async (file) => ({
+          filename: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          fileSize: file.size,
+          fileData: await readFileAsDataUrl(file),
+        }))
+      );
+
       const response = await fetch(apiConfig.apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          filename: file.name,
-          mimeType: file.type || 'application/pdf',
-          fileSize: file.size,
-          fileData,
-          mode,
-          roundContext,
+          files: filePayloads,
           focus,
         }),
       });
 
       const payload = await response.json().catch(() => null);
-      const normalized = isFinancingMode
-        ? normalizeFounderSafeExplainerResponse(payload)
-        : normalizeFounderPdfSummaryResponse(payload);
+      const normalized = normalizeFounderDocumentWorkspaceResponse(payload);
 
       if (!response.ok) {
-        throw new Error(
-          payload?.error ||
-            (isFinancingMode
-              ? 'Financing document analysis failed.'
-              : 'Founder PDF summarization failed.')
-        );
+        throw new Error(payload?.error || 'Founder document workspace analysis failed.');
       }
 
       if (!normalized.ok) {
-        throw new Error(
-          normalized.error ||
-            (isFinancingMode
-              ? 'Financing document response was incomplete.'
-              : 'Founder PDF summary response was incomplete.')
-        );
+        throw new Error(normalized.error || 'Founder document workspace response was incomplete.');
       }
 
       setResult({
-        kind: isFinancingMode ? 'financing' : 'summary',
+        kind: 'workspace',
         data: normalized,
       });
     } catch (submitError) {
       setResult(null);
       setError(
         submitError?.message ||
-          (isFinancingMode
-            ? 'Financing document analysis failed. Please try again.'
-            : 'Founder PDF summarization failed. Please try again.')
+          'Founder document workspace analysis failed. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -366,18 +396,11 @@ const PdfSummaryWorkspace = () => {
   }
 
   function handleDownloadMarkdown() {
-    if (!markdown || !file) {
+    if (!markdown) {
       return;
     }
 
-    downloadMarkdown(createDownloadFilename(file.name, isFinancingMode), markdown);
-  }
-
-  function handleModeSelect(nextMode) {
-    setMode(nextMode);
-    setResult(null);
-    setError('');
-    setCopied(false);
+    downloadMarkdown(createDownloadFilename(files), markdown);
   }
 
   return (
@@ -388,14 +411,13 @@ const PdfSummaryWorkspace = () => {
             Founder document intelligence
           </p>
           <p className="mt-1 text-[12.5px] font-medium text-brand-black/42">
-            Upload one PDF, analyze decks, memos, or financing docs, then export the founder
-            readout.
+            Upload a founder file set, detect each document type, and get one founder-ready brief.
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <MetaPill>Multi-file</MetaPill>
           <MetaPill>Docs + sheets</MetaPill>
-          <MetaPill>{formatFileSize(MAX_PDF_SIZE_BYTES)} max</MetaPill>
-          <MetaPill>{isFinancingMode ? 'Clause-first' : 'Auto-detect'}</MetaPill>
+          <MetaPill>{formatFileSize(MAX_PDF_SIZE_BYTES)} max each</MetaPill>
         </div>
       </div>
 
@@ -403,7 +425,7 @@ const PdfSummaryWorkspace = () => {
         <div className="min-w-0">
           <h1 className="text-[1rem] font-black tracking-tight-brand">Founder Document Intelligence</h1>
           <p className="mt-1 text-[10.5px] font-medium text-brand-black/48">
-            Docs, decks, sheets · {formatFileSize(MAX_PDF_SIZE_BYTES)} max
+            Multi-file founder brief · {formatFileSize(MAX_PDF_SIZE_BYTES)} max each
           </p>
         </div>
         <button
@@ -424,10 +446,10 @@ const PdfSummaryWorkspace = () => {
           <div className="flex items-start justify-between gap-4 border-b border-brand-black/7 px-4 py-3">
             <div className="min-w-0">
               <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                Input
+                Input set
               </p>
               <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                Upload the file and add optional focus context for the exact document type.
+                Upload one or more founder files, then add any specific pressure-test angle.
               </p>
             </div>
             <button
@@ -444,135 +466,61 @@ const PdfSummaryWorkspace = () => {
             <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/18 px-3.5 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                  Document file
+                  Founder file set
                 </span>
                 <span className="text-[11px] font-medium text-brand-black/38">
-                  Direct browser upload for docs, decks, and spreadsheets in the current beta.
+                  Add docs, decks, sheets, memos, financials, or financing files to one workspace.
                 </span>
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
+                multiple
                 accept={ACCEPTED_DOCUMENT_INPUT_ACCEPT}
                 onChange={handleFileChange}
                 disabled={loading}
                 className="mt-3 block w-full cursor-pointer text-[13px] font-medium text-brand-black file:mr-3 file:rounded-full file:border-0 file:bg-brand-black file:px-3.5 file:py-2 file:text-[10.5px] file:font-black file:uppercase file:tracking-[0.12em] file:text-white"
               />
-              {file ? (
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <MetaPill>{file.name}</MetaPill>
-                  <MetaPill>{formatFileSize(file.size)}</MetaPill>
-                  <MetaPill>{file.type || 'application/pdf'}</MetaPill>
+              {files.length > 0 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {files.map((file, index) => (
+                    <div
+                      key={buildFileSignature(file)}
+                      className="inline-flex items-center gap-2 rounded-full border border-brand-black/10 bg-white px-3 py-1.5"
+                    >
+                      <span className="max-w-[190px] truncate text-[11px] font-semibold text-brand-black/72">
+                        {file.name}
+                      </span>
+                      <span className="text-[10px] font-medium text-brand-black/40">
+                        {formatFileSize(file.size)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(index)}
+                        disabled={loading}
+                        className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <p className="mt-3 text-[12px] font-medium text-brand-black/42">
-                  No file selected yet.
+                  No files selected yet.
                 </p>
               )}
             </div>
 
             <div className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                    Detection
-                  </p>
-                  <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
-                    Auto-detect is still the default. Override only if you want to force a
-                    specific reading lens.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancedModes((value) => !value)}
-                  disabled={loading}
-                  className={`rounded-full border px-3 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] transition ${
-                    showAdvancedModes
-                      ? 'border-brand-black bg-brand-black text-white'
-                      : 'border-brand-black/10 bg-white text-brand-black/62'
-                  }`}
-                >
-                  {showAdvancedModes ? 'Hide override' : 'Override lens'}
-                </button>
-              </div>
-
-              <p className="mt-2 text-[11px] font-medium text-brand-black/42">
-                {mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
-                  ? 'Current lens: Auto-detect.'
-                  : `Manual lens: ${getDocumentIntelligenceModeLabel(selectedMode?.id)}.`}
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
+                What this run should pressure-test
               </p>
-
-              {showAdvancedModes ? (
-                <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-                  <button
-                    type="button"
-                    onClick={() => handleModeSelect(DEFAULT_DOCUMENT_INTELLIGENCE_MODE)}
-                    disabled={loading}
-                    className={`rounded-[14px] border px-3 py-2.5 text-left transition ${
-                      mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
-                        ? 'border-brand-black bg-brand-black text-white'
-                        : 'border-brand-black/8 bg-white text-brand-black hover:border-brand-black/18'
-                    }`}
-                  >
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em]">
-                      Auto-detect
-                    </p>
-                    <p
-                      className={`mt-1 text-[11.5px] font-medium leading-5 ${
-                        mode === DEFAULT_DOCUMENT_INTELLIGENCE_MODE
-                          ? 'text-white/78'
-                          : 'text-brand-black/54'
-                      }`}
-                    >
-                      Infer the document type first.
-                    </p>
-                  </button>
-                  {manualModes.map((option) => {
-                    const selected = option.id === mode;
-
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        onClick={() => handleModeSelect(option.id)}
-                        disabled={loading}
-                        className={`rounded-[14px] border px-3 py-2.5 text-left transition ${
-                          selected
-                            ? 'border-brand-black bg-brand-black text-white'
-                            : 'border-brand-black/8 bg-white text-brand-black hover:border-brand-black/18'
-                        }`}
-                      >
-                        <p className="text-[10px] font-black uppercase tracking-[0.12em]">
-                          {option.label}
-                        </p>
-                        <p
-                          className={`mt-1 text-[11.5px] font-medium leading-5 ${
-                            selected ? 'text-white/78' : 'text-brand-black/54'
-                          }`}
-                        >
-                          {option.description}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
+              <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
+                The workspace auto-detects document types first, then looks for contradictions,
+                missing proof, financial pressure points, risky clauses, and the next questions.
+              </p>
             </div>
-
-            {isFinancingMode ? (
-              <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                  Round context
-                </span>
-                <input
-                  value={roundContext}
-                  onChange={(event) => setRoundContext(event.target.value)}
-                  disabled={loading}
-                  placeholder="Optional: pre-seed extension, priced seed, bridge note, or investor name."
-                  className="mt-2 w-full rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
-                />
-              </label>
-            ) : null}
 
             <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
               <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
@@ -583,26 +531,10 @@ const PdfSummaryWorkspace = () => {
                 onChange={(event) => setFocus(event.target.value)}
                 rows={3}
                 disabled={loading}
-                placeholder={
-                  isFinancingMode
-                    ? 'Optional: pressure-test control terms, compare economics, or flag anything that feels founder-unfriendly.'
-                    : 'Optional: pressure-test the moat, highlight diligence gaps, or extract claims that need evidence.'
-                }
+                placeholder="Optional: find contradictions, flag risky financing clauses, pressure-test fundraising claims, or surface what a founder should inspect next."
                 className="mt-2 min-h-[72px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
-
-            {isFinancingMode ? (
-              <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-2.5">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-900/70">
-                  Guardrail
-                </p>
-                <p className="mt-1 text-[12.5px] font-semibold leading-6 text-amber-900">
-                  Financing-doc mode is educational only. It helps founders understand clauses
-                  faster, then bring sharper questions to counsel.
-                </p>
-              </div>
-            ) : null}
 
             {apiConfig.localDevMessage ? (
               <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[12px] font-semibold leading-6 text-amber-900">
@@ -619,24 +551,15 @@ const PdfSummaryWorkspace = () => {
 
           <div className="flex flex-col gap-3 border-t border-brand-black/7 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] font-medium leading-5 text-brand-black/42">
-              {isFinancingMode
-                ? 'Returns clause explanations, founder watch-outs, unusual terms, and counsel questions.'
-                : isDeepDocumentMode
-                  ? 'Returns a deeper breakdown with key metrics, focus areas, important sections, and questions.'
-                  : 'Returns summary, takeaways, risks, questions, and extraction notes.'}
+              Returns a workspace brief with contradictions, missing proof, watch-outs, next
+              actions, and type-aware analysis for each file.
             </p>
             <button
               type="submit"
-              disabled={!file || loading}
+              disabled={files.length === 0 || loading}
               className="inline-flex items-center justify-center rounded-full bg-brand-black px-4 py-2 text-[10.5px] font-black uppercase tracking-[0.12em] text-white shadow-[0_8px_16px_rgba(27,28,26,0.09)] transition disabled:pointer-events-none disabled:opacity-70"
             >
-              {loading
-                ? isFinancingMode
-                  ? 'Explaining...'
-                  : 'Summarizing...'
-                : isFinancingMode
-                  ? 'Explain financing file'
-                  : 'Analyze file'}
+              {loading ? 'Analyzing workspace...' : 'Analyze files'}
             </button>
           </div>
         </form>
@@ -646,10 +569,10 @@ const PdfSummaryWorkspace = () => {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                  Analysis output
+                  Workspace brief
                 </p>
                 <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                  Review, copy, or download the readout.
+                  Review, copy, or download the founder readout.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -673,12 +596,8 @@ const PdfSummaryWorkspace = () => {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <MetaPill>{result?.data?.documentType || 'Waiting for PDF'}</MetaPill>
-              <MetaPill>
-                {result?.data?.extractionQuality?.label
-                  ? `${result.data.extractionQuality.label} extraction`
-                  : 'No analysis yet'}
-              </MetaPill>
+              <MetaPill>{result?.data?.workspaceTitle || 'Waiting for files'}</MetaPill>
+              <MetaPill>{`${files.length} file${files.length === 1 ? '' : 's'}`}</MetaPill>
             </div>
           </div>
 
@@ -686,11 +605,11 @@ const PdfSummaryWorkspace = () => {
             {!loading && !result ? (
               <div className="rounded-[14px] border border-dashed border-brand-black/10 bg-brand-cream/16 px-4 py-4">
                 <p className="text-[13px] font-semibold text-brand-black/68">
-                  Upload a document, deck, or spreadsheet to unlock the founder analysis.
+                  Upload a founder file set to unlock the workspace brief.
                 </p>
                 <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/48">
-                  The result pane stays compact and scrollable, so the overall workspace does not
-                  balloon as the analysis gets longer.
+                  This view is designed to synthesize multiple files, not just summarize one
+                  document.
                 </p>
               </div>
             ) : null}
@@ -701,9 +620,7 @@ const PdfSummaryWorkspace = () => {
                   In progress
                 </p>
                 <p className="mt-2 text-[13px] font-semibold text-brand-black">
-                  {isFinancingMode
-                    ? 'Reading the financing PDF and building the founder briefing now.'
-                    : 'Reading the PDF and building the founder summary now.'}
+                  Reading the workspace, classifying each file, and building the founder brief now.
                 </p>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
                   <div className="h-full w-2/3 animate-pulse rounded-full bg-brand-black" />
@@ -711,117 +628,66 @@ const PdfSummaryWorkspace = () => {
               </div>
             ) : null}
 
-            {result?.kind === 'summary' ? (
+            {result?.kind === 'workspace' ? (
               <div className="space-y-3">
                 <section className="rounded-[14px] border border-brand-black/8 bg-brand-cream/14 px-3.5 py-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                    Executive summary
+                    Overall read
                   </p>
                   <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
-                    {result.data.executiveSummary}
+                    {result.data.overallRead}
                   </p>
                 </section>
 
                 <SummarySection
-                  title="Key takeaways"
-                  items={result.data.keyTakeaways}
-                  emptyText="No key takeaways were returned."
+                  title="What matters most"
+                  items={result.data.whatMattersMost}
+                  emptyText="No priority themes were returned."
                 />
                 <SummarySection
-                  title="Risk flags"
-                  items={result.data.riskFlags}
-                  emptyText="No explicit risk flags were returned for this document."
+                  title="Cross-file contradictions"
+                  items={result.data.contradictions}
+                  emptyText="No contradictions were surfaced across the upload set."
                 />
                 <SummarySection
-                  title="What to focus on"
-                  items={result.data.focusAreas || []}
-                  emptyText="No specific focus areas were returned."
+                  title="Missing proof or missing documents"
+                  items={result.data.missingProof}
+                  emptyText="No missing proof or missing documents were called out."
                 />
-                {result.data.keyMetrics?.length ? (
-                  <section className="space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                      Key metrics
-                    </p>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {result.data.keyMetrics.map((metric, index) => (
-                        <MetricCard key={`${metric.label}-${index}`} metric={metric} />
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
-                {result.data.breakdownSections?.length ? (
-                  <section className="space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                      Important sections
-                    </p>
-                    <div className="space-y-3">
-                      {result.data.breakdownSections.map((section, index) => (
-                        <BreakdownSectionCard
-                          key={`${section.title}-${index}`}
-                          section={section}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                ) : null}
                 <SummarySection
-                  title="Next questions"
-                  items={result.data.nextQuestions}
+                  title="Watch-outs"
+                  items={result.data.watchouts}
+                  emptyText="No specific watch-outs were returned."
+                />
+                <SummarySection
+                  title="Priority questions"
+                  items={result.data.priorityQuestions}
                   emptyText="No follow-up questions were returned."
                 />
                 <SummarySection
-                  title="Extraction notes"
-                  items={result.data.extractionQuality?.notes || []}
-                  emptyText="No extraction notes were returned."
+                  title="Suggested next actions"
+                  items={result.data.nextActions}
+                  emptyText="No next actions were returned."
                 />
-              </div>
-            ) : null}
 
-            {result?.kind === 'financing' ? (
-              <div className="space-y-3">
-                <section className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-amber-900/70">
-                    Disclaimer
-                  </p>
-                  <p className="mt-2 text-[12.5px] font-semibold leading-6 text-amber-900">
-                    {result.data.disclaimer}
-                  </p>
-                </section>
-
-                <section className="rounded-[14px] border border-brand-black/8 bg-brand-cream/14 px-3.5 py-3">
+                <section className="space-y-3">
                   <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                    Plain-English summary
+                    File analyses
                   </p>
-                  <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
-                    {result.data.summary}
-                  </p>
+                  <div className="space-y-3">
+                    {result.data.fileAnalyses.map((fileAnalysis) => (
+                      <WorkspaceFileCard
+                        key={fileAnalysis.fileId}
+                        fileAnalysis={fileAnalysis}
+                      />
+                    ))}
+                  </div>
                 </section>
 
-                <div className="space-y-3">
-                  {result.data.clauseHighlights.map((clause, index) => (
-                    <ClauseCard key={`${clause.clause}-${index}`} clause={clause} />
-                  ))}
-                </div>
-
                 <SummarySection
-                  title="Founder watch-outs"
-                  items={result.data.founderWatchouts}
-                  emptyText="No specific founder watch-outs were returned."
-                />
-                <SummarySection
-                  title="Unusual clauses"
-                  items={result.data.unusualClauses}
-                  emptyText="No unusual clauses were called out."
-                />
-                <SummarySection
-                  title="Lawyer discussion checklist"
-                  items={result.data.counselQuestions}
-                  emptyText="No specific counsel questions were returned."
-                />
-                <SummarySection
-                  title="Extraction notes"
-                  items={result.data.extractionQuality?.notes || []}
-                  emptyText="No extraction notes were returned."
+                  title="Workspace extraction notes"
+                  items={result.data.extractionNotes}
+                  emptyText="No workspace-level extraction caveats were returned."
                 />
               </div>
             ) : null}

@@ -266,4 +266,152 @@ assert.equal(
 );
 assert.equal(capturedRequests.length, 3);
 
+let workspaceCapturedRequests = [];
+
+process.env.OPENAI_API_KEY = 'test-key';
+globalThis.fetch = async (url, options = {}) => {
+  workspaceCapturedRequests.push({
+    url,
+    options,
+  });
+
+  const requestNumber = workspaceCapturedRequests.length;
+
+  if (requestNumber === 1) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          output_text: JSON.stringify({
+            documentType: 'Pitch deck',
+            title: 'Seed deck readout',
+            mode: 'pitch-deck',
+            executiveSummary: 'The deck tells a compelling story, but proof is thinner than the narrative suggests.',
+            keyTakeaways: ['The positioning is crisp.', 'The traction proof is still light.'],
+            riskFlags: ['Retention evidence is not shown.'],
+            focusAreas: ['Add harder proof behind repeat usage claims.'],
+            nextQuestions: ['What data supports retention and expansion?'],
+            extractionQuality: {
+              label: 'high',
+              notes: ['The deck text was machine-readable.'],
+            },
+          }),
+        };
+      },
+    };
+  }
+
+  if (requestNumber === 2) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          output_text: JSON.stringify({
+            documentType: 'Financial statement',
+            title: 'Board model readout',
+            mode: 'financial-statement',
+            executiveSummary:
+              'The spreadsheet shows margin pressure and weaker cash conversion than the deck implies.',
+            keyTakeaways: ['Revenue is still growing.', 'Gross margin assumptions are lower than the deck claims.'],
+            riskFlags: ['Cash conversion is lagging reported growth.'],
+            focusAreas: ['Reconcile gross margin and cash conversion claims with the deck.'],
+            nextQuestions: ['Which gross margin number is the current source of truth?'],
+            keyMetrics: [
+              {
+                label: 'Gross margin',
+                value: '64%',
+                note: 'Model-implied blended gross margin.',
+              },
+            ],
+            extractionQuality: {
+              label: 'mixed',
+              notes: ['One sheet tab had minimal labels.'],
+            },
+          }),
+        };
+      },
+    };
+  }
+
+  if (requestNumber === 3) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          output_text: JSON.stringify({
+            workspaceTitle: 'Founder document workspace',
+            filesAnalyzed: ['seed-deck.pdf', 'board-model.xlsx'],
+            overallRead: 'The fundraising story is promising, but the files conflict on operating quality.',
+            whatMattersMost: ['The deck and model disagree on gross margin and cash quality.'],
+            contradictions: ['Deck implies about 80% gross margin while the spreadsheet supports about 64%.'],
+            missingProof: ['No retention evidence is included in the upload set.'],
+            watchouts: ['The narrative is outrunning hard operating proof.'],
+            priorityQuestions: ['Which margin figure is the current source of truth?'],
+            nextActions: ['Reconcile the deck and model before sharing externally.'],
+            extractionNotes: ['One spreadsheet tab had sparse labels.'],
+          }),
+        };
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    async json() {
+      return { output_text: '{}' };
+    },
+  };
+};
+
+const workspaceReq = {
+  method: 'POST',
+  body: {
+    files: [
+      {
+        filename: 'seed-deck.pdf',
+        mimeType: 'application/pdf',
+        fileData: 'data:application/pdf;base64,JVBERi0xLjQK',
+        fileSize: 2048,
+      },
+      {
+        filename: 'board-model.xlsx',
+        mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        fileData:
+          'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,QUJDRA==',
+        fileSize: 4,
+      },
+    ],
+    focus: 'Find contradictions and missing proof.',
+  },
+};
+const workspaceRes = createResponse();
+await handler(workspaceReq, workspaceRes);
+
+if (typeof originalApiKey === 'undefined') {
+  delete process.env.OPENAI_API_KEY;
+} else {
+  process.env.OPENAI_API_KEY = originalApiKey;
+}
+globalThis.fetch = originalFetch;
+
+assert.equal(workspaceRes.statusCode, 200);
+
+const workspacePayload = parseJsonBody(workspaceRes);
+assert.equal(workspacePayload.ok, true);
+assert.equal(workspacePayload.fileAnalyses.length, 2);
+assert.equal(workspacePayload.fileAnalyses[0].detectedType, 'pitch-deck');
+assert.equal(workspacePayload.fileAnalyses[1].detectedType, 'financial-statement');
+assert.equal(workspacePayload.contradictions.length, 1);
+assert.equal(workspacePayload.nextActions.length, 1);
+assert.match(workspacePayload.nextActions[0], /reconcile/i);
+assert.equal(workspaceCapturedRequests.length, 3);
+
+const synthesisBody = JSON.parse(workspaceCapturedRequests[2].options.body);
+assert.equal(synthesisBody.input[1].content[0].type, 'input_text');
+assert.match(synthesisBody.input[1].content[0].text, /fileAnalyses/i);
+
 console.log('founder-pdf-summarize API tests passed');

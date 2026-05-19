@@ -2,6 +2,7 @@ export const MAX_SAFE_EXPLAINER_PDF_SIZE_BYTES = Math.round(3.25 * 1024 * 1024);
 export const DEFAULT_SAFE_EXPLAINER_MODE = 'auto';
 export const SAFE_EXPLAINER_DISCLAIMER =
   'Educational only. This is not legal advice and should not replace review by qualified counsel.';
+export const FOUNDER_FINANCING_DOCUMENT_TYPES = ['safe', 'term-sheet', 'convertible-note'];
 
 export const SAFE_EXPLAINER_MODES = [
   {
@@ -63,6 +64,10 @@ function cleanClauseHighlight(item) {
 
 export function getFounderSafeExplainerMode(modeId) {
   return SAFE_EXPLAINER_MODES.find((mode) => mode.id === modeId) || null;
+}
+
+export function isFounderFinancingDocumentType(modeId) {
+  return FOUNDER_FINANCING_DOCUMENT_TYPES.includes(cleanText(modeId).toLowerCase());
 }
 
 export function getFounderSafeExplainerModeLabel(modeId) {

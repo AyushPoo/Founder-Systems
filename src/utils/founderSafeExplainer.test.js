@@ -2,12 +2,14 @@ import assert from 'assert';
 import { Buffer } from 'node:buffer';
 import {
   DEFAULT_SAFE_EXPLAINER_MODE,
+  FOUNDER_FINANCING_DOCUMENT_TYPES,
   MAX_SAFE_EXPLAINER_PDF_SIZE_BYTES,
   SAFE_EXPLAINER_MODES,
   buildFounderSafeExplainerMarkdown,
   createFounderSafeExplainerDraft,
   deriveSafeExplainerFileSizeFromDataUrl,
   getFounderSafeExplainerModeLabel,
+  isFounderFinancingDocumentType,
   normalizeFounderSafeExplainerRequest,
   normalizeFounderSafeExplainerResponse,
   resolveFounderSafeExplainerApiConfig,
@@ -26,8 +28,11 @@ assert.equal(draft.focus, '');
 assert.equal(Array.isArray(SAFE_EXPLAINER_MODES), true);
 assert.equal(SAFE_EXPLAINER_MODES.some((mode) => mode.id === 'auto'), true);
 assert.equal(SAFE_EXPLAINER_MODES.some((mode) => mode.id === 'safe'), true);
+assert.equal(FOUNDER_FINANCING_DOCUMENT_TYPES.includes('term-sheet'), true);
 assert.equal(MAX_SAFE_EXPLAINER_PDF_SIZE_BYTES, Math.round(3.25 * 1024 * 1024));
 assert.equal(getFounderSafeExplainerModeLabel('term-sheet'), 'Term sheet');
+assert.equal(isFounderFinancingDocumentType('safe'), true);
+assert.equal(isFounderFinancingDocumentType('investor-memo'), false);
 
 const normalized = normalizeFounderSafeExplainerRequest({
   filename: 'seed-safe.pdf',
