@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy:prod": "node scripts/deploy-production.mjs",
-    "test:linkedin-candidate-screener": "node shared/linkedinCandidateScreener.test.js && node api/linkedin-candidate-screener.test.js",
+    "test:linkedin-candidate-screener": "node shared/linkedinCandidateScreener.test.js && node api/linkedin-candidate-screener.test.js && node extensions/linkedin-candidate-screener/profileExtractor.test.js",
     "test:api-dev": "node dev/apiDevServer.test.js"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.19",
     "vite": "^7.3.1"
