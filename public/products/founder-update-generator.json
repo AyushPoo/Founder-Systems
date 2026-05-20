@@ -1,0 +1,86 @@
+{
+  "slug": "founder-update-generator",
+  "productId": "FS014",
+  "catalogName": "Founder Update Generator",
+  "catalogDescription": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
+  "catalogCategory": "Strategy",
+  "title": "Founder Update Generator",
+  "subtitle": "Turn a messy period packet into one sharp founder update.",
+  "descriptionBody": "Most founder updates are harder than they should be. The notes live in one doc, the metrics are in a CSV, the story is half in your head, and by the time you stitch everything together the update either sounds vague or hides what actually matters.\n\nFounder Update Generator takes the messy period packet you already have and turns it into one polished founder update. It pulls signal from mixed materials, groups the real wins and challenges, surfaces the numbers that matter, and tells the story in a cleaner, founder-ready format.",
+  "section1Title": "A reporting editor for the materials you already have",
+  "section1Body": "Upload rough notes, KPI files, deck snapshots, financial context, update drafts, or board prep fragments. The tool organizes the period story, keeps the strongest proof, calls out the weak spots, and packages the result into one concise founder update instead of a stitched recap.",
+  "featuresTitle": "What the beta helps with:",
+  "features": [
+    {
+      "name": "Mixed-input synthesis",
+      "desc": "Accepts notes, decks, spreadsheets, CSVs, and rough drafts without forcing you into a reporting template first."
+    },
+    {
+      "name": "Signal-first update structure",
+      "desc": "Turns scattered materials into a cleaner update with topline, changes, wins, challenges, metrics, and next focus."
+    },
+    {
+      "name": "Gap and contradiction detection",
+      "desc": "Surfaces weak evidence, conflicting claims, and places where the update should stay more honest."
+    },
+    {
+      "name": "Markdown export",
+      "desc": "Copy or download the final founder update as a clean .md file for docs, email drafting, or internal review."
+    }
+  ],
+  "whyTitle": "Why use this instead of just prompting a generic AI?",
+  "whyPoints": [
+    {
+      "title": "It edits for signal",
+      "desc": "The goal is not to summarize every file. The goal is to decide what belongs in the update and what does not."
+    },
+    {
+      "title": "It handles messy founder packets",
+      "desc": "You do not need one clean source doc. The workflow is built around mixed materials and partial context."
+    },
+    {
+      "title": "It stays honest when evidence is thin",
+      "desc": "Confidence gaps and weak proof are surfaced instead of polished away."
+    }
+  ],
+  "footerSummaryTitle": "Beta Access",
+  "footerSummaryDetails": "(Free while we validate the reporting workflow and tighten output quality).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "One polished founder update you can share, adapt, or use as the base for board and investor variants later.",
+  "whatYouGet": [
+    "Mixed-file founder input workspace",
+    "Topline reporting summary",
+    "What changed section",
+    "Wins and challenges breakdown",
+    "Metrics and proof callouts",
+    "Next-focus section",
+    "Asks and support prompts when relevant",
+    "Confidence and caveat notes",
+    "Markdown export"
+  ],
+  "whoThisIsFor": [
+    "Founders sending weekly or monthly company updates.",
+    "Operators pulling a period story together from messy internal materials.",
+    "Teams preparing a cleaner founder summary before rewriting it for investors or the board.",
+    "Early-stage companies that have the signal but not the editorial structure yet."
+  ],
+  "faq": [
+    {
+      "q": "Does this generate multiple stakeholder versions at once?",
+      "a": "Not in the first version. It generates one polished founder update that can later be adapted into board or investor variants."
+    },
+    {
+      "q": "Do I need a clean update draft before using it?",
+      "a": "No. The product is built for messy source material, including notes, CSVs, decks, and partial drafts."
+    },
+    {
+      "q": "Does it replace reporting software?",
+      "a": "No. This is a focused update-generation workflow, not a full reporting platform or board portal."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/founder-update-generator",
+  "category": "Strategy"
+}
