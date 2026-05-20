@@ -60,6 +60,14 @@
     "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
   },
   {
+    "id": "linkedin-candidate-screener",
+    "name": "LinkedIn Candidate Screener",
+    "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
+    "category": "Hiring Tools",
+    "productId": "FS015",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
