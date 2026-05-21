@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   buildTelegramBotUrl,
+  buildTelegramStartCommand,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramConnectPath,
@@ -31,6 +32,7 @@ test('telegram URL helpers normalize usernames and deep links', () => {
     getTelegramLaunchUrl({ deep_link_url: 'https://t.me/FounderSystemsBot?start=server-token' }),
     'https://t.me/FounderSystemsBot?start=server-token',
   );
+  assert.equal(buildTelegramStartCommand('server-token'), '/start server-token');
   assert.equal(getTelegramConnectPath('ops-agent'), '/account/telegram-connect/ops-agent');
 });
 

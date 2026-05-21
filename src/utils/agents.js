@@ -84,6 +84,11 @@ export function buildTelegramDeepLinkUrl(botUsername, token) {
   return `${botUrl}?start=${encodeURIComponent(normalizedToken)}`;
 }
 
+export function buildTelegramStartCommand(token) {
+  const normalizedToken = String(token || '').trim();
+  return normalizedToken ? `/start ${normalizedToken}` : '';
+}
+
 export function getTelegramLaunchUrl(value) {
   const raw = value && typeof value === 'object' ? value : {};
   return raw.deep_link_url || buildTelegramDeepLinkUrl(raw.bot_username, raw.token);

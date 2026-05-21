@@ -4,12 +4,13 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
+import { getAgentAccountStatus } from '../utils/founderApi';
 import {
     detectPreferredCurrency,
     formatCreditValue,
     mergeCatalogProductData,
 } from '../utils/commerce';
-import { getTelegramConnectPath, isAgentProductSlug } from '../utils/agents';
+import { getAgentProductStatus, getTelegramConnectPath, isAgentProductSlug } from '../utils/agents';
 
 const LEGACY_PRODUCT_REDIRECTS = {
     'pitch-deck-maker': '/products/promptdeck-ai',
@@ -111,7 +112,18 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
     const [preferredCurrency, setPreferredCurrency] = useState('INR');
-    const { authenticated, redeemCreditsForProduct, launchProductCheckout, user, wallet, creditUnitAmountsMinor } = useFounderWorkspace();
+    const [agentStatusPayload, setAgentStatusPayload] = useState(null);
+    const [loadingOperatorStatus, setLoadingOperatorStatus] = useState(false);
+    const {
+        authenticated,
+        redeemCreditsForProduct,
+        launchProductCheckout,
+        user,
+        wallet,
+        creditUnitAmountsMinor,
+        entitlements,
+        loadingAccount,
+    } = useFounderWorkspace();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -142,6 +154,8 @@ const ProductDetail = () => {
         setCurrentImageIndex(0);
     }, [id]);
 
+    const productLooksLikeOperator = isAgentProductSlug(id) || product?.accessKind === 'operator_pass';
+
     useEffect(() => {
         if (user?.email) {
             setCustomerEmail(user.email);
@@ -151,8 +165,35 @@ const ProductDetail = () => {
         }
     }, [user]);
 
+    useEffect(() => {
+        let cancelled = false;
+        async function loadOperatorStatus() {
+            if (!authenticated || !productLooksLikeOperator) {
+                setAgentStatusPayload(null);
+                setLoadingOperatorStatus(false);
+                return;
+            }
+            setLoadingOperatorStatus(true);
+            try {
+                const payload = await getAgentAccountStatus();
+                if (!cancelled) setAgentStatusPayload(payload);
+            } catch {
+                if (!cancelled) setAgentStatusPayload(null);
+            } finally {
+                if (!cancelled) setLoadingOperatorStatus(false);
+            }
+        }
+        loadOperatorStatus();
+        return () => {
+            cancelled = true;
+        };
+    }, [authenticated, productLooksLikeOperator, wallet?.balance]);
+
     const productAction = getProductPrimaryAction(product);
-    const isOperatorPass = isAgentProductSlug(id) || product?.accessKind === 'operator_pass';
+    const isOperatorPass = productLooksLikeOperator;
+    const operatorProductState = isOperatorPass ? getAgentProductStatus(agentStatusPayload, id, { entitlements }) : null;
+    const hasActiveOperatorPass = Boolean(operatorProductState?.has_active_pass);
+    const isCheckingOperatorPass = Boolean(authenticated && isOperatorPass && (loadingAccount || loadingOperatorStatus));
     const showPricing = hasProductPricing(product);
     const showRetiredFundraisingBanner = false;
     const creditValueLabel = product?.creditPrice
@@ -632,6 +673,35 @@ const ProductDetail = () => {
                                         </div>
                                     ) : (
                                         <>
+                                            {isCheckingOperatorPass ? (
+                                                <div className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-5 text-left shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">Checking access</p>
+                                                    <p className="mt-2 text-sm font-semibold text-brand-black/72">
+                                                        We are checking your Founder Systems account before showing checkout or Telegram setup.
+                                                    </p>
+                                                </div>
+                                            ) : isOperatorPass && authenticated && hasActiveOperatorPass ? (
+                                                <div className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-5 text-left shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">Pass active</p>
+                                                    <h3 className="mt-2 text-xl font-black tracking-tight-brand">You already have this operator.</h3>
+                                                    <p className="mt-2 text-sm font-semibold text-brand-black/72">
+                                                        Next step: connect or open the Telegram bot from the setup page. No need to buy this pass again.
+                                                    </p>
+                                                    <Link
+                                                        to={getTelegramConnectPath(id)}
+                                                        className="btn-cta mt-5 w-full !text-lg !py-5 text-center"
+                                                    >
+                                                        Continue Telegram setup &rarr;
+                                                    </Link>
+                                                    <Link
+                                                        to="/account?tab=credits"
+                                                        className="btn-outline mt-3 w-full !py-4 text-center"
+                                                    >
+                                                        View pass and credits
+                                                    </Link>
+                                                </div>
+                                            ) : (
+                                                <>
                                             {authenticated && product.creditPrice ? (
                                                 <div className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3 text-left">
                                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Workspace wallet</p>
@@ -680,6 +750,8 @@ const ProductDetail = () => {
                                                     Already purchased? Open Telegram setup
                                                 </Link>
                                             ) : null}
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </div>

@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SEO from '../components/SEO';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import {
+  buildTelegramBotUrl,
+  buildTelegramStartCommand,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramLaunchUrl,
@@ -26,7 +28,6 @@ export default function TelegramConnect() {
   const [notice, setNotice] = useState('');
   const [launchPayload, setLaunchPayload] = useState(null);
   const [opening, setOpening] = useState(false);
-  const autoStartedRef = useRef(false);
 
   useEffect(() => {
     if (user?.email) setEmail(user.email);
@@ -72,6 +73,8 @@ export default function TelegramConnect() {
   const telegramLinked = Boolean(productState?.telegram_link?.linked);
   const botUsername = productState?.telegram_link?.bot_username || productState?.bot_username || '';
   const launchUrl = getTelegramLaunchUrl(launchPayload);
+  const linkedBotUrl = telegramLinked ? buildTelegramBotUrl(botUsername) : null;
+  const fallbackStartCommand = buildTelegramStartCommand(launchPayload?.token);
   const canOpenTelegram = authenticated && hasActivePass && !telegramLinked && !loadingStatus;
 
   async function handleMagicLink(event) {
@@ -92,23 +95,26 @@ export default function TelegramConnect() {
     if (!canOpenTelegram) return;
     setOpening(true);
     setNotice('');
+    const popup = window.open('', '_blank');
     try {
       const payload = await startTelegramLink(productMeta.slug);
       setLaunchPayload(payload);
       const nextUrl = getTelegramLaunchUrl(payload);
-      if (nextUrl) window.location.assign(nextUrl);
+      if (nextUrl && popup) {
+        popup.opener = null;
+        popup.location.replace(nextUrl);
+      } else if (nextUrl) {
+        setNotice('Telegram link is ready. Use the button below to open it.');
+      } else if (popup) {
+        popup.close();
+      }
     } catch (error) {
+      if (popup) popup.close();
       setNotice(error.message || 'Could not open Telegram right now.');
     } finally {
       setOpening(false);
     }
   }
-
-  useEffect(() => {
-    if (!canOpenTelegram || autoStartedRef.current || launchPayload || opening) return;
-    autoStartedRef.current = true;
-    handleOpenTelegram();
-  }, [canOpenTelegram, launchPayload, opening]);
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
@@ -121,7 +127,7 @@ export default function TelegramConnect() {
           </span>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight-brand mb-4">Connect {productMeta.name}</h1>
           <p className="text-lg text-brand-black/70 font-bold max-w-3xl mx-auto leading-relaxed">
-            Founder Systems opens Telegram with the secure start link already attached. The user only taps Start inside Telegram.
+            Founder Systems creates the secure Telegram start link for you. If your browser does not have the Telegram desktop app installed, use Telegram&apos;s Open in Web button on the page that opens.
           </p>
         </div>
 
@@ -145,7 +151,7 @@ export default function TelegramConnect() {
               <p className="text-sm font-black uppercase tracking-widest text-brand-orange mb-3">One-click setup</p>
               <h2 className="text-2xl font-black tracking-tight-brand mb-4">Open the correct Telegram operator</h2>
               <p className="text-brand-black/70 font-medium leading-relaxed">
-                The account pass is checked here, the short-lived token is created by Founder Systems, and Telegram receives it in the start link.
+                We check your pass here, create the short-lived start link, and open the correct bot. Keep this tab open so you always have the fallback instructions.
               </p>
 
               <div className="mt-8 space-y-4">
@@ -163,14 +169,35 @@ export default function TelegramConnect() {
                   </div>
                 ) : null}
 
-                <button type="button" disabled={!canOpenTelegram || opening} onClick={handleOpenTelegram} className="btn-cta">
-                  {opening ? 'Opening Telegram...' : telegramLinked ? 'Telegram already linked' : 'Open in Telegram'}
-                </button>
+                {telegramLinked && linkedBotUrl ? (
+                  <a href={linkedBotUrl} target="_blank" rel="noreferrer" className="btn-cta text-center">
+                    Open linked Telegram bot &rarr;
+                  </a>
+                ) : (
+                  <button type="button" disabled={!canOpenTelegram || opening} onClick={handleOpenTelegram} className="btn-cta">
+                    {opening ? 'Opening Telegram...' : 'Open Telegram setup'}
+                  </button>
+                )}
 
                 {launchUrl ? (
-                  <a href={launchUrl} target="_blank" rel="noreferrer" className="btn-outline inline-flex">
-                    Open Telegram again
+                  <a href={launchUrl} target="_blank" rel="noreferrer" className="btn-outline inline-flex text-center">
+                    Open Telegram setup again
                   </a>
+                ) : null}
+
+                {launchUrl ? (
+                  <div className="rounded-2xl border-2 border-brand-black border-dashed bg-white p-5">
+                    <p className="font-black">If Telegram shows a blue START BOT button and nothing happens:</p>
+                    <p className="mt-2 text-sm font-medium text-brand-black/70">
+                      Click <span className="font-black">OPEN IN WEB</span> on that Telegram page. The secure start token is already attached to the link.
+                    </p>
+                    {fallbackStartCommand ? (
+                      <div className="mt-4 rounded-xl bg-brand-cream border border-brand-black/10 px-4 py-3">
+                        <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-black/45">Last-resort fallback</p>
+                        <code className="mt-1 block break-all text-sm font-black">{fallbackStartCommand}</code>
+                      </div>
+                    ) : null}
+                  </div>
                 ) : null}
               </div>
             </section>
