@@ -163,6 +163,15 @@ export function FounderWorkspaceProvider({ children }) {
     return saved;
   }, [refreshAccount]);
 
+  const saveMemoryBatch = useCallback(async (candidates = []) => {
+    const list = Array.isArray(candidates) ? candidates.filter(Boolean) : [];
+    for (const candidate of list) {
+      await createWorkspaceMemory(candidate);
+    }
+    await refreshAccount();
+    return list.length;
+  }, [refreshAccount]);
+
   const promoteMemoryItem = useCallback(async (itemId, payload) => {
     const promoted = await promoteWorkspaceMemory(itemId, payload);
     await refreshAccount();
@@ -308,6 +317,7 @@ export function FounderWorkspaceProvider({ children }) {
     startGoogleSignIn,
     signOut,
     saveMemoryItem,
+    saveMemoryBatch,
     promoteMemoryItem,
     savePreference,
     getPreferenceForProduct,
@@ -339,6 +349,7 @@ export function FounderWorkspaceProvider({ children }) {
     startGoogleSignIn,
     signOut,
     saveMemoryItem,
+    saveMemoryBatch,
     promoteMemoryItem,
     savePreference,
     getPreferenceForProduct,

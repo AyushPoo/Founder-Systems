@@ -1,0 +1,85 @@
+{
+  "slug": "founder-command-center",
+  "productId": "FS016",
+  "catalogName": "Founder Command Center",
+  "catalogDescription": "One place to see what is happening across your company, what changed, and what needs attention next.",
+  "catalogCategory": "Strategy",
+  "title": "Founder Command Center",
+  "subtitle": "A connected company snapshot that gets smarter as Founder Systems learns.",
+  "descriptionBody": "Founder Command Center is the connective layer inside Founder Systems. Instead of leaving strategy, documents, updates, and outreach trapped inside separate tools, it turns uploads and product activity into one persistent company memory and one founder-readable operating snapshot.\n\nThe result is not a generic dashboard. It is a command layer that tells you what changed, what is at risk, what the platform knows with confidence, and where you should go next to act.",
+  "section1Title": "A memory-backed founder operating view",
+  "section1Body": "Upload the company materials you already have, let Founder Systems sync signals from connected tools, and return to one command center that tracks priorities, finance pressure, fundraising context, GTM movement, important documents, and memory health without making you maintain a manual dashboard.",
+  "featuresTitle": "What the beta helps with:",
+  "features": [
+    {
+      "name": "Persistent company memory",
+      "desc": "Keeps the strongest company facts, risks, metrics, and priorities connected across uploads and product activity."
+    },
+    {
+      "name": "Upload-driven refresh",
+      "desc": "Accepts docs, decks, sheets, and notes so the command center can update from materials you already have."
+    },
+    {
+      "name": "Executive snapshot plus deep sections",
+      "desc": "Shows a top-level company read first, then deeper views for strategy, finance, fundraising, GTM, hiring, and documents."
+    },
+    {
+      "name": "Selective correction controls",
+      "desc": "Lets you confirm, dismiss, or mark important signals as stale when the system gets something wrong."
+    }
+  ],
+  "whyTitle": "Why use this instead of a normal dashboard?",
+  "whyPoints": [
+    {
+      "title": "It remembers context across the suite",
+      "desc": "The value comes from connected company memory, not isolated widgets."
+    },
+    {
+      "title": "It updates from uploads and tool activity",
+      "desc": "You do not need to keep retyping the same company facts into every workflow."
+    },
+    {
+      "title": "It points you toward action",
+      "desc": "The command center surfaces what matters, then routes you into the right Founder Systems tool to go deeper."
+    }
+  ],
+  "footerSummaryTitle": "Beta Access",
+  "footerSummaryDetails": "(Free while we validate the memory model and tighten the connected dashboard workflow).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "One founder-facing company snapshot that grows more useful as Founder Systems learns from your uploads and activity.",
+  "whatYouGet": [
+    "Persistent company memory",
+    "Upload-driven refresh flow",
+    "Topline company snapshot",
+    "What changed and needs-attention views",
+    "Strategy, finance, fundraising, GTM, hiring, and document sections",
+    "Memory health and provenance labels",
+    "Selective correction controls",
+    "Direct handoff into the right Founder Systems tools"
+  ],
+  "whoThisIsFor": [
+    "Founders who want one connected view across the Founder Systems ecosystem.",
+    "Early-stage companies that already have materials, but not a clean operating snapshot.",
+    "Operators who want less repeated setup and more connected context across tools.",
+    "Teams preparing for a future company workspace, starting with one founder and one company."
+  ],
+  "faq": [
+    {
+      "q": "Is this a real-time BI dashboard?",
+      "a": "Not in the first version. It is a connected command center powered by uploads and Founder Systems activity, not a full live data warehouse."
+    },
+    {
+      "q": "Do I need to type all the metrics manually?",
+      "a": "No. The command center is designed to pull signal from uploaded materials and connected product outputs first, with light correction controls when needed."
+    },
+    {
+      "q": "Does this replace the specialist tools?",
+      "a": "No. It summarizes what matters and routes you into products like Founder Document Intelligence, Founder Update Generator, and Founder Strategy Copilot for deeper work."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/founder-command-center",
+  "category": "Strategy"
+}

@@ -12,6 +12,7 @@ import Guides from './pages/Guides';
 import GuideDetail from './pages/GuideDetail';
 import FounderSpecGenerator from './pages/FounderSpecGenerator';
 import FounderOutreachKit from './pages/FounderOutreachKit';
+import FounderCommandCenter from './pages/FounderCommandCenter';
 import Account from './pages/Account';
 import SignIn from './pages/SignIn';
 import AuthVerify from './pages/AuthVerify';
@@ -31,6 +32,7 @@ function App() {
             <Route path="/guides/:id" element={<GuideDetail />} />
             <Route path="/tools/founder-spec-generator" element={<FounderSpecGenerator />} />
             <Route path="/tools/founder-outreach-kit" element={<FounderOutreachKit />} />
+            <Route path="/tools/founder-command-center" element={<FounderCommandCenter />} />
             <Route path="/about" element={<About />} />
             <Route path="/download" element={<DownloadPage />} />
             <Route path="/terms" element={<Terms />} />
