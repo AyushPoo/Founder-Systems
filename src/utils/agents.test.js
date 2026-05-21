@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   buildTelegramBotUrl,
   buildTelegramStartCommand,
+  buildTelegramWebBotUrl,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramConnectPath,
@@ -24,6 +25,7 @@ test('getAgentProductMeta returns metadata for supported operator slugs', () => 
 
 test('telegram URL helpers normalize usernames and deep links', () => {
   assert.equal(buildTelegramBotUrl('@FounderSystemsBot'), 'https://t.me/FounderSystemsBot');
+  assert.equal(buildTelegramWebBotUrl('@FounderSystemsBot'), 'https://web.telegram.org/k/#@FounderSystemsBot');
   assert.equal(
     getTelegramLaunchUrl({ bot_username: '@FounderSystemsBot', token: 'start-me' }),
     'https://t.me/FounderSystemsBot?start=start-me',

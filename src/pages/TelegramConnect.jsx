@@ -7,6 +7,7 @@ import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import {
   buildTelegramBotUrl,
   buildTelegramStartCommand,
+  buildTelegramWebBotUrl,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramLaunchUrl,
@@ -28,6 +29,7 @@ export default function TelegramConnect() {
   const [notice, setNotice] = useState('');
   const [launchPayload, setLaunchPayload] = useState(null);
   const [opening, setOpening] = useState(false);
+  const [commandCopied, setCommandCopied] = useState(false);
 
   useEffect(() => {
     if (user?.email) setEmail(user.email);
@@ -74,8 +76,10 @@ export default function TelegramConnect() {
   const botUsername = productState?.telegram_link?.bot_username || productState?.bot_username || '';
   const launchUrl = getTelegramLaunchUrl(launchPayload);
   const linkedBotUrl = telegramLinked ? buildTelegramBotUrl(botUsername) : null;
+  const webBotUrl = buildTelegramWebBotUrl(botUsername || launchPayload?.bot_username);
   const fallbackStartCommand = buildTelegramStartCommand(launchPayload?.token);
   const canOpenTelegram = authenticated && hasActivePass && !telegramLinked && !loadingStatus;
+  const visibleTelegramStatus = launchPayload && !telegramLinked ? 'fresh link ready' : productState?.telegram_link?.status || 'unlinked';
 
   async function handleMagicLink(event) {
     event.preventDefault();
@@ -95,11 +99,21 @@ export default function TelegramConnect() {
     if (!canOpenTelegram) return;
     setOpening(true);
     setNotice('');
+    setCommandCopied(false);
     const popup = window.open('', '_blank');
     try {
       const payload = await startTelegramLink(productMeta.slug);
       setLaunchPayload(payload);
       const nextUrl = getTelegramLaunchUrl(payload);
+      const command = buildTelegramStartCommand(payload?.token);
+      if (command && navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(command);
+          setCommandCopied(true);
+        } catch {
+          setCommandCopied(false);
+        }
+      }
       if (nextUrl && popup) {
         popup.opener = null;
         popup.location.replace(nextUrl);
@@ -162,6 +176,15 @@ export default function TelegramConnect() {
                   </div>
                 ) : null}
 
+                {hasActivePass && visibleTelegramStatus === 'expired' ? (
+                  <div className="rounded-2xl border-2 border-brand-black border-dashed bg-brand-orange/5 p-5">
+                    <p className="font-black">Your previous Telegram setup link expired.</p>
+                    <p className="mt-2 text-sm font-medium text-brand-black/70">
+                      That is normal. Click below and Founder Systems will create a fresh one.
+                    </p>
+                  </div>
+                ) : null}
+
                 {telegramLinked ? (
                   <div className="rounded-2xl border-2 border-brand-black bg-brand-cream p-5">
                     <p className="font-black">Telegram is linked.</p>
@@ -175,7 +198,7 @@ export default function TelegramConnect() {
                   </a>
                 ) : (
                   <button type="button" disabled={!canOpenTelegram || opening} onClick={handleOpenTelegram} className="btn-cta">
-                    {opening ? 'Opening Telegram...' : 'Open Telegram setup'}
+                    {opening ? 'Opening Telegram...' : launchPayload ? 'Create fresh Telegram setup link' : 'Open Telegram setup'}
                   </button>
                 )}
 
@@ -185,16 +208,30 @@ export default function TelegramConnect() {
                   </a>
                 ) : null}
 
+                {launchPayload && webBotUrl ? (
+                  <a href={webBotUrl} target="_blank" rel="noreferrer" className="btn-outline inline-flex text-center">
+                    Open directly in Telegram Web
+                  </a>
+                ) : null}
+
                 {launchUrl ? (
                   <div className="rounded-2xl border-2 border-brand-black border-dashed bg-white p-5">
                     <p className="font-black">If Telegram shows a blue START BOT button and nothing happens:</p>
                     <p className="mt-2 text-sm font-medium text-brand-black/70">
-                      Click <span className="font-black">OPEN IN WEB</span> on that Telegram page. The secure start token is already attached to the link.
+                      Click <span className="font-black">OPEN IN WEB</span> on that Telegram page, or use the direct Telegram Web button above.
                     </p>
                     {fallbackStartCommand ? (
                       <div className="mt-4 rounded-xl bg-brand-cream border border-brand-black/10 px-4 py-3">
                         <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-black/45">Last-resort fallback</p>
+                        {commandCopied ? (
+                          <p className="mt-1 text-xs font-black uppercase tracking-[0.12em] text-brand-orange">
+                            Copied to clipboard
+                          </p>
+                        ) : null}
                         <code className="mt-1 block break-all text-sm font-black">{fallbackStartCommand}</code>
+                        <p className="mt-2 text-xs font-semibold text-brand-black/60">
+                          Paste this into the bot chat if Telegram Web opens without applying the start token.
+                        </p>
                       </div>
                     ) : null}
                   </div>
@@ -211,7 +248,7 @@ export default function TelegramConnect() {
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-brand-black/45">Telegram</p>
-                  <p className="font-black capitalize">{productState?.telegram_link?.status || 'unlinked'}</p>
+                  <p className="font-black capitalize">{visibleTelegramStatus}</p>
                 </div>
                 <div>
                   <p className="text-xs font-black uppercase tracking-widest text-brand-black/45">Bot</p>

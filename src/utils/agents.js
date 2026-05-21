@@ -77,6 +77,12 @@ export function buildTelegramBotUrl(botUsername) {
   return `https://t.me/${normalized}`;
 }
 
+export function buildTelegramWebBotUrl(botUsername) {
+  const normalized = String(botUsername || '').trim().replace(/^@+/, '');
+  if (!normalized) return null;
+  return `https://web.telegram.org/k/#@${normalized}`;
+}
+
 export function buildTelegramDeepLinkUrl(botUsername, token) {
   const botUrl = buildTelegramBotUrl(botUsername);
   const normalizedToken = String(token || '').trim();
