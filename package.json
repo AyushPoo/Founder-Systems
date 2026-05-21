@@ -13,7 +13,8 @@
     "test:document-intelligence-workspace": "node src/utils/founderDocumentIntelligence.test.js && node src/utils/founderDocumentWorkspace.test.js",
     "test:pdf-summary": "node src/utils/founderPdfSummary.test.js && node api/founder-pdf-summarize.test.js",
     "test:safe-explainer": "node src/utils/founderSafeExplainer.test.js && node api/founder-safe-explainer.test.js",
-    "test:document-intelligence": "npm run test:document-intelligence-workspace && npm run test:pdf-summary && npm run test:safe-explainer"
+    "test:document-intelligence": "npm run test:document-intelligence-workspace && npm run test:pdf-summary && npm run test:safe-explainer",
+    "test:founder-copilot": "node src/utils/founderCopilotSession.test.js"
   },
   "dependencies": {
     "react": "^19.2.0",

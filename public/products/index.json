@@ -45,8 +45,8 @@
   },
   {
     "id": "founder-spec-generator",
-    "name": "Founder Spec Generator",
-    "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
+    "name": "Founder Strategy Copilot",
+    "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
     "thumbnail": "/images/products/founder-spec-generator/preview-1.png"

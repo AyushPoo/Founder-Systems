@@ -1,28 +1,34 @@
 const MODE_METADATA = {
   no_idea: {
-    title: 'Find and validate a direction',
-    description: 'Start from your strengths, constraints, and reachable market signals.',
+    title: 'Find a direction worth pursuing',
+    description:
+      'Blend market brief thinking with idea validation so the first wedge is grounded, not guessed.',
+    capabilities: ['Market brief', 'Idea validation'],
     starterPrompt:
-      'You do not need a polished idea yet. Start with the spaces, people, or problems you are closest to, and I will help validate which direction is worth testing first.',
+      'You do not need a polished idea yet. Start with the spaces, people, customers, or problems you are closest to. I will help turn that into a rough market brief, pressure-test whether the direction matters, and narrow it to a wedge worth testing first.',
   },
   messy_idea: {
-    title: 'Stress-test a messy idea',
-    description: 'Sharpen the wedge, expose weak assumptions, and remove the noise.',
+    title: 'Review and sharpen a messy plan',
+    description:
+      'Use plan review plus strategy audit to find weak logic, missing proof, and the sharper version of the idea.',
+    capabilities: ['Plan review', 'Strategy audit'],
     starterPrompt:
-      'Give me the rough version. What are you thinking about building, what still feels fuzzy, and where do you suspect the idea may be weak?',
+      'Give me the rough version. What are you thinking about building, what feels fuzzy, and where do you think the logic may be weak? I will review the plan, score the weak spots, and sharpen the wedge instead of just polishing the language.',
   },
   known_idea: {
-    title: 'Scope and package my plan',
-    description: 'Turn a known idea into a tighter MVP, launch path, and founder-ready brief.',
+    title: 'Build the one-page plan',
+    description:
+      'Turn a known direction into a tighter one-page plan, MVP scope, GTM path, and next-step execution brief.',
+    capabilities: ['Plan builder', 'Execution brief'],
     starterPrompt:
-      'Tell me the business you want to build, who it is for, and where you feel least certain. I will turn it into a scoped plan you can actually act on.',
+      'Tell me the business you want to build, who it is for, and where you feel least certain. I will turn it into a one-page plan with a sharper wedge, MVP scope, GTM logic, risks, and the next actions that actually matter.',
   },
 };
 
 const STRATEGY_MODE_IDS = new Set(Object.keys(MODE_METADATA));
 
 const DEFAULT_ASSISTANT_MESSAGE =
-  'Pick the starting point that matches where you are. I can validate the idea, audit the strategy, and package the plan into a founder-ready brief.';
+  'Pick the starting point that matches where you are. I can build a rough market brief, review a messy plan, or turn a known direction into a tighter founder-ready plan.';
 
 export const COPILOT_STRATEGY_LENSES = [
   {
@@ -36,11 +42,53 @@ export const COPILOT_STRATEGY_LENSES = [
     description: 'Find the weak assumptions, founder-fit gaps, and sharper wedge.',
   },
   {
+    id: 'market_brief',
+    label: 'Market brief',
+    description:
+      'Clarify customer, timing, alternatives, wedge, and what makes the market worth entering.',
+  },
+  {
+    id: 'plan_review',
+    label: 'Plan review',
+    description: 'Score the logic, missing proof, and execution realism in the current plan.',
+  },
+  {
+    id: 'plan_builder',
+    label: 'Plan builder',
+    description: 'Turn the direction into a concise one-page plan with milestones, GTM, and risks.',
+  },
+  {
     id: 'business_plan',
-    label: 'Business plan',
+    label: 'Execution brief',
     description: 'Package the decision into MVP scope, pricing, GTM, and next steps.',
   },
 ];
+
+const STRATEGY_LENS_IDS_BY_MODE = {
+  no_idea: ['market_brief', 'idea_validation', 'strategy_audit'],
+  messy_idea: ['plan_review', 'strategy_audit', 'idea_validation'],
+  known_idea: ['plan_builder', 'business_plan', 'strategy_audit'],
+};
+
+const MODE_OUTPUT_INSTRUCTIONS = {
+  no_idea: [
+    'Act like a founder strategist building a compact market brief before anyone commits to the idea.',
+    'Clarify the buyer, painful moment, existing alternatives, wedge, timing, and what proof would make this direction real.',
+    'If the market is weak, say so plainly and point to the stronger angle.',
+    'When enough signal exists, return a recommendation, evidence, a practical brief, and a next-test plan.',
+  ].join(' '),
+  messy_idea: [
+    'Act like a tough but useful plan reviewer.',
+    'Review the founder logic for clarity, market realism, execution credibility, missing proof, and wedge sharpness.',
+    'Call out what is weak, what is hand-wavy, and what should be rewritten before building.',
+    'If enough signal exists, return a scored recommendation, sharper plan direction, and an execution brief instead of asking endless questions.',
+  ].join(' '),
+  known_idea: [
+    'Act like a one-page plan builder for an early-stage founder.',
+    'Turn the known direction into a tighter one-page plan with problem, customer, wedge, MVP scope, pricing logic, GTM, milestones, major risks, and the next 30 days.',
+    'Prefer decision-grade output over generic business-plan filler.',
+  ].join(' '),
+};
 
 const DEFAULT_RUNTIME = {
   turnType: 'fast',
@@ -395,6 +443,7 @@ function truncateForRequest(value, maxChars = 420) {
 export function buildFounderCopilotRequest({ session, message, selection = null, attachments = [] }) {
   const cleanedMessage = cleanText(message);
   const normalizedSelection = selection && typeof selection === 'object' ? selection : null;
+  const selectedMode = cleanText(session.selectedMode);
   const visibleMessages = normalizeArray(session.messages)
     .slice(-8)
     .map((entry) => ({
@@ -402,6 +451,10 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
       content: truncateForRequest(entry.content),
     }))
     .filter((entry) => entry.role && entry.content);
+  const strategyLenses =
+    STRATEGY_LENS_IDS_BY_MODE[selectedMode] || COPILOT_STRATEGY_LENSES.map((lens) => lens.id);
+  const modeInstruction =
+    MODE_OUTPUT_INSTRUCTIONS[selectedMode] || MODE_OUTPUT_INSTRUCTIONS.messy_idea;
 
   return {
     mode: session.selectedMode,
@@ -409,12 +462,14 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
     requestFinal:
       normalizedSelection?.id === 'generate_founder_spec' ||
       shouldForceFounderBrief(session) ||
-      /generate|verdict|spec|plan|business plan|final/i.test(cleanedMessage),
+      /generate|verdict|spec|plan|business plan|plan review|score|market brief|research|final/i.test(
+        cleanedMessage,
+      ),
     maxQuestionCount: getAnswerLimit(session),
-    strategyLenses: COPILOT_STRATEGY_LENSES.map((lens) => lens.id),
+    strategyLenses,
     founderContextHints: inferFounderContext(session, cleanedMessage),
     expectedOutput:
-      'Evaluate the idea through idea validation, strategy audit, SWOT-style strategic risk, and business-plan packaging. Be specific to what the founder actually said. If they mention supplier access, white-label manufacturing, a customer group, or a product category, use that directly instead of asking a generic founder question. Ask only one sharp follow-up at a time, and prefer wedge/channel/customer questions over abstract self-reflection. Do not keep asking questions forever. Once maxQuestionCount answers are present, or requestFinal is true, stop asking and return a provisional verdict, recommendation, actionPlan, brief, and markdown even if confidence is imperfect. If one assumption is unknown, state it as an assumption instead of asking another broad question.',
+      `${modeInstruction} Evaluate the idea through the requested lenses, keep the output founder-specific, and do not keep asking questions forever. Be specific to what the founder actually said. If they mention supplier access, white-label manufacturing, a customer group, or a product category, use that directly instead of asking a generic founder question. Ask only one sharp follow-up at a time, and prefer wedge/channel/customer questions over abstract self-reflection. Once maxQuestionCount answers are present, or requestFinal is true, stop asking and return a provisional verdict, recommendation, actionPlan, brief, and markdown even if confidence is imperfect. If one assumption is unknown, state it as an assumption instead of asking another broad question.`,
     attachments: normalizeArray(attachments).map((file) => ({
       name: cleanText(file?.name),
       type: cleanText(file?.type),

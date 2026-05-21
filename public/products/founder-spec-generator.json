@@ -1,14 +1,14 @@
 {
   "slug": "founder-spec-generator",
   "productId": "FS011",
-  "catalogName": "Founder Spec Generator",
-  "catalogDescription": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
+  "catalogName": "Founder Strategy Copilot",
+  "catalogDescription": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
   "catalogCategory": "Strategy",
-  "title": "Founder Spec Generator",
-  "subtitle": "Validate the idea. Audit the strategy. Leave with a founder-ready spec.",
-  "descriptionBody": "Most startup ideas do not fail because the founder forgot to write a business plan. They fail because the first wedge is fuzzy, the assumptions are untested, or the founder builds before knowing what proof actually matters.\n\nFounder Spec Generator talks through your idea, challenges the weak parts, checks founder fit, and turns the strongest path into a practical execution brief. It covers the jobs people usually split into an idea validator, SWOT audit, and business plan generator, but keeps them inside one guided founder conversation.",
-  "section1Title": "One copilot for validation, audit, and planning",
-  "section1Body": "Start with no idea, a messy idea, or a known business direction. The copilot asks for the missing context, separates evidence from inference, surfaces the sharpest risk, and packages the result into MVP scope, exclusions, pricing logic, GTM direction, and a 30-day action plan.",
+  "title": "Founder Strategy Copilot",
+  "subtitle": "Build the market brief. Review the plan. Leave with a sharper founder-ready execution path.",
+  "descriptionBody": "Most startup ideas do not fail because the founder forgot to write a business plan. They fail because the first wedge is fuzzy, the assumptions are untested, the market brief is half-formed, or the founder keeps polishing a weak plan instead of tightening the decision.\n\nFounder Strategy Copilot talks through your idea, challenges the weak parts, builds the rough market brief when needed, reviews messy plans, checks founder fit, and turns the strongest path into a practical execution brief. It covers the jobs people usually split into an idea validator, market brief generator, plan reviewer, SWOT audit, and business plan builder, but keeps them inside one guided founder conversation.",
+  "section1Title": "One copilot for research, review, and planning",
+  "section1Body": "Start with no idea, a messy idea, or a known business direction. The copilot asks for the missing context, separates evidence from inference, surfaces the sharpest risk, builds a rough market brief when the direction is still fuzzy, and packages the result into MVP scope, exclusions, pricing logic, GTM direction, and a 30-day action plan.",
   "featuresTitle": "What the beta helps with:",
   "features": [
     {
@@ -16,11 +16,15 @@
       "desc": "Tests whether the direction is worth pursuing, what evidence is still missing, and what first proof would make it real."
     },
     {
-      "name": "Strategy audit",
-      "desc": "Calls out weak assumptions, founder-fit gaps, wedge problems, and what not to build in v1."
+      "name": "Market brief thinking",
+      "desc": "Clarifies the buyer, painful moment, alternatives, wedge, and timing before the founder commits to the idea."
     },
     {
-      "name": "Business-plan packaging",
+      "name": "Plan review",
+      "desc": "Calls out weak logic, missing proof, founder-fit gaps, wedge problems, and what still needs rewriting."
+    },
+    {
+      "name": "One-page plan builder",
       "desc": "Turns the decision into problem clarity, ICP, MVP scope, pricing hypothesis, GTM plan, and next steps."
     },
     {
@@ -48,10 +52,13 @@
   "footerResultTitle": "The Result",
   "footerResultDetails": "A founder-ready execution spec you can refine, share, and build from.",
   "whatYouGet": [
+    "Market brief direction",
     "Idea validation read",
+    "Plan review",
     "Strategy audit",
     "Problem statement",
     "ICP definition",
+    "One-page plan framing",
     "MVP scope",
     "What not to build",
     "Pricing hypothesis",
@@ -60,9 +67,9 @@
     "Markdown export"
   ],
   "whoThisIsFor": [
-    "Founders moving from idea to MVP.",
-    "Solo builders who need a first execution spec before coding.",
-    "Operators or cofounders aligning on what v1 should actually be.",
+    "Founders moving from fuzzy direction to a sharper first wedge.",
+    "Solo builders who need a market brief or one-page plan before coding.",
+    "Operators or cofounders reviewing whether the current plan is actually strong enough.",
     "Teams validating niche founder tools quickly."
   ],
   "faq": [
