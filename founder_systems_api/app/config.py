@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     promptdeck_price_usd_minor: int = Field(default=700)
     promptdeck_credit_grant: int = Field(default=3)
 
+    ai_guard_user_daily_limit: int = Field(default=20)
+    ai_guard_heavy_daily_limit: int = Field(default=3)
+    ai_guard_global_daily_limit: int = Field(default=1000)
+    ai_guard_default_credit_cost: int = Field(default=1)
+    ai_guard_deepseek_enabled: bool = Field(default=False)
+
     @property
     def session_issuer(self) -> str:
         return "foundersystems"

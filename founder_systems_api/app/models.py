@@ -357,3 +357,86 @@ class AgentWorkspace(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
     user: Mapped["User"] = relationship(back_populates="agent_workspaces")
+
+
+class AiModelPolicy(Base):
+    __tablename__ = "ai_model_policies"
+    __table_args__ = (
+        UniqueConstraint("provider", "model_id", name="uq_ai_model_policies_provider_model"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    provider: Mapped[str] = mapped_column(String(80), index=True)
+    model_id: Mapped[str] = mapped_column(String(200), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="enabled", index=True)
+    max_input_chars: Mapped[int] = mapped_column(Integer, default=12000)
+    max_output_tokens: Mapped[int] = mapped_column(Integer, default=800)
+    daily_global_limit: Mapped[int] = mapped_column(Integer, default=1000)
+    cost_per_1k_input_minor: Mapped[int] = mapped_column(Integer, default=0)
+    cost_per_1k_output_minor: Mapped[int] = mapped_column(Integer, default=0)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+class AiUsageReservation(Base):
+    __tablename__ = "ai_usage_reservations"
+    __table_args__ = (
+        UniqueConstraint("reference_id", name="uq_ai_usage_reservations_reference"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    reference_id: Mapped[str] = mapped_column(String(160), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    product_slug: Mapped[str] = mapped_column(String(120), index=True)
+    action: Mapped[str] = mapped_column(String(120), index=True)
+    provider: Mapped[str] = mapped_column(String(80), index=True)
+    model_id: Mapped[str] = mapped_column(String(200), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="reserved", index=True)
+    credits_reserved: Mapped[int] = mapped_column(Integer, default=1)
+    credits_finalized: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_input_chars: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    actual_input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    actual_output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+
+class AiUsageEvent(Base):
+    __tablename__ = "ai_usage_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    reservation_id: Mapped[Optional[str]] = mapped_column(ForeignKey("ai_usage_reservations.id", ondelete="SET NULL"), nullable=True, index=True)
+    reference_id: Mapped[str] = mapped_column(String(160), index=True)
+    user_id: Mapped[Optional[str]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    workspace_id: Mapped[Optional[str]] = mapped_column(ForeignKey("workspaces.id", ondelete="SET NULL"), nullable=True, index=True)
+    product_slug: Mapped[str] = mapped_column(String(120), index=True)
+    action: Mapped[str] = mapped_column(String(120), index=True)
+    provider: Mapped[str] = mapped_column(String(80), index=True)
+    model_id: Mapped[str] = mapped_column(String(200), index=True)
+    phase: Mapped[str] = mapped_column(String(32), index=True)
+    decision: Mapped[str] = mapped_column(String(32), index=True)
+    reason: Mapped[str] = mapped_column(String(160), default="")
+    credits: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_input_chars: Mapped[int] = mapped_column(Integer, default=0)
+    estimated_output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    actual_input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    actual_output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class UserAccessBlock(Base):
+    __tablename__ = "user_access_blocks"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="active", index=True)
+    reason: Mapped[str] = mapped_column(String(240), default="")
+    created_by_user_id: Mapped[Optional[str]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)

@@ -13,10 +13,23 @@ from sqlalchemy.orm import Session
 
 from .agents import AGENT_PASS_DURATION_DAYS, get_agent_shared_wallet_credits, is_agent_product_slug
 from .config import Settings, get_settings
+from .cost_guard import (
+    block_user_access,
+    cost_guard_events,
+    cost_guard_summary,
+    cost_guard_users,
+    ensure_default_ai_model_policies,
+    finalize_ai_usage,
+    release_ai_usage,
+    reserve_ai_usage,
+    unblock_user_access,
+    update_model_policy,
+)
 from .db import Base, engine, get_db
 from .mailer import send_magic_link_email
 from .models import (
     AgentWorkspace,
+    AiModelPolicy,
     CreditLedger,
     CreditLedgerEntry,
     CreditWallet,
@@ -38,6 +51,12 @@ from .schemas import (
     AccessResponse,
     AgentAccountStatusResponse,
     AgentRuntimeAccessCheckRequest,
+    AiModelPolicyPatchRequest,
+    AiModelPolicyResponse,
+    AiUsageFinalizeRequest,
+    AiUsageGuardResponse,
+    AiUsageReleaseRequest,
+    AiUsageReserveRequest,
     CheckoutOrderRequest,
     CheckoutOrderResponse,
     CreditLedgerEntryResponse,
@@ -53,6 +72,9 @@ from .schemas import (
     ClientCheckoutConfirmRequest,
     CreditConsumeRequest,
     CreditPurchaseRequest,
+    CostGuardEventResponse,
+    CostGuardSummaryResponse,
+    CostGuardUserRow,
     EntitlementResponse,
     MagicLinkStartRequest,
     MagicLinkStartResponse,
@@ -70,6 +92,7 @@ from .schemas import (
     TelegramLinkStartResponse,
     TelegramLinkVerifyRequest,
     TelegramLinkVerifyResponse,
+    UserAccessBlockRequest,
     UserResponse,
     WorkspaceBootstrapResponse,
     WorkspaceMemberResponse,
@@ -300,6 +323,25 @@ def credit_ledger_entry_to_schema(entry: CreditLedgerEntry) -> CreditLedgerEntry
     )
 
 
+def ai_model_policy_to_schema(policy: AiModelPolicy) -> AiModelPolicyResponse:
+    return AiModelPolicyResponse.model_validate(
+        {
+            "id": policy.id,
+            "provider": policy.provider,
+            "model_id": policy.model_id,
+            "status": policy.status,
+            "max_input_chars": policy.max_input_chars,
+            "max_output_tokens": policy.max_output_tokens,
+            "daily_global_limit": policy.daily_global_limit,
+            "cost_per_1k_input_minor": policy.cost_per_1k_input_minor,
+            "cost_per_1k_output_minor": policy.cost_per_1k_output_minor,
+            "metadata": policy.metadata_json or {},
+            "created_at": policy.created_at,
+            "updated_at": policy.updated_at,
+        }
+    )
+
+
 settings = get_settings()
 app = FastAPI(title=settings.app_name)
 app.add_middleware(
@@ -316,6 +358,7 @@ def on_startup() -> None:
     Base.metadata.create_all(bind=engine)
     with Session(bind=engine) as db:
         ensure_seed_data(db, settings)
+        ensure_default_ai_model_policies(db, settings)
 
 
 def _set_session_cookie(response: Response, token: str, *, remember_me: bool = False) -> None:
@@ -1077,6 +1120,124 @@ def internal_runtime_access_check(
     except ValueError as exc:
         detail = str(exc)
         raise HTTPException(status_code=404 if detail == "Unsupported agent product" else 400, detail=detail) from exc
+
+
+@app.post("/internal/runtime/actions/reserve", response_model=AiUsageGuardResponse)
+@app.post("/v1/internal/runtime/actions/reserve", response_model=AiUsageGuardResponse)
+def internal_runtime_action_reserve(
+    payload: AiUsageReserveRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> AiUsageGuardResponse:
+    return reserve_ai_usage(db, settings, payload=payload, authorized_user=authorized)
+
+
+@app.post("/internal/runtime/actions/finalize", response_model=AiUsageGuardResponse)
+@app.post("/v1/internal/runtime/actions/finalize", response_model=AiUsageGuardResponse)
+def internal_runtime_action_finalize(
+    payload: AiUsageFinalizeRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> AiUsageGuardResponse:
+    try:
+        return finalize_ai_usage(db, payload=payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@app.post("/internal/runtime/actions/release", response_model=AiUsageGuardResponse)
+@app.post("/v1/internal/runtime/actions/release", response_model=AiUsageGuardResponse)
+def internal_runtime_action_release(
+    payload: AiUsageReleaseRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> AiUsageGuardResponse:
+    return release_ai_usage(db, payload=payload)
+
+
+@app.get("/v1/admin/cost-guard/summary", response_model=CostGuardSummaryResponse)
+@app.get("/analytics/cost-guard/summary", response_model=CostGuardSummaryResponse)
+def admin_cost_guard_summary(
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> CostGuardSummaryResponse:
+    ensure_default_ai_model_policies(db, settings)
+    return cost_guard_summary(db)
+
+
+@app.get("/v1/admin/cost-guard/users", response_model=list[CostGuardUserRow])
+@app.get("/analytics/cost-guard/users", response_model=list[CostGuardUserRow])
+def admin_cost_guard_users(
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> list[CostGuardUserRow]:
+    return cost_guard_users(db)
+
+
+@app.get("/v1/admin/cost-guard/events", response_model=list[CostGuardEventResponse])
+@app.get("/analytics/cost-guard/events", response_model=list[CostGuardEventResponse])
+def admin_cost_guard_events(
+    limit: int = Query(default=100, ge=1, le=500),
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> list[CostGuardEventResponse]:
+    return cost_guard_events(db, limit=limit)
+
+
+@app.get("/v1/admin/cost-guard/models", response_model=list[AiModelPolicyResponse])
+@app.get("/analytics/cost-guard/models", response_model=list[AiModelPolicyResponse])
+def admin_cost_guard_models(
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> list[AiModelPolicyResponse]:
+    ensure_default_ai_model_policies(db, settings)
+    policies = db.scalars(select(AiModelPolicy).order_by(AiModelPolicy.provider, AiModelPolicy.model_id)).all()
+    return [ai_model_policy_to_schema(policy) for policy in policies]
+
+
+@app.post("/v1/admin/cost-guard/users/{user_id}/block")
+@app.post("/analytics/cost-guard/users/{user_id}/block")
+def admin_block_cost_guard_user(
+    user_id: str,
+    payload: UserAccessBlockRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    target = db.get(User, user_id)
+    if target is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    block = block_user_access(
+        db,
+        user_id=user_id,
+        reason=payload.reason,
+        created_by_user_id=authorized.id if authorized else None,
+        metadata=payload.metadata,
+    )
+    return {"ok": True, "user_id": user_id, "status": block.status, "reason": block.reason}
+
+
+@app.post("/v1/admin/cost-guard/users/{user_id}/unblock")
+@app.post("/analytics/cost-guard/users/{user_id}/unblock")
+def admin_unblock_cost_guard_user(
+    user_id: str,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    return {"ok": True, "user_id": user_id, "changed": unblock_user_access(db, user_id=user_id)}
+
+
+@app.patch("/v1/admin/cost-guard/models/{policy_id}", response_model=AiModelPolicyResponse)
+@app.patch("/analytics/cost-guard/models/{policy_id}", response_model=AiModelPolicyResponse)
+def admin_update_cost_guard_model(
+    policy_id: str,
+    payload: AiModelPolicyPatchRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> AiModelPolicyResponse:
+    policy = update_model_policy(db, policy_id=policy_id, payload=payload)
+    if policy is None:
+        raise HTTPException(status_code=404, detail="Model policy not found")
+    return ai_model_policy_to_schema(policy)
 
 
 @app.post("/agents/telegram/link/start", response_model=TelegramLinkStartResponse)
