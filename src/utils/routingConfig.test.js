@@ -31,3 +31,9 @@ test('product catalog JSON routes redirect browser refreshes back to product pag
   assert.equal(productRedirect.permanent, false);
   assert.equal(redirectsOnlyBrowserNavigations(productRedirect), true);
 });
+
+test('static product data does not occupy the app product route namespace', () => {
+  assert.equal(findRedirect('/product-data/index.json'), undefined);
+  assert.equal(routingConfig.rewrites.at(-1).source, '/(.*)');
+  assert.equal(routingConfig.rewrites.at(-1).destination, '/');
+});

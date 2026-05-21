@@ -18,7 +18,7 @@ const Products = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        fetch('/products/index.json')
+        fetch('/product-data/index.json')
             .then(res => res.json())
             .then(data => {
                 setProducts(data);

@@ -123,8 +123,8 @@ const ProductDetail = () => {
         // The detail page reuses the same component across product ids, so we clear stale data before refetching.
         setLoading(true); setNotFound(false); setProduct(null);
         Promise.all([
-            fetch(`/products/${id}.json`).then((res) => { if (!res.ok) throw new Error('Not found'); return res.json(); }),
-            fetch('/products/index.json').then((res) => res.ok ? res.json() : []),
+            fetch(`/product-data/${id}.json`).then((res) => { if (!res.ok) throw new Error('Not found'); return res.json(); }),
+            fetch('/product-data/index.json').then((res) => res.ok ? res.json() : []),
         ])
             .then(([detail, catalog]) => {
                 const catalogMatch = Array.isArray(catalog) ? catalog.find((item) => item.id === id) : null;

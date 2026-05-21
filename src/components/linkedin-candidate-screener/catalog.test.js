@@ -2,7 +2,7 @@ import assert from 'assert';
 import fs from 'node:fs/promises';
 
 const catalog = JSON.parse(
-  await fs.readFile(new URL('../../../public/products/index.json', import.meta.url), 'utf8')
+  await fs.readFile(new URL('../../../public/product-data/index.json', import.meta.url), 'utf8')
 );
 
 const product = catalog.find((item) => item.id === 'linkedin-candidate-screener');

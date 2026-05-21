@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 test('public product catalog is valid JSON and includes current product surfaces', async () => {
-  const raw = await readFile(new URL('../../public/products/index.json', import.meta.url), 'utf8');
+  const raw = await readFile(new URL('../../public/product-data/index.json', import.meta.url), 'utf8');
   const products = JSON.parse(raw);
   const productIds = new Set(products.map((product) => product.id));
 

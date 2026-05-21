@@ -38,8 +38,8 @@ const GuideDetail = () => {
 
         const relatedProductPromise = guide.relatedProductId
             ? Promise.all([
-                fetch(`/products/${guide.relatedProductId}.json`).then((res) => (res.ok ? res.json() : null)),
-                fetch('/products/index.json').then((res) => (res.ok ? res.json() : [])),
+                fetch(`/product-data/${guide.relatedProductId}.json`).then((res) => (res.ok ? res.json() : null)),
+                fetch('/product-data/index.json').then((res) => (res.ok ? res.json() : [])),
             ]).then(([detail, catalog]) => {
                 if (!detail) {
                     return null;
