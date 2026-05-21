@@ -59,6 +59,7 @@
     "productId": "FS012",
     "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
   },
+  {
     "id": "founder-pdf-summarizer",
     "name": "Founder Document Intelligence",
     "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
