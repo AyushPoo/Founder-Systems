@@ -222,3 +222,28 @@ export function buildOutreachMemoryCandidates({ draft = {}, result = null } = {}
     }),
   ]);
 }
+
+export function buildFounderCommandCenterMemoryCandidates({ companySummary = '', findings = [] } = {}) {
+  const summaryCandidate = createCandidate({
+    memory_scope: 'canonical',
+    type: 'venture_summary',
+    label: 'Company snapshot',
+    text: companySummary,
+    summary: companySummary,
+    source_product: 'founder-command-center',
+  });
+
+  const findingCandidates = (Array.isArray(findings) ? findings : []).map((item) =>
+    createCandidate({
+      memory_scope: 'canonical',
+      type: item?.type,
+      label: item?.label,
+      text: item?.text,
+      summary: item?.text,
+      source_product: 'founder-command-center',
+      confidence: item?.confidence || 'inferred',
+    }),
+  );
+
+  return compactCandidates([summaryCandidate, ...findingCandidates]);
+}

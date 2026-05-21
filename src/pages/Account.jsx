@@ -15,6 +15,11 @@ import {
 const TABS = ['Memory', 'Products', 'Credits', 'History', 'Settings'];
 const PRODUCT_CONNECTIONS = [
   {
+    slug: 'founder-command-center',
+    name: 'Founder Command Center',
+    description: 'Reads shared workspace memory, turns uploads into connected company signals, and keeps the founder snapshot up to date.',
+  },
+  {
     slug: 'founder-spec-generator',
     name: 'Founder Spec Generator',
     description: 'Reads workspace memory, sharpens strategy, and can promote the strongest answers back into shared founder memory.',

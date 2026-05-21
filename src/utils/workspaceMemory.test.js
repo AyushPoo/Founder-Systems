@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  buildFounderCommandCenterMemoryCandidates,
   buildOutreachMemoryCandidates,
   buildSpecMemoryCandidates,
   mapMemoryItemsToOutreachDraft,
@@ -104,4 +105,18 @@ test('buildOutreachMemoryCandidates returns both canonical promotion candidates 
   assert.equal(canonical.some((item) => item.type === 'proof_point'), true);
   assert.equal(native.some((item) => item.type === 'messaging_angle'), true);
   assert.equal(native.some((item) => item.type === 'objection_pattern'), true);
+});
+
+test('buildFounderCommandCenterMemoryCandidates turns snapshot findings into workspace memory candidates', () => {
+  const candidates = buildFounderCommandCenterMemoryCandidates({
+    companySummary: 'Revenue is climbing, but runway pressure remains.',
+    findings: [
+      { type: 'metric', label: 'MRR', text: '$42k MRR', area: 'finance' },
+      { type: 'risk', label: 'Runway pressure', text: 'Cash runway under six months', area: 'finance' },
+    ],
+  });
+
+  assert.equal(candidates.length, 3);
+  assert.equal(candidates[0].source_product, 'founder-command-center');
+  assert.equal(candidates.some((item) => item.type === 'risk'), true);
 });

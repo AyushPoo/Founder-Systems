@@ -164,3 +164,16 @@ export function getFounderEntitlements() {
 export function getFounderPurchases() {
   return apiFetch('/purchases', { method: 'GET' });
 }
+
+export async function ingestFounderCommandCenter(payload) {
+  const response = await fetch('/api/founder-command-center-ingest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const json = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(json?.error || 'Founder command center ingestion failed.');
+  }
+  return json;
+}

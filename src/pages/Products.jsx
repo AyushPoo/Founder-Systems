@@ -7,7 +7,6 @@ import { buildCatalogCategories } from '../utils/productExperience';
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
-    { id: 'cs-2', name: 'Founder Dashboard', description: 'Centralized operating system for daily startup metrics.' },
     { id: 'cs-3', name: 'Startup Budget Planner', description: 'Allocate resources and track operational spend against milestones.' },
     { id: 'cs-4', name: 'LinkedIn Summarizer', description: 'Automated extraction of key insights from professional profiles.' }
 ];
