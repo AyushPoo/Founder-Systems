@@ -23,6 +23,30 @@
       ],
       "destination": "/products/:product",
       "permanent": false
+    },
+    {
+      "source": "/product-data/index.json",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
+      "destination": "/products",
+      "permanent": false
+    },
+    {
+      "source": "/product-data/:product.json",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
+      "destination": "/products/:product",
+      "permanent": false
     }
   ],
   "rewrites": [

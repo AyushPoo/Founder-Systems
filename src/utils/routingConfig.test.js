@@ -22,6 +22,8 @@ function redirectsOnlyBrowserNavigations(redirect) {
 test('product catalog JSON routes redirect browser refreshes back to product pages', () => {
   const catalogRedirect = findRedirect('/products/index.json');
   const productRedirect = findRedirect('/products/:product.json');
+  const dataCatalogRedirect = findRedirect('/product-data/index.json');
+  const dataProductRedirect = findRedirect('/product-data/:product.json');
 
   assert.equal(catalogRedirect.destination, '/products');
   assert.equal(catalogRedirect.permanent, false);
@@ -30,10 +32,17 @@ test('product catalog JSON routes redirect browser refreshes back to product pag
   assert.equal(productRedirect.destination, '/products/:product');
   assert.equal(productRedirect.permanent, false);
   assert.equal(redirectsOnlyBrowserNavigations(productRedirect), true);
+
+  assert.equal(dataCatalogRedirect.destination, '/products');
+  assert.equal(dataCatalogRedirect.permanent, false);
+  assert.equal(redirectsOnlyBrowserNavigations(dataCatalogRedirect), true);
+
+  assert.equal(dataProductRedirect.destination, '/products/:product');
+  assert.equal(dataProductRedirect.permanent, false);
+  assert.equal(redirectsOnlyBrowserNavigations(dataProductRedirect), true);
 });
 
 test('static product data does not occupy the app product route namespace', () => {
-  assert.equal(findRedirect('/product-data/index.json'), undefined);
   assert.equal(routingConfig.rewrites.at(-1).source, '/(.*)');
   assert.equal(routingConfig.rewrites.at(-1).destination, '/');
 });
