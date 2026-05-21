@@ -45,11 +45,11 @@
   },
   {
     "id": "founder-spec-generator",
-    "name": "Founder Spec Generator",
-    "description": "Validate an idea, audit the strategy, and turn the strongest next move into a build-ready founder spec.",
+    "name": "Founder Strategy Copilot",
+    "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/founder-spec-generator/preview-1.png"
   },
   {
     "id": "founder-outreach-kit",
@@ -57,6 +57,38 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "founder-pdf-summarizer",
+    "name": "Founder Document Intelligence",
+    "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
+    "category": "Strategy",
+    "productId": "FS013",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "founder-update-generator",
+    "name": "Founder Update Generator",
+    "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
+    "category": "Strategy",
+    "productId": "FS014",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "linkedin-candidate-screener",
+    "name": "LinkedIn Candidate Screener",
+    "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
+    "category": "Hiring Tools",
+    "productId": "FS015",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
+    "id": "founder-command-center",
+    "name": "Founder Command Center",
+    "description": "One place to see what is happening across your company, what changed, and what needs attention next.",
+    "category": "Strategy",
+    "productId": "FS016",
     "thumbnail": "/images/strategy.png"
   },
   {
