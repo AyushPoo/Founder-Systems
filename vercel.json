@@ -1,4 +1,30 @@
 {
+  "redirects": [
+    {
+      "source": "/products/index.json",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
+      "destination": "/products",
+      "permanent": false
+    },
+    {
+      "source": "/products/:product.json",
+      "has": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
+        }
+      ],
+      "destination": "/products/:product",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/tools/promptdeck",
