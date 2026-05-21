@@ -73,6 +73,7 @@ const MAX_PROMPT_LONG_FIELD_CHARS = 600;
 const MAX_PROMPT_LIST_ITEMS = 6;
 const MAX_PROMPT_ATTACHMENTS = 2;
 const MAX_ATTACHMENT_EXCERPT_CHARS = 1400;
+const DEFAULT_FOUNDER_SYSTEMS_API_URL = 'https://api.foundersystems.in';
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -116,6 +117,100 @@ function createHttpError(statusCode, message) {
   const error = new Error(message);
   error.statusCode = statusCode;
   return error;
+}
+
+function founderSystemsApiBaseUrl() {
+  return cleanText(
+    process.env.FOUNDER_SYSTEMS_API_URL ||
+    process.env.FOUNDER_API_URL ||
+    DEFAULT_FOUNDER_SYSTEMS_API_URL
+  ).replace(/\/+$/, '');
+}
+
+function founderSystemsGuardHeaders(req) {
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  const internalKey = cleanText(
+    process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY ||
+    process.env.FS_API_KEY_INTERNAL
+  );
+  if (internalKey) {
+    headers['X-API-Key'] = internalKey;
+  }
+  const cookie = cleanText(req?.headers?.cookie);
+  if (cookie) {
+    headers.Cookie = cookie;
+  }
+  const authorization = cleanText(req?.headers?.authorization);
+  if (authorization) {
+    headers.Authorization = authorization;
+  }
+  return headers;
+}
+
+async function founderSystemsGuardRequest(req, path, body) {
+  const response = await fetch(`${founderSystemsApiBaseUrl()}${path}`, {
+    method: 'POST',
+    headers: founderSystemsGuardHeaders(req),
+    body: JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw createHttpError(response.status, payload?.detail || payload?.reason || 'Founder Systems cost guard failed.');
+  }
+  return payload;
+}
+
+async function reserveFounderAiUsage(req, { referenceId, userPrompt, model, maxOutputTokens }) {
+  const internalKey = cleanText(
+    process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY ||
+    process.env.FS_API_KEY_INTERNAL
+  );
+  if (!internalKey) {
+    const error = createHttpError(503, 'Founder Systems cost guard is not configured.');
+    error.founderGuard = true;
+    throw error;
+  }
+  let payload;
+  try {
+    payload = await founderSystemsGuardRequest(req, '/v1/internal/runtime/actions/reserve', {
+      product_slug: 'founder-outreach-kit',
+      action: 'outreach_generate',
+      reference_id: referenceId,
+      amount: 1,
+      provider: cleanText(process.env.FOUNDER_OUTREACH_COST_PROVIDER || 'litellm'),
+      model_id: model,
+      estimated_input_chars: cleanText(userPrompt).length,
+      estimated_output_tokens: maxOutputTokens,
+      metadata: { source: 'founder-outreach-generate' },
+    });
+  } catch (error) {
+    error.founderGuard = true;
+    throw error;
+  }
+  if (payload?.ok === false || payload?.state === 'denied') {
+    const error = createHttpError(403, payload?.reason || 'Founder Systems cost guard denied this action.');
+    error.founderGuard = true;
+    throw error;
+  }
+  return payload;
+}
+
+async function finalizeFounderAiUsage(req, referenceId, metadata = {}) {
+  return founderSystemsGuardRequest(req, '/v1/internal/runtime/actions/finalize', {
+    reference_id: referenceId,
+    metadata,
+  });
+}
+
+async function releaseFounderAiUsage(req, referenceId, reason) {
+  return founderSystemsGuardRequest(req, '/v1/internal/runtime/actions/release', {
+    reference_id: referenceId,
+    reason,
+    metadata: { source: 'founder-outreach-generate' },
+  }).catch(() => null);
 }
 
 function isJsonParseError(error) {
@@ -676,7 +771,7 @@ function extractChatCompletionText(payload) {
   return '';
 }
 
-async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) {
+async function generateWithModel({ req, systemPrompt, userPrompt, normalizedInput }) {
   const {
     apiKey,
     baseUrl,
@@ -692,6 +787,14 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
       'Live model configuration is missing for Founder Outreach.'
     );
   }
+
+  const referenceId = `founder-outreach-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  await reserveFounderAiUsage(req, {
+    referenceId,
+    userPrompt,
+    model,
+    maxOutputTokens,
+  });
 
   const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
   const timeoutHandle =
@@ -714,7 +817,9 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
         }),
       });
 
-      return parseModelJson(extractResponseText(payload));
+      const parsed = parseModelJson(extractResponseText(payload));
+      await finalizeFounderAiUsage(req, referenceId, { api: 'responses' }).catch(() => null);
+      return parsed;
     } catch (error) {
       if (!isResponsesApiUnsupported(error?.message)) {
         throw error;
@@ -734,8 +839,14 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
       }),
     });
 
-    return parseModelJson(extractChatCompletionText(fallbackPayload));
+    const parsed = parseModelJson(extractChatCompletionText(fallbackPayload));
+    await finalizeFounderAiUsage(req, referenceId, { api: 'chat_completions' }).catch(() => null);
+    return parsed;
   } catch (error) {
+    if (error?.founderGuard) {
+      throw error;
+    }
+    await releaseFounderAiUsage(req, referenceId, cleanText(error?.message) || 'provider_failed');
     return withFallbackDiagnostic(buildFallbackCampaign(normalizedInput), error?.message);
   } finally {
     if (timeoutHandle) {
@@ -764,6 +875,7 @@ export default async function handler(req, res) {
     }
 
     const rawOutput = await generateWithModel({
+      req,
       systemPrompt: SYSTEM_PROMPT,
       userPrompt: buildUserPrompt(normalized, normalized.attachments),
       normalizedInput: normalized,

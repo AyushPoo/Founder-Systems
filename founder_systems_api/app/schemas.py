@@ -416,3 +416,107 @@ class ProductUsageSpendRequest(BaseModel):
     action: str = Field(default="generate", max_length=120)
     credits: int = Field(default=1, ge=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AiUsageReserveRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"), min_length=1, max_length=120)
+    action: str = Field(default="generate", max_length=120)
+    reference_id: str = Field(validation_alias=AliasChoices("reference_id", "referenceId"), min_length=1, max_length=160)
+    amount: int | None = Field(default=None, ge=1)
+    credits: int | None = Field(default=None, ge=1)
+    provider: str = Field(default="unknown", max_length=80)
+    model_id: str = Field(default="unknown", validation_alias=AliasChoices("model_id", "modelId"), max_length=200)
+    telegram_user_id: str | None = Field(default=None, validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), max_length=120)
+    user_id: str | None = Field(default=None, validation_alias=AliasChoices("user_id", "userId"), max_length=36)
+    workspace_id: str | None = Field(default=None, validation_alias=AliasChoices("workspace_id", "workspaceId"), max_length=36)
+    estimated_input_chars: int = Field(default=0, validation_alias=AliasChoices("estimated_input_chars", "estimatedInputChars"), ge=0)
+    estimated_output_tokens: int = Field(default=0, validation_alias=AliasChoices("estimated_output_tokens", "estimatedOutputTokens"), ge=0)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AiUsageFinalizeRequest(BaseModel):
+    reference_id: str = Field(validation_alias=AliasChoices("reference_id", "referenceId"), min_length=1, max_length=160)
+    credits: int | None = Field(default=None, ge=0)
+    actual_input_tokens: int = Field(default=0, validation_alias=AliasChoices("actual_input_tokens", "actualInputTokens"), ge=0)
+    actual_output_tokens: int = Field(default=0, validation_alias=AliasChoices("actual_output_tokens", "actualOutputTokens"), ge=0)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AiUsageReleaseRequest(BaseModel):
+    reference_id: str = Field(validation_alias=AliasChoices("reference_id", "referenceId"), min_length=1, max_length=160)
+    reason: str = Field(default="released", max_length=160)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AiUsageGuardResponse(BaseModel):
+    ok: bool
+    state: str
+    reference_id: str
+    reason: str | None = None
+    reservation_id: str | None = None
+    credits: int = 0
+    wallet_balance: int | None = None
+    policy_status: str | None = None
+
+
+class AiModelPolicyResponse(BaseModel):
+    id: str
+    provider: str
+    model_id: str
+    status: str
+    max_input_chars: int
+    max_output_tokens: int
+    daily_global_limit: int
+    cost_per_1k_input_minor: int
+    cost_per_1k_output_minor: int
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
+    updated_at: datetime
+
+
+class AiModelPolicyPatchRequest(BaseModel):
+    status: str | None = Field(default=None, max_length=32)
+    max_input_chars: int | None = Field(default=None, ge=1)
+    max_output_tokens: int | None = Field(default=None, ge=1)
+    daily_global_limit: int | None = Field(default=None, ge=0)
+
+
+class UserAccessBlockRequest(BaseModel):
+    reason: str = Field(default="Manual admin block", max_length=240)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class CostGuardSummaryResponse(BaseModel):
+    allowed_24h: int
+    denied_24h: int
+    finalized_24h: int
+    credits_spent_24h: int
+    active_blocks: int
+    disabled_models: int
+
+
+class CostGuardUserRow(BaseModel):
+    user_id: str
+    email: EmailStr
+    wallet_balance: int
+    allowed_24h: int
+    denied_24h: int
+    credits_spent_24h: int
+    blocked: bool
+    last_event_at: datetime | None = None
+
+
+class CostGuardEventResponse(BaseModel):
+    id: str
+    reference_id: str
+    user_id: str | None = None
+    product_slug: str
+    action: str
+    provider: str
+    model_id: str
+    phase: str
+    decision: str
+    reason: str
+    credits: int
+    metadata: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime
