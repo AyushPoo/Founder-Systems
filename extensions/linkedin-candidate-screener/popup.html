@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LinkedIn Candidate Screener</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Founder Systems</p>
+        <h1>LinkedIn Candidate Screener</h1>
+        <p class="subcopy">
+          Add the role, include resume context if you have it, and get recruiter-ready notes.
+        </p>
+      </section>
+
+      <section class="panel">
+        <label class="field">
+          <span>Job description</span>
+          <textarea name="jobDescription" rows="5" placeholder="Paste the role, JD, or hiring brief."></textarea>
+        </label>
+
+        <label class="field">
+          <span>Optional resume text</span>
+          <textarea name="resumeText" rows="4" placeholder="Paste resume text if you have it."></textarea>
+        </label>
+
+        <div class="toggles">
+          <label><input type="checkbox" name="includeActivity" checked /> Include visible recent activity</label>
+          <label><input type="checkbox" name="includeExternalLinks" /> Include visible external links</label>
+        </div>
+
+        <label class="field">
+          <span>API base override</span>
+          <input
+            name="apiBase"
+            type="text"
+            placeholder="https://foundersystems.in"
+            autocomplete="off"
+          />
+        </label>
+
+        <div class="actions">
+          <button id="runScreen" type="button">Run screen</button>
+          <button id="saveApiBase" type="button" class="ghost">Save API base</button>
+        </div>
+
+        <p id="status" class="status"></p>
+      </section>
+
+      <section id="result" class="result hidden">
+        <div class="result-head">
+          <span id="verdict" class="verdict"></span>
+          <span id="confidence" class="confidence"></span>
+        </div>
+        <p id="candidateSummary" class="summary"></p>
+        <div class="result-block">
+          <h2>Fit signals</h2>
+          <ul id="fitSignals"></ul>
+        </div>
+        <div class="result-block">
+          <h2>Gaps or risks</h2>
+          <ul id="gapsOrRisks"></ul>
+        </div>
+        <div class="result-block">
+          <h2>Interview checks</h2>
+          <ul id="interviewChecks"></ul>
+        </div>
+        <div class="result-block">
+          <h2>Recruiter notes</h2>
+          <ul id="recruiterNotes"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script src="./popup.js"></script>
+  </body>
+</html>

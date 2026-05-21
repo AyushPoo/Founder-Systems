@@ -1,0 +1,85 @@
+{
+  "slug": "linkedin-candidate-screener",
+  "productId": "FS015",
+  "catalogName": "LinkedIn Candidate Screener",
+  "catalogDescription": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
+  "catalogCategory": "Hiring Tools",
+  "title": "LinkedIn Candidate Screener",
+  "subtitle": "Role-fit screening and recruiter notes directly from the LinkedIn workflow.",
+  "descriptionBody": "LinkedIn Candidate Screener helps recruiters, HR teams, and founders hiring directly make faster first-pass decisions. It reads the visible profile, combines it with the target role and optional resume, and returns structured notes instead of a generic summary.\n\nThe result is not just a profile recap. It is a role-fit screen with recruiter-ready notes, fit signals, risks, and interview checks that a hiring team can reuse immediately.",
+  "section1Title": "A faster first-pass screen without leaving LinkedIn",
+  "section1Body": "Open the profile you are already reviewing, add the role or JD, optionally include resume text and visible activity, and get a compact screen that helps you decide whether the candidate deserves the next step. The workflow is built for speed, but the output stays structured enough to share with the team.",
+  "featuresTitle": "What the first version helps with:",
+  "features": [
+    {
+      "name": "Role-fit screening",
+      "desc": "Evaluates the visible LinkedIn profile against a target role instead of producing a generic profile summary."
+    },
+    {
+      "name": "Recruiter-ready notes",
+      "desc": "Returns verdict, fit signals, risks, interview checks, and internal notes that are easier to share."
+    },
+    {
+      "name": "Optional enrichment",
+      "desc": "Lets the screener include resume text, visible recent activity, and selected external links when that context helps."
+    },
+    {
+      "name": "Fast local testing",
+      "desc": "Works as a lightweight Chrome extension instead of forcing teams into a heavy ATS workflow before they know if it helps."
+    }
+  ],
+  "whyTitle": "Why use this instead of a generic AI prompt?",
+  "whyPoints": [
+    {
+      "title": "It works inside the hiring flow",
+      "desc": "You stay on the LinkedIn profile you are already reviewing instead of copying everything into another tool."
+    },
+    {
+      "title": "It screens against a role",
+      "desc": "The output is built around fit, gaps, and interview verification rather than a broad descriptive summary."
+    },
+    {
+      "title": "It produces reusable notes",
+      "desc": "The structure is closer to recruiter notes than to a chat response, which makes internal sharing much easier."
+    }
+  ],
+  "footerSummaryTitle": "Chrome Extension",
+  "footerSummaryDetails": "(Landing page on Founder Systems, with installation through the Chrome Web Store listing).",
+  "footerResultTitle": "The Result",
+  "footerResultDetails": "A fast first-pass candidate screen with recruiter notes your team can scan, discuss, and reuse.",
+  "whatYouGet": [
+    "LinkedIn profile-based role screen",
+    "Verdict and confidence",
+    "Candidate summary",
+    "Fit signals and gaps",
+    "Interview checks",
+    "Recruiter notes",
+    "Optional resume and activity enrichment",
+    "3 free screens to start"
+  ],
+  "whoThisIsFor": [
+    "Recruiters screening candidates quickly against active roles.",
+    "HR teams who want cleaner first-pass notes before a manager review.",
+    "Founders hiring directly without a full recruiting stack yet.",
+    "Lean teams who want to test better screening without heavy process overhead."
+  ],
+  "faq": [
+    {
+      "q": "Does it scrape LinkedIn in the background?",
+      "a": "No. The first version is designed as a user-invoked screening tool that reads the visible profile when you choose to run a screen."
+    },
+    {
+      "q": "Can I include a resume too?",
+      "a": "Yes. You can paste resume text into the extension to give the screen more context when you have it."
+    },
+    {
+      "q": "Is this an ATS or sourcing platform?",
+      "a": "No. The first version is a focused candidate-screening extension, not a full recruiting platform."
+    }
+  ],
+  "images": [
+    "/images/strategy.png"
+  ],
+  "launchUrl": "/tools/linkedin-candidate-screener",
+  "category": "Hiring Tools"
+}

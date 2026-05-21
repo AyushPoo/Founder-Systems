@@ -14,7 +14,8 @@
     "test:pdf-summary": "node src/utils/founderPdfSummary.test.js && node api/founder-pdf-summarize.test.js",
     "test:safe-explainer": "node src/utils/founderSafeExplainer.test.js && node api/founder-safe-explainer.test.js",
     "test:document-intelligence": "npm run test:document-intelligence-workspace && npm run test:pdf-summary && npm run test:safe-explainer",
-    "test:founder-copilot": "node src/utils/founderCopilotSession.test.js"
+    "test:founder-copilot": "node src/utils/founderCopilotSession.test.js",
+    "test:linkedin-candidate-screener": "node shared/linkedinCandidateScreener.test.js && node api/linkedin-candidate-screener.test.js && node extensions/linkedin-candidate-screener/profileExtractor.test.js && node extensions/linkedin-candidate-screener/release-docs.test.js && node src/components/linkedin-candidate-screener/catalog.test.js"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -33,6 +34,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^3.4.19",
     "vite": "^7.3.1"

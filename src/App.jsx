@@ -14,6 +14,7 @@ import FounderSpecGenerator from './pages/FounderSpecGenerator';
 import FounderOutreachKit from './pages/FounderOutreachKit';
 import FounderUpdateGenerator from './pages/FounderUpdateGenerator';
 import FounderPdfSummarizer from './pages/FounderPdfSummarizer';
+import LinkedInCandidateScreener from './pages/LinkedInCandidateScreener';
 import Account from './pages/Account';
 import SignIn from './pages/SignIn';
 import AuthVerify from './pages/AuthVerify';
@@ -33,8 +34,9 @@ function App() {
             <Route path="/guides/:id" element={<GuideDetail />} />
             <Route path="/tools/founder-spec-generator" element={<FounderSpecGenerator />} />
             <Route path="/tools/founder-outreach-kit" element={<FounderOutreachKit />} />
-            <Route path="/tools/founder-update-generator" element={<FounderUpdateGenerator />} />
             <Route path="/tools/founder-pdf-summarizer" element={<FounderPdfSummarizer />} />
+            <Route path="/tools/founder-update-generator" element={<FounderUpdateGenerator />} />
+            <Route path="/tools/linkedin-candidate-screener" element={<LinkedInCandidateScreener />} />
             <Route path="/tools/founder-update-generator" element={<FounderUpdateGenerator />} />
             <Route path="/about" element={<About />} />
             <Route path="/download" element={<DownloadPage />} />
