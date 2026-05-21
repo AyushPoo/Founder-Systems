@@ -17,9 +17,9 @@ function createResponse() {
 }
 
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.OPENAI_API_KEY;
+const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
 
-process.env.OPENAI_API_KEY = 'test-key';
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 globalThis.fetch = async () => ({
   ok: true,
   async json() {
@@ -57,7 +57,7 @@ assert.equal(res.statusCode, 200);
 assert.equal(JSON.parse(res.body).ok, true);
 
 globalThis.fetch = originalFetch;
-delete process.env.OPENAI_API_KEY;
+delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 
 const fallbackRes = createResponse();
 await handler(
@@ -81,9 +81,9 @@ assert.equal(fallbackPayload.ok, true);
 assert.equal(Array.isArray(fallbackPayload.recruiterNotes), true);
 
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 
 console.log('linkedin-candidate-screener API tests passed');

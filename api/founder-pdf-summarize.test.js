@@ -43,9 +43,9 @@ assert.equal(malformedRes.statusCode, 400);
 assert.match(parseJsonBody(malformedRes).error, /invalid json|malformed json|parse/i);
 
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.OPENAI_API_KEY;
+const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
 
-delete process.env.OPENAI_API_KEY;
+delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 const missingKeyReq = {
   method: 'POST',
   body: {
@@ -61,7 +61,7 @@ const missingKeyRes = createResponse();
 await handler(missingKeyReq, missingKeyRes);
 
 assert.equal(missingKeyRes.statusCode, 503);
-assert.match(parseJsonBody(missingKeyRes).error, /openai_api_key/i);
+assert.match(parseJsonBody(missingKeyRes).error, /aws_bearer_token_bedrock/i);
 
 const oversizedPayloadReq = {
   method: 'POST',
@@ -99,6 +99,9 @@ assert.match(parseJsonBody(invalidPayloadRes).error, /valid|supported|document/i
 
 const spreadsheetReq = {
   method: 'POST',
+  headers: {
+    'x-forwarded-for': 'single-summary-test',
+  },
   body: {
     filename: 'annual-report.xlsx',
     mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -111,6 +114,9 @@ const spreadsheetReq = {
 };
 const annualReportReq = {
   method: 'POST',
+  headers: {
+    'x-forwarded-for': 'single-summary-test',
+  },
   body: {
     filename: 'fy25-annual-report.pdf',
     mimeType: 'application/pdf',
@@ -122,7 +128,7 @@ const annualReportReq = {
 };
 let capturedRequests = [];
 
-process.env.OPENAI_API_KEY = 'test-key';
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 globalThis.fetch = async (url, options = {}) => {
   capturedRequests.push({
     url,
@@ -225,9 +231,9 @@ const annualReportRes = createResponse();
 await handler(annualReportReq, annualReportRes);
 
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 globalThis.fetch = originalFetch;
 
@@ -242,17 +248,14 @@ assert.equal(successPayload.extractionQuality.label, 'high');
 assert.deepEqual(successPayload.keyTakeaways, ['Revenue increased year over year', 'Operating margin compressed modestly']);
 assert.deepEqual(successPayload.focusAreas, ['Check whether cash flow from operations is trailing reported earnings.']);
 
-assert.equal(capturedRequests[0].url, 'https://api.openai.com/v1/responses');
+assert.match(capturedRequests[0].url, /bedrock-runtime\..+\/model\/.+\/converse$/i);
 assert.equal(capturedRequests[0].options.method, 'POST');
 
 const parsedBody = JSON.parse(capturedRequests[0].options.body);
-assert.equal(parsedBody.model, 'gpt-4o-mini');
-assert.equal(parsedBody.input[1].content[0].type, 'input_file');
-assert.equal(parsedBody.input[1].content[0].filename, 'annual-report.xlsx');
-assert.equal(
-  parsedBody.input[1].content[0].file_data,
-  'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,QUJDRA=='
-);
+assert.equal(parsedBody.inferenceConfig.maxTokens, 950);
+assert.equal(parsedBody.messages[0].content[0].text.includes('Analyze this founder document for decision-making.'), true);
+assert.equal(parsedBody.messages[0].content[1].document.format, 'xlsx');
+assert.equal(parsedBody.messages[0].content[1].document.source.bytes, 'QUJDRA==');
 
 assert.equal(annualReportRes.statusCode, 200);
 const annualReportPayload = parseJsonBody(annualReportRes);
@@ -268,7 +271,7 @@ assert.equal(capturedRequests.length, 3);
 
 let workspaceCapturedRequests = [];
 
-process.env.OPENAI_API_KEY = 'test-key';
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 globalThis.fetch = async (url, options = {}) => {
   workspaceCapturedRequests.push({
     url,
@@ -369,6 +372,9 @@ globalThis.fetch = async (url, options = {}) => {
 
 const workspaceReq = {
   method: 'POST',
+  headers: {
+    'x-forwarded-for': 'workspace-summary-test',
+  },
   body: {
     files: [
       {
@@ -392,9 +398,9 @@ const workspaceRes = createResponse();
 await handler(workspaceReq, workspaceRes);
 
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 globalThis.fetch = originalFetch;
 
@@ -411,7 +417,6 @@ assert.match(workspacePayload.nextActions[0], /reconcile/i);
 assert.equal(workspaceCapturedRequests.length, 3);
 
 const synthesisBody = JSON.parse(workspaceCapturedRequests[2].options.body);
-assert.equal(synthesisBody.input[1].content[0].type, 'input_text');
-assert.match(synthesisBody.input[1].content[0].text, /fileAnalyses/i);
+assert.equal(synthesisBody.messages[0].content[0].text.includes('fileAnalyses'), true);
 
 console.log('founder-pdf-summarize API tests passed');

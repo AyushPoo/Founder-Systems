@@ -43,9 +43,9 @@ assert.equal(malformedRes.statusCode, 400);
 assert.match(parseJsonBody(malformedRes).error, /invalid json|malformed json|parse/i);
 
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.OPENAI_API_KEY;
+const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
 
-delete process.env.OPENAI_API_KEY;
+delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 const missingKeyReq = {
   method: 'POST',
   body: {
@@ -62,7 +62,7 @@ const missingKeyRes = createResponse();
 await handler(missingKeyReq, missingKeyRes);
 
 assert.equal(missingKeyRes.statusCode, 503);
-assert.match(parseJsonBody(missingKeyRes).error, /openai_api_key/i);
+assert.match(parseJsonBody(missingKeyRes).error, /aws_bearer_token_bedrock/i);
 
 const oversizedPayloadReq = {
   method: 'POST',
@@ -84,7 +84,7 @@ assert.match(parseJsonBody(oversizedPayloadRes).error, /smaller than/i);
 
 let capturedRequest = null;
 
-process.env.OPENAI_API_KEY = 'test-key';
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 globalThis.fetch = async (url, options = {}) => {
   capturedRequest = {
     url,
@@ -138,9 +138,9 @@ const successRes = createResponse();
 await handler(successReq, successRes);
 
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 globalThis.fetch = originalFetch;
 
@@ -154,13 +154,13 @@ assert.equal(successPayload.title, 'Acme SAFE explainer');
 assert.equal(successPayload.clauseHighlights.length, 1);
 assert.match(successPayload.disclaimer, /not legal advice/i);
 
-assert.equal(capturedRequest.url, 'https://api.openai.com/v1/responses');
+assert.match(capturedRequest.url, /bedrock-runtime\..+\/model\/.+\/converse$/i);
 assert.equal(capturedRequest.options.method, 'POST');
 
 const parsedBody = JSON.parse(capturedRequest.options.body);
-assert.equal(parsedBody.model, 'gpt-4o-mini');
-assert.equal(parsedBody.input[1].content[0].type, 'input_file');
-assert.equal(parsedBody.input[1].content[0].filename, 'seed-safe.pdf');
-assert.equal(parsedBody.input[1].content[0].file_data, 'data:application/pdf;base64,JVBERi0xLjQK');
+assert.equal(parsedBody.inferenceConfig.maxTokens, 900);
+assert.equal(parsedBody.messages[0].content[0].text.includes('Explain this startup financing PDF for a founder.'), true);
+assert.equal(parsedBody.messages[0].content[1].document.format, 'pdf');
+assert.equal(parsedBody.messages[0].content[1].document.source.bytes, 'JVBERi0xLjQK');
 
 console.log('founder-safe-explainer API tests passed');

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
+import { getProductLaunchState, getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { getAgentAccountStatus } from '../utils/founderApi';
 import {
@@ -189,7 +189,8 @@ const ProductDetail = () => {
         };
     }, [authenticated, productLooksLikeOperator, wallet?.balance]);
 
-    const productAction = getProductPrimaryAction(product);
+    const launchState = getProductLaunchState(product, user?.email);
+    const productAction = getProductPrimaryAction(product, user?.email);
     const isOperatorPass = productLooksLikeOperator;
     const operatorProductState = isOperatorPass ? getAgentProductStatus(agentStatusPayload, id, { entitlements }) : null;
     const hasActiveOperatorPass = Boolean(operatorProductState?.has_active_pass);
@@ -616,7 +617,22 @@ const ProductDetail = () => {
                         )}
 
                         {/* Primary Action */}
-                        {productAction.kind === 'launch' ? (
+                        {productAction.kind === 'coming-soon' ? (
+                            <div className="bg-brand-orange/5 rounded-xl border-2 border-brand-black border-dashed p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] flex flex-col items-center text-center">
+                                <p className="text-xs font-black text-brand-orange uppercase tracking-widest mb-3">
+                                    Private preview
+                                </p>
+                                <h3 className="text-3xl font-black tracking-tight-brand mb-3">Coming Soon</h3>
+                                <p className="text-sm font-medium leading-relaxed text-brand-black/64 mb-6 max-w-md">
+                                    This product is visible in the Founder Systems catalog, but public access is still locked while the workflow and model stack are being finished.
+                                </p>
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-black/48">
+                                    {authenticated && launchState.isInternalTester
+                                        ? 'Sign back in with the internal tester account if access looks wrong.'
+                                        : 'Only the internal tester account can open this right now.'}
+                                </p>
+                            </div>
+                        ) : productAction.kind === 'launch' ? (
                             <div className="bg-white rounded-xl border-2 border-brand-black p-6 md:p-8 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] flex flex-col items-center text-center">
                                 <p className="text-xs font-black text-brand-orange uppercase tracking-widest mb-3">
                                     {product.footerSummaryTitle || 'Live access'}

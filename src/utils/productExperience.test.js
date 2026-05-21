@@ -4,17 +4,19 @@ import assert from 'node:assert/strict';
 import {
   buildCatalogCategories,
   getProductPrimaryAction,
+  getProductLaunchState,
   hasProductPricing,
+  isInternalTesterEmail,
 } from './productExperience.js';
 
-test('getProductPrimaryAction prefers launch URLs for app-style products', () => {
+test('getProductPrimaryAction preserves launch URLs for internally enabled app-style products', () => {
   assert.deepEqual(
     getProductPrimaryAction({
       id: 'founder-outreach-kit',
       launchUrl: '/tools/founder-outreach-kit',
       priceInr: undefined,
       priceUsd: undefined,
-    }),
+    }, 'ayushpoojary1@gmail.com'),
     {
       kind: 'launch',
       href: '/tools/founder-outreach-kit',
@@ -26,7 +28,7 @@ test('getProductPrimaryAction prefers launch URLs for app-style products', () =>
     getProductPrimaryAction({
       id: 'promptdeck-ai',
       launchUrl: 'https://promptdeck.foundersystems.in',
-    }),
+    }, 'ayushpoojary1@gmail.com'),
     {
       kind: 'launch',
       href: 'https://promptdeck.foundersystems.in',
@@ -44,6 +46,61 @@ test('getProductPrimaryAction falls back to checkout for priced products', () =>
     }),
     {
       kind: 'purchase',
+    }
+  );
+});
+
+test('getProductLaunchState keeps financial models public and gates internal apps', () => {
+  assert.deepEqual(
+    getProductLaunchState({ id: 'advanced-saas-model' }),
+    {
+      productId: 'advanced-saas-model',
+      isInternalTester: false,
+      isPubliclyAvailable: true,
+      isComingSoon: false,
+      canAccess: true,
+    }
+  );
+
+  assert.deepEqual(
+    getProductLaunchState({ id: 'founder-spec-generator' }),
+    {
+      productId: 'founder-spec-generator',
+      isInternalTester: false,
+      isPubliclyAvailable: false,
+      isComingSoon: true,
+      canAccess: false,
+    }
+  );
+});
+
+test('internal tester email bypasses launch gate for non-financial tools', () => {
+  assert.equal(isInternalTesterEmail('ayushpoojary1@gmail.com'), true);
+  assert.equal(isInternalTesterEmail('AYUSHPOOJARY1@GMAIL.COM'), true);
+  assert.equal(isInternalTesterEmail('someone@example.com'), false);
+
+  assert.deepEqual(
+    getProductPrimaryAction(
+      {
+        id: 'founder-outreach-kit',
+        launchUrl: '/tools/founder-outreach-kit',
+      },
+      'ayushpoojary1@gmail.com'
+    ),
+    {
+      kind: 'launch',
+      href: '/tools/founder-outreach-kit',
+      isExternal: false,
+    }
+  );
+
+  assert.deepEqual(
+    getProductPrimaryAction({
+      id: 'founder-outreach-kit',
+      launchUrl: '/tools/founder-outreach-kit',
+    }),
+    {
+      kind: 'coming-soon',
     }
   );
 });

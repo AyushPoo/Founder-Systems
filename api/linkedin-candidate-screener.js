@@ -4,6 +4,10 @@ import {
   normalizeLinkedinCandidateRequest,
   normalizeLinkedinCandidateResponse,
 } from '../shared/linkedinCandidateScreener.js';
+import {
+  applyRateLimitHeaders,
+  invokeFounderJsonModel,
+} from './_lib/founderAiRuntime.js';
 
 function writeJson(res, statusCode, payload) {
   res.statusCode = statusCode;
@@ -99,7 +103,11 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (
+    !process.env.AWS_BEARER_TOKEN_BEDROCK &&
+    !process.env.BEDROCK_API_KEY &&
+    !process.env.FOUNDER_SYSTEMS_BEDROCK_API_KEY
+  ) {
     writeJson(res, 200, {
       ok: true,
       ...buildFallbackResponse(request),
@@ -107,56 +115,33 @@ export default async function handler(req, res) {
     return;
   }
 
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-5-mini',
-      input: [
-        {
-          role: 'system',
-          content: [
-            {
-              type: 'input_text',
-              text:
-                'You are a recruiter screening assistant. Return only JSON with verdict, confidence, candidateSummary, fitSignals, gapsOrRisks, interviewChecks, recruiterNotes, and inputsUsed.',
-            },
-          ],
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_text',
-              text: JSON.stringify(request),
-            },
-          ],
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    writeJson(res, 502, {
-      error: 'LinkedIn candidate screener generation failed.',
+  try {
+    const modelResult = await invokeFounderJsonModel({
+      req,
+      productKey: 'linkedin-candidate-screener',
+      systemPrompt:
+        'You are a recruiter screening assistant. Return only JSON with verdict, confidence, candidateSummary, fitSignals, gapsOrRisks, interviewChecks, recruiterNotes, and inputsUsed.',
+      userPrompt: JSON.stringify(request),
+      maxOutputTokens: 500,
+      modelTier: 'cheap',
     });
-    return;
+
+    const parsed = normalizeLinkedinCandidateResponse(modelResult.parsed);
+
+    if (!parsed.ok) {
+      writeJson(res, 502, { error: parsed.error });
+      return;
+    }
+
+    applyRateLimitHeaders(res, modelResult.rateLimit);
+    writeJson(res, 200, {
+      ok: true,
+      ...parsed,
+    });
+  } catch (error) {
+    applyRateLimitHeaders(res, error?.rateLimit);
+    writeJson(res, Number.isInteger(error?.statusCode) ? error.statusCode : 502, {
+      error: cleanText(error?.message) || 'LinkedIn candidate screener generation failed.',
+    });
   }
-
-  const payload = await response.json();
-  const outputText = extractOutputText(payload);
-  const parsed = normalizeLinkedinCandidateResponse(JSON.parse(outputText || '{}'));
-
-  if (!parsed.ok) {
-    writeJson(res, 502, { error: parsed.error });
-    return;
-  }
-
-  writeJson(res, 200, {
-    ok: true,
-    ...parsed,
-  });
 }

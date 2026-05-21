@@ -3,7 +3,8 @@ import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
-import { buildCatalogCategories } from '../utils/productExperience';
+import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
+import { buildCatalogCategories, getProductLaunchState } from '../utils/productExperience';
 
 const COMING_SOON_PRODUCTS = [
     { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
@@ -15,6 +16,7 @@ const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { user } = useFounderWorkspace();
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -31,6 +33,10 @@ const Products = () => {
     const filteredProducts = products.filter(product =>
         activeTab === 'All' || product.category === activeTab
     );
+    const visibleProducts = filteredProducts.map((product) => ({
+        ...product,
+        isComingSoon: getProductLaunchState(product, user?.email).isComingSoon,
+    }));
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
@@ -64,9 +70,9 @@ const Products = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[1,2,3].map(i => (<div key={i} className="rounded-xl border-2 border-brand-black bg-white p-6 h-48 animate-pulse shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]" />))}
                         </div>
-                    ) : filteredProducts.length > 0 ? (
+                    ) : visibleProducts.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredProducts.map(product => (
+                            {visibleProducts.map(product => (
                                 <ProductCard 
                                     key={product.id} 
                                     id={product.id} 

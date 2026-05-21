@@ -22,6 +22,7 @@ import AuthVerify from './pages/AuthVerify';
 import TelegramConnect from './pages/TelegramConnect';
 import NotFound from './pages/NotFound';
 import { FounderWorkspaceProvider } from './context/FounderWorkspaceContext';
+import InternalProductRoute from './components/InternalProductRoute';
 
 function App() {
   return (
@@ -34,12 +35,54 @@ function App() {
             <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/guides" element={<Guides />} />
             <Route path="/guides/:id" element={<GuideDetail />} />
-            <Route path="/tools/founder-spec-generator" element={<FounderSpecGenerator />} />
-            <Route path="/tools/founder-outreach-kit" element={<FounderOutreachKit />} />
-            <Route path="/tools/founder-pdf-summarizer" element={<FounderPdfSummarizer />} />
-            <Route path="/tools/founder-update-generator" element={<FounderUpdateGenerator />} />
-            <Route path="/tools/linkedin-candidate-screener" element={<LinkedInCandidateScreener />} />
-            <Route path="/tools/founder-command-center" element={<FounderCommandCenter />} />
+            <Route
+              path="/tools/founder-spec-generator"
+              element={(
+                <InternalProductRoute productId="founder-spec-generator">
+                  <FounderSpecGenerator />
+                </InternalProductRoute>
+              )}
+            />
+            <Route
+              path="/tools/founder-outreach-kit"
+              element={(
+                <InternalProductRoute productId="founder-outreach-kit">
+                  <FounderOutreachKit />
+                </InternalProductRoute>
+              )}
+            />
+            <Route
+              path="/tools/founder-pdf-summarizer"
+              element={(
+                <InternalProductRoute productId="founder-pdf-summarizer">
+                  <FounderPdfSummarizer />
+                </InternalProductRoute>
+              )}
+            />
+            <Route
+              path="/tools/founder-update-generator"
+              element={(
+                <InternalProductRoute productId="founder-update-generator">
+                  <FounderUpdateGenerator />
+                </InternalProductRoute>
+              )}
+            />
+            <Route
+              path="/tools/linkedin-candidate-screener"
+              element={(
+                <InternalProductRoute productId="linkedin-candidate-screener">
+                  <LinkedInCandidateScreener />
+                </InternalProductRoute>
+              )}
+            />
+            <Route
+              path="/tools/founder-command-center"
+              element={(
+                <InternalProductRoute productId="founder-command-center">
+                  <FounderCommandCenter />
+                </InternalProductRoute>
+              )}
+            />
             <Route path="/about" element={<About />} />
             <Route path="/download" element={<DownloadPage />} />
             <Route path="/terms" element={<Terms />} />

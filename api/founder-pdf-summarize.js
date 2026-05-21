@@ -18,6 +18,10 @@ import {
 } from '../src/utils/founderDocumentIntelligence.js';
 import { normalizeFounderSafeExplainerRequest } from '../src/utils/founderSafeExplainer.js';
 import { explainFounderSafeDocument } from './founder-safe-explainer.js';
+import {
+  applyRateLimitHeaders,
+  invokeFounderJsonModel,
+} from './_lib/founderAiRuntime.js';
 
 const SYSTEM_PROMPT = [
   'You are a founder-specific document analyst.',
@@ -249,68 +253,38 @@ function mergeDetailedBreakdown(basePayload, detailPayload) {
   };
 }
 
-async function requestJsonModel(inputItems) {
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    throw createHttpError(503, 'OPENAI_API_KEY is not configured.');
-  }
-
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      input: inputItems,
-      text: {
-        format: {
-          type: 'json_object',
-        },
-      },
-    }),
+async function requestJsonModel(req, { productKey, userPrompt, files = [], modelTier, maxOutputTokens }) {
+  const result = await invokeFounderJsonModel({
+    req,
+    productKey,
+    systemPrompt: SYSTEM_PROMPT,
+    userPrompt,
+    files,
+    modelTier,
+    maxOutputTokens,
   });
 
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message =
-      cleanText(payload?.error?.message) ||
-      cleanText(extractResponseText(payload)) ||
-      `OpenAI request failed with status ${response.status}.`;
-    throw createHttpError(502, message);
-  }
-
-  return parseModelJson(extractResponseText(payload));
+  return result;
 }
 
-async function summarizeWithModel(input) {
-  return requestJsonModel([
-    {
-      role: 'system',
-      content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
-    },
-    {
-      role: 'user',
-      content: [
-        {
-          type: 'input_file',
-          filename: input.filename,
-          file_data: input.fileData,
-        },
-        {
-          type: 'input_text',
-          text: buildUserPrompt(input),
-        },
-      ],
-    },
-  ]);
+async function summarizeWithModel(req, input) {
+  const modelTier =
+    input.mode === 'annual-report' || input.mode === 'financial-statement' ? 'quality' : 'cheap';
+
+  return requestJsonModel(req, {
+    productKey:
+      modelTier === 'quality'
+        ? 'founder-document-intelligence-quality'
+        : 'founder-document-intelligence',
+    userPrompt: buildUserPrompt(input),
+    files: [input],
+    modelTier,
+    maxOutputTokens: modelTier === 'quality' ? 950 : 700,
+  });
 }
 
-async function summarizeLongDocumentWithModel(input) {
-  const baseSummary = await summarizeWithModel(input);
+async function summarizeLongDocumentWithModel(req, input) {
+  const baseSummaryResult = await summarizeWithModel(req, input);
   const detailPromptInput = {
     ...input,
     focus: [
@@ -321,9 +295,12 @@ async function summarizeLongDocumentWithModel(input) {
       .join(' '),
   };
 
-  const detailResponse = await summarizeWithModel(detailPromptInput);
+  const detailResponseResult = await summarizeWithModel(req, detailPromptInput);
 
-  return mergeDetailedBreakdown(baseSummary, detailResponse);
+  return {
+    parsed: mergeDetailedBreakdown(baseSummaryResult.parsed, detailResponseResult.parsed),
+    rateLimit: detailResponseResult.rateLimit,
+  };
 }
 
 function buildWorkspaceSynthesisPrompt({ focus = '', fileAnalyses = [], invalidFiles = [] } = {}) {
@@ -344,29 +321,20 @@ function buildWorkspaceSynthesisPrompt({ focus = '', fileAnalyses = [], invalidF
   ].join('\n');
 }
 
-async function summarizeWorkspaceWithModel({ focus = '', fileAnalyses = [], invalidFiles = [] } = {}) {
-  return requestJsonModel([
-    {
-      role: 'system',
-      content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
-    },
-    {
-      role: 'user',
-      content: [
-        {
-          type: 'input_text',
-          text: buildWorkspaceSynthesisPrompt({
-            focus,
-            fileAnalyses,
-            invalidFiles,
-          }),
-        },
-      ],
-    },
-  ]);
+async function summarizeWorkspaceWithModel(req, { focus = '', fileAnalyses = [], invalidFiles = [] } = {}) {
+  return requestJsonModel(req, {
+    productKey: 'founder-document-intelligence-quality',
+    userPrompt: buildWorkspaceSynthesisPrompt({
+      focus,
+      fileAnalyses,
+      invalidFiles,
+    }),
+    modelTier: 'quality',
+    maxOutputTokens: 1100,
+  });
 }
 
-async function analyzeWorkspaceFile(file, focus) {
+async function analyzeWorkspaceFile(req, file, focus) {
   let detectedType = classifyFounderDocumentType({
     filename: file.filename,
     mimeType: file.mimeType,
@@ -386,13 +354,18 @@ async function analyzeWorkspaceFile(file, focus) {
       roundContext: file.roundContext,
       focus: focus || file.focus,
     });
-    const financingOutput = await explainFounderSafeDocument(financingInput);
+    const financingOutput = await explainFounderSafeDocument(financingInput, req);
+    const financingRateLimit = financingOutput.__rateLimit;
+    delete financingOutput.__rateLimit;
 
-    return createWorkspaceFileAnalysisFromFinancing({
-      file,
-      detectedType,
-      analysis: financingOutput,
-    });
+    return {
+      analysis: createWorkspaceFileAnalysisFromFinancing({
+        file,
+        detectedType,
+        analysis: financingOutput,
+      }),
+      rateLimit: financingRateLimit,
+    };
   }
 
   const summaryMode = mapDocumentTypeToSummaryMode(detectedType);
@@ -407,27 +380,30 @@ async function analyzeWorkspaceFile(file, focus) {
 
   const rawOutput =
     summaryMode === 'annual-report'
-      ? await summarizeLongDocumentWithModel(summaryInput)
-      : await summarizeWithModel(summaryInput);
+      ? await summarizeLongDocumentWithModel(req, summaryInput)
+      : await summarizeWithModel(req, summaryInput);
 
   const normalizedOutput = normalizeFounderPdfSummaryResponse({
-    ...rawOutput,
-    mode: rawOutput?.mode || summaryInput.mode,
-    title: rawOutput?.title || summaryInput.filename,
+    ...rawOutput.parsed,
+    mode: rawOutput.parsed?.mode || summaryInput.mode,
+    title: rawOutput.parsed?.title || summaryInput.filename,
   });
 
   if (!normalizedOutput.ok) {
     throw createHttpError(502, normalizedOutput.error);
   }
 
-  return createWorkspaceFileAnalysisFromSummary({
+  return {
+    analysis: createWorkspaceFileAnalysisFromSummary({
     file,
     detectedType,
     summary: normalizedOutput,
-  });
+    }),
+    rateLimit: rawOutput.rateLimit,
+  };
 }
 
-async function analyzeWorkspaceRequest(requestBody) {
+async function analyzeWorkspaceRequest(req, requestBody) {
   const validation = validateFounderDocumentWorkspaceRequest(requestBody || {});
   const { normalized, validFiles, invalidFiles } = validation;
 
@@ -439,28 +415,31 @@ async function analyzeWorkspaceRequest(requestBody) {
   }
 
   const fileAnalyses = [];
+  let latestRateLimit = null;
 
   for (const file of validFiles) {
-    fileAnalyses.push(await analyzeWorkspaceFile(file, normalized.focus));
+    const result = await analyzeWorkspaceFile(req, file, normalized.focus);
+    fileAnalyses.push(result.analysis);
+    latestRateLimit = result.rateLimit || latestRateLimit;
   }
 
-  const workspaceRawOutput = await summarizeWorkspaceWithModel({
+  const workspaceRawOutput = await summarizeWorkspaceWithModel(req, {
     focus: normalized.focus,
     fileAnalyses,
     invalidFiles,
   });
 
   const normalizedOutput = normalizeFounderDocumentWorkspaceResponse({
-    ...workspaceRawOutput,
-    workspaceTitle: workspaceRawOutput?.workspaceTitle || 'Founder document workspace',
+    ...workspaceRawOutput.parsed,
+    workspaceTitle: workspaceRawOutput.parsed?.workspaceTitle || 'Founder document workspace',
     filesAnalyzed:
-      Array.isArray(workspaceRawOutput?.filesAnalyzed) && workspaceRawOutput.filesAnalyzed.length > 0
-        ? workspaceRawOutput.filesAnalyzed
+      Array.isArray(workspaceRawOutput.parsed?.filesAnalyzed) && workspaceRawOutput.parsed.filesAnalyzed.length > 0
+        ? workspaceRawOutput.parsed.filesAnalyzed
         : validFiles.map((file) => file.filename),
     fileAnalyses,
     extractionNotes: [
-      ...(Array.isArray(workspaceRawOutput?.extractionNotes)
-        ? workspaceRawOutput.extractionNotes
+      ...(Array.isArray(workspaceRawOutput.parsed?.extractionNotes)
+        ? workspaceRawOutput.parsed.extractionNotes
         : []),
       ...invalidFiles.map((file) => `${file.filename || 'Unsupported file'}: ${file.error}`),
     ],
@@ -470,7 +449,10 @@ async function analyzeWorkspaceRequest(requestBody) {
     throw createHttpError(502, normalizedOutput.error);
   }
 
-  return normalizedOutput;
+  return {
+    ...normalizedOutput,
+    __rateLimit: workspaceRawOutput.rateLimit || latestRateLimit,
+  };
 }
 
 export default async function handler(req, res) {
@@ -482,7 +464,9 @@ export default async function handler(req, res) {
   try {
     const requestBody = await readJsonBody(req);
     if (Array.isArray(requestBody?.files)) {
-      const workspaceOutput = await analyzeWorkspaceRequest(requestBody);
+      const workspaceOutput = await analyzeWorkspaceRequest(req, requestBody);
+      applyRateLimitHeaders(res, workspaceOutput.__rateLimit);
+      delete workspaceOutput.__rateLimit;
       return json(res, 200, workspaceOutput);
     }
 
@@ -498,18 +482,19 @@ export default async function handler(req, res) {
 
     const rawOutput =
       normalized.mode === 'annual-report'
-        ? await summarizeLongDocumentWithModel(normalized)
-        : await summarizeWithModel(normalized);
+        ? await summarizeLongDocumentWithModel(req, normalized)
+        : await summarizeWithModel(req, normalized);
     const normalizedOutput = normalizeFounderPdfSummaryResponse({
-      ...rawOutput,
-      mode: rawOutput?.mode || normalized.mode,
-      title: rawOutput?.title || normalized.filename,
+      ...rawOutput.parsed,
+      mode: rawOutput.parsed?.mode || normalized.mode,
+      title: rawOutput.parsed?.title || normalized.filename,
     });
 
     if (!normalizedOutput.ok) {
       return json(res, 502, normalizedOutput);
     }
 
+    applyRateLimitHeaders(res, rawOutput.rateLimit);
     return json(res, 200, normalizedOutput);
   } catch (error) {
     if (error?.statusCode === 400 || isJsonParseError(error)) {
@@ -520,6 +505,7 @@ export default async function handler(req, res) {
     }
 
     const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+    applyRateLimitHeaders(res, error?.rateLimit);
     const message = cleanText(error?.message) || 'Founder PDF summarization failed.';
 
     return json(res, statusCode, {

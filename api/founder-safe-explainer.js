@@ -5,6 +5,11 @@ import {
   normalizeFounderSafeExplainerResponse,
   validateFounderSafeExplainerRequest,
 } from '../src/utils/founderSafeExplainer.js';
+import {
+  applyRateLimitHeaders,
+  createHttpError,
+  invokeFounderJsonModel,
+} from './_lib/founderAiRuntime.js';
 
 const SYSTEM_PROMPT = [
   'You are a founder-focused financing document explainer.',
@@ -46,12 +51,6 @@ function json(res, status, body) {
 
 function cleanText(value) {
   return String(value ?? '').trim();
-}
-
-function createHttpError(statusCode, message) {
-  const error = new Error(message);
-  error.statusCode = statusCode;
-  return error;
 }
 
 function isJsonParseError(error) {
@@ -180,88 +179,21 @@ function extractResponseText(payload) {
   return textParts.join('\n').trim();
 }
 
-function parseModelJson(text) {
-  const raw = cleanText(text);
-  if (!raw) {
-    throw new Error('OpenAI response did not include JSON text.');
-  }
-
-  try {
-    return JSON.parse(raw);
-  } catch {
-    const fencedMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
-    if (fencedMatch?.[1]) {
-      return JSON.parse(fencedMatch[1].trim());
-    }
-
-    const start = raw.indexOf('{');
-    const end = raw.lastIndexOf('}');
-    if (start >= 0 && end > start) {
-      return JSON.parse(raw.slice(start, end + 1));
-    }
-
-    throw new Error('OpenAI response was not valid JSON.');
-  }
-}
-
-async function explainWithModel(input) {
-  const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    throw createHttpError(503, 'OPENAI_API_KEY is not configured.');
-  }
-
-  const response = await fetch('https://api.openai.com/v1/responses', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      input: [
-        {
-          role: 'system',
-          content: [{ type: 'input_text', text: SYSTEM_PROMPT }],
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'input_file',
-              filename: input.filename,
-              file_data: input.fileData,
-            },
-            {
-              type: 'input_text',
-              text: buildUserPrompt(input),
-            },
-          ],
-        },
-      ],
-      text: {
-        format: {
-          type: 'json_object',
-        },
-      },
-    }),
+async function explainWithModel(req, input) {
+  return invokeFounderJsonModel({
+    req,
+    productKey: 'founder-safe-explainer',
+    systemPrompt: SYSTEM_PROMPT,
+    userPrompt: buildUserPrompt(input),
+    files: [input],
+    maxOutputTokens: 900,
+    modelTier: 'quality',
   });
-
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message =
-      cleanText(payload?.error?.message) ||
-      cleanText(extractResponseText(payload)) ||
-      `OpenAI request failed with status ${response.status}.`;
-    throw createHttpError(502, message);
-  }
-
-  return parseModelJson(extractResponseText(payload));
 }
 
-export async function explainFounderSafeDocument(input) {
-  const rawOutput = await explainWithModel(input);
+export async function explainFounderSafeDocument(input, req) {
+  const modelResult = await explainWithModel(req, input);
+  const rawOutput = modelResult.parsed;
   const normalizedOutput = normalizeFounderSafeExplainerResponse({
     ...rawOutput,
     mode: rawOutput?.mode || input.mode,
@@ -273,7 +205,10 @@ export async function explainFounderSafeDocument(input) {
     throw createHttpError(502, normalizedOutput.error);
   }
 
-  return normalizedOutput;
+  return {
+    ...normalizedOutput,
+    __rateLimit: modelResult.rateLimit,
+  };
 }
 
 export default async function handler(req, res) {
@@ -296,8 +231,9 @@ export default async function handler(req, res) {
       });
     }
 
-    const normalizedOutput = await explainFounderSafeDocument(normalized);
-
+    const normalizedOutput = await explainFounderSafeDocument(normalized, req);
+    applyRateLimitHeaders(res, normalizedOutput.__rateLimit);
+    delete normalizedOutput.__rateLimit;
     return json(res, 200, normalizedOutput);
   } catch (error) {
     if (error?.statusCode === 400 || isJsonParseError(error)) {
@@ -308,6 +244,7 @@ export default async function handler(req, res) {
     }
 
     const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
+    applyRateLimitHeaders(res, error?.rateLimit);
     const message = cleanText(error?.message) || 'SAFE / term sheet explainer failed.';
 
     return json(res, statusCode, {

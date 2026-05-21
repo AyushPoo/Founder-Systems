@@ -42,8 +42,8 @@ const req = {
 };
 
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.OPENAI_API_KEY;
-process.env.OPENAI_API_KEY = 'test-key';
+const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 
 globalThis.fetch = async () => ({
   ok: true,
@@ -73,9 +73,9 @@ await handler(req, res);
 
 globalThis.fetch = originalFetch;
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 
 assert.equal(res.statusCode, 200);

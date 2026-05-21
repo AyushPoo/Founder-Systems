@@ -42,35 +42,10 @@ assert.equal(malformedRes.statusCode, 400);
 assert.match(parseJsonBody(malformedRes).error, /invalid json|malformed json|parse/i);
 
 const originalFetch = globalThis.fetch;
-const originalApiKey = process.env.OPENAI_API_KEY;
-const originalBaseUrl = process.env.OPENAI_BASE_URL;
-const originalModel = process.env.OPENAI_MODEL;
-const originalOutreachApiKey = process.env.FOUNDER_OUTREACH_OPENAI_API_KEY;
-const originalOutreachBaseUrl = process.env.FOUNDER_OUTREACH_OPENAI_BASE_URL;
-const originalOutreachModel = process.env.FOUNDER_OUTREACH_OPENAI_MODEL;
-const originalOutreachMaxOutputTokens = process.env.FOUNDER_OUTREACH_MAX_OUTPUT_TOKENS;
-const originalOutreachTimeoutMs = process.env.FOUNDER_OUTREACH_TIMEOUT_MS;
-const originalOutreachTemperature = process.env.FOUNDER_OUTREACH_TEMPERATURE;
-const originalFounderSystemsInternalKey = process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY;
-const originalFounderSystemsApiUrl = process.env.FOUNDER_SYSTEMS_API_URL;
+const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
 
-process.env.FOUNDER_OUTREACH_OPENAI_API_KEY = 'test-key';
-process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY = 'guard-key';
-process.env.FOUNDER_SYSTEMS_API_URL = 'https://api.founder.test';
-globalThis.fetch = async (url, options = {}) => {
-  if (String(url).includes('api.founder.test')) {
-    return {
-      ok: true,
-      status: 200,
-      async json() {
-        return {
-          ok: true,
-          state: String(url).endsWith('/release') ? 'released' : 'reserved',
-          reference_id: JSON.parse(options.body || '{}').reference_id,
-        };
-      },
-    };
-  }
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
+globalThis.fetch = async () => {
   throw new Error('socket hang up');
 };
 
@@ -95,10 +70,7 @@ assert.equal(fallbackRes.statusCode, 200);
 const fallbackPayload = parseJsonBody(fallbackRes);
 assert.equal(fallbackPayload.ok, true);
 assert.equal(fallbackPayload.emails.length >= 4, true);
-assert.equal(
-  fallbackPayload.diagnosticNotes.some((note) => /fallback/i.test(note) && /socket hang up/i.test(note)),
-  true
-);
+assert.equal(fallbackPayload.diagnosticNotes.some((note) => /socket hang up/i.test(note)), true);
 
 const fetchCalls = [];
 globalThis.fetch = async (url, options = {}) => {
@@ -108,81 +80,49 @@ globalThis.fetch = async (url, options = {}) => {
     body: options.body,
   });
 
-  if (String(url).includes('api.founder.test')) {
-    return {
-      ok: true,
-      status: 200,
-      async json() {
-        const body = JSON.parse(options.body || '{}');
-        return {
-          ok: true,
-          state: String(url).endsWith('/finalize') ? 'finalized' : 'reserved',
-          reference_id: body.reference_id,
-        };
-      },
-    };
-  }
-
-  if (String(url).endsWith('/responses')) {
-    return {
-      ok: false,
-      status: 400,
-      async json() {
-        return {
-          error: {
-            message: "The model 'google.gemma-3-4b-it' does not support the '/v1/responses' API",
-          },
-        };
-      },
-    };
-  }
-
   return {
     ok: true,
     status: 200,
     async json() {
       return {
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({
-                diagnosticNotes: ['live model'],
-                fixBeforeSending: ['Tighten proof'],
-                positioningAngles: [
-                  {
-                    name: 'Pain-led',
-                    target: 'Solo SaaS founders',
-                    angle: 'Stop writing blank-page cold emails',
-                    whyItWorks: 'Speaks to immediate pain',
-                    openingStyle: 'Pattern interrupt',
-                  },
-                ],
-                emails: [
-                  {
-                    step: 1,
-                    title: 'Cold intro',
-                    subject: 'Quick idea for founder outbound',
-                    body: 'Short email body',
-                    delayDays: 0,
-                  },
-                ],
-                subjectLines: ['Quick idea for founder outbound'],
-                linkedinMessages: [{ step: 'connection_request', body: 'Open to connect?' }],
-                objectionReplies: [{ objection: 'Not interested', reply: 'Understood.' }],
-                csvRows: [],
-              }),
-            },
+        output: {
+          message: {
+            content: [
+              {
+                text: JSON.stringify({
+                  diagnosticNotes: ['live model'],
+                  fixBeforeSending: ['Tighten proof'],
+                  positioningAngles: [
+                    {
+                      name: 'Pain-led',
+                      target: 'Solo SaaS founders',
+                      angle: 'Stop writing blank-page cold emails',
+                      whyItWorks: 'Speaks to immediate pain',
+                      openingStyle: 'Pattern interrupt',
+                    },
+                  ],
+                  emails: [
+                    {
+                      step: 1,
+                      title: 'Cold intro',
+                      subject: 'Quick idea for founder outbound',
+                      body: 'Short email body',
+                      delayDays: 0,
+                    },
+                  ],
+                  subjectLines: ['Quick idea for founder outbound'],
+                  linkedinMessages: [{ step: 'connection_request', body: 'Open to connect?' }],
+                  objectionReplies: [{ objection: 'Not interested', reply: 'Understood.' }],
+                  csvRows: [],
+                }),
+              },
+            ],
           },
-        ],
+        },
       };
     },
   };
 };
-process.env.FOUNDER_OUTREACH_OPENAI_BASE_URL = 'https://litellm.example.com/v1';
-process.env.FOUNDER_OUTREACH_OPENAI_MODEL = 'cheap';
-process.env.FOUNDER_OUTREACH_MAX_OUTPUT_TOKENS = '900';
-process.env.FOUNDER_OUTREACH_TIMEOUT_MS = '18000';
-process.env.FOUNDER_OUTREACH_TEMPERATURE = '0.1';
 
 const liveReq = {
   method: 'POST',
@@ -202,23 +142,11 @@ const liveRes = createResponse();
 await handler(liveReq, liveRes);
 
 assert.equal(liveRes.statusCode, 200);
-assert.equal(fetchCalls[0].url, 'https://api.founder.test/v1/internal/runtime/actions/reserve');
-assert.equal(fetchCalls[0].headers['X-API-Key'], 'guard-key');
-assert.equal(JSON.parse(fetchCalls[0].body).action, 'outreach_generate');
-assert.equal(JSON.parse(fetchCalls[0].body).model_id, 'cheap');
-const modelCalls = fetchCalls.filter((call) => String(call.url).includes('litellm.example.com'));
-assert.equal(modelCalls.length, 2);
-assert.equal(modelCalls[0].url, 'https://litellm.example.com/v1/responses');
-assert.equal(modelCalls[0].headers.Authorization, 'Bearer test-key');
-assert.equal(JSON.parse(modelCalls[0].body).model, 'cheap');
-assert.equal(JSON.parse(modelCalls[0].body).max_output_tokens, 900);
-assert.equal(JSON.parse(modelCalls[0].body).temperature, 0.1);
-assert.equal(JSON.parse(modelCalls[0].body).store, false);
-assert.equal(modelCalls[1].url, 'https://litellm.example.com/v1/chat/completions');
-assert.equal(JSON.parse(modelCalls[1].body).model, 'cheap');
-assert.equal(JSON.parse(modelCalls[1].body).max_tokens, 900);
-assert.equal(JSON.parse(modelCalls[1].body).temperature, 0.1);
-assert.equal(fetchCalls.at(-1).url, 'https://api.founder.test/v1/internal/runtime/actions/finalize');
+assert.equal(fetchCalls.length, 1);
+assert.match(fetchCalls[0].url, /bedrock-runtime\..+\/model\/.+\/converse$/i);
+assert.equal(fetchCalls[0].headers.Authorization, 'Bearer test-key');
+assert.equal(JSON.parse(fetchCalls[0].body).inferenceConfig.maxTokens, 950);
+assert.equal(JSON.parse(fetchCalls[0].body).inferenceConfig.temperature, 0.1);
 const livePayload = parseJsonBody(liveRes);
 assert.equal(livePayload.ok, true);
 assert.equal(livePayload.icpSnapshot.customer.length > 0, true);
@@ -228,59 +156,9 @@ assert.equal(
 );
 
 if (typeof originalApiKey === 'undefined') {
-  delete process.env.OPENAI_API_KEY;
+  delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
-  process.env.OPENAI_API_KEY = originalApiKey;
-}
-if (typeof originalBaseUrl === 'undefined') {
-  delete process.env.OPENAI_BASE_URL;
-} else {
-  process.env.OPENAI_BASE_URL = originalBaseUrl;
-}
-if (typeof originalModel === 'undefined') {
-  delete process.env.OPENAI_MODEL;
-} else {
-  process.env.OPENAI_MODEL = originalModel;
-}
-if (typeof originalOutreachApiKey === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_OPENAI_API_KEY;
-} else {
-  process.env.FOUNDER_OUTREACH_OPENAI_API_KEY = originalOutreachApiKey;
-}
-if (typeof originalOutreachBaseUrl === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_OPENAI_BASE_URL;
-} else {
-  process.env.FOUNDER_OUTREACH_OPENAI_BASE_URL = originalOutreachBaseUrl;
-}
-if (typeof originalOutreachModel === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_OPENAI_MODEL;
-} else {
-  process.env.FOUNDER_OUTREACH_OPENAI_MODEL = originalOutreachModel;
-}
-if (typeof originalOutreachMaxOutputTokens === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_MAX_OUTPUT_TOKENS;
-} else {
-  process.env.FOUNDER_OUTREACH_MAX_OUTPUT_TOKENS = originalOutreachMaxOutputTokens;
-}
-if (typeof originalOutreachTimeoutMs === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_TIMEOUT_MS;
-} else {
-  process.env.FOUNDER_OUTREACH_TIMEOUT_MS = originalOutreachTimeoutMs;
-}
-if (typeof originalOutreachTemperature === 'undefined') {
-  delete process.env.FOUNDER_OUTREACH_TEMPERATURE;
-} else {
-  process.env.FOUNDER_OUTREACH_TEMPERATURE = originalOutreachTemperature;
-}
-if (typeof originalFounderSystemsInternalKey === 'undefined') {
-  delete process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY;
-} else {
-  process.env.FOUNDER_SYSTEMS_INTERNAL_API_KEY = originalFounderSystemsInternalKey;
-}
-if (typeof originalFounderSystemsApiUrl === 'undefined') {
-  delete process.env.FOUNDER_SYSTEMS_API_URL;
-} else {
-  process.env.FOUNDER_SYSTEMS_API_URL = originalFounderSystemsApiUrl;
+  process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
 }
 globalThis.fetch = originalFetch;
 
