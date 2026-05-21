@@ -36,6 +36,7 @@ assert.equal(messyIdeaSession.stage, 'exploring');
 assert.equal(messyIdeaSession.activePanel, 'map');
 assert.equal(messyLastMessage.role, 'assistant');
 assert.match(messyLastMessage.content, /rough version|fuzzy/i);
+assert.equal(Array.isArray(COPILOT_MODES[0].capabilities), true);
 
 const withFounderReply = appendFounderCopilotMessage(
   messyIdeaSession,
@@ -63,6 +64,27 @@ assert.equal(request.session.mode, 'messy_idea');
 assert.equal(request.session.activePanel, 'founder_fit');
 assert.equal(request.session.confidence, 'medium');
 assert.equal(request.session.messages.length >= 2, true);
+assert.equal(request.strategyLenses.includes('plan_review'), true);
+assert.equal(request.strategyLenses.includes('strategy_audit'), true);
+assert.match(request.expectedOutput, /plan reviewer|plan review/i);
+
+const noIdeaRequest = buildFounderCopilotRequest({
+  session: selectFounderCopilotMode(initialSession, 'no_idea'),
+  message: 'I want to explore a founder direction.',
+});
+
+assert.equal(noIdeaRequest.strategyLenses.includes('market_brief'), true);
+assert.equal(noIdeaRequest.strategyLenses.includes('idea_validation'), true);
+assert.match(noIdeaRequest.expectedOutput, /market brief/i);
+
+const knownIdeaRequest = buildFounderCopilotRequest({
+  session: selectFounderCopilotMode(initialSession, 'known_idea'),
+  message: 'Build the one-page plan for this.',
+});
+
+assert.equal(knownIdeaRequest.strategyLenses.includes('plan_builder'), true);
+assert.equal(knownIdeaRequest.strategyLenses.includes('business_plan'), true);
+assert.match(knownIdeaRequest.expectedOutput, /one-page plan/i);
 
 assert.equal(
   shouldAllowRecommendation({

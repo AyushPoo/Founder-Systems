@@ -473,7 +473,7 @@ const FounderSpecGenerator = () => {
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
       <SEO
         title="Founder Strategy Copilot"
-        description="A guided founder copilot that helps you discover, sharpen, and scope businesses with recommendation-first output backed by evidence."
+        description="A guided founder copilot that helps you build a market brief, review a messy plan, and turn a known direction into a tighter founder-ready execution plan."
         canonical="/tools/founder-spec-generator"
       />
       <Navbar />
@@ -515,8 +515,8 @@ const FounderSpecGenerator = () => {
                     Founder Strategy Copilot
                   </h1>
                   <p className="mt-2 max-w-[520px] text-[14px] font-medium leading-6 text-brand-black/52 sm:text-[14px] lg:mt-3 lg:max-w-[560px] lg:text-[15px]">
-                    Validate the direction, pressure-test the strategy, and turn the best next
-                    move into a founder-ready plan.
+                    Build a market brief, review the messy plan, and turn the best next move into a
+                    founder-ready plan.
                   </p>
                 </div>
 
@@ -632,6 +632,7 @@ const FounderSpecGenerator = () => {
                       onSubmit={handleSubmit}
                       loading={loading}
                       error={error}
+                      disabled={!hasActiveMode}
                       canGenerateSpec={canGenerateSpec}
                       onGenerateSpec={handleGenerateSpec}
                       attachments={attachments}

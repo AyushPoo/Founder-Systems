@@ -1,7 +1,25 @@
 const MODE_LABELS = {
-  no_idea: 'Find a direction',
-  messy_idea: 'Stress-test the idea',
-  known_idea: 'Package the plan',
+  no_idea: 'Market brief + validation',
+  messy_idea: 'Plan review + strategy audit',
+  known_idea: 'One-page plan builder',
+};
+
+const MODE_SECTION_LABELS = {
+  no_idea: {
+    first: 'Market brief',
+    second: 'Idea validation',
+    third: 'First plan shape',
+  },
+  messy_idea: {
+    first: 'Plan review',
+    second: 'Strategy audit',
+    third: 'Rewrite direction',
+  },
+  known_idea: {
+    first: 'One-page plan',
+    second: 'Execution risks',
+    third: 'Build path',
+  },
 };
 
 function clean(value) {
@@ -43,15 +61,15 @@ function confidenceLabel(confidence) {
 }
 
 const Pill = ({ children }) => (
-  <span className="rounded-full border border-brand-black/8 bg-white px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-brand-black/46">
+  <span className="rounded-full border border-brand-black/10 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/56">
     {children}
   </span>
 );
 
 const Section = ({ title, children }) => (
-  <article className="rounded-[14px] border border-brand-black/7 bg-white p-3.5">
-    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">{title}</p>
-    <div className="mt-2 text-[13px] font-medium leading-6 text-brand-black/66">{children}</div>
+  <article className="rounded-[18px] border border-brand-black/10 bg-white p-4">
+    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/48">{title}</p>
+    <div className="mt-2 text-sm font-bold leading-relaxed text-brand-black/72">{children}</div>
   </article>
 );
 
@@ -71,28 +89,29 @@ const StrategyMapPanel = ({ session, loading, compact = false }) => {
   const swotWeaknesses = asList(challenge.weaknesses || founderFit.whatYouAreMissing);
   const swotRisks = asList(challenge.risks || founderFit.whyThisMayNotFitYou);
   const nextSteps = asList(session?.actionPlan?.next30Days || brief.next30Days);
+  const modeLabels = MODE_SECTION_LABELS[session?.selectedMode] || MODE_SECTION_LABELS.messy_idea;
 
   return (
     <div className={compact ? 'space-y-3' : 'space-y-5'}>
-      <div className={`rounded-[14px] border border-brand-black/7 bg-brand-cream/12 ${compact ? 'p-3.5' : 'p-5'}`}>
+      <div className={`rounded-[20px] border border-brand-black/10 bg-brand-cream/45 ${compact ? 'p-3.5' : 'p-5'}`}>
         <div className="flex flex-wrap items-center gap-2">
           <Pill>{MODE_LABELS[session?.selectedMode] || 'Founder spec'}</Pill>
           <Pill>{confidenceLabel(session?.confidence)}</Pill>
           <Pill>{loading ? 'Updating now' : `${answers.length} answer${answers.length === 1 ? '' : 's'}`}</Pill>
         </div>
-        <p className={`mt-3 ${compact ? 'text-[13px] leading-6' : 'text-[15px] leading-7'} font-medium text-brand-black/66`}>
+        <p className={`mt-4 ${compact ? 'text-[13px] leading-6' : 'text-sm leading-relaxed'} font-bold text-brand-black/72`}>
           {currentRead ||
             whatIHeard ||
             lastUserMessage ||
-            'The map sharpens as you answer. It tracks the verdict, the main risk, and the current plan.'}
+            'The map will sharpen as you answer. It now tracks validation, strategy risk, founder fit, and the eventual plan.'}
         </p>
       </div>
 
       <div className="grid gap-2.5">
-        <Section title="Idea validator">
-          {verdict.standing || recommendation.summary || brief.problem
-            ? verdict.standing || recommendation.summary || brief.problem
-            : 'Waiting for enough signal to give a go / pause / change direction verdict.'}
+        <Section title={modeLabels.first}>
+          {currentRead || verdict.standing || recommendation.summary || brief.problem
+            ? currentRead || verdict.standing || recommendation.summary || brief.problem
+            : 'Waiting for enough signal to produce a useful market or direction read.'}
           {proofItems.length ? (
             <ul className="mt-2 list-disc space-y-1 pl-5">
               {proofItems.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
@@ -100,7 +119,7 @@ const StrategyMapPanel = ({ session, loading, compact = false }) => {
           ) : null}
         </Section>
 
-        <Section title="SWOT / strategy audit">
+        <Section title={modeLabels.second}>
           <div className="grid gap-2">
             <p><span className="text-brand-black/45">Strength:</span> {swotStrengths[0] || founderFit.fitSummary || 'Not established yet.'}</p>
             <p><span className="text-brand-black/45">Weakness:</span> {swotWeaknesses[0] || challenge.summary || 'The riskiest assumption will appear here.'}</p>
@@ -108,7 +127,7 @@ const StrategyMapPanel = ({ session, loading, compact = false }) => {
           </div>
         </Section>
 
-        <Section title="Business plan">
+        <Section title={modeLabels.third}>
           <div className="grid gap-2">
             <p><span className="text-brand-black/45">ICP:</span> {brief.icp || recommendation.customer || 'Not locked yet.'}</p>
             <p><span className="text-brand-black/45">MVP:</span> {brief.mvpScope || recommendation.wedge || 'Not scoped yet.'}</p>
