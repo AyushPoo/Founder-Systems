@@ -1,7 +1,9 @@
 import { spawnSync } from 'node:child_process';
 
 const isWindows = process.platform === 'win32';
-const npmCommand = isWindows ? 'npm.cmd' : 'npm';
+const npmRunner = isWindows
+  ? { command: process.env.ComSpec || 'cmd.exe', baseArgs: ['/d', '/s', '/c', 'npm'] }
+  : { command: 'npm', baseArgs: [] };
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has('--dry-run');
 
@@ -11,6 +13,14 @@ function run(command, commandArgs, options = {}) {
     encoding: 'utf8',
     cwd: options.cwd || process.cwd(),
   });
+
+  if (result.error) {
+    const error = new Error(
+      `Command failed: ${command} ${commandArgs.join(' ')}\n${result.error.message}`,
+    );
+    error.status = result.status;
+    throw error;
+  }
 
   if (result.status !== 0) {
     const error = new Error(
@@ -22,6 +32,13 @@ function run(command, commandArgs, options = {}) {
   }
 
   return options.capture ? result.stdout.trim() : '';
+}
+
+function runNpm(commandArgs) {
+  return run(
+    npmRunner.command,
+    [...npmRunner.baseArgs, ...commandArgs],
+  );
 }
 
 function read(commandArgs) {
@@ -55,7 +72,7 @@ try {
 
   console.log('[deploy:prod] Git state is clean and synced with origin/main.');
 
-  run(npmCommand, ['run', 'build']);
+  runNpm(['run', 'build']);
   console.log('[deploy:prod] Production build passed.');
 
   if (dryRun) {
@@ -63,7 +80,7 @@ try {
     process.exit(0);
   }
 
-  run(npmCommand, ['exec', '--', 'vercel', 'deploy', '--prod', '--yes']);
+  runNpm(['exec', '--', 'vercel', 'deploy', '--prod', '--yes']);
 } catch (error) {
   fail(error instanceof Error ? error.message : 'Unknown deploy failure.');
 }
