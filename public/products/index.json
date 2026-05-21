@@ -60,6 +60,14 @@
     "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
   },
   {
+    "id": "founder-pdf-summarizer",
+    "name": "Founder Document Intelligence",
+    "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
+    "category": "Strategy",
+    "productId": "FS013",
+    "thumbnail": "/images/strategy.png"
+  },
+  {
     "id": "founder-update-generator",
     "name": "Founder Update Generator",
     "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
