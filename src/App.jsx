@@ -19,6 +19,7 @@ import FounderCommandCenter from './pages/FounderCommandCenter';
 import Account from './pages/Account';
 import SignIn from './pages/SignIn';
 import AuthVerify from './pages/AuthVerify';
+import TelegramConnect from './pages/TelegramConnect';
 import NotFound from './pages/NotFound';
 import { FounderWorkspaceProvider } from './context/FounderWorkspaceContext';
 
@@ -46,6 +47,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/access" element={<Access />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/account/telegram-connect/:productSlug" element={<TelegramConnect />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/auth/verify" element={<AuthVerify />} />

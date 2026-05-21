@@ -11,10 +11,12 @@ import jwt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .agents import AGENT_PASS_DURATION_DAYS, get_agent_shared_wallet_credits, is_agent_product_slug
 from .config import Settings, get_settings
 from .db import Base, engine, get_db
 from .mailer import send_magic_link_email
 from .models import (
+    AgentWorkspace,
     CreditLedger,
     CreditLedgerEntry,
     CreditWallet,
@@ -24,6 +26,7 @@ from .models import (
     ProductUsageEvent,
     Purchase,
     PurchaseItem,
+    TelegramLink,
     User,
     Workspace,
     WorkspaceMember,
@@ -33,6 +36,8 @@ from .models import (
 from .payments import create_razorpay_order, verify_razorpay_signature
 from .schemas import (
     AccessResponse,
+    AgentAccountStatusResponse,
+    AgentRuntimeAccessCheckRequest,
     CheckoutOrderRequest,
     CheckoutOrderResponse,
     CreditLedgerEntryResponse,
@@ -61,6 +66,10 @@ from .schemas import (
     PurchaseResponse,
     RazorpayWebhookAck,
     SessionResponse,
+    TelegramLinkStartRequest,
+    TelegramLinkStartResponse,
+    TelegramLinkVerifyRequest,
+    TelegramLinkVerifyResponse,
     UserResponse,
     WorkspaceBootstrapResponse,
     WorkspaceMemberResponse,
@@ -79,6 +88,9 @@ from .security import build_session_token, decode_session_token, new_magic_token
 from .services import (
     CREDIT_PACKS,
     PROMPTDECK_SLUG,
+    TelegramLinkConflictError,
+    build_agent_account_status,
+    build_agent_runtime_access_state,
     consume_magic_link,
     create_magic_link,
     ensure_seed_data,
@@ -89,9 +101,12 @@ from .services import (
     get_credit_balance,
     get_public_credit_milestone_total,
     get_product_credit_price,
+    grant_product_pass,
+    grant_shared_wallet_credits,
     get_or_create_user,
     grant_promptdeck_purchase,
     grant_credit_pack_purchase,
+    issue_telegram_link_token,
     is_admin_email,
     promote_workspace_memory_item,
     record_product_project,
@@ -103,12 +118,14 @@ from .services import (
     update_workspace_memory_item,
     update_workspace_product_preference,
     user_has_promptdeck_admin_bypass,
+    verify_telegram_link_token,
     create_workspace_memory_item,
     consume_wallet_credits,
     get_credit_unit_amount_minor,
     quote_wallet_credit_checkout,
     WALLET_CREDIT_UNIT_AMOUNTS_MINOR,
 )
+from .telegram import build_agent_bot_deep_link, build_agent_bot_url, get_agent_bot_username
 
 
 def user_to_schema(user: User) -> UserResponse:
@@ -403,6 +420,18 @@ def require_current_user(user: User | None = Depends(get_optional_current_user))
     if user is None:
         raise HTTPException(status_code=401, detail="Authentication required")
     return user
+
+
+def require_admin_or_internal(
+    request: Request,
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
+    user: User | None = Depends(get_optional_current_user),
+) -> User | None:
+    if x_api_key and settings.api_key_internal and x_api_key == settings.api_key_internal:
+        return user
+    if user is not None and is_admin_email(settings, user.email):
+        return user
+    raise HTTPException(status_code=403, detail="Forbidden")
 
 
 @app.get("/health")
@@ -996,6 +1025,124 @@ def product_usage_spend(
     return credit_wallet_to_schema(wallet)
 
 
+@app.get("/account/agent-status", response_model=AgentAccountStatusResponse)
+def account_agent_status(
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> AgentAccountStatusResponse:
+    return build_agent_account_status(db, user_id=user.id)
+
+
+@app.get("/agents/diagnostics", response_model=AgentAccountStatusResponse)
+@app.get("/v1/agents/diagnostics", response_model=AgentAccountStatusResponse)
+def agent_diagnostics(
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> AgentAccountStatusResponse:
+    return build_agent_account_status(db, user_id=user.id)
+
+
+@app.get("/agents/runtime/access")
+@app.get("/v1/agents/runtime/access")
+def agent_runtime_access(
+    product_slug: str = Query(..., min_length=1),
+    telegram_user_id: str = Query(..., min_length=1),
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    try:
+        return build_agent_runtime_access_state(
+            db,
+            product_slug=product_slug,
+            telegram_user_id=telegram_user_id,
+        )
+    except ValueError as exc:
+        detail = str(exc)
+        raise HTTPException(status_code=404 if detail == "Unsupported agent product" else 400, detail=detail) from exc
+
+
+@app.post("/internal/runtime/access-check")
+@app.post("/v1/internal/runtime/access-check")
+def internal_runtime_access_check(
+    payload: AgentRuntimeAccessCheckRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    try:
+        return build_agent_runtime_access_state(
+            db,
+            product_slug=payload.product_slug,
+            telegram_user_id=payload.telegram_user_id,
+        )
+    except ValueError as exc:
+        detail = str(exc)
+        raise HTTPException(status_code=404 if detail == "Unsupported agent product" else 400, detail=detail) from exc
+
+
+@app.post("/agents/telegram/link/start", response_model=TelegramLinkStartResponse)
+@app.post("/v1/agents/telegram/link/start", response_model=TelegramLinkStartResponse)
+def telegram_link_start(
+    payload: TelegramLinkStartRequest,
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> TelegramLinkStartResponse:
+    try:
+        _link, token, expires_in_seconds = issue_telegram_link_token(
+            db,
+            user_id=user.id,
+            product_slug=payload.product_slug,
+        )
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    product_slug = str(payload.product_slug or "").strip()
+    bot_username = get_agent_bot_username(product_slug)
+    bot_url = build_agent_bot_url(product_slug)
+    deep_link_url = build_agent_bot_deep_link(product_slug, token)
+    if bot_username is None or bot_url is None or deep_link_url is None:
+        raise HTTPException(status_code=404, detail="Unsupported agent product")
+    return TelegramLinkStartResponse(
+        product_slug=product_slug,
+        bot_username=bot_username,
+        bot_url=bot_url,
+        deep_link_url=deep_link_url,
+        token=token,
+        expires_in_seconds=expires_in_seconds,
+    )
+
+
+@app.post("/agents/telegram/link/verify", response_model=TelegramLinkVerifyResponse)
+@app.post("/v1/agents/telegram/link/verify", response_model=TelegramLinkVerifyResponse)
+def telegram_link_verify(
+    payload: TelegramLinkVerifyRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> TelegramLinkVerifyResponse:
+    try:
+        link = verify_telegram_link_token(
+            db,
+            token=payload.token,
+            telegram_user_id=payload.telegram_user_id,
+            telegram_chat_id=payload.telegram_chat_id,
+            telegram_username=payload.telegram_username,
+        )
+    except TelegramLinkConflictError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return TelegramLinkVerifyResponse(
+        product_slug=link.product_slug,
+        linked=True,
+        status=link.status,
+        bot_username=get_agent_bot_username(link.product_slug),
+        telegram_username=link.telegram_username,
+        linked_at=link.linked_at,
+    )
+
+
 @app.get("/entitlements/{product_slug}", response_model=EntitlementResponse)
 def entitlement_for_product(
     product_slug: str,
@@ -1200,6 +1347,7 @@ async def checkout_orders(
                 "product_slug": product.slug,
                 "product_name": product.name,
                 "credits_granted": int((price.metadata_json or {}).get("credits_granted") or 0),
+                "pass_duration_days": int((price.metadata_json or {}).get("pass_duration_days") or 0),
             },
         )
     )
@@ -1413,13 +1561,28 @@ async def razorpay_webhook(
         if not product_slug or product_slug in product_slugs_granted:
             continue
         credits_granted = int((item.metadata_json or {}).get("credits_granted") or 0)
-        grant_product_purchase(
-            db,
-            user_id=purchase.user_id,
-            purchase=purchase,
-            product_slug=product_slug,
-            credits_granted=credits_granted,
-        )
+        if is_agent_product_slug(product_slug):
+            grant_product_pass(
+                db,
+                user_id=purchase.user_id,
+                purchase=purchase,
+                product_slug=product_slug,
+                duration_days=int((item.metadata_json or {}).get("pass_duration_days") or AGENT_PASS_DURATION_DAYS),
+            )
+            grant_shared_wallet_credits(
+                db,
+                user_id=purchase.user_id,
+                purchase=purchase,
+                credits_granted=credits_granted or get_agent_shared_wallet_credits(product_slug),
+            )
+        else:
+            grant_product_purchase(
+                db,
+                user_id=purchase.user_id,
+                purchase=purchase,
+                product_slug=product_slug,
+                credits_granted=credits_granted,
+            )
         product_slugs_granted.add(product_slug)
 
     webhook_event.processed = True

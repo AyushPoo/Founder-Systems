@@ -157,6 +157,17 @@ export function spendProductCredits(productSlug, payload) {
   });
 }
 
+export function getAgentAccountStatus() {
+  return apiFetch('/account/agent-status', { method: 'GET' });
+}
+
+export function startTelegramLink(productSlug) {
+  return apiFetch('/agents/telegram/link/start', {
+    method: 'POST',
+    body: JSON.stringify({ product_slug: productSlug }),
+  });
+}
+
 export function getFounderEntitlements() {
   return apiFetch('/entitlements', { method: 'GET' });
 }

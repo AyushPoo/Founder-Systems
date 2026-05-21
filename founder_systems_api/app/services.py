@@ -6,10 +6,13 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .agents import AGENT_PASS_DURATION_DAYS, AGENT_PRODUCT_SLUGS, get_agent_shared_wallet_credits, is_agent_product_slug
 from .config import Settings
 from .models import (
+    AgentWorkspace,
     AuthMagicLink,
     CreditLedger,
     CreditLedgerEntry,
@@ -21,6 +24,7 @@ from .models import (
     ProductUsageEvent,
     Purchase,
     PurchaseItem,
+    TelegramLink,
     User,
     WebhookEvent,
     Workspace,
@@ -30,13 +34,18 @@ from .models import (
     WorkspaceProductPreference,
     utc_now,
 )
-from .security import hash_token
+from .schemas import AgentAccountStatusResponse, AgentProductStatusResponse, SharedWalletResponse
+from .security import hash_token, new_magic_token
+from .telegram import TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY, telegram_link_to_status
 
 
 PROMPTDECK_SLUG = "promptdeck-ai"
 DEFAULT_WORKSPACE_SLUG = "founder-workspace"
 DEFAULT_WORKSPACE_NAME = "Founder Workspace"
 WORKSPACE_WALLET_UNIT = "credits"
+TELEGRAM_LINK_TOKEN_TTL_SECONDS = 15 * 60
+TELEGRAM_LINK_TOKEN_HASH_KEY = "link_token_hash"
+TELEGRAM_LINK_TOKEN_ISSUED_AT_KEY = "link_token_issued_at"
 
 CREDIT_PACKS = {
     "starter": {
@@ -75,6 +84,10 @@ WALLET_CREDIT_UNIT_AMOUNTS_MINOR = {
     "INR": 20000,
     "USD": 300,
 }
+
+
+class TelegramLinkConflictError(RuntimeError):
+    pass
 
 
 def get_credit_pack(pack_slug: str) -> dict[str, Any] | None:
@@ -141,12 +154,19 @@ def load_product_seed_catalog(settings: Settings) -> list[dict]:
             "launch_url": row.get("launchUrl"),
             "is_bundle": bool(row.get("isBundle")),
             "is_coming_soon": bool(row.get("isComingSoon")),
+            "access_kind": row.get("accessKind"),
+            "telegram_bot_username": row.get("telegramBotUsername"),
         }
-        if "creditPrice" in row:
+        if is_agent_product_slug(slug):
+            metadata["pass_duration_days"] = int(row.get("passDurationDays") or AGENT_PASS_DURATION_DAYS)
+            metadata["shared_wallet_credits_granted"] = int(row.get("sharedWalletCredits") or get_agent_shared_wallet_credits(slug))
+        elif "creditPrice" in row:
             metadata["credit_price"] = int(row.get("creditPrice") or 0)
         elif row.get("priceInr"):
             metadata["credit_price"] = derive_credit_price(int(row.get("priceInr") or 0))
         credits_granted = settings.promptdeck_credit_grant if slug == PROMPTDECK_SLUG else 0
+        if is_agent_product_slug(slug):
+            credits_granted = int(metadata.get("shared_wallet_credits_granted") or 0)
         normalized.append(
             {
                 "slug": slug,
@@ -248,6 +268,8 @@ def ensure_seed_data(db: Session, settings: Settings) -> None:
             price_metadata = {}
             if credits_granted:
                 price_metadata["credits_granted"] = credits_granted
+            if is_agent_product_slug(row["slug"]):
+                price_metadata["pass_duration_days"] = int((row.get("metadata") or {}).get("pass_duration_days") or AGENT_PASS_DURATION_DAYS)
             if existing is None:
                 db.add(
                     Price(
@@ -829,6 +851,130 @@ def get_credit_balance(db: Session, *, user_id: str, product_slug: str, credit_t
     return int(balance or 0)
 
 
+def get_shared_wallet_balance(db: Session, *, user_id: str) -> int:
+    user = db.get(User, user_id)
+    if user is None:
+        return 0
+    workspace, _membership = get_or_create_workspace(db, user=user)
+    wallet = get_or_create_credit_wallet(db, workspace_id=workspace.id, user_id=user.id)
+    return int(wallet.balance or 0)
+
+
+def user_has_active_product_pass(db: Session, *, user_id: str, product_slug: str) -> bool:
+    entitlement = db.scalar(
+        select(Entitlement).where(
+            Entitlement.user_id == user_id,
+            Entitlement.product_slug == product_slug,
+        )
+    )
+    if entitlement is None or str(entitlement.status or "").strip() != "active":
+        return False
+    if entitlement.ends_at is None:
+        return True
+    ends_at = _coerce_utc(entitlement.ends_at)
+    return bool(ends_at and ends_at > utc_now())
+
+
+def _clear_telegram_link_token_metadata(metadata_json: dict[str, Any] | None) -> dict[str, Any]:
+    payload = dict(metadata_json or {})
+    payload.pop(TELEGRAM_LINK_TOKEN_HASH_KEY, None)
+    payload.pop(TELEGRAM_LINK_TOKEN_ISSUED_AT_KEY, None)
+    payload.pop(TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY, None)
+    return payload
+
+
+def issue_telegram_link_token(
+    db: Session,
+    *,
+    user_id: str,
+    product_slug: str,
+) -> tuple[TelegramLink, str, int]:
+    normalized_slug = str(product_slug or "").strip()
+    if not is_agent_product_slug(normalized_slug):
+        raise ValueError("Unsupported agent product")
+    if not user_has_active_product_pass(db, user_id=user_id, product_slug=normalized_slug):
+        raise PermissionError("Active product pass required before linking Telegram")
+
+    link = db.scalar(
+        select(TelegramLink).where(
+            TelegramLink.user_id == user_id,
+            TelegramLink.product_slug == normalized_slug,
+        )
+    )
+    raw_token = new_magic_token()
+    now = utc_now()
+    expires_at = int((now + timedelta(seconds=TELEGRAM_LINK_TOKEN_TTL_SECONDS)).timestamp())
+    metadata_json = {
+        **_clear_telegram_link_token_metadata(link.metadata_json if link is not None else None),
+        TELEGRAM_LINK_TOKEN_HASH_KEY: hash_token(raw_token),
+        TELEGRAM_LINK_TOKEN_ISSUED_AT_KEY: int(now.timestamp()),
+        TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY: expires_at,
+    }
+
+    if link is None:
+        link = TelegramLink(
+            user_id=user_id,
+            product_slug=normalized_slug,
+            status="pending",
+            metadata_json=metadata_json,
+        )
+        db.add(link)
+    else:
+        link.status = "pending"
+        link.metadata_json = metadata_json
+    db.commit()
+    db.refresh(link)
+    return link, raw_token, TELEGRAM_LINK_TOKEN_TTL_SECONDS
+
+
+def verify_telegram_link_token(
+    db: Session,
+    *,
+    token: str,
+    telegram_user_id: str,
+    telegram_chat_id: str,
+    telegram_username: str | None = None,
+) -> TelegramLink:
+    token_hash = hash_token(token)
+    now = utc_now()
+
+    candidate = None
+    for link in db.scalars(select(TelegramLink).where(TelegramLink.status == "pending")).all():
+        metadata_json = link.metadata_json or {}
+        if metadata_json.get(TELEGRAM_LINK_TOKEN_HASH_KEY) == token_hash:
+            candidate = link
+            break
+
+    if candidate is None:
+        raise ValueError("Telegram link token is invalid or expired")
+
+    try:
+        expires_at = int((candidate.metadata_json or {}).get(TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY) or 0)
+    except (TypeError, ValueError):
+        expires_at = 0
+    if expires_at <= int(now.timestamp()):
+        candidate.status = "expired"
+        candidate.metadata_json = _clear_telegram_link_token_metadata(candidate.metadata_json)
+        db.commit()
+        raise ValueError("Telegram link token is invalid or expired")
+
+    candidate.telegram_user_id = telegram_user_id
+    candidate.telegram_chat_id = telegram_chat_id
+    candidate.telegram_username = telegram_username or None
+    candidate.status = "linked"
+    candidate.linked_at = now
+    candidate.metadata_json = _clear_telegram_link_token_metadata(candidate.metadata_json)
+
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise TelegramLinkConflictError("Telegram account is already linked to this product") from exc
+
+    db.refresh(candidate)
+    return candidate
+
+
 def get_public_credit_milestone_total(db: Session) -> int:
     total = 0
     paid_purchases = db.scalars(select(Purchase).where(Purchase.status == "paid")).all()
@@ -919,6 +1065,179 @@ def grant_product_purchase(
     db.commit()
     db.refresh(entitlement)
     return entitlement
+
+
+def grant_product_pass(
+    db: Session,
+    *,
+    user_id: str,
+    purchase: Purchase,
+    product_slug: str,
+    duration_days: int = AGENT_PASS_DURATION_DAYS,
+) -> Entitlement:
+    now = utc_now()
+    entitlement = db.scalar(
+        select(Entitlement).where(
+            Entitlement.user_id == user_id,
+            Entitlement.product_slug == product_slug,
+        )
+    )
+    existing_ends_at = _coerce_utc(entitlement.ends_at) if entitlement is not None else None
+    starts_at = _coerce_utc(entitlement.starts_at) if entitlement is not None and entitlement.starts_at is not None else now
+    extension_anchor = existing_ends_at if existing_ends_at is not None and existing_ends_at > now else now
+    ends_at = extension_anchor + timedelta(days=duration_days)
+    metadata_json = {
+        **((entitlement.metadata_json if entitlement is not None else {}) or {}),
+        "source_purchase_id": purchase.id,
+        "pass_duration_days": duration_days,
+        "source": "operator_pass",
+    }
+    if entitlement is None:
+        entitlement = Entitlement(
+            user_id=user_id,
+            product_slug=product_slug,
+            status="active",
+            starts_at=starts_at,
+            ends_at=ends_at,
+            metadata_json=metadata_json,
+        )
+        db.add(entitlement)
+    else:
+        entitlement.status = "active"
+        entitlement.starts_at = starts_at
+        entitlement.ends_at = ends_at
+        entitlement.metadata_json = metadata_json
+    db.flush()
+    db.refresh(entitlement)
+    return entitlement
+
+
+def grant_shared_wallet_credits(
+    db: Session,
+    *,
+    user_id: str,
+    purchase: Purchase,
+    credits_granted: int,
+) -> CreditWallet | None:
+    if credits_granted <= 0:
+        return None
+    user = db.get(User, user_id)
+    if user is None:
+        return None
+    workspace, _membership = get_or_create_workspace(db, user=user)
+    wallet = get_or_create_credit_wallet(db, workspace_id=workspace.id, user_id=user.id)
+    existing_entry = db.scalar(
+        select(CreditLedgerEntry).where(
+            CreditLedgerEntry.wallet_id == wallet.id,
+            CreditLedgerEntry.purchase_id == purchase.id,
+            CreditLedgerEntry.reason == "agent_pass_grant",
+        )
+    )
+    if existing_entry is None:
+        record_wallet_entry(
+            db,
+            wallet=wallet,
+            user_id=user.id,
+            workspace_id=workspace.id,
+            delta=int(credits_granted),
+            reason="agent_pass_grant",
+            product_slug=None,
+            purchase_id=purchase.id,
+            metadata={"credits_granted": int(credits_granted)},
+        )
+    db.flush()
+    return wallet
+
+
+def build_agent_account_status(db: Session, *, user_id: str) -> AgentAccountStatusResponse:
+    entitlements = {
+        item.product_slug: item
+        for item in db.scalars(select(Entitlement).where(Entitlement.user_id == user_id)).all()
+    }
+    telegram_links = {
+        item.product_slug: item
+        for item in db.scalars(select(TelegramLink).where(TelegramLink.user_id == user_id)).all()
+    }
+    workspaces = {
+        item.product_slug: item
+        for item in db.scalars(select(AgentWorkspace).where(AgentWorkspace.user_id == user_id)).all()
+    }
+    balance = get_shared_wallet_balance(db, user_id=user_id)
+    products = []
+    for product_slug in AGENT_PRODUCT_SLUGS:
+        entitlement = entitlements.get(product_slug)
+        telegram_link = telegram_links.get(product_slug)
+        workspace = workspaces.get(product_slug)
+        products.append(
+            AgentProductStatusResponse(
+                product_slug=product_slug,
+                has_active_pass=user_has_active_product_pass(db, user_id=user_id, product_slug=product_slug),
+                entitlement_status=entitlement.status if entitlement is not None else None,
+                telegram_link=telegram_link_to_status(product_slug, telegram_link),
+                workspace_status=workspace.status if workspace is not None else None,
+                bot_username=telegram_link_to_status(product_slug, telegram_link).bot_username,
+            )
+        )
+    return AgentAccountStatusResponse(
+        shared_wallet=SharedWalletResponse(
+            balance=balance,
+            available_balance=balance,
+            reserved_balance=0,
+            exhausted=balance <= 0,
+        ),
+        products=products,
+    )
+
+
+def build_agent_runtime_access_state(
+    db: Session,
+    *,
+    product_slug: str,
+    telegram_user_id: str,
+) -> dict[str, object]:
+    normalized_slug = str(product_slug or "").strip()
+    if not is_agent_product_slug(normalized_slug):
+        raise ValueError("Unsupported agent product")
+    normalized_telegram_user_id = str(telegram_user_id or "").strip()
+    if not normalized_telegram_user_id:
+        raise ValueError("telegram_user_id is required")
+
+    link = db.scalar(
+        select(TelegramLink).where(
+            TelegramLink.product_slug == normalized_slug,
+            TelegramLink.telegram_user_id == normalized_telegram_user_id,
+        )
+    )
+    link_status = str(link.status or "").strip() if link is not None else "unlinked"
+    linked = link is not None and link_status == "linked"
+    linked_user_id = str(link.user_id or "").strip() if link is not None else ""
+    has_active_pass = user_has_active_product_pass(db, user_id=linked_user_id, product_slug=normalized_slug) if linked_user_id else False
+    shared_wallet_balance = get_shared_wallet_balance(db, user_id=linked_user_id) if linked_user_id else None
+
+    reasons: list[str] = []
+    if not linked:
+        reasons.append(
+            "telegram_pending"
+            if link_status == "pending"
+            else "telegram_expired"
+            if link_status == "expired"
+            else "telegram_not_linked"
+        )
+    if linked_user_id and not has_active_pass:
+        reasons.append("pass_inactive")
+    if shared_wallet_balance is not None and shared_wallet_balance <= 0:
+        reasons.append("shared_wallet_empty")
+
+    return {
+        "product_slug": normalized_slug,
+        "telegram_user_id": normalized_telegram_user_id,
+        "should_respond": linked and has_active_pass and (shared_wallet_balance or 0) > 0,
+        "reasons": reasons,
+        "linked": linked,
+        "telegram_link_status": link_status,
+        "has_active_pass": has_active_pass,
+        "shared_wallet_balance": shared_wallet_balance,
+    }
 
 
 def record_product_project(

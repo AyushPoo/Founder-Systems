@@ -30,6 +30,8 @@ class User(Base):
     entitlements: Mapped[List["Entitlement"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     workspace_memberships: Mapped[List["WorkspaceMember"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     workspaces_owned: Mapped[List["Workspace"]] = relationship(back_populates="owner_user")
+    telegram_links: Mapped[List["TelegramLink"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    agent_workspaces: Mapped[List["AgentWorkspace"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class AuthMagicLink(Base):
@@ -313,3 +315,45 @@ class ProductUsageEvent(Base):
     credits_spent: Mapped[int] = mapped_column(Integer, default=0)
     metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class TelegramLink(Base):
+    __tablename__ = "telegram_links"
+    __table_args__ = (
+        UniqueConstraint("user_id", "product_slug", name="uq_telegram_links_user_product"),
+        UniqueConstraint("product_slug", "telegram_user_id", name="uq_telegram_links_product_user"),
+        UniqueConstraint("product_slug", "telegram_chat_id", name="uq_telegram_links_product_chat"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    product_slug: Mapped[str] = mapped_column(String(120), index=True)
+    telegram_user_id: Mapped[Optional[str]] = mapped_column(String(120), nullable=True, index=True)
+    telegram_username: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    telegram_chat_id: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="linked", index=True)
+    linked_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    user: Mapped["User"] = relationship(back_populates="telegram_links")
+
+
+class AgentWorkspace(Base):
+    __tablename__ = "agent_workspaces"
+    __table_args__ = (
+        UniqueConstraint("user_id", "product_slug", name="uq_agent_workspaces_user_product"),
+        UniqueConstraint("product_slug", "external_workspace_id", name="uq_agent_workspaces_external"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    product_slug: Mapped[str] = mapped_column(String(120), index=True)
+    external_workspace_id: Mapped[str] = mapped_column(String(120), index=True)
+    status: Mapped[str] = mapped_column(String(32), default="active")
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    user: Mapped["User"] = relationship(back_populates="agent_workspaces")

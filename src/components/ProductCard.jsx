@@ -36,6 +36,21 @@ const PRODUCT_ART_DIRECTION = {
         chips: ['Email', 'LinkedIn', 'Objections'],
         badge: 'Workspace',
     },
+    'marketing-agent': {
+        hook: 'Turn founder-led growth into a weekly operating rhythm.',
+        chips: ['Positioning', 'Campaigns', 'Telegram'],
+        badge: 'Operator',
+    },
+    'finance-agent': {
+        hook: 'Keep runway, budgets, and reporting closer to decision time.',
+        chips: ['Runway', 'Budget', 'Reports'],
+        badge: 'Operator',
+    },
+    'ops-agent': {
+        hook: 'Make handoffs, SOPs, and follow-through less fragile.',
+        chips: ['SOPs', 'Cadence', 'Handoffs'],
+        badge: 'Operator',
+    },
 };
 
 const FALLBACK_ART_DIRECTION = {

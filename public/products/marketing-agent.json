@@ -1,0 +1,54 @@
+{
+  "id": "marketing-agent",
+  "slug": "marketing-agent",
+  "productId": "FS017",
+  "title": "Marketing Operator",
+  "subtitle": "A 30-day AI operator pass for founder-led growth planning, message systems, and repeatable campaign execution.",
+  "descriptionBody": "Most startup marketing breaks in the handoff between strategy and execution. The audience is vaguely defined, the positioning shifts every week, and campaign ideas die in notes because nobody turns them into an operating rhythm.\n\nMarketing Operator is built to close that gap. This pass gives you 30 days of access plus included shared-wallet credits so a founder or lean operator can turn a rough growth direction into sharper messaging, campaign plans, execution checklists, and review loops.",
+  "section1Title": "A growth operator, not another idea generator",
+  "section1Body": "Use it to clarify the audience, pressure-test the offer, shape content or outbound angles, and convert those decisions into structured weekly actions. The pass is meant to help a founder or operator move from thinking to shipping with less drift during a focused 30-day execution window.",
+  "featuresTitle": "What Marketing Operator helps with:",
+  "features": [
+    { "name": "Positioning and audience framing", "desc": "Tightens the customer, pain point, promise, and proof before the growth plan branches into campaigns." },
+    { "name": "Campaign system planning", "desc": "Turns a broad marketing goal into channel-specific plays, sequencing logic, and execution priorities." },
+    { "name": "Message architecture", "desc": "Creates reusable angles, hooks, objections, and proof blocks so content and outreach stay consistent." },
+    { "name": "Weekly operator rhythm", "desc": "Packages the work into practical next actions, review checkpoints, and a tighter loop for iteration." }
+  ],
+  "whyTitle": "Why use this instead of ad hoc prompting?",
+  "whyPoints": [
+    { "title": "Built for execution, not novelty", "desc": "The goal is not random growth ideas. The goal is to help you run a clearer marketing system every week." },
+    { "title": "Useful in lean founder setups", "desc": "Especially valuable when one founder or generalist operator is covering messaging, content, and campaign decisions at the same time." },
+    { "title": "Works with Telegram and shared wallets", "desc": "The pass connects into Telegram and uses the shared Founder Systems wallet so top-up credits stay reusable across operator products." }
+  ],
+  "footerSummaryTitle": "Founder Systems product",
+  "footerSummaryDetails": "for a 30-day access pass with 500 included shared-wallet credits.",
+  "footerResultTitle": "The Result:",
+  "footerResultDetails": "A clearer growth system with sharper messaging, better campaign structure, and an execution rhythm you can actually maintain.",
+  "whatYouGet": [
+    "30-day access pass",
+    "500 included shared-wallet credits",
+    "Telegram operator access",
+    "Audience and positioning pressure-test",
+    "Campaign planning workflows",
+    "Message architecture and reusable angles",
+    "Weekly execution checklist"
+  ],
+  "whoThisIsFor": [
+    "Founders still leading growth decisions themselves.",
+    "Lean teams without a dedicated senior marketing operator yet.",
+    "Startups that have ideas and channels but lack a repeatable planning rhythm.",
+    "Operators who need sharper messaging systems before scaling execution."
+  ],
+  "faq": [
+    { "q": "Is this a marketing agency replacement?", "a": "No. It is an operator product that helps you think, plan, and execute more clearly inside your own team." },
+    { "q": "How does access work?", "a": "Marketing Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
+    { "q": "Does it work with Telegram and shared credits?", "a": "Yes. After purchase, your account can open the Telegram bot through a secure one-click link and use the shared top-up wallet." }
+  ],
+  "images": ["/images/strategy.png"],
+  "category": "AI Operators",
+  "priceInr": 999,
+  "priceUsd": 12,
+  "accessKind": "operator_pass",
+  "passDurationDays": 30,
+  "sharedWalletCredits": 500
+}

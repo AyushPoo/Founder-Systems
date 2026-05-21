@@ -9,6 +9,7 @@ import {
     formatCreditValue,
     mergeCatalogProductData,
 } from '../utils/commerce';
+import { getTelegramConnectPath, isAgentProductSlug } from '../utils/agents';
 
 const LEGACY_PRODUCT_REDIRECTS = {
     'pitch-deck-maker': '/products/promptdeck-ai',
@@ -151,6 +152,7 @@ const ProductDetail = () => {
     }, [user]);
 
     const productAction = getProductPrimaryAction(product);
+    const isOperatorPass = isAgentProductSlug(id) || product?.accessKind === 'operator_pass';
     const showPricing = hasProductPricing(product);
     const showRetiredFundraisingBanner = false;
     const creditValueLabel = product?.creditPrice
@@ -606,7 +608,9 @@ const ProductDetail = () => {
                                 <span className="text-brand-orange text-base leading-none">★★★★★</span>
                                 <span className="font-medium text-brand-black/50 text-xs uppercase tracking-wider">Early founder feedback</span>
                             </div>
-                            <p className="text-xs font-bold text-brand-orange uppercase tracking-widest mb-5 text-center">Launch price — early adopter offer</p>
+                            <p className="text-xs font-bold text-brand-orange uppercase tracking-widest mb-5 text-center">
+                                {isOperatorPass ? '30-day operator pass with included credits' : 'Launch price — early adopter offer'}
+                            </p>
 
                             <div className="relative w-full">
                                 <div className="absolute -top-3.5 -right-2 md:-right-3 z-10">
@@ -668,12 +672,22 @@ const ProductDetail = () => {
                                                     </Link>
                                                 </div>
                                             ) : null}
+                                            {isOperatorPass ? (
+                                                <Link
+                                                    to={getTelegramConnectPath(id)}
+                                                    className="block text-center text-xs font-black uppercase tracking-[0.14em] text-brand-black/60 underline underline-offset-4"
+                                                >
+                                                    Already purchased? Open Telegram setup
+                                                </Link>
+                                            ) : null}
                                         </>
                                     )}
                                 </div>
 
                                 <p className="text-center text-xs text-brand-black/45 mt-5 font-medium">
-                                    Instant download &bull; One-time purchase &bull; Lifetime access
+                                    {isOperatorPass
+                                        ? `${product.passDurationDays || 30}-day pass &bull; ${product.sharedWalletCredits || 0} included shared-wallet credits &bull; Telegram access`
+                                        : 'Instant download &bull; One-time purchase &bull; Lifetime access'}
                                 </p>
                                 <p className="text-center text-xs text-brand-black/50 mt-2 font-medium">
                                     {authenticated

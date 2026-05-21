@@ -1,0 +1,54 @@
+{
+  "id": "ops-agent",
+  "slug": "ops-agent",
+  "productId": "FS019",
+  "title": "Operations Operator",
+  "subtitle": "A 30-day AI operator pass for SOP design, execution handoffs, recurring cadences, and cleaner team follow-through.",
+  "descriptionBody": "Operations pain rarely looks dramatic at first. It shows up as loose handoffs, invisible blockers, repeated clarifications, and decisions that never quite turn into reliable execution.\n\nOperations Operator is built for teams that need more structure without building a giant process layer. The pass gives teams 30 days of access plus included shared-wallet credits to map workflows, define ownership, tighten recurring cadences, and turn messy execution into something more repeatable.",
+  "section1Title": "The operating glue for growing teams",
+  "section1Body": "As teams grow, good people still lose time to unclear ownership, inconsistent process, and meetings that do not produce useful next steps. Operations Operator focuses on the practical side of execution: who owns what, what the workflow is, where handoffs break, and what rhythm keeps the system moving.",
+  "featuresTitle": "What Operations Operator helps with:",
+  "features": [
+    { "name": "Workflow and SOP mapping", "desc": "Helps document the real sequence of work so repeatable processes become easier to run and improve." },
+    { "name": "Ownership and handoff clarity", "desc": "Surfaces unclear responsibility boundaries and defines tighter handoffs across team members." },
+    { "name": "Cadence design", "desc": "Structures recurring reviews, operating meetings, and check-ins around actual execution needs." },
+    { "name": "Bottleneck diagnosis", "desc": "Identifies where work stalls, loops, or gets re-explained so the team can remove friction faster." }
+  ],
+  "whyTitle": "Why use this instead of adding more process docs?",
+  "whyPoints": [
+    { "title": "Designed for real execution pressure", "desc": "The focus is making work easier to run with fewer dropped details." },
+    { "title": "Good fit before operations headcount scales", "desc": "Useful when the founding team or early operator still carries process design and coordination work." },
+    { "title": "Fits Telegram and shared wallet access", "desc": "The pass connects into Telegram and uses the shared top-up wallet across Founder Systems operator products." }
+  ],
+  "footerSummaryTitle": "Founder Systems product",
+  "footerSummaryDetails": "for a 30-day access pass with 500 included shared-wallet credits.",
+  "footerResultTitle": "The Result:",
+  "footerResultDetails": "A more reliable operating system with clearer ownership, better handoffs, and fewer execution leaks.",
+  "whatYouGet": [
+    "30-day access pass",
+    "500 included shared-wallet credits",
+    "Telegram operator access",
+    "Workflow and SOP mapping support",
+    "Ownership and handoff review",
+    "Cadence design for recurring execution loops",
+    "Bottleneck and friction diagnosis"
+  ],
+  "whoThisIsFor": [
+    "Founders who feel execution quality slipping as the team grows.",
+    "Early operators formalizing internal systems without overcomplicating them.",
+    "Teams with recurring handoff confusion across functions.",
+    "Startups that need a more dependable weekly operating rhythm."
+  ],
+  "faq": [
+    { "q": "Is this only for big teams?", "a": "No. It is especially useful for small teams where process is starting to matter but a heavy operations stack would be overkill." },
+    { "q": "How does access work?", "a": "Operations Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
+    { "q": "Can it act as HR or support?", "a": "It can support structured HR, support, and operations workflows, with external actions kept approval-gated as integrations mature." }
+  ],
+  "images": ["/images/systems.png"],
+  "category": "AI Operators",
+  "priceInr": 999,
+  "priceUsd": 12,
+  "accessKind": "operator_pass",
+  "passDurationDays": 30,
+  "sharedWalletCredits": 500
+}

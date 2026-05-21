@@ -1,0 +1,54 @@
+{
+  "id": "finance-agent",
+  "slug": "finance-agent",
+  "productId": "FS018",
+  "title": "Finance Operator",
+  "subtitle": "A 30-day AI operator pass for budgeting discipline, cash planning, reporting structure, and decision-ready finance workflows.",
+  "descriptionBody": "Founders rarely struggle because numbers do not exist. They struggle because the numbers live in scattered sheets, partial assumptions, and irregular reporting rhythms that make every decision slower than it should be.\n\nFinance Operator acts like an operating layer around finance work. The pass gives founders and small teams 30 days of access plus included shared-wallet credits to structure cash planning, forecast updates, reporting views, and finance questions into a rhythm that supports real decisions.",
+  "section1Title": "A finance operator for the in-between stage",
+  "section1Body": "Not every startup is ready for a full finance hire, but every startup still needs cleaner budgeting, forecast updates, runway visibility, and sharper decision support. Finance Operator is aimed at that middle zone where the business needs more rigor before it can justify a dedicated finance seat.",
+  "featuresTitle": "What Finance Operator helps with:",
+  "features": [
+    { "name": "Budget and runway framing", "desc": "Organizes expense logic, cash priorities, and runway assumptions into a clearer operating view." },
+    { "name": "Forecast update workflows", "desc": "Supports recurring forecast refreshes so the model does not go stale after one planning session." },
+    { "name": "Reporting and review structure", "desc": "Turns raw finance data into practical summaries for founders, operators, or investor updates." },
+    { "name": "Decision support prompts", "desc": "Helps teams reason through tradeoffs around hiring, spend, pricing, and cash timing with more discipline." }
+  ],
+  "whyTitle": "Why use this before hiring finance?",
+  "whyPoints": [
+    { "title": "Brings rigor earlier", "desc": "You do not need to wait for a full finance team to introduce better reporting and planning habits." },
+    { "title": "Improves operating conversations", "desc": "Cleaner finance structure leads to faster decisions around burn, priorities, and resource allocation." },
+    { "title": "Compatible with Telegram and shared top-ups", "desc": "The pass fits the Founder Systems Telegram flow and shared top-up wallet, so finance usage does not live in a separate silo." }
+  ],
+  "footerSummaryTitle": "Founder Systems product",
+  "footerSummaryDetails": "for a 30-day access pass with 750 included shared-wallet credits.",
+  "footerResultTitle": "The Result:",
+  "footerResultDetails": "A tighter finance rhythm with better visibility into runway, budget tradeoffs, and recurring reporting decisions.",
+  "whatYouGet": [
+    "30-day access pass",
+    "750 included shared-wallet credits",
+    "Telegram operator access",
+    "Budget and runway planning support",
+    "Forecast refresh workflows",
+    "Reporting structure guidance",
+    "Decision support for spend and hiring tradeoffs"
+  ],
+  "whoThisIsFor": [
+    "Founders running finance reviews without a dedicated finance lead.",
+    "COOs, chiefs of staff, or generalist operators covering budget coordination.",
+    "Teams that need better runway and reporting discipline.",
+    "Startups preparing for more investor or board-level finance scrutiny."
+  ],
+  "faq": [
+    { "q": "Does this replace a financial model?", "a": "No. It complements finance artifacts by helping the team operate around them with better planning and reporting structure." },
+    { "q": "How does access work?", "a": "Finance Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
+    { "q": "Does it update accounts automatically?", "a": "V1 keeps sensitive finance writes approval-gated. It can structure and prepare work, and integrations can be added behind explicit approval policies." }
+  ],
+  "images": ["/images/finance.png"],
+  "category": "AI Operators",
+  "priceInr": 1499,
+  "priceUsd": 18,
+  "accessKind": "operator_pass",
+  "passDurationDays": 30,
+  "sharedWalletCredits": 750
+}

@@ -11,6 +11,8 @@ import {
   getPurchaseDisplayName,
   humanizeIdentifier,
 } from '../utils/commerce';
+import { getAgentProductMeta, getAgentProductStatus, getTelegramConnectPath, normalizeAgentAccountStatus } from '../utils/agents';
+import { getAgentAccountStatus } from '../utils/founderApi';
 
 const TABS = ['Memory', 'Products', 'Credits', 'History', 'Settings'];
 const PRODUCT_CONNECTIONS = [
@@ -35,6 +37,7 @@ const PRODUCT_CONNECTIONS = [
     description: 'Uses shared story, customer, and offer context to seed deck generation and recommend the next best product move.',
   },
 ];
+const OPERATOR_PRODUCTS = ['marketing-agent', 'finance-agent', 'ops-agent'];
 
 const DEFAULT_MEMORY_FORM = {
   label: '',
@@ -126,6 +129,8 @@ function Account() {
   const [memoryForm, setMemoryForm] = useState(DEFAULT_MEMORY_FORM);
   const [preferredCurrency, setPreferredCurrency] = useState('INR');
   const [customCredits, setCustomCredits] = useState(10);
+  const [agentStatus, setAgentStatus] = useState(null);
+  const [loadingAgentStatus, setLoadingAgentStatus] = useState(false);
 
   useEffect(() => {
     const value = searchParams.get('tab');
@@ -137,6 +142,35 @@ function Account() {
   useEffect(() => {
     setPreferredCurrency(detectPreferredCurrency());
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadAgentStatus() {
+      if (!authenticated) {
+        setAgentStatus(null);
+        return;
+      }
+      setLoadingAgentStatus(true);
+      try {
+        const payload = await getAgentAccountStatus();
+        if (!cancelled) {
+          setAgentStatus(normalizeAgentAccountStatus(payload));
+        }
+      } catch {
+        if (!cancelled) {
+          setAgentStatus(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingAgentStatus(false);
+        }
+      }
+    }
+    loadAgentStatus();
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated, entitlements.length, wallet?.balance]);
 
   const memoryCounts = useMemo(() => {
     const canonical = memoryItems.filter((item) => item.memory_scope === 'canonical').length;
@@ -498,6 +532,51 @@ function Account() {
             {activeTab === 'Credits' ? (
               <section className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
                 <div className="space-y-6">
+                  <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-2xl font-black tracking-tight-brand">Telegram operators</h2>
+                        <p className="mt-2 text-sm font-medium text-brand-black/58">
+                          Each operator has its own 30-day pass. Top-up credits stay shared across all active operators.
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-brand-black/10 bg-brand-cream px-3 py-1 text-xs font-black uppercase tracking-[0.14em]">
+                        {loadingAgentStatus ? 'Checking' : 'Live'}
+                      </span>
+                    </div>
+                    <div className="mt-5 space-y-3">
+                      {OPERATOR_PRODUCTS.map((productSlug) => {
+                        const meta = getAgentProductMeta(productSlug);
+                        const state = getAgentProductStatus(agentStatus, productSlug, { entitlements });
+                        const hasActivePass = Boolean(state?.has_active_pass);
+                        const telegramLinked = Boolean(state?.telegram_link?.linked);
+                        const botUsername = state?.telegram_link?.bot_username || state?.bot_username || '';
+                        return (
+                          <div key={productSlug} className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-4">
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                              <div>
+                                <h3 className="text-lg font-black">{meta?.name || getProductName(productSlug)}</h3>
+                                <p className="text-xs font-semibold text-brand-black/50">
+                                  {hasActivePass ? 'Pass active' : 'Pass inactive'} - {telegramLinked ? 'Telegram linked' : 'Telegram not linked'}
+                                  {botUsername ? ` - @${String(botUsername).replace(/^@+/, '')}` : ''}
+                                </p>
+                              </div>
+                              {hasActivePass ? (
+                                <Link to={getTelegramConnectPath(productSlug)} className="btn-cta !py-2 !px-4 !text-sm">
+                                  {telegramLinked ? 'Open Telegram' : 'Open in Telegram'}
+                                </Link>
+                              ) : (
+                                <Link to={`/products/${productSlug}`} className="btn-outline !py-2 !px-4 !text-sm">
+                                  Buy pass
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
                     <h2 className="text-2xl font-black tracking-tight-brand">Credit wallet</h2>
                     <p className="mt-2 text-sm font-medium text-brand-black/58">Buy bonus packs or choose the exact number of credits you want. The same wallet can unlock products and power repeat usage where supported.</p>

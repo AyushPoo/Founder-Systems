@@ -49,6 +49,72 @@ class EntitlementResponse(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class SharedWalletResponse(BaseModel):
+    balance: int
+    available_balance: int
+    reserved_balance: int = 0
+    currency_unit: str = "credits"
+    credit_type: str = "shared_wallet"
+    exhausted: bool
+
+
+class TelegramLinkStatusResponse(BaseModel):
+    linked: bool
+    status: str
+    bot_username: str | None = None
+    telegram_username: str | None = None
+    linked_at: datetime | None = None
+
+
+class TelegramLinkStartRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"))
+
+
+class TelegramLinkStartResponse(BaseModel):
+    product_slug: str
+    bot_username: str
+    bot_url: str
+    deep_link_url: str
+    token: str
+    expires_in_seconds: int
+
+
+class TelegramLinkVerifyRequest(BaseModel):
+    token: str
+    telegram_user_id: str = Field(min_length=1, max_length=120)
+    telegram_chat_id: str = Field(min_length=1, max_length=120)
+    telegram_username: str | None = Field(default=None, max_length=120)
+
+
+class TelegramLinkVerifyResponse(BaseModel):
+    ok: bool = True
+    product_slug: str
+    linked: bool
+    status: str
+    bot_username: str | None = None
+    telegram_username: str | None = None
+    linked_at: datetime | None = None
+
+
+class AgentRuntimeAccessCheckRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"))
+    telegram_user_id: str = Field(validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), min_length=1, max_length=120)
+
+
+class AgentProductStatusResponse(BaseModel):
+    product_slug: str
+    has_active_pass: bool
+    entitlement_status: str | None = None
+    telegram_link: TelegramLinkStatusResponse
+    workspace_status: str | None = None
+    bot_username: str | None = None
+
+
+class AgentAccountStatusResponse(BaseModel):
+    shared_wallet: SharedWalletResponse
+    products: list[AgentProductStatusResponse]
+
+
 class AccessResponse(BaseModel):
     logged_in: bool
     entitled: bool
