@@ -1,16 +1,26 @@
-# React + Vite
+# Founder Systems
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Founder Systems runs the public site, account surface, and connected product experiences like PromptDeck, Founder Spec Generator, and Founder Outreach Kit.
 
-Currently, two official plugins are available:
+## Production Deploy Rule
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Production deploys must only happen from a clean local `main` that exactly matches `origin/main`.
 
-## React Compiler
+Use:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm run deploy:prod
+```
 
-## Expanding the ESLint configuration
+For a no-push safety check:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm run deploy:prod -- --dry-run
+```
+
+The deploy guard will refuse to run if:
+
+- you are not on `main`
+- the working tree has local changes
+- local `main` is not identical to `origin/main`
+- the production build fails
