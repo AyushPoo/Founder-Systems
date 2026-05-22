@@ -4,52 +4,52 @@
   
     <rect x="126" y="110" width="352" height="66" rx="33" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
     <text x="302" y="152" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5" fill="#1b1c1a">
-      MARKETING
+      HIRING
     </text>
     <text x="126" y="252" font-family="Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="6" fill="#1b1c1a">
-      CAMPAIGN FLOW
+      ROLE FIT
     </text>
   
   
-    <rect x="212" y="428" width="264" height="264" rx="40" fill="#ffffff" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="588" y="328" width="312" height="184" rx="40" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="588" y="608" width="312" height="184" rx="40" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1018" y="428" width="338" height="264" rx="40" fill="#ffffff" stroke="#1b1c1a" stroke-width="4" />
+    <rect x="212" y="350" width="420" height="520" rx="48" fill="#ffffff" stroke="#1b1c1a" stroke-width="4" />
+    <rect x="710" y="350" width="648" height="520" rx="48" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
+    <rect x="760" y="418" width="250" height="112" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="1040" y="418" width="250" height="112" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="760" y="580" width="530" height="92" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="760" y="710" width="530" height="92" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
     
-        <rect x="238" y="472" width="204" height="126" rx="26" fill="#fffdf8" stroke="#d9d0c2" stroke-width="3" />
-        <rect x="1042" y="472" width="228" height="126" rx="26" fill="#ff6a1a" opacity="0.92" />
+        <circle cx="420" cy="546" r="88" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+        <circle cx="420" cy="518" r="28" fill="#f7f1e7" stroke="#d9d0c2" stroke-width="3" />
+        <path d="M 334 622 C 360 584 480 584 506 622" stroke="#d9d0c2" stroke-width="3" stroke-linecap="round" />
       
-    <path d="M 476 560 H 564" stroke="#1b1c1a" stroke-width="6" stroke-linecap="round" />
-    <path d="M 476 560 C 528 560 532 420 588 420" stroke="#ff6a1a" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 476 560 C 528 560 532 700 588 700" stroke="#ff6a1a" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 900 420 H 980" stroke="#1b1c1a" stroke-width="6" stroke-linecap="round" />
-    <path d="M 900 700 H 980" stroke="#1b1c1a" stroke-width="6" stroke-linecap="round" />
-    <path d="M 252 500 L 424 500" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 252 556 L 390 556" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1048 504 L 1278 504" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1048 560 L 1224 560" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <path d="M 322 728 L 520 728" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 322 778 L 494 778" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <path d="M 812 472 L 930 472" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 812 628 L 1210 628" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 812 760 L 1184 760" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <rect x="1040" y="418" width="250" height="112" rx="30" fill="#ff6a1a" opacity="0.9" />
   
   
     <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
     
     <rect x="170" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
     <text x="262" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Email
+      Fit
     </text>
   
     <rect x="384" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
     <text x="476" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      LinkedIn
+      Gaps
     </text>
   
     <rect x="598" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
     <text x="690" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Proof
+      Notes
     </text>
   
     <rect x="1118" y="1022" width="278" height="52" rx="26" fill="#ff6a1a" />
     <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
-      Tighten the sequence
+      Profile in context
     </text>
   
 </svg>

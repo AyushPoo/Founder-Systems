@@ -44,7 +44,7 @@
     { "q": "How does access work?", "a": "Finance Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
     { "q": "Does it update accounts automatically?", "a": "V1 keeps sensitive finance writes approval-gated. It can structure and prepare work, and integrations can be added behind explicit approval policies." }
   ],
-  "images": ["/images/finance.png"],
+  "images": ["/images/products/finance-agent/thumbnail.svg"],
   "category": "AI Operators",
   "priceInr": 1499,
   "priceUsd": 18,

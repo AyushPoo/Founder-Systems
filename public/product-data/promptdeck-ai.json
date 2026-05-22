@@ -23,6 +23,7 @@
     { "q": "Can I export the deck?", "a": "Yes. PromptDeck supports export once you are happy with the rebuilt deck." }
   ],
   "images": [
+    "/images/products/promptdeck-ai/thumbnail.svg",
     "/images/products/promptdeck-ai/preview-1.png",
     "/images/products/promptdeck-ai/preview-2.png",
     "/images/products/promptdeck-ai/preview-3.png",

@@ -44,7 +44,7 @@
     { "q": "How does access work?", "a": "Marketing Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
     { "q": "Does it work with Telegram and shared credits?", "a": "Yes. After purchase, your account can open the Telegram bot through a secure one-click link and use the shared top-up wallet." }
   ],
-  "images": ["/images/strategy.png"],
+  "images": ["/images/products/marketing-agent/thumbnail.svg"],
   "category": "AI Operators",
   "priceInr": 999,
   "priceUsd": 12,

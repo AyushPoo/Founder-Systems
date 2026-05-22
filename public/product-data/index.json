@@ -49,7 +49,7 @@
     "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
-    "thumbnail": "/images/products/founder-spec-generator/preview-1.png"
+    "thumbnail": "/images/products/founder-spec-generator/thumbnail.svg"
   },
   {
     "id": "founder-outreach-kit",
@@ -57,7 +57,7 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
-    "thumbnail": "/images/products/founder-outreach-kit/preview-1.png"
+    "thumbnail": "/images/products/founder-outreach-kit/thumbnail.svg"
   },
   {
     "id": "founder-pdf-summarizer",
@@ -65,7 +65,7 @@
     "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
     "category": "Strategy",
     "productId": "FS013",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/founder-pdf-summarizer/thumbnail.svg"
   },
   {
     "id": "founder-update-generator",
@@ -73,7 +73,7 @@
     "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
     "category": "Strategy",
     "productId": "FS014",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/founder-update-generator/thumbnail.svg"
   },
   {
     "id": "linkedin-candidate-screener",
@@ -81,7 +81,7 @@
     "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
     "category": "Hiring Tools",
     "productId": "FS015",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/linkedin-candidate-screener/thumbnail.svg"
   },
   {
     "id": "founder-command-center",
@@ -89,7 +89,7 @@
     "description": "One place to see what is happening across your company, what changed, and what needs attention next.",
     "category": "Strategy",
     "productId": "FS016",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/founder-command-center/thumbnail.svg"
   },
   {
     "id": "marketing-agent",
@@ -103,7 +103,7 @@
     "passDurationDays": 30,
     "sharedWalletCredits": 500,
     "telegramBotUsername": "FSMaAgBot",
-    "thumbnail": "/images/strategy.png"
+    "thumbnail": "/images/products/marketing-agent/thumbnail.svg"
   },
   {
     "id": "finance-agent",
@@ -117,7 +117,7 @@
     "passDurationDays": 30,
     "sharedWalletCredits": 750,
     "telegramBotUsername": "founder_systems_finance_bot",
-    "thumbnail": "/images/finance.png"
+    "thumbnail": "/images/products/finance-agent/thumbnail.svg"
   },
   {
     "id": "ops-agent",
@@ -131,13 +131,13 @@
     "passDurationDays": 30,
     "sharedWalletCredits": 500,
     "telegramBotUsername": "founder_systems_ops_bot",
-    "thumbnail": "/images/systems.png"
+    "thumbnail": "/images/products/ops-agent/thumbnail.svg"
   },
   {
     "id": "promptdeck-ai",
     "name": "PromptDeck AI",
     "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
     "category": "Strategy",
-    "thumbnail": "/images/products/promptdeck-ai/preview-1.png"
+    "thumbnail": "/images/products/promptdeck-ai/thumbnail.svg"
   }
 ]

@@ -44,7 +44,7 @@
     { "q": "How does access work?", "a": "Operations Operator is sold as a 30-day access pass with included credits rather than a one-time lifetime purchase." },
     { "q": "Can it act as HR or support?", "a": "It can support structured HR, support, and operations workflows, with external actions kept approval-gated as integrations mature." }
   ],
-  "images": ["/images/systems.png"],
+  "images": ["/images/products/ops-agent/thumbnail.svg"],
   "category": "AI Operators",
   "priceInr": 999,
   "priceUsd": 12,

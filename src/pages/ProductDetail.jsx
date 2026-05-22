@@ -21,6 +21,7 @@ const NON_PRODUCT_GALLERY_IMAGES = new Set([
     '/images/hero.png',
     '/images/strategy.png',
     '/images/systems.png',
+    '/images/finance.png',
 ]);
 
 const PRODUCT_MEDIA_CAPTIONS = {
@@ -542,8 +543,8 @@ const ProductDetail = () => {
                                                 ? 'Flip through the real workflow before you launch it.'
                                                 : 'A quick look at the actual tool before you launch it.')
                                             : (showProductGallery
-                                                ? 'Browse the actual screens, sheets, or working views before you buy.'
-                                                : 'A quick look at the actual product surface so the page is not just sales copy.')}
+                                                ? 'Browse the visual overview plus any real screens, sheets, or working views before you buy.'
+                                                : 'A quick visual summary so the page is not just sales copy.')}
                                     </p>
                                 </div>
                                 {/* Main Image */}
