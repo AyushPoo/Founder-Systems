@@ -42,13 +42,25 @@ function roundedPanel(x, y, width, height, radius = 32, fill = COLORS.panel, str
   return `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="${radius}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" />`;
 }
 
+function heroHeading(spec) {
+  const lines = spec.headline || [spec.badge];
+  return lines
+    .map((line, index) => `
+      <text x="148" y="${300 + (index * 100)}" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="${COLORS.black}">
+        ${esc(line)}
+      </text>
+    `)
+    .join('');
+}
+
 function renderTopLabel(spec) {
   return `
-    <rect x="126" y="110" width="352" height="66" rx="33" fill="${COLORS.panel}" stroke="${COLORS.outline}" stroke-width="2" />
-    <text x="302" y="152" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5" fill="${COLORS.black}">
+    <rect x="126" y="110" width="324" height="62" rx="31" fill="${COLORS.panel}" stroke="${COLORS.outline}" stroke-width="2" />
+    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="${COLORS.black}">
       ${esc(spec.label.toUpperCase())}
     </text>
-    <text x="126" y="252" font-family="Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="6" fill="${COLORS.black}">
+    <rect x="1210" y="110" width="248" height="62" rx="31" fill="${COLORS.black}" />
+    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
       ${esc(spec.badge.toUpperCase())}
     </text>
   `;
@@ -59,7 +71,7 @@ function renderSupportBand(spec) {
   return `
     <rect x="132" y="986" width="1336" height="118" rx="42" fill="${COLORS.panel}" stroke="${COLORS.outline}" stroke-width="2" />
     ${chips}
-    <rect x="1118" y="1022" width="278" height="52" rx="26" fill="${COLORS.orange}" />
+    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="${spec.accent}" />
     <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
       ${esc(spec.titleMarker)}
     </text>
@@ -129,55 +141,58 @@ function motifGlyph(spec) {
 
 function renderPanelComposition(spec) {
   return `
-    ${roundedPanel(176, 328, 1248, 564, 58, COLORS.creamSoft, COLORS.black, 4)}
-    ${roundedPanel(248, 404, 364, 264, 34)}
-    ${roundedPanel(652, 404, 520, 172, 34)}
-    ${roundedPanel(652, 606, 520, 184, 34)}
+    <rect x="92" y="202" width="1416" height="680" rx="56" fill="${spec.tint}" />
+    ${roundedPanel(846, 210, 558, 530, 46, COLORS.creamSoft, COLORS.black, 4)}
+    ${roundedPanel(900, 286, 176, 150, 30)}
+    ${roundedPanel(1098, 286, 244, 116, 30)}
+    ${roundedPanel(1098, 424, 244, 146, 30)}
+    ${roundedPanel(900, 468, 442, 212, 32)}
     ${motifGlyph(spec)}
-    ${strokeLine(300, 476, 560, 476)}
-    ${strokeLine(300, 534, 522, 534, COLORS.inkSoft)}
-    ${strokeLine(300, 592, 548, 592, COLORS.inkSoft)}
-    ${strokeLine(704, 478, 1118, 478)}
-    ${strokeLine(704, 536, 1046, 536, COLORS.inkSoft)}
-    ${strokeLine(704, 676, 1118, 676)}
-    ${strokeLine(704, 734, 990, 734, COLORS.inkSoft)}
+    ${strokeLine(934, 330, 1032, 330, COLORS.black, 4)}
+    ${strokeLine(934, 372, 1008, 372, COLORS.inkSoft, 4)}
+    ${strokeLine(1132, 330, 1284, 330, COLORS.black, 4)}
+    ${strokeLine(1132, 476, 1286, 476, COLORS.black, 4)}
+    ${strokeLine(934, 538, 1262, 538, COLORS.black, 4)}
+    ${strokeLine(934, 596, 1228, 596, COLORS.inkSoft, 4)}
+    ${strokeLine(934, 650, 1186, 650, COLORS.inkSoft, 4)}
   `;
 }
 
 function renderFlowComposition(spec) {
   return `
-    ${roundedPanel(212, 428, 264, 264, 40, COLORS.panel, COLORS.black, 4)}
-    ${roundedPanel(588, 328, 312, 184, 40)}
-    ${roundedPanel(588, 608, 312, 184, 40)}
-    ${roundedPanel(1018, 428, 338, 264, 40, COLORS.panel, COLORS.black, 4)}
+    <rect x="92" y="202" width="1416" height="680" rx="56" fill="${spec.tint}" />
+    ${roundedPanel(850, 250, 520, 496, 44, COLORS.creamSoft, COLORS.black, 4)}
+    ${roundedPanel(906, 356, 128, 128, 26)}
+    ${roundedPanel(1112, 302, 192, 96, 26)}
+    ${roundedPanel(1112, 496, 192, 96, 26)}
+    ${roundedPanel(1040, 648, 250, 70, 35, spec.accent, spec.accent, 0)}
     ${motifGlyph(spec)}
-    <path d="M 476 560 H 564" stroke="${COLORS.black}" stroke-width="6" stroke-linecap="round" />
-    <path d="M 476 560 C 528 560 532 420 588 420" stroke="${COLORS.orange}" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 476 560 C 528 560 532 700 588 700" stroke="${COLORS.orange}" stroke-width="6" stroke-linecap="round" fill="none" />
-    <path d="M 900 420 H 980" stroke="${COLORS.black}" stroke-width="6" stroke-linecap="round" />
-    <path d="M 900 700 H 980" stroke="${COLORS.black}" stroke-width="6" stroke-linecap="round" />
-    ${strokeLine(252, 500, 424, 500, COLORS.black, 4)}
-    ${strokeLine(252, 556, 390, 556, COLORS.inkSoft, 4)}
-    ${strokeLine(1048, 504, 1278, 504, COLORS.black, 4)}
-    ${strokeLine(1048, 560, 1224, 560, COLORS.inkSoft, 4)}
+    <path d="M 1034 420 H 1104" stroke="${COLORS.black}" stroke-width="5" stroke-linecap="round" />
+    <path d="M 1034 420 C 1088 420 1088 350 1112 350" stroke="${spec.accent}" stroke-width="5" stroke-linecap="round" fill="none" />
+    <path d="M 1034 420 C 1088 420 1088 544 1112 544" stroke="${spec.accent}" stroke-width="5" stroke-linecap="round" fill="none" />
+    ${strokeLine(936, 428, 1002, 428, COLORS.inkSoft, 4)}
+    ${strokeLine(936, 474, 988, 474, COLORS.inkSoft, 4)}
+    ${strokeLine(1142, 350, 1270, 350, COLORS.black, 4)}
+    ${strokeLine(1142, 544, 1260, 544, COLORS.black, 4)}
+    <circle cx="1034" cy="420" r="14" fill="${spec.accent}" stroke="${COLORS.black}" stroke-width="3" />
   `;
 }
 
 function renderSignalComposition(spec) {
   return `
-    ${roundedPanel(212, 350, 420, 520, 48, COLORS.panel, COLORS.black, 4)}
-    ${roundedPanel(710, 350, 648, 520, 48, COLORS.creamSoft, COLORS.black, 4)}
-    ${roundedPanel(760, 418, 250, 112, 30)}
-    ${roundedPanel(1040, 418, 250, 112, 30)}
-    ${roundedPanel(760, 580, 530, 92, 28)}
-    ${roundedPanel(760, 710, 530, 92, 28)}
+    <rect x="92" y="202" width="1416" height="680" rx="56" fill="${spec.tint}" />
+    ${roundedPanel(850, 250, 520, 496, 44, COLORS.creamSoft, COLORS.black, 4)}
+    ${roundedPanel(906, 320, 148, 238, 28)}
+    ${roundedPanel(1084, 320, 224, 128, 28)}
+    ${roundedPanel(1084, 478, 224, 82, 26)}
+    ${roundedPanel(1084, 584, 224, 94, 26)}
     ${motifGlyph(spec)}
-    ${strokeLine(322, 728, 520, 728)}
-    ${strokeLine(322, 778, 494, 778, COLORS.inkSoft)}
-    ${strokeLine(812, 472, 930, 472)}
-    ${strokeLine(812, 628, 1210, 628)}
-    ${strokeLine(812, 760, 1184, 760, COLORS.inkSoft)}
-    <rect x="1040" y="418" width="250" height="112" rx="30" fill="${COLORS.orange}" opacity="${spec.motif === 'finance-grid' ? '0.12' : '0.9'}" />
+    <rect x="1174" y="320" width="134" height="52" rx="18" fill="${spec.accent}" />
+    ${strokeLine(1118, 386, 1248, 386, COLORS.black, 4)}
+    ${strokeLine(1118, 518, 1266, 518, COLORS.black, 4)}
+    ${strokeLine(1118, 630, 1252, 630, COLORS.inkSoft, 4)}
+    ${strokeLine(936, 620, 1022, 620, COLORS.black, 4)}
+    ${strokeLine(936, 664, 1008, 664, COLORS.inkSoft, 4)}
   `;
 }
 
@@ -185,7 +200,16 @@ function renderCover(spec) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="1600" height="1200" fill="${COLORS.cream}" />
+  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="${COLORS.cream}" stroke="${COLORS.black}" stroke-width="4" />
+  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
   ${renderTopLabel(spec)}
+  ${heroHeading(spec)}
+  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="${spec.accentDark}">
+    FOUNDER SYSTEMS • PREMIUM TOOL
+  </text>
+  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="${COLORS.black}">
+    Designed to look priced, not placeholder.
+  </text>
   ${spec.composition === 'panel' ? renderPanelComposition(spec) : spec.composition === 'flow' ? renderFlowComposition(spec) : renderSignalComposition(spec)}
   ${renderSupportBand(spec)}
 </svg>`;

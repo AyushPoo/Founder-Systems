@@ -1,32 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="1600" height="1200" fill="#f7f1e7" />
+  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="#f7f1e7" stroke="#1b1c1a" stroke-width="4" />
+  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
   
-    <rect x="126" y="110" width="352" height="66" rx="33" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="302" y="152" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="5" fill="#1b1c1a">
+    <rect x="126" y="110" width="324" height="62" rx="31" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
+    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#1b1c1a">
       DECKS
     </text>
-    <text x="126" y="252" font-family="Arial, sans-serif" font-size="38" font-weight="700" letter-spacing="6" fill="#1b1c1a">
+    <rect x="1210" y="110" width="248" height="62" rx="31" fill="#1b1c1a" />
+    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
       SLIDE FRAME
     </text>
   
   
-    <rect x="176" y="328" width="1248" height="564" rx="58" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="248" y="404" width="364" height="264" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="652" y="404" width="520" height="172" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="652" y="606" width="520" height="184" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+      <text x="148" y="300" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
+        Build
+      </text>
+    
+      <text x="148" y="400" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
+        the deck
+      </text>
+    
+      <text x="148" y="500" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
+        faster
+      </text>
+    
+  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="#5941c6">
+    FOUNDER SYSTEMS • PREMIUM TOOL
+  </text>
+  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="#1b1c1a">
+    Designed to look priced, not placeholder.
+  </text>
+  
+    <rect x="92" y="202" width="1416" height="680" rx="56" fill="#eee9ff" />
+    <rect x="846" y="210" width="558" height="530" rx="46" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
+    <rect x="900" y="286" width="176" height="150" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="1098" y="286" width="244" height="116" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="1098" y="424" width="244" height="146" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <rect x="900" y="468" width="442" height="212" rx="32" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
     
         <rect x="256" y="430" width="334" height="250" rx="34" fill="#fffdf8" stroke="#d9d0c2" stroke-width="3" />
         <rect x="286" y="462" width="334" height="250" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
         <rect x="1210" y="412" width="120" height="380" rx="24" fill="#ff6a1a" opacity="0.72" />
       
-    <path d="M 300 476 L 560 476" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 300 534 L 522 534" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 300 592 L 548 592" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 704 478 L 1118 478" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 704 536 L 1046 536" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 704 676 L 1118 676" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 704 734 L 990 734" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <path d="M 934 330 L 1032 330" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 934 372 L 1008 372" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <path d="M 1132 330 L 1284 330" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 1132 476 L 1286 476" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 934 538 L 1262 538" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+    <path d="M 934 596 L 1228 596" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
+    <path d="M 934 650 L 1186 650" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
   
   
     <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
@@ -46,7 +70,7 @@
       Export
     </text>
   
-    <rect x="1118" y="1022" width="278" height="52" rx="26" fill="#ff6a1a" />
+    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="#7e5fff" />
     <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
       Build the deck faster
     </text>
