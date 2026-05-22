@@ -405,7 +405,7 @@ export default function Account() {
       <SEO title="Workspace Settings" description="Manage your shared Founder Systems workspace, operator access, credits, and connected tools." canonical="/account" noIndex />
       <Navbar />
 
-      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 pt-28 md:pt-32 pb-16 md:pb-20">
+      <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-10 pt-26 md:pt-28 pb-14 md:pb-16">
         {loadingSession ? (
           <div className="rounded-[24px] border border-brand-black/10 bg-white p-10">
             <p className="text-lg font-black">Checking your Founder Systems session...</p>
@@ -443,9 +443,9 @@ export default function Account() {
             </aside>
           </div>
         ) : (
-          <div className="space-y-8">
-            {(notice || error) ? (
-              <div className="rounded-2xl border border-brand-black/10 bg-white px-5 py-4 font-semibold">
+            <div className="space-y-6">
+              {(notice || error) ? (
+              <div className="rounded-[18px] border border-brand-black/10 bg-white px-4 py-3 text-[14px] font-semibold">
                 {notice || error}
               </div>
             ) : null}
