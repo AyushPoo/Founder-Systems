@@ -26,6 +26,18 @@ from .cost_guard import (
     update_model_policy,
 )
 from .db import Base, engine, get_db
+from .integrations import (
+    GOOGLE_GMAIL_SCOPES,
+    build_google_gmail_state,
+    decode_google_gmail_state,
+    exchange_google_code_for_tokens,
+    fetch_google_profile,
+    get_user_gmail_account,
+    integration_to_response,
+    resolve_action_user,
+    send_gmail_message,
+    upsert_google_gmail_account,
+)
 from .mailer import send_magic_link_email
 from .models import (
     AgentWorkspace,
@@ -41,6 +53,7 @@ from .models import (
     PurchaseItem,
     TelegramLink,
     User,
+    UserIntegrationAccount,
     Workspace,
     WorkspaceMember,
     WorkspaceMemoryItem,
@@ -76,6 +89,9 @@ from .schemas import (
     CostGuardSummaryResponse,
     CostGuardUserRow,
     EntitlementResponse,
+    GmailSendRequest,
+    GmailSendResponse,
+    IntegrationStatusEnvelope,
     MagicLinkStartRequest,
     MagicLinkStartResponse,
     MagicLinkVerifyRequest,
@@ -417,6 +433,10 @@ def _sign_in_redirect_url(error_code: str, next_url: str | None = None) -> str:
     return sign_in_target
 
 
+def _append_url_params(url: str, params: dict[str, str]) -> str:
+    return str(httpx.URL(url).copy_merge_params(params))
+
+
 def _build_google_state(next_url: str | None, remember_me: bool) -> str:
     now = utc_now()
     token = jwt.encode(
@@ -660,6 +680,206 @@ async def auth_google_callback(
     response = RedirectResponse(url=_safe_return_url(next_url), status_code=303)
     _set_session_cookie(response, session_token, remember_me=remember_me)
     return response
+
+
+@app.get("/integrations/google/gmail/start")
+@app.get("/v1/integrations/google/gmail/start")
+def google_gmail_integration_start(
+    next: str | None = Query(default=None),
+    user: User = Depends(require_current_user),
+) -> Response:
+    safe_next = _safe_return_url(next or f"{settings.site_app_url.rstrip('/')}/account?tab=settings")
+    if not settings.google_client_id or not settings.google_client_secret:
+        return RedirectResponse(
+            url=_append_url_params(safe_next, {"integration": "gmail-unavailable"}),
+            status_code=303,
+        )
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/google/gmail/callback"
+    state = build_google_gmail_state(settings, user_id=user.id, next_url=safe_next)
+    google_url = httpx.URL("https://accounts.google.com/o/oauth2/v2/auth").copy_merge_params(
+        {
+            "client_id": settings.google_client_id,
+            "redirect_uri": redirect_uri,
+            "response_type": "code",
+            "scope": " ".join(GOOGLE_GMAIL_SCOPES),
+            "access_type": "offline",
+            "include_granted_scopes": "true",
+            "prompt": "consent",
+            "state": state,
+        }
+    )
+    return RedirectResponse(url=str(google_url), status_code=303)
+
+
+@app.get("/integrations/google/gmail/callback")
+@app.get("/v1/integrations/google/gmail/callback")
+async def google_gmail_integration_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+) -> Response:
+    next_url = f"{settings.site_app_url.rstrip('/')}/account?tab=settings"
+    try:
+        state_payload = decode_google_gmail_state(settings, state or "")
+        next_url = _safe_return_url(str(state_payload.get("next") or next_url))
+        user_id = str(state_payload.get("sub") or "").strip()
+    except Exception:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-expired"}),
+            status_code=303,
+        )
+
+    user = db.get(User, user_id)
+    if user is None or error or not code:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            status_code=303,
+        )
+    if not settings.google_client_id or not settings.google_client_secret:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-unavailable"}),
+            status_code=303,
+        )
+
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/google/gmail/callback"
+    try:
+        token_payload = await exchange_google_code_for_tokens(
+            settings,
+            code=code,
+            redirect_uri=redirect_uri,
+            http_client_cls=httpx.AsyncClient,
+        )
+        access_token = str(token_payload.get("access_token") or "").strip()
+        if not access_token:
+            raise ValueError("Missing Google access token")
+        profile = await fetch_google_profile(access_token, http_client_cls=httpx.AsyncClient)
+        if not profile.get("email_verified"):
+            return RedirectResponse(
+                url=_append_url_params(next_url, {"integration": "gmail-unverified"}),
+                status_code=303,
+            )
+        upsert_google_gmail_account(db, settings, user=user, token_payload=token_payload, profile=profile)
+        db.commit()
+    except Exception:
+        db.rollback()
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            status_code=303,
+        )
+
+    return RedirectResponse(
+        url=_append_url_params(next_url, {"integration": "gmail-connected"}),
+        status_code=303,
+    )
+
+
+@app.get("/integrations", response_model=IntegrationStatusEnvelope)
+@app.get("/v1/integrations", response_model=IntegrationStatusEnvelope)
+def integration_status(
+    user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> IntegrationStatusEnvelope:
+    gmail = db.scalar(
+        select(UserIntegrationAccount).where(
+            UserIntegrationAccount.user_id == user.id,
+            UserIntegrationAccount.provider == "google",
+            UserIntegrationAccount.integration_slug == "gmail",
+        )
+    )
+    return IntegrationStatusEnvelope(integrations=[integration_to_response(gmail)])
+
+
+@app.post("/internal/runtime/actions/email/send", response_model=GmailSendResponse)
+@app.post("/v1/internal/runtime/actions/email/send", response_model=GmailSendResponse)
+async def internal_runtime_email_send(
+    payload: GmailSendRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GmailSendResponse:
+    user = resolve_action_user(
+        db,
+        product_slug=payload.product_slug,
+        user_id=payload.user_id,
+        telegram_user_id=payload.telegram_user_id,
+    )
+    if user is None:
+        raise HTTPException(status_code=404, detail="Action user not found")
+
+    reserve_payload = AiUsageReserveRequest(
+        product_slug=payload.product_slug,
+        action="gmail_send",
+        reference_id=payload.reference_id,
+        credits=settings.gmail_send_credit_cost,
+        provider="google",
+        model_id="gmail.send",
+        user_id=user.id,
+        telegram_user_id=payload.telegram_user_id,
+        estimated_input_chars=len(payload.body_text) + len(payload.subject),
+        estimated_output_tokens=0,
+        metadata={
+            **(payload.metadata or {}),
+            "channel": "gmail",
+            "approval_text": payload.approval_text,
+            "recipient_count": len(payload.to) + len(payload.cc) + len(payload.bcc),
+        },
+    )
+    guard = reserve_ai_usage(db, settings, payload=reserve_payload, authorized_user=authorized)
+    if not guard.ok:
+        raise HTTPException(status_code=403, detail=guard.reason or "Action denied")
+
+    account = get_user_gmail_account(db, user_id=user.id)
+    if account is None:
+        release_ai_usage(
+            db,
+            payload=AiUsageReleaseRequest(
+                reference_id=payload.reference_id,
+                reason="gmail_not_connected",
+                metadata={"channel": "gmail"},
+            ),
+        )
+        raise HTTPException(status_code=403, detail="Connect Gmail in Founder Systems before sending email.")
+
+    try:
+        sent = await send_gmail_message(
+            db,
+            settings,
+            account=account,
+            payload=payload,
+            http_client_cls=httpx.AsyncClient,
+        )
+        final = finalize_ai_usage(
+            db,
+            payload=AiUsageFinalizeRequest(
+                reference_id=payload.reference_id,
+                credits=settings.gmail_send_credit_cost,
+                metadata={
+                    "channel": "gmail",
+                    "provider_message_id": sent.get("id"),
+                    "thread_id": sent.get("threadId"),
+                },
+            ),
+        )
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        release_ai_usage(
+            db,
+            payload=AiUsageReleaseRequest(
+                reference_id=payload.reference_id,
+                reason="gmail_send_failed",
+                metadata={"channel": "gmail", "error": str(exc)[:240]},
+            ),
+        )
+        raise HTTPException(status_code=502, detail="Gmail send failed. Please try again.") from exc
+
+    return GmailSendResponse(
+        ok=True,
+        provider_message_id=str(sent.get("id") or "") or None,
+        thread_id=str(sent.get("threadId") or "") or None,
+        credits_spent=final.credits,
+        from_email=account.account_email,
+    )
 
 
 @app.post("/auth/logout", response_model=SessionResponse)

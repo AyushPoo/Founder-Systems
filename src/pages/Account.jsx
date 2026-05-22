@@ -12,7 +12,8 @@ import {
   humanizeIdentifier,
 } from '../utils/commerce';
 import { getAgentProductMeta, getAgentProductStatus, getTelegramConnectPath, normalizeAgentAccountStatus } from '../utils/agents';
-import { getAgentAccountStatus } from '../utils/founderApi';
+import { normalizeIntegrations } from '../utils/integrations';
+import { getAgentAccountStatus, getGmailIntegrationStartUrl, getIntegrationStatus } from '../utils/founderApi';
 
 const TABS = ['Memory', 'Products', 'Credits', 'History', 'Settings'];
 const PRODUCT_CONNECTIONS = [
@@ -131,11 +132,21 @@ function Account() {
   const [customCredits, setCustomCredits] = useState(10);
   const [agentStatus, setAgentStatus] = useState(null);
   const [loadingAgentStatus, setLoadingAgentStatus] = useState(false);
+  const [integrationStatus, setIntegrationStatus] = useState(() => normalizeIntegrations(null));
+  const [loadingIntegrations, setLoadingIntegrations] = useState(false);
 
   useEffect(() => {
     const value = searchParams.get('tab');
     if (value && TABS.includes(titleCase(value))) {
       setActiveTab(titleCase(value));
+    }
+    const integration = searchParams.get('integration');
+    if (integration === 'gmail-connected') {
+      setNotice('Gmail connected. Marketing Agent can now send approved emails from your Gmail.');
+    } else if (integration === 'gmail-failed') {
+      setNotice('Gmail connection failed. Please try connecting again.');
+    } else if (integration === 'gmail-unavailable') {
+      setNotice('Gmail connection is not configured yet.');
     }
   }, [searchParams]);
 
@@ -171,6 +182,35 @@ function Account() {
       cancelled = true;
     };
   }, [authenticated, entitlements.length, wallet?.balance]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadIntegrations() {
+      if (!authenticated) {
+        setIntegrationStatus(normalizeIntegrations(null));
+        return;
+      }
+      setLoadingIntegrations(true);
+      try {
+        const payload = await getIntegrationStatus();
+        if (!cancelled) {
+          setIntegrationStatus(normalizeIntegrations(payload));
+        }
+      } catch {
+        if (!cancelled) {
+          setIntegrationStatus(normalizeIntegrations(null));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingIntegrations(false);
+        }
+      }
+    }
+    loadIntegrations();
+    return () => {
+      cancelled = true;
+    };
+  }, [authenticated]);
 
   const memoryCounts = useMemo(() => {
     const canonical = memoryItems.filter((item) => item.memory_scope === 'canonical').length;
@@ -307,6 +347,10 @@ function Account() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleGmailConnect = () => {
+    window.location.assign(getGmailIntegrationStartUrl('/account?tab=settings'));
   };
 
   return (
@@ -740,6 +784,29 @@ function Account() {
 
             {activeTab === 'Settings' ? (
               <section className="grid gap-5 xl:grid-cols-3">
+                <article className="rounded-[24px] border-2 border-brand-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Connected tool</p>
+                      <h2 className="mt-2 text-xl font-black tracking-tight-brand">Gmail sending</h2>
+                    </div>
+                    <span className={`rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] ${integrationStatus.gmail.can_send ? 'bg-green-100 text-green-700' : 'bg-brand-cream text-brand-black/70'}`}>
+                      {loadingIntegrations ? 'Checking' : integrationStatus.gmail.can_send ? 'Connected' : 'Disconnected'}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-brand-black/62">
+                    Connect your own Gmail so Marketing Agent can send explicitly approved emails from your account. Founder Systems stores the OAuth token encrypted and never asks for your Gmail password.
+                  </p>
+                  <div className="mt-5 rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Current Gmail</p>
+                    <p className="mt-1 text-sm font-semibold text-brand-black/75">
+                      {integrationStatus.gmail.account_email || 'No Gmail account connected yet.'}
+                    </p>
+                  </div>
+                  <button type="button" onClick={handleGmailConnect} className="btn-cta mt-5 !py-3 !px-5 !text-sm">
+                    {integrationStatus.gmail.can_send ? 'Reconnect Gmail' : 'Connect Gmail'}
+                  </button>
+                </article>
                 {PRODUCT_CONNECTIONS.map((product) => {
                   const preference = getDefaultPreference(product.slug, preferences);
                   return (

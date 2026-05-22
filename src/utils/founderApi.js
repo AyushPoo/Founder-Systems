@@ -63,6 +63,15 @@ export function getGoogleAuthStartUrl(nextPath = '/account') {
   return `${API_BASE}/auth/google/start?next=${encodeURIComponent(next)}&remember=1`;
 }
 
+export function getIntegrationStatus() {
+  return apiFetch('/integrations', { method: 'GET' });
+}
+
+export function getGmailIntegrationStartUrl(nextPath = '/account?tab=settings') {
+  const next = `${window.location.origin}${nextPath}`;
+  return `${API_BASE}/integrations/google/gmail/start?next=${encodeURIComponent(next)}`;
+}
+
 export function getWorkspaceBootstrap() {
   return apiFetch('/workspace', { method: 'GET' });
 }

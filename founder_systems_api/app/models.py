@@ -32,6 +32,7 @@ class User(Base):
     workspaces_owned: Mapped[List["Workspace"]] = relationship(back_populates="owner_user")
     telegram_links: Mapped[List["TelegramLink"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     agent_workspaces: Mapped[List["AgentWorkspace"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    integration_accounts: Mapped[List["UserIntegrationAccount"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class AuthMagicLink(Base):
@@ -357,6 +358,31 @@ class AgentWorkspace(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
     user: Mapped["User"] = relationship(back_populates="agent_workspaces")
+
+
+class UserIntegrationAccount(Base):
+    __tablename__ = "user_integration_accounts"
+    __table_args__ = (
+        UniqueConstraint("user_id", "provider", "integration_slug", name="uq_user_integration_accounts_user_provider_slug"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uuid_str)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    provider: Mapped[str] = mapped_column(String(80), index=True)
+    integration_slug: Mapped[str] = mapped_column(String(120), index=True)
+    account_email: Mapped[Optional[str]] = mapped_column(String(320), nullable=True)
+    display_name: Mapped[Optional[str]] = mapped_column(String(160), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="connected", index=True)
+    scopes_json: Mapped[dict] = mapped_column("scopes", JSON, default=dict)
+    encrypted_token_json: Mapped[str] = mapped_column(Text, default="")
+    connected_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_used_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    metadata_json: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+
+    user: Mapped["User"] = relationship(back_populates="integration_accounts")
 
 
 class AiModelPolicy(Base):

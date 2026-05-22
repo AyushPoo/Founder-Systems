@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     google_client_id: Optional[str] = None
     google_client_secret: Optional[str] = None
+    integration_token_secret: Optional[str] = None
 
     razorpay_key_id: Optional[str] = None
     razorpay_key_secret: Optional[str] = None
@@ -53,6 +54,7 @@ class Settings(BaseSettings):
     ai_guard_global_daily_limit: int = Field(default=1000)
     ai_guard_default_credit_cost: int = Field(default=1)
     ai_guard_deepseek_enabled: bool = Field(default=False)
+    gmail_send_credit_cost: int = Field(default=1)
 
     @property
     def session_issuer(self) -> str:

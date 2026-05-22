@@ -520,3 +520,44 @@ class CostGuardEventResponse(BaseModel):
     credits: int
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime
+
+
+class IntegrationAccountResponse(BaseModel):
+    provider: str
+    integration_slug: str
+    status: str
+    account_email: EmailStr | None = None
+    display_name: str | None = None
+    scopes: list[str] = Field(default_factory=list)
+    can_send: bool = False
+    connected_at: datetime | None = None
+    last_used_at: datetime | None = None
+
+
+class IntegrationStatusEnvelope(BaseModel):
+    integrations: list[IntegrationAccountResponse] = Field(default_factory=list)
+
+
+class GmailSendRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"), min_length=1, max_length=120)
+    reference_id: str = Field(validation_alias=AliasChoices("reference_id", "referenceId"), min_length=1, max_length=160)
+    user_id: str | None = Field(default=None, validation_alias=AliasChoices("user_id", "userId"), max_length=36)
+    telegram_user_id: str | None = Field(default=None, validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), max_length=120)
+    to: list[EmailStr] = Field(min_length=1, max_length=25)
+    cc: list[EmailStr] = Field(default_factory=list, max_length=25)
+    bcc: list[EmailStr] = Field(default_factory=list, max_length=25)
+    subject: str = Field(min_length=1, max_length=240)
+    body_text: str = Field(validation_alias=AliasChoices("body_text", "bodyText"), min_length=1, max_length=50000)
+    body_html: str | None = Field(default=None, validation_alias=AliasChoices("body_html", "bodyHtml"), max_length=100000)
+    approval_text: str = Field(validation_alias=AliasChoices("approval_text", "approvalText"), min_length=1, max_length=1000)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class GmailSendResponse(BaseModel):
+    ok: bool
+    provider: str = "google"
+    integration_slug: str = "gmail"
+    provider_message_id: str | None = None
+    thread_id: str | None = None
+    credits_spent: int = 0
+    from_email: EmailStr | None = None
