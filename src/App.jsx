@@ -90,6 +90,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/access" element={<Access />} />
             <Route path="/account" element={<Account />} />
+            <Route path="/workspace-settings" element={<Account />} />
             <Route path="/account/telegram-connect/:productSlug" element={<TelegramConnect />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/signin" element={<SignIn />} />

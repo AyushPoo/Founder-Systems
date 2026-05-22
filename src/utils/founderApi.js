@@ -67,7 +67,7 @@ export function getIntegrationStatus() {
   return apiFetch('/integrations', { method: 'GET' });
 }
 
-export function getGmailIntegrationStartUrl(nextPath = '/account?tab=settings') {
+export function getGmailIntegrationStartUrl(nextPath = '/account?tab=connections') {
   const next = `${window.location.origin}${nextPath}`;
   return `${API_BASE}/integrations/google/gmail/start?next=${encodeURIComponent(next)}`;
 }
