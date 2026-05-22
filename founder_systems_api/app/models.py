@@ -49,6 +49,14 @@ class AuthMagicLink(Base):
     user: Mapped["User"] = relationship(back_populates="magic_links")
 
 
+class RequestThrottle(Base):
+    __tablename__ = "request_throttles"
+
+    key: Mapped[str] = mapped_column(String(200), primary_key=True)
+    count: Mapped[int] = mapped_column(Integer, default=0)
+    window_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class Product(Base):
     __tablename__ = "products"
 

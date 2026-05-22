@@ -253,7 +253,7 @@ function mergeDetailedBreakdown(basePayload, detailPayload) {
   };
 }
 
-async function requestJsonModel(req, { productKey, userPrompt, files = [], modelTier, maxOutputTokens }) {
+async function requestJsonModel(req, { productKey, userPrompt, files = [], modelTier, maxOutputTokens, usage }) {
   const result = await invokeFounderJsonModel({
     req,
     productKey,
@@ -262,6 +262,7 @@ async function requestJsonModel(req, { productKey, userPrompt, files = [], model
     files,
     modelTier,
     maxOutputTokens,
+    usage,
   });
 
   return result;
@@ -331,6 +332,9 @@ async function summarizeWorkspaceWithModel(req, { focus = '', fileAnalyses = [],
     }),
     modelTier: 'quality',
     maxOutputTokens: 1100,
+    usage: {
+      action: 'analyze_workspace',
+    },
   });
 }
 

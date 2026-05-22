@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from urllib.parse import urlparse
 
 from fastapi import Body, Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -187,10 +188,12 @@ from .services import (
     grant_credit_pack_purchase,
     issue_telegram_link_token,
     is_admin_email,
+    enforce_request_window,
     promote_workspace_memory_item,
     record_product_project,
     record_wallet_entry,
     recommend_products_for_workspace,
+    resolve_usage_credit_cost,
     save_webhook_event,
     selected_products_from_item,
     unlock_product_with_wallet_credits,
@@ -399,7 +402,13 @@ def ai_model_policy_to_schema(policy: AiModelPolicy) -> AiModelPolicyResponse:
 
 
 settings = get_settings()
-app = FastAPI(title=settings.app_name)
+settings.validate_production_settings()
+app = FastAPI(
+    title=settings.app_name,
+    docs_url=None if settings.env == "production" else "/docs",
+    openapi_url=None if settings.env == "production" else "/openapi.json",
+    redoc_url=None if settings.env == "production" else "/redoc",
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=settings.cors_origin_regex,
@@ -407,6 +416,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    return response
 
 
 @app.on_event("startup")
@@ -450,17 +470,26 @@ def _read_session_token(request: Request) -> str | None:
 
 
 def _safe_return_url(candidate: str | None) -> str:
+    fallback = f"{settings.site_app_url.rstrip('/')}/account"
     if not candidate:
-        return f"{settings.site_app_url.rstrip('/')}/account"
+        return fallback
     cleaned = candidate.strip()
-    allowed_prefixes = {
-        settings.site_app_url.rstrip("/"),
-        settings.account_app_url.rstrip("/"),
-        settings.promptdeck_app_url.rstrip("/"),
+    parsed = urlparse(cleaned)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return fallback
+
+    def _origin(url: str) -> tuple[str, str, int | None]:
+        base = urlparse(url)
+        return base.scheme, (base.hostname or "").lower(), base.port
+
+    allowed_origins = {
+        _origin(settings.site_app_url),
+        _origin(settings.account_app_url),
+        _origin(settings.promptdeck_app_url),
     }
-    if any(cleaned.startswith(prefix) for prefix in allowed_prefixes):
+    if _origin(cleaned) in allowed_origins:
         return cleaned
-    return f"{settings.site_app_url.rstrip('/')}/account"
+    return fallback
 
 
 def _sign_in_redirect_url(error_code: str, next_url: str | None = None) -> str:
@@ -684,11 +713,39 @@ def public_credit_milestone(db: Session = Depends(get_db)) -> PublicCreditMilest
     )
 
 
+def _request_client_identifier(request: Request) -> str:
+    forwarded_for = str(request.headers.get("x-forwarded-for") or "").strip()
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    if request.client and request.client.host:
+        return str(request.client.host).strip()
+    return "unknown"
+
+
 @app.post("/auth/magic-link/start", response_model=MagicLinkStartResponse)
 async def auth_magic_link_start(
     payload: MagicLinkStartRequest,
+    request: Request,
     db: Session = Depends(get_db),
 ) -> MagicLinkStartResponse:
+    normalized_email = str(payload.email or "").strip().lower()
+    client_key = _request_client_identifier(request)
+    try:
+        enforce_request_window(
+            db,
+            key=f"magic-link:email:{normalized_email}",
+            limit=3,
+            window_seconds=15 * 60,
+        )
+        enforce_request_window(
+            db,
+            key=f"magic-link:ip:{client_key}",
+            limit=10,
+            window_seconds=15 * 60,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=429, detail=str(error)) from error
+
     user = get_or_create_user(db, email=payload.email, name=payload.name)
     raw_token = new_magic_token()
     link = create_magic_link(db, user_id=user.id, token=raw_token, settings=settings, next_url=payload.next_url)
@@ -1988,17 +2045,20 @@ def product_usage_spend(
 ) -> CreditWalletResponse:
     workspace, _membership = get_or_create_workspace(db, user=user)
     try:
+        credits = resolve_usage_credit_cost(product_slug, payload.action)
         wallet, _usage_event = consume_wallet_credits(
             db,
             workspace_id=workspace.id,
             user_id=user.id,
             product_slug=product_slug,
             action=payload.action,
-            credits=payload.credits,
+            credits=credits,
             metadata=payload.metadata,
         )
     except ValueError as error:
-        raise HTTPException(status_code=403, detail=str(error)) from error
+        detail = str(error)
+        status_code = 400 if detail == "Product usage policy is not configured" else 403
+        raise HTTPException(status_code=status_code, detail=detail) from error
     return credit_wallet_to_schema(wallet)
 
 

@@ -83,7 +83,9 @@ def get_google_integration_scopes(integration_slug: str) -> tuple[str, ...] | No
 
 
 def _fernet(settings: Settings) -> Fernet:
-    secret = (settings.integration_token_secret or settings.session_secret).encode("utf-8")
+    if not settings.integration_token_secret:
+        raise RuntimeError("FS_INTEGRATION_TOKEN_SECRET must be configured")
+    secret = settings.integration_token_secret.encode("utf-8")
     key = base64.urlsafe_b64encode(hashlib.sha256(secret).digest())
     return Fernet(key)
 

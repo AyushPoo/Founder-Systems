@@ -706,6 +706,9 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
       __rateLimit: modelResult.rateLimit,
     };
   } catch (error) {
+    if (Number.isInteger(error?.statusCode) && error.statusCode < 500) {
+      throw error;
+    }
     const fallback = withFallbackDiagnostic(buildFallbackCampaign(normalizedInput), error?.message);
     return {
       ...fallback,

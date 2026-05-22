@@ -414,7 +414,6 @@ class CreditUnlockResponse(BaseModel):
 
 class ProductUsageSpendRequest(BaseModel):
     action: str = Field(default="generate", max_length=120)
-    credits: int = Field(default=1, ge=1)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -29,4 +29,29 @@ test('consumeProductRateLimit throws after the configured window budget is exhau
   );
 });
 
+test('consumeProductRateLimit ignores spoofable email headers when deriving identity', () => {
+  const forwardedFor = `203.0.113.${Date.now() % 200}`;
+  const firstReq = {
+    headers: {
+      'x-forwarded-for': forwardedFor,
+      'x-user-email': 'first@example.com',
+    },
+  };
+  const secondReq = {
+    headers: {
+      'x-forwarded-for': forwardedFor,
+      'x-user-email': 'second@example.com',
+    },
+  };
+
+  for (let index = 0; index < 6; index += 1) {
+    consumeProductRateLimit('founder-update-generator', firstReq);
+  }
+
+  assert.throws(
+    () => consumeProductRateLimit('founder-update-generator', secondReq),
+    /temporarily rate-limited/i
+  );
+});
+
 console.log('founderAiRuntime tests passed');

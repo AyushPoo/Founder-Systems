@@ -24,6 +24,7 @@ from .models import (
     ProductUsageEvent,
     Purchase,
     PurchaseItem,
+    RequestThrottle,
     TelegramLink,
     User,
     WebhookEvent,
@@ -564,6 +565,67 @@ def get_product_credit_price(product: Product | None) -> int:
     if explicit > 0:
         return explicit
     return 0
+
+
+USAGE_CREDIT_COSTS: dict[tuple[str, str], int] = {
+    ("founder-update-generator", "generate"): 2,
+    ("founder-outreach-kit", "generate"): 2,
+    ("linkedin-candidate-screener", "screen"): 1,
+    ("founder-pdf-summarizer", "generate"): 3,
+    ("founder-pdf-summarizer", "analyze_document"): 3,
+    ("founder-pdf-summarizer", "analyze_workspace"): 4,
+    ("founder-pdf-summarizer", "safe_explain"): 4,
+}
+
+PRODUCT_DEFAULT_USAGE_CREDIT_COSTS: dict[str, int] = {
+    "founder-update-generator": 2,
+    "founder-outreach-kit": 2,
+    "linkedin-candidate-screener": 1,
+    "founder-pdf-summarizer": 3,
+}
+
+
+def resolve_usage_credit_cost(product_slug: str, action: str) -> int:
+    normalized_product_slug = str(product_slug or "").strip().lower()
+    normalized_action = str(action or "generate").strip().lower() or "generate"
+
+    exact = USAGE_CREDIT_COSTS.get((normalized_product_slug, normalized_action))
+    if exact is not None and exact > 0:
+        return exact
+
+    fallback = PRODUCT_DEFAULT_USAGE_CREDIT_COSTS.get(normalized_product_slug)
+    if fallback is not None and fallback > 0:
+        return fallback
+
+    raise ValueError("Product usage policy is not configured")
+
+
+def enforce_request_window(db: Session, *, key: str, limit: int, window_seconds: int) -> None:
+    now = utc_now()
+    throttle = db.get(RequestThrottle, key)
+
+    if throttle is None:
+        throttle = RequestThrottle(
+            key=key,
+            count=1,
+            window_started_at=now,
+        )
+        db.add(throttle)
+        db.commit()
+        return
+
+    elapsed_seconds = (now - _coerce_utc(throttle.window_started_at)).total_seconds()
+    if elapsed_seconds >= window_seconds:
+        throttle.count = 1
+        throttle.window_started_at = now
+        db.commit()
+        return
+
+    if int(throttle.count or 0) >= int(limit):
+        raise ValueError("Too many requests, please try again later")
+
+    throttle.count = int(throttle.count or 0) + 1
+    db.commit()
 
 
 def quote_wallet_credit_checkout(*, currency: str, pack_slug: str | None = None, credits: int | None = None) -> dict[str, Any]:

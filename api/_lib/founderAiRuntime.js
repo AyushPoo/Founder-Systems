@@ -1,5 +1,11 @@
 import { Buffer } from 'node:buffer';
+import { createHash, randomUUID } from 'node:crypto';
 import process from 'node:process';
+import {
+  finalizeAiUsage,
+  releaseAiUsage,
+  reserveAiUsage,
+} from './founderBackendGuard.js';
 
 const ONE_HOUR_MS = 60 * 60 * 1000;
 const RATE_LIMIT_STORE = globalThis.__founderSystemsRateLimitStore || new Map();
@@ -10,6 +16,9 @@ if (!globalThis.__founderSystemsRateLimitStore) {
 
 const PRODUCT_POLICIES = {
   'founder-update-generator': {
+    productSlug: 'founder-update-generator',
+    usageAction: 'generate',
+    reserveCredits: 2,
     modelTier: 'cheap',
     maxRequestsPerWindow: 6,
     windowMs: ONE_HOUR_MS,
@@ -17,6 +26,9 @@ const PRODUCT_POLICIES = {
     temperature: 0.1,
   },
   'founder-document-intelligence': {
+    productSlug: 'founder-pdf-summarizer',
+    usageAction: 'analyze_document',
+    reserveCredits: 1,
     modelTier: 'cheap',
     maxRequestsPerWindow: 4,
     windowMs: ONE_HOUR_MS,
@@ -24,6 +36,9 @@ const PRODUCT_POLICIES = {
     temperature: 0.1,
   },
   'founder-document-intelligence-quality': {
+    productSlug: 'founder-pdf-summarizer',
+    usageAction: 'analyze_document',
+    reserveCredits: 1,
     modelTier: 'quality',
     maxRequestsPerWindow: 3,
     windowMs: ONE_HOUR_MS,
@@ -31,6 +46,9 @@ const PRODUCT_POLICIES = {
     temperature: 0.1,
   },
   'founder-safe-explainer': {
+    productSlug: 'founder-pdf-summarizer',
+    usageAction: 'safe_explain',
+    reserveCredits: 2,
     modelTier: 'quality',
     maxRequestsPerWindow: 4,
     windowMs: ONE_HOUR_MS,
@@ -38,6 +56,9 @@ const PRODUCT_POLICIES = {
     temperature: 0.1,
   },
   'linkedin-candidate-screener': {
+    productSlug: 'linkedin-candidate-screener',
+    usageAction: 'screen',
+    reserveCredits: 1,
     modelTier: 'cheap',
     maxRequestsPerWindow: 12,
     windowMs: ONE_HOUR_MS,
@@ -45,6 +66,9 @@ const PRODUCT_POLICIES = {
     temperature: 0.05,
   },
   'founder-outreach-kit': {
+    productSlug: 'founder-outreach-kit',
+    usageAction: 'generate',
+    reserveCredits: 2,
     modelTier: 'cheap',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
@@ -256,13 +280,14 @@ export function parseJsonText(text) {
 }
 
 function resolveIdentity(req) {
-  const explicitEmail =
-    cleanText(req?.headers?.['x-founder-user-email']) ||
-    cleanText(req?.headers?.['x-user-email']) ||
-    cleanText(req?.body?.userEmail);
+  const cookie = cleanText(req?.headers?.cookie);
+  if (cookie) {
+    return createHash('sha256').update(cookie).digest('hex').slice(0, 24);
+  }
 
-  if (explicitEmail) {
-    return explicitEmail.toLowerCase();
+  const authorization = cleanText(req?.headers?.authorization);
+  if (authorization) {
+    return createHash('sha256').update(authorization).digest('hex').slice(0, 24);
   }
 
   const forwardedFor = cleanText(req?.headers?.['x-forwarded-for']);
@@ -271,6 +296,44 @@ function resolveIdentity(req) {
   }
 
   return cleanText(req?.socket?.remoteAddress) || 'anonymous';
+}
+
+function countEstimatedInputChars(userPrompt, files = []) {
+  const fileChars = files.reduce((total, file) => {
+    const filenameChars = cleanText(file?.filename).length;
+    const payloadChars = cleanText(file?.fileData).length;
+    return total + filenameChars + Math.min(payloadChars, 12000);
+  }, 0);
+  return Math.max(0, cleanText(userPrompt).length + fileChars);
+}
+
+function extractTokenUsage(payload = {}) {
+  const usage =
+    payload?.usage ||
+    payload?.metrics ||
+    payload?.output?.usage ||
+    payload?.response_metadata?.usage ||
+    {};
+
+  const inputTokens = Number(
+    usage.inputTokens ??
+      usage.input_tokens ??
+      usage.promptTokens ??
+      usage.prompt_tokens ??
+      0
+  );
+  const outputTokens = Number(
+    usage.outputTokens ??
+      usage.output_tokens ??
+      usage.completionTokens ??
+      usage.completion_tokens ??
+      0
+  );
+
+  return {
+    actualInputTokens: Number.isFinite(inputTokens) ? inputTokens : 0,
+    actualOutputTokens: Number.isFinite(outputTokens) ? outputTokens : 0,
+  };
 }
 
 export function consumeProductRateLimit(productKey, req) {
@@ -337,6 +400,7 @@ export async function invokeFounderJsonModel({
   files = [],
   maxOutputTokens,
   temperature,
+  usage = {},
 }) {
   const apiKey = resolveBedrockApiKey();
 
@@ -373,34 +437,118 @@ export async function invokeFounderJsonModel({
     },
   };
 
-  const response = await fetch(
-    `https://bedrock-runtime.${region}.amazonaws.com/model/${encodeURIComponent(modelId)}/converse`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(payload),
+  const usageConfig = {
+    productSlug: cleanText(usage.productSlug) || policy.productSlug || productKey,
+    action: cleanText(usage.action) || policy.usageAction || 'generate',
+    credits: clampNumber(usage.credits, 1, 20, policy.reserveCredits || 1),
+    referenceId: cleanText(usage.referenceId) || `${productKey}-${randomUUID()}`,
+    skipGuard: usage.skipGuard === true,
+  };
+
+  let reservationReferenceId = usageConfig.referenceId;
+  let reserved = false;
+  let modelExecuted = false;
+
+  try {
+    if (!usageConfig.skipGuard) {
+      const reserveResult = await reserveAiUsage({
+        req,
+        payload: {
+          product_slug: usageConfig.productSlug,
+          action: usageConfig.action,
+          reference_id: reservationReferenceId,
+          credits: usageConfig.credits,
+          provider: 'bedrock',
+          model_id: modelId,
+          estimated_input_chars: countEstimatedInputChars(userPrompt, files),
+          estimated_output_tokens: outputTokenCap,
+          metadata: {
+            product_key: productKey,
+            model_tier: selectedModelTier,
+          },
+        },
+      });
+      reserved = true;
+      reservationReferenceId = cleanText(reserveResult?.body?.reference_id) || reservationReferenceId;
     }
-  );
 
-  const responsePayload = await response.json().catch(() => null);
+    const response = await fetch(
+      `https://bedrock-runtime.${region}.amazonaws.com/model/${encodeURIComponent(modelId)}/converse`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
-  if (!response.ok) {
-    const message =
-      cleanText(responsePayload?.message) ||
-      cleanText(responsePayload?.error?.message) ||
-      cleanText(extractResponseText(responsePayload)) ||
-      `Bedrock request failed with status ${response.status}.`;
-    const error = createHttpError(502, message);
-    error.rateLimit = rateLimit;
+    const responsePayload = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const message =
+        cleanText(responsePayload?.message) ||
+        cleanText(responsePayload?.error?.message) ||
+        cleanText(extractResponseText(responsePayload)) ||
+        `Bedrock request failed with status ${response.status}.`;
+      const error = createHttpError(502, message);
+      error.rateLimit = rateLimit;
+      throw error;
+    }
+
+    modelExecuted = true;
+    const parsed = parseJsonText(extractResponseText(responsePayload));
+    const tokenUsage = extractTokenUsage(responsePayload);
+
+    if (reserved && !usageConfig.skipGuard) {
+      await finalizeAiUsage({
+        referenceId: reservationReferenceId,
+        actualInputTokens: tokenUsage.actualInputTokens,
+        actualOutputTokens: tokenUsage.actualOutputTokens,
+        metadata: {
+          product_key: productKey,
+          model_tier: selectedModelTier,
+        },
+      });
+    }
+
+    return {
+      parsed,
+      rateLimit,
+      modelId,
+      referenceId: reservationReferenceId,
+    };
+  } catch (error) {
+    if (reserved && !usageConfig.skipGuard) {
+      try {
+        if (modelExecuted) {
+          await finalizeAiUsage({
+            referenceId: reservationReferenceId,
+            metadata: {
+              product_key: productKey,
+              model_tier: selectedModelTier,
+              finalize_reason: 'model_response_error',
+            },
+          });
+        } else {
+          await releaseAiUsage({
+            referenceId: reservationReferenceId,
+            reason: 'model_request_failed',
+            metadata: {
+              product_key: productKey,
+              model_tier: selectedModelTier,
+            },
+          });
+        }
+      } catch {
+        // Preserve the original model/runtime error when guard cleanup fails.
+      }
+    }
+
+    if (!error.rateLimit) {
+      error.rateLimit = rateLimit;
+    }
     throw error;
   }
-
-  return {
-    parsed: parseJsonText(extractResponseText(responsePayload)),
-    rateLimit,
-    modelId,
-  };
 }

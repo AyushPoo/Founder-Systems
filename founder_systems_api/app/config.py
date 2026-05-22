@@ -80,6 +80,20 @@ class Settings(BaseSettings):
             if email.strip()
         }
 
+    def validate_production_settings(self) -> None:
+        if self.env != "production":
+            return
+        if not self.session_secret or self.session_secret == "change-me-in-production":
+            raise RuntimeError("FS_SESSION_SECRET must be set to a long random secret in production")
+        if not self.session_cookie_secure:
+            raise RuntimeError("FS_SESSION_COOKIE_SECURE must be true in production")
+        if self.allow_mock_payments:
+            raise RuntimeError("FS_ALLOW_MOCK_PAYMENTS must be false in production")
+        if not self.api_key_internal:
+            raise RuntimeError("FS_API_KEY_INTERNAL must be configured in production")
+        if not self.integration_token_secret:
+            raise RuntimeError("FS_INTEGRATION_TOKEN_SECRET must be configured in production")
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

@@ -61,11 +61,25 @@ sudo systemctl reload nginx
 
 Replace the placeholder certificate paths and `server_name` with the real API hostname. Keep `FS_SESSION_COOKIE_SECURE=true` in production when traffic is HTTPS-terminated at nginx.
 
+## Production security requirements
+
+- `FS_INTEGRATION_TOKEN_SECRET` is mandatory in production and must be different from `FS_SESSION_SECRET`.
+- `FS_ALLOW_MOCK_PAYMENTS=false` is enforced in production.
+- `FS_API_KEY_INTERNAL` must be configured in production for internal runtime actions.
+- API docs and the OpenAPI schema are disabled automatically in production.
+- Verify the deployed API emits:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+  - `Content-Security-Policy`
+
 ## 5. Smoke checks
 
 ```bash
 curl http://127.0.0.1:8000/health
 curl -I https://api.foundersystems.in/health
+curl -I https://api.foundersystems.in/docs
 sudo journalctl -u founder-systems-api -n 100 --no-pager
 ```
 
