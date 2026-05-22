@@ -12,7 +12,7 @@ export default function AccountSettingsShell({
         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-brand-black/45">
           Workspace settings
         </p>
-        <h1 className="mt-2 max-w-[13.5rem] break-words text-[1.9rem] font-black leading-[0.95] tracking-tight-brand md:max-w-[15rem] md:text-[2.8rem]">
+        <h1 className="mt-2 max-w-[14.5rem] text-[1.9rem] font-black leading-[0.95] tracking-tight-brand md:max-w-[15rem] md:text-[2.8rem]">
           {title}
         </h1>
         <p className="mt-3 max-w-[17rem] text-[15px] font-medium leading-7 text-brand-black/62">
