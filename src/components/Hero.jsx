@@ -26,14 +26,6 @@ const Hero = () => {
             <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
                 {/* Text content */}
                 <div className="flex flex-col gap-8">
-                    {/* Badge */}
-                    <div className="reveal">
-                        <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] text-sm font-black text-brand-black">
-                            <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse" />
-                            Built for founders who want clarity and momentum
-                        </span>
-                    </div>
-
                     <h1 className="reveal text-5xl md:text-6xl lg:text-7xl font-black tracking-tight-brand text-brand-black leading-[1.05]">
                         Turn Founder Chaos Into{' '}
                         <span className="text-brand-orange">
