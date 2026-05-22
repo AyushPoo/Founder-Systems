@@ -465,6 +465,59 @@ def _decode_google_state(state_token: str) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
+async def _complete_google_gmail_integration(
+    *,
+    code: str | None,
+    error: str | None,
+    state_payload: dict[str, Any],
+    db: Session,
+) -> Response:
+    next_url = _safe_return_url(str(state_payload.get("next") or f"{settings.site_app_url.rstrip('/')}/account?tab=settings"))
+    user_id = str(state_payload.get("sub") or "").strip()
+    user = db.get(User, user_id)
+    if user is None or error or not code:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            status_code=303,
+        )
+    if not settings.google_client_id or not settings.google_client_secret:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-unavailable"}),
+            status_code=303,
+        )
+
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/auth/google/callback"
+    try:
+        token_payload = await exchange_google_code_for_tokens(
+            settings,
+            code=code,
+            redirect_uri=redirect_uri,
+            http_client_cls=httpx.AsyncClient,
+        )
+        access_token = str(token_payload.get("access_token") or "").strip()
+        if not access_token:
+            raise ValueError("Missing Google access token")
+        profile = await fetch_google_profile(access_token, http_client_cls=httpx.AsyncClient)
+        if not profile.get("email_verified"):
+            return RedirectResponse(
+                url=_append_url_params(next_url, {"integration": "gmail-unverified"}),
+                status_code=303,
+            )
+        upsert_google_gmail_account(db, settings, user=user, token_payload=token_payload, profile=profile)
+        db.commit()
+    except Exception:
+        db.rollback()
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            status_code=303,
+        )
+
+    return RedirectResponse(
+        url=_append_url_params(next_url, {"integration": "gmail-connected"}),
+        status_code=303,
+    )
+
+
 def get_optional_current_user(request: Request, db: Session = Depends(get_db)) -> User | None:
     token = _read_session_token(request)
     if not token:
@@ -608,6 +661,16 @@ async def auth_google_callback(
 
     if state:
         try:
+            integration_state_payload = decode_google_gmail_state(settings, state)
+            return await _complete_google_gmail_integration(
+                code=code,
+                error=error,
+                state_payload=integration_state_payload,
+                db=db,
+            )
+        except Exception:
+            pass
+        try:
             state_payload = _decode_google_state(state)
             next_url = state_payload.get("next")
             remember_me = bool(state_payload.get("remember"))
@@ -694,7 +757,7 @@ def google_gmail_integration_start(
             url=_append_url_params(safe_next, {"integration": "gmail-unavailable"}),
             status_code=303,
         )
-    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/google/gmail/callback"
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/auth/google/callback"
     state = build_google_gmail_state(settings, user_id=user.id, next_url=safe_next)
     google_url = httpx.URL("https://accounts.google.com/o/oauth2/v2/auth").copy_merge_params(
         {
@@ -742,35 +805,11 @@ async def google_gmail_integration_callback(
             status_code=303,
         )
 
-    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/google/gmail/callback"
-    try:
-        token_payload = await exchange_google_code_for_tokens(
-            settings,
-            code=code,
-            redirect_uri=redirect_uri,
-            http_client_cls=httpx.AsyncClient,
-        )
-        access_token = str(token_payload.get("access_token") or "").strip()
-        if not access_token:
-            raise ValueError("Missing Google access token")
-        profile = await fetch_google_profile(access_token, http_client_cls=httpx.AsyncClient)
-        if not profile.get("email_verified"):
-            return RedirectResponse(
-                url=_append_url_params(next_url, {"integration": "gmail-unverified"}),
-                status_code=303,
-            )
-        upsert_google_gmail_account(db, settings, user=user, token_payload=token_payload, profile=profile)
-        db.commit()
-    except Exception:
-        db.rollback()
-        return RedirectResponse(
-            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
-            status_code=303,
-        )
-
-    return RedirectResponse(
-        url=_append_url_params(next_url, {"integration": "gmail-connected"}),
-        status_code=303,
+    return await _complete_google_gmail_integration(
+        code=code,
+        error=error,
+        state_payload={"sub": user.id, "next": next_url},
+        db=db,
     )
 
 

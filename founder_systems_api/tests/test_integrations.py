@@ -77,7 +77,7 @@ def test_gmail_connect_start_redirects_to_google_with_send_scope(monkeypatch, tm
         assert location.startswith("https://accounts.google.com/o/oauth2/v2/auth")
         params = parse_qs(urlparse(location).query)
         assert params["client_id"][0] == "google-client-id"
-        assert params["redirect_uri"][0] == "http://localhost:8000/integrations/google/gmail/callback"
+        assert params["redirect_uri"][0] == "http://localhost:8000/auth/google/callback"
         assert params["access_type"][0] == "offline"
         assert params["prompt"][0] == "consent"
         scope = set(params["scope"][0].split())
@@ -134,7 +134,7 @@ def test_gmail_callback_stores_connected_account(monkeypatch, tmp_path):
 
         monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
         callback = await client.get(
-            "/integrations/google/gmail/callback",
+            "/auth/google/callback",
             params={"code": "oauth-code", "state": state},
             follow_redirects=False,
         )
@@ -224,7 +224,7 @@ def test_internal_gmail_send_uses_user_connection_and_burns_credit(monkeypatch, 
 
         monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
         callback = await client.get(
-            "/integrations/google/gmail/callback",
+            "/auth/google/callback",
             params={"code": "oauth-code", "state": state},
             follow_redirects=False,
         )
