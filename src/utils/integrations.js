@@ -10,6 +10,17 @@ const DEFAULT_GMAIL = {
   last_used_at: null,
 };
 
+const GOOGLE_CONNECTOR_SLUGS = new Set([
+  'gmail',
+  'google-drive',
+  'google-docs',
+  'google-sheets',
+  'google-slides',
+  'google-calendar',
+  'google-search-console',
+  'google-analytics-4',
+]);
+
 export const CONNECTOR_CATALOG = [
   {
     slug: 'gmail',
@@ -399,8 +410,15 @@ export function getConnectorBySlug(slug) {
 
 export function getConnectorStatus(connector, integrations = {}) {
   if (!connector) return 'planned';
+  const connected = integrations.integrationBySlug?.[connector.slug];
+  if (connected?.status === 'connected') {
+    return 'connected';
+  }
   if (connector.slug === 'gmail') {
     return integrations.gmail?.can_send ? 'connected' : 'available';
+  }
+  if (GOOGLE_CONNECTOR_SLUGS.has(connector.slug) || connector.slug === 'razorpay') {
+    return 'available';
   }
   return connector.phase === 'live' ? 'available' : 'planned';
 }
@@ -412,8 +430,14 @@ export function getConnectorsForAgent(agentName) {
 export function normalizeIntegrations(payload) {
   const integrations = Array.isArray(payload?.integrations) ? payload.integrations : [];
   const gmail = integrations.find((item) => item?.provider === 'google' && item?.integration_slug === 'gmail') || null;
+  const integrationBySlug = Object.fromEntries(
+    integrations
+      .filter((item) => item?.integration_slug)
+      .map((item) => [item.integration_slug, item]),
+  );
   const normalized = {
     integrations,
+    integrationBySlug,
     gmail: {
       ...DEFAULT_GMAIL,
       ...(gmail || {}),
@@ -452,9 +476,21 @@ export function buildConnectionCatalog(integrationStatus = {}) {
 }
 
 export function getGmailConnectUrl({ apiBase, origin, nextPath = '/account?tab=connections' }) {
+  return getIntegrationConnectUrl({ connectorSlug: 'gmail', apiBase, origin, nextPath });
+}
+
+export function getIntegrationConnectUrl({
+  connectorSlug,
+  apiBase,
+  origin,
+  nextPath = '/account?tab=connections',
+}) {
   const cleanBase = String(apiBase || '').replace(/\/+$/, '');
   const cleanOrigin = String(origin || '').replace(/\/+$/, '');
   const next = `${cleanOrigin}${nextPath.startsWith('/') ? nextPath : `/${nextPath}`}`;
-  return `${cleanBase}/integrations/google/gmail/start?next=${encodeURIComponent(next)}`;
+  if (GOOGLE_CONNECTOR_SLUGS.has(connectorSlug)) {
+    return `${cleanBase}/integrations/google/${connectorSlug}/start?next=${encodeURIComponent(next)}`;
+  }
+  return '';
 }
 

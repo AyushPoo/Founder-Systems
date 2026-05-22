@@ -27,16 +27,16 @@ from .cost_guard import (
 )
 from .db import Base, engine, get_db
 from .integrations import (
-    GOOGLE_GMAIL_SCOPES,
-    build_google_gmail_state,
+    build_google_integration_state,
     decode_google_gmail_state,
     exchange_google_code_for_tokens,
     fetch_google_profile,
+    get_google_integration_scopes,
     get_user_gmail_account,
     integration_to_response,
     resolve_action_user,
     send_gmail_message,
-    upsert_google_gmail_account,
+    upsert_google_integration_account,
 )
 from .mailer import send_magic_link_email
 from .models import (
@@ -91,6 +91,7 @@ from .schemas import (
     EntitlementResponse,
     GmailSendRequest,
     GmailSendResponse,
+    IntegrationAccountResponse,
     IntegrationStatusEnvelope,
     MagicLinkStartRequest,
     MagicLinkStartResponse,
@@ -472,17 +473,23 @@ async def _complete_google_gmail_integration(
     state_payload: dict[str, Any],
     db: Session,
 ) -> Response:
-    next_url = _safe_return_url(str(state_payload.get("next") or f"{settings.site_app_url.rstrip('/')}/account?tab=settings"))
+    integration_slug = str(state_payload.get("integration_slug") or "gmail").strip()
+    next_url = _safe_return_url(str(state_payload.get("next") or f"{settings.site_app_url.rstrip('/')}/account?tab=connections"))
     user_id = str(state_payload.get("sub") or "").strip()
+    if get_google_integration_scopes(integration_slug) is None:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "google-unsupported"}),
+            status_code=303,
+        )
     user = db.get(User, user_id)
     if user is None or error or not code:
         return RedirectResponse(
-            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-failed"}),
             status_code=303,
         )
     if not settings.google_client_id or not settings.google_client_secret:
         return RedirectResponse(
-            url=_append_url_params(next_url, {"integration": "gmail-unavailable"}),
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-unavailable"}),
             status_code=303,
         )
 
@@ -500,20 +507,27 @@ async def _complete_google_gmail_integration(
         profile = await fetch_google_profile(access_token, http_client_cls=httpx.AsyncClient)
         if not profile.get("email_verified"):
             return RedirectResponse(
-                url=_append_url_params(next_url, {"integration": "gmail-unverified"}),
+                url=_append_url_params(next_url, {"integration": f"{integration_slug}-unverified"}),
                 status_code=303,
             )
-        upsert_google_gmail_account(db, settings, user=user, token_payload=token_payload, profile=profile)
+        upsert_google_integration_account(
+            db,
+            settings,
+            user=user,
+            integration_slug=integration_slug,
+            token_payload=token_payload,
+            profile=profile,
+        )
         db.commit()
     except Exception:
         db.rollback()
         return RedirectResponse(
-            url=_append_url_params(next_url, {"integration": "gmail-failed"}),
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-failed"}),
             status_code=303,
         )
 
     return RedirectResponse(
-        url=_append_url_params(next_url, {"integration": "gmail-connected"}),
+        url=_append_url_params(next_url, {"integration": f"{integration_slug}-connected"}),
         status_code=303,
     )
 
@@ -745,26 +759,37 @@ async def auth_google_callback(
     return response
 
 
+@app.get("/integrations/google/{integration_slug}/start")
+@app.get("/v1/integrations/google/{integration_slug}/start")
 @app.get("/integrations/google/gmail/start")
 @app.get("/v1/integrations/google/gmail/start")
-def google_gmail_integration_start(
+def google_integration_start(
+    integration_slug: str = "gmail",
     next: str | None = Query(default=None),
     user: User = Depends(require_current_user),
 ) -> Response:
-    safe_next = _safe_return_url(next or f"{settings.site_app_url.rstrip('/')}/account?tab=settings")
+    scopes = get_google_integration_scopes(integration_slug)
+    safe_next = _safe_return_url(next or f"{settings.site_app_url.rstrip('/')}/account?tab=connections")
+    if scopes is None:
+        raise HTTPException(status_code=404, detail="Unsupported Google integration")
     if not settings.google_client_id or not settings.google_client_secret:
         return RedirectResponse(
-            url=_append_url_params(safe_next, {"integration": "gmail-unavailable"}),
+            url=_append_url_params(safe_next, {"integration": f"{integration_slug}-unavailable"}),
             status_code=303,
         )
     redirect_uri = f"{settings.public_api_url.rstrip('/')}/auth/google/callback"
-    state = build_google_gmail_state(settings, user_id=user.id, next_url=safe_next)
+    state = build_google_integration_state(
+        settings,
+        user_id=user.id,
+        next_url=safe_next,
+        integration_slug=integration_slug,
+    )
     google_url = httpx.URL("https://accounts.google.com/o/oauth2/v2/auth").copy_merge_params(
         {
             "client_id": settings.google_client_id,
             "redirect_uri": redirect_uri,
             "response_type": "code",
-            "scope": " ".join(GOOGLE_GMAIL_SCOPES),
+            "scope": " ".join(scopes),
             "access_type": "offline",
             "include_granted_scopes": "true",
             "prompt": "consent",
@@ -819,14 +844,24 @@ def integration_status(
     user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ) -> IntegrationStatusEnvelope:
-    gmail = db.scalar(
+    accounts = db.scalars(
         select(UserIntegrationAccount).where(
             UserIntegrationAccount.user_id == user.id,
-            UserIntegrationAccount.provider == "google",
-            UserIntegrationAccount.integration_slug == "gmail",
         )
-    )
-    return IntegrationStatusEnvelope(integrations=[integration_to_response(gmail)])
+    ).all()
+    integrations = [integration_to_response(account) for account in accounts]
+    if settings.razorpay_key_id and settings.razorpay_key_secret:
+        integrations.append(
+            IntegrationAccountResponse(
+                provider="razorpay",
+                integration_slug="razorpay",
+                status="connected",
+                display_name="Founder Systems Razorpay",
+                scopes=["payments:read", "settlements:read"],
+                can_send=False,
+            )
+        )
+    return IntegrationStatusEnvelope(integrations=integrations)
 
 
 @app.post("/internal/runtime/actions/email/send", response_model=GmailSendResponse)

@@ -21,8 +21,8 @@ import {
   humanizeIdentifier,
 } from '../utils/commerce';
 import { getAgentProductMeta, getAgentProductStatus, getTelegramConnectPath, normalizeAgentAccountStatus } from '../utils/agents';
-import { buildConnectionCatalog, normalizeIntegrations } from '../utils/integrations';
-import { getAgentAccountStatus, getGmailIntegrationStartUrl, getIntegrationStatus } from '../utils/founderApi';
+import { buildConnectionCatalog, getConnectorBySlug, getIntegrationConnectUrl, normalizeIntegrations } from '../utils/integrations';
+import { getAgentAccountStatus, getFounderApiBaseUrl, getGmailIntegrationStartUrl, getIntegrationStatus } from '../utils/founderApi';
 import {
   ACCOUNT_SECTIONS,
   getAccountSectionFromQuery,
@@ -139,12 +139,22 @@ export default function Account() {
   useEffect(() => {
     setActiveSection(getAccountSectionFromQuery(searchParams.get('tab')));
     const integration = searchParams.get('integration');
-    if (integration === 'gmail-connected') {
-      setNotice('Gmail connected. Marketing Operator can now send approved emails from your Gmail.');
-    } else if (integration === 'gmail-failed') {
-      setNotice('Gmail connection failed. Please try connecting again.');
-    } else if (integration === 'gmail-unavailable') {
-      setNotice('Gmail connection is not configured yet.');
+    if (integration) {
+      const suffix = ['-connected', '-failed', '-unavailable', '-expired', '-unverified'].find((value) => integration.endsWith(value));
+      const connectorSlug = suffix ? integration.slice(0, -suffix.length) : integration;
+      const connector = getConnectorBySlug(connectorSlug);
+      const name = connector?.name || humanizeIdentifier(connectorSlug);
+      if (suffix === '-connected') {
+        setNotice(`${name} connected. Your operators can now use it where enabled.`);
+      } else if (suffix === '-failed') {
+        setNotice(`${name} connection failed. Please try connecting again.`);
+      } else if (suffix === '-unavailable') {
+        setNotice(`${name} connection is not configured yet.`);
+      } else if (suffix === '-expired') {
+        setNotice(`${name} connection expired. Please start again.`);
+      } else if (suffix === '-unverified') {
+        setNotice(`${name} needs a verified Google account email.`);
+      }
     }
   }, [searchParams]);
 
@@ -367,8 +377,21 @@ export default function Account() {
   }
 
   function handleConnectionAction(item) {
+    const connectUrl = getIntegrationConnectUrl({
+      connectorSlug: item.key,
+      apiBase: getFounderApiBaseUrl(),
+      origin: window.location.origin,
+    });
+    if (connectUrl) {
+      window.location.assign(connectUrl);
+      return;
+    }
     if (item.key === 'gmail') {
       handleGmailConnect();
+      return;
+    }
+    if (item.key === 'razorpay') {
+      setNotice('Razorpay read-only access uses the configured Razorpay account on the backend. If it is not connected, add Razorpay API credentials on the server.');
       return;
     }
     setNotice(`${item.name} connection is coming soon.`);

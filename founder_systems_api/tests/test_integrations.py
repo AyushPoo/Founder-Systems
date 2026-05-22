@@ -90,6 +90,114 @@ def test_gmail_connect_start_redirects_to_google_with_send_scope(monkeypatch, tm
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_google_workspace_connect_start_redirects_with_product_scopes(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        response = await client.get(
+            "/integrations/google/google-sheets/start",
+            params={"next": "https://foundersystems.in/account?tab=connections"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 303, response.text
+        location = response.headers["location"]
+        assert location.startswith("https://accounts.google.com/o/oauth2/v2/auth")
+        params = parse_qs(urlparse(location).query)
+        assert params["client_id"][0] == "google-client-id"
+        assert params["redirect_uri"][0] == "http://localhost:8000/auth/google/callback"
+        scope = set(params["scope"][0].split())
+        assert "openid" in scope
+        assert "email" in scope
+        assert "profile" in scope
+        assert "https://www.googleapis.com/auth/spreadsheets" in scope
+        assert "https://www.googleapis.com/auth/drive.file" in scope
+        assert params["state"][0]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_google_workspace_callback_stores_requested_integration(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        start = await client.get("/integrations/google/google-sheets/start", follow_redirects=False)
+        state = parse_qs(urlparse(start.headers["location"]).query)["state"][0]
+
+        class FakeAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return None
+
+            async def post(self, url, **kwargs):
+                assert url == "https://oauth2.googleapis.com/token"
+                return httpx.Response(
+                    200,
+                    json={
+                        "access_token": "sheets-access-token",
+                        "refresh_token": "sheets-refresh-token",
+                        "expires_in": 3600,
+                        "scope": "openid email profile https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file",
+                        "token_type": "Bearer",
+                    },
+                )
+
+            async def get(self, url, **kwargs):
+                assert url == "https://openidconnect.googleapis.com/v1/userinfo"
+                return httpx.Response(
+                    200,
+                    json={
+                        "email": "founder@gmail.com",
+                        "email_verified": True,
+                        "name": "Founder Gmail",
+                    },
+                )
+
+        monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+        callback = await client.get(
+            "/auth/google/callback",
+            params={"code": "oauth-code", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303, callback.text
+        assert callback.headers["location"] == "https://foundersystems.in/account?tab=connections&integration=google-sheets-connected"
+
+        status = await client.get("/integrations")
+        assert status.status_code == 200, status.text
+        integrations = status.json()["integrations"]
+        sheets = next(item for item in integrations if item["integration_slug"] == "google-sheets")
+        assert sheets["provider"] == "google"
+        assert sheets["status"] == "connected"
+        assert sheets["account_email"] == "founder@gmail.com"
+        assert "https://www.googleapis.com/auth/spreadsheets" in sheets["scopes"]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_integration_status_marks_razorpay_connected_when_credentials_exist(monkeypatch, tmp_path):
+    monkeypatch.setenv("FS_RAZORPAY_KEY_ID", "rzp_test_key")
+    monkeypatch.setenv("FS_RAZORPAY_KEY_SECRET", "rzp_test_secret")
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        status = await client.get("/integrations")
+        assert status.status_code == 200, status.text
+        razorpay = next(item for item in status.json()["integrations"] if item["integration_slug"] == "razorpay")
+        assert razorpay["provider"] == "razorpay"
+        assert razorpay["status"] == "connected"
+        assert "payments:read" in razorpay["scopes"]
+        assert "settlements:read" in razorpay["scopes"]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def test_gmail_callback_stores_connected_account(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 
@@ -139,7 +247,7 @@ def test_gmail_callback_stores_connected_account(monkeypatch, tmp_path):
             follow_redirects=False,
         )
         assert callback.status_code == 303, callback.text
-        assert callback.headers["location"] == "https://foundersystems.in/account?tab=settings&integration=gmail-connected"
+        assert callback.headers["location"] == "https://foundersystems.in/account?tab=connections&integration=gmail-connected"
 
         status = await client.get("/integrations")
         assert status.status_code == 200, status.text

@@ -5,6 +5,7 @@ import {
   getConnectorBySlug,
   getConnectorsForAgent,
   getGmailConnectUrl,
+  getIntegrationConnectUrl,
   normalizeIntegrations,
 } from './integrations.js';
 
@@ -23,6 +24,18 @@ const apiBase = 'https://api.foundersystems.in';
 }
 
 {
+  const url = getIntegrationConnectUrl({
+    connectorSlug: 'google-sheets',
+    apiBase,
+    origin: 'https://foundersystems.in',
+  });
+  assert.equal(
+    url,
+    'https://api.foundersystems.in/integrations/google/google-sheets/start?next=https%3A%2F%2Ffoundersystems.in%2Faccount%3Ftab%3Dconnections',
+  );
+}
+
+{
   const normalized = normalizeIntegrations({
     integrations: [
       {
@@ -32,13 +45,20 @@ const apiBase = 'https://api.foundersystems.in';
         account_email: 'founder@gmail.com',
         can_send: true,
       },
+      {
+        provider: 'google',
+        integration_slug: 'google-sheets',
+        status: 'connected',
+        account_email: 'founder@gmail.com',
+      },
     ],
   });
   assert.equal(normalized.gmail.status, 'connected');
   assert.equal(normalized.gmail.account_email, 'founder@gmail.com');
   assert.equal(normalized.gmail.can_send, true);
-  assert.equal(normalized.connectedCount, 1);
+  assert.equal(normalized.connectedCount, 2);
   assert.equal(normalized.catalog.find((connector) => connector.slug === 'gmail').status, 'connected');
+  assert.equal(normalized.catalog.find((connector) => connector.slug === 'google-sheets').status, 'connected');
 }
 
 {

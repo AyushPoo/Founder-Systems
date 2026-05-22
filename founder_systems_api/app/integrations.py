@@ -19,7 +19,34 @@ from .schemas import GmailSendRequest, IntegrationAccountResponse
 
 
 GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
-GOOGLE_GMAIL_SCOPES = ("openid", "email", "profile", GMAIL_SEND_SCOPE)
+GOOGLE_BASE_SCOPES = ("openid", "email", "profile")
+GOOGLE_INTEGRATION_SCOPES: dict[str, tuple[str, ...]] = {
+    "gmail": (GMAIL_SEND_SCOPE,),
+    "google-drive": ("https://www.googleapis.com/auth/drive.file",),
+    "google-docs": (
+        "https://www.googleapis.com/auth/documents",
+        "https://www.googleapis.com/auth/drive.file",
+    ),
+    "google-sheets": (
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive.file",
+    ),
+    "google-slides": (
+        "https://www.googleapis.com/auth/presentations",
+        "https://www.googleapis.com/auth/drive.file",
+    ),
+    "google-calendar": ("https://www.googleapis.com/auth/calendar.events",),
+    "google-search-console": ("https://www.googleapis.com/auth/webmasters.readonly",),
+    "google-analytics-4": ("https://www.googleapis.com/auth/analytics.readonly",),
+}
+GOOGLE_GMAIL_SCOPES = (*GOOGLE_BASE_SCOPES, GMAIL_SEND_SCOPE)
+
+
+def get_google_integration_scopes(integration_slug: str) -> tuple[str, ...] | None:
+    product_scopes = GOOGLE_INTEGRATION_SCOPES.get(integration_slug)
+    if product_scopes is None:
+        return None
+    return (*GOOGLE_BASE_SCOPES, *product_scopes)
 
 
 def _fernet(settings: Settings) -> Fernet:
@@ -41,14 +68,15 @@ def decrypt_token_payload(settings: Settings, encrypted_payload: str) -> dict[st
     return payload if isinstance(payload, dict) else {}
 
 
-def build_google_gmail_state(settings: Settings, *, user_id: str, next_url: str) -> str:
+def build_google_integration_state(settings: Settings, *, user_id: str, next_url: str, integration_slug: str) -> str:
     now = utc_now()
     token = jwt.encode(
         {
             "iss": settings.session_issuer,
-            "aud": "google-gmail-integration-state",
+            "aud": "google-integration-state",
             "sub": user_id,
             "next": next_url,
+            "integration_slug": integration_slug,
             "iat": int(now.timestamp()),
             "exp": int((now + timedelta(minutes=20)).timestamp()),
         },
@@ -58,15 +86,41 @@ def build_google_gmail_state(settings: Settings, *, user_id: str, next_url: str)
     return token if isinstance(token, str) else str(token)
 
 
-def decode_google_gmail_state(settings: Settings, state_token: str) -> dict[str, Any]:
+def build_google_gmail_state(settings: Settings, *, user_id: str, next_url: str) -> str:
+    return build_google_integration_state(
+        settings,
+        user_id=user_id,
+        next_url=next_url,
+        integration_slug="gmail",
+    )
+
+
+def decode_google_integration_state(settings: Settings, state_token: str) -> dict[str, Any]:
     payload = jwt.decode(
         state_token,
         settings.session_secret,
         algorithms=["HS256"],
         issuer=settings.session_issuer,
-        audience="google-gmail-integration-state",
+        audience="google-integration-state",
     )
     return payload if isinstance(payload, dict) else {}
+
+
+def decode_google_gmail_state(settings: Settings, state_token: str) -> dict[str, Any]:
+    try:
+        return decode_google_integration_state(settings, state_token)
+    except Exception:
+        payload = jwt.decode(
+            state_token,
+            settings.session_secret,
+            algorithms=["HS256"],
+            issuer=settings.session_issuer,
+            audience="google-gmail-integration-state",
+        )
+        if isinstance(payload, dict):
+            payload.setdefault("integration_slug", "gmail")
+            return payload
+        return {}
 
 
 def _scope_list(scopes: Any) -> list[str]:
@@ -102,11 +156,15 @@ def integration_to_response(account: UserIntegrationAccount | None) -> Integrati
 
 
 def get_user_gmail_account(db: Session, *, user_id: str) -> UserIntegrationAccount | None:
+    return get_user_google_account(db, user_id=user_id, integration_slug="gmail")
+
+
+def get_user_google_account(db: Session, *, user_id: str, integration_slug: str) -> UserIntegrationAccount | None:
     return db.scalar(
         select(UserIntegrationAccount).where(
             UserIntegrationAccount.user_id == user_id,
             UserIntegrationAccount.provider == "google",
-            UserIntegrationAccount.integration_slug == "gmail",
+            UserIntegrationAccount.integration_slug == integration_slug,
             UserIntegrationAccount.status == "connected",
         )
     )
@@ -135,16 +193,17 @@ def resolve_action_user(
     return None
 
 
-def upsert_google_gmail_account(
+def upsert_google_integration_account(
     db: Session,
     settings: Settings,
     *,
     user: User,
+    integration_slug: str,
     token_payload: dict[str, Any],
     profile: dict[str, Any],
 ) -> UserIntegrationAccount:
     now = utc_now()
-    existing = get_user_gmail_account(db, user_id=user.id)
+    existing = get_user_google_account(db, user_id=user.id, integration_slug=integration_slug)
     existing_tokens = decrypt_token_payload(settings, existing.encrypted_token_json) if existing else {}
     refresh_token = token_payload.get("refresh_token") or existing_tokens.get("refresh_token")
     expires_in = int(token_payload.get("expires_in") or 3600)
@@ -160,7 +219,7 @@ def upsert_google_gmail_account(
     account = existing or UserIntegrationAccount(
         user_id=user.id,
         provider="google",
-        integration_slug="gmail",
+        integration_slug=integration_slug,
     )
     account.account_email = str(profile.get("email") or "").strip().lower() or user.email
     account.display_name = str(profile.get("name") or "").strip() or None
@@ -178,6 +237,24 @@ def upsert_google_gmail_account(
     db.flush()
     db.refresh(account)
     return account
+
+
+def upsert_google_gmail_account(
+    db: Session,
+    settings: Settings,
+    *,
+    user: User,
+    token_payload: dict[str, Any],
+    profile: dict[str, Any],
+) -> UserIntegrationAccount:
+    return upsert_google_integration_account(
+        db,
+        settings,
+        user=user,
+        integration_slug="gmail",
+        token_payload=token_payload,
+        profile=profile,
+    )
 
 
 async def exchange_google_code_for_tokens(
