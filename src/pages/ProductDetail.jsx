@@ -8,7 +8,6 @@ import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { getAgentAccountStatus } from '../utils/founderApi';
 import {
     detectPreferredCurrency,
-    formatCreditValue,
     mergeCatalogProductData,
 } from '../utils/commerce';
 import { getAgentProductStatus, getTelegramConnectPath, isAgentProductSlug } from '../utils/agents';
@@ -121,7 +120,6 @@ const ProductDetail = () => {
         launchProductCheckout,
         user,
         wallet,
-        creditUnitAmountsMinor,
         entitlements,
         loadingAccount,
     } = useFounderWorkspace();
@@ -198,9 +196,6 @@ const ProductDetail = () => {
     const isCheckingOperatorPass = Boolean(authenticated && isOperatorPass && (loadingAccount || loadingOperatorStatus));
     const showPricing = hasProductPricing(product);
     const showRetiredFundraisingBanner = false;
-    const creditValueLabel = product?.creditPrice
-        ? formatCreditValue(product.creditPrice, preferredCurrency, creditUnitAmountsMinor)
-        : '';
     const primaryCheckoutCurrency = preferredCurrency === 'USD' ? 'USD' : 'INR';
     const secondaryCheckoutCurrency = primaryCheckoutCurrency === 'INR' ? 'USD' : 'INR';
     const galleryImages = Array.from(
@@ -730,7 +725,7 @@ const ProductDetail = () => {
                                                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Workspace wallet</p>
                                                     <p className="mt-1 text-sm font-semibold text-brand-black/78">
                                                         You currently have {wallet?.balance ?? 0} credits.
-                                                        {creditValueLabel ? ` Unlocking this product uses 8 credits (${creditValueLabel}).` : ' Unlocking this product uses 8 credits.'}
+                                                        {` Unlocking this product uses ${product.creditPrice} credits.`}
                                                     </p>
                                                 </div>
                                             ) : null}
@@ -755,7 +750,7 @@ const ProductDetail = () => {
                                                         disabled={checkoutBusy}
                                                         className="rounded-2xl border-2 border-brand-black bg-brand-cream px-5 py-4 font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all w-full"
                                                     >
-                                                        Unlock with 8 credits
+                                                        Unlock with {product.creditPrice} credits
                                                     </button>
                                                     <Link
                                                         to="/account?tab=credits"
