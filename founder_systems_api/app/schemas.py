@@ -662,3 +662,66 @@ class RazorpayPaymentsListResponse(BaseModel):
     items: list[dict[str, Any]] = Field(default_factory=list)
     count: int = 0
     credits_spent: int = 0
+
+
+class GithubIssueCreateRequest(ApprovedConnectorActionRequest):
+    repo: str = Field(min_length=3, max_length=200, description="owner/repo")
+    title: str = Field(min_length=1, max_length=256)
+    body_text: str = Field(default="", validation_alias=AliasChoices("body_text", "bodyText", "body"), max_length=65000)
+    labels: list[str] = Field(default_factory=list, max_length=20)
+
+
+class GithubIssueCreateResponse(BaseModel):
+    ok: bool
+    provider: str = "github"
+    integration_slug: str = "github"
+    issue_id: int | None = None
+    issue_number: int | None = None
+    issue_url: str | None = None
+    credits_spent: int = 0
+
+
+class HubSpotContactCreateRequest(ApprovedConnectorActionRequest):
+    email: EmailStr
+    first_name: str | None = Field(default=None, validation_alias=AliasChoices("first_name", "firstName"), max_length=120)
+    last_name: str | None = Field(default=None, validation_alias=AliasChoices("last_name", "lastName"), max_length=120)
+    company: str | None = Field(default=None, max_length=160)
+    phone: str | None = Field(default=None, max_length=80)
+
+
+class HubSpotContactCreateResponse(BaseModel):
+    ok: bool
+    provider: str = "hubspot"
+    integration_slug: str = "hubspot"
+    contact_id: str | None = None
+    contact_url: str | None = None
+    credits_spent: int = 0
+
+
+class MailchimpCampaignsListRequest(ConnectorActionBaseRequest):
+    count: int = Field(default=10, ge=1, le=100)
+    status: str | None = Field(default=None, max_length=40)
+
+
+class MailchimpCampaignsListResponse(BaseModel):
+    ok: bool
+    provider: str = "mailchimp"
+    integration_slug: str = "mailchimp"
+    campaigns: list[dict[str, Any]] = Field(default_factory=list)
+    count: int = 0
+    credits_spent: int = 0
+
+
+class MetaAdsInsightsRequest(ConnectorActionBaseRequest):
+    ad_account_id: str = Field(validation_alias=AliasChoices("ad_account_id", "adAccountId", "accountId"), min_length=3, max_length=80)
+    date_preset: str = Field(default="last_30d", validation_alias=AliasChoices("date_preset", "datePreset"), max_length=40)
+    level: str = Field(default="campaign", max_length=40)
+    limit: int = Field(default=10, ge=1, le=100)
+
+
+class MetaAdsInsightsResponse(BaseModel):
+    ok: bool
+    provider: str = "meta"
+    integration_slug: str = "meta-ads"
+    rows: list[dict[str, Any]] = Field(default_factory=list)
+    credits_spent: int = 0

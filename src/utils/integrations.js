@@ -21,6 +21,13 @@ const GOOGLE_CONNECTOR_SLUGS = new Set([
   'google-analytics-4',
 ]);
 
+const EXTERNAL_OAUTH_CONNECTOR_SLUGS = new Set([
+  'github',
+  'hubspot',
+  'mailchimp',
+  'meta-ads',
+]);
+
 export const CONNECTOR_CATALOG = [
   {
     slug: 'gmail',
@@ -106,7 +113,7 @@ export const CONNECTOR_CATALOG = [
     slug: 'meta-ads',
     name: 'Meta Ads',
     group: 'Paid Growth',
-    phase: 'planned',
+    phase: 'live',
     agents: ['Marketing Operator'],
     description: 'Read campaign performance and prepare approved paused campaign/ad drafts.',
     actions: ['Ad performance reviews', 'Paused campaign drafts', 'Creative testing plans'],
@@ -126,7 +133,7 @@ export const CONNECTOR_CATALOG = [
     slug: 'hubspot',
     name: 'HubSpot',
     group: 'CRM',
-    phase: 'planned',
+    phase: 'live',
     agents: ['Marketing Operator', 'Ops Operator'],
     description: 'Read and update approved contacts, companies, deals, notes, and campaign handoffs.',
     actions: ['Lead list reads', 'CRM notes', 'Pipeline updates'],
@@ -146,7 +153,7 @@ export const CONNECTOR_CATALOG = [
     slug: 'mailchimp',
     name: 'Mailchimp',
     group: 'Email Marketing',
-    phase: 'planned',
+    phase: 'live',
     agents: ['Marketing Operator'],
     description: 'Prepare and send approved newsletters, lifecycle emails, and audience campaigns.',
     actions: ['Campaign drafts', 'Audience segments', 'Approved sends'],
@@ -386,7 +393,7 @@ export const CONNECTOR_CATALOG = [
     slug: 'github',
     name: 'GitHub',
     group: 'Engineering Ops',
-    phase: 'planned',
+    phase: 'live',
     agents: ['Ops Operator'],
     description: 'Read issues, create approved tasks, and summarize product/security operations signals.',
     actions: ['Issue creation', 'Release notes', 'Security triage summaries'],
@@ -418,6 +425,9 @@ export function getConnectorStatus(connector, integrations = {}) {
     return integrations.gmail?.can_send ? 'connected' : 'available';
   }
   if (GOOGLE_CONNECTOR_SLUGS.has(connector.slug) || connector.slug === 'razorpay') {
+    return 'available';
+  }
+  if (EXTERNAL_OAUTH_CONNECTOR_SLUGS.has(connector.slug)) {
     return 'available';
   }
   return connector.phase === 'live' ? 'available' : 'planned';
@@ -467,7 +477,10 @@ export function buildConnectionCatalog(integrationStatus = {}) {
       groupLabel: connector.group,
       description: connector.description,
       status: status === 'planned' ? 'coming-soon' : status,
-      accountLabel: connector.slug === 'gmail' ? integrationStatus.gmail?.account_email || '' : '',
+      accountLabel:
+        integrationStatus.integrationBySlug?.[connector.slug]?.account_email
+        || integrationStatus.integrationBySlug?.[connector.slug]?.display_name
+        || (connector.slug === 'gmail' ? integrationStatus.gmail?.account_email || '' : ''),
       usedBy: connector.agents,
       actions: connector.actions,
       scopes: connector.scopes,
@@ -490,6 +503,9 @@ export function getIntegrationConnectUrl({
   const next = `${cleanOrigin}${nextPath.startsWith('/') ? nextPath : `/${nextPath}`}`;
   if (GOOGLE_CONNECTOR_SLUGS.has(connectorSlug)) {
     return `${cleanBase}/integrations/google/${connectorSlug}/start?next=${encodeURIComponent(next)}`;
+  }
+  if (EXTERNAL_OAUTH_CONNECTOR_SLUGS.has(connectorSlug)) {
+    return `${cleanBase}/integrations/${connectorSlug}/start?next=${encodeURIComponent(next)}`;
   }
   return '';
 }

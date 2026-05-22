@@ -27,22 +27,35 @@ from .cost_guard import (
 )
 from .db import Base, engine, get_db
 from .integrations import (
+    build_external_authorization_url,
+    build_external_integration_state,
     build_google_integration_state,
+    create_github_issue,
     create_google_calendar_event,
     create_google_doc,
     create_google_sheet,
+    create_hubspot_contact,
+    decode_external_integration_state,
     decode_google_gmail_state,
+    exchange_external_code_for_tokens,
     exchange_google_code_for_tokens,
+    external_integration_credentials,
+    fetch_external_profile,
     fetch_google_profile,
+    get_external_integration_scopes,
     get_google_integration_scopes,
+    get_user_integration_account,
     get_user_google_account,
     get_user_gmail_account,
     integration_to_response,
+    list_mailchimp_campaigns,
     list_razorpay_payments,
     query_google_search_console,
+    read_meta_ads_insights,
     resolve_action_user,
     run_google_analytics_report,
     send_gmail_message,
+    upsert_external_integration_account,
     upsert_google_integration_account,
 )
 from .mailer import send_magic_link_email
@@ -98,6 +111,8 @@ from .schemas import (
     EntitlementResponse,
     GmailSendRequest,
     GmailSendResponse,
+    GithubIssueCreateRequest,
+    GithubIssueCreateResponse,
     GoogleAnalyticsRunReportRequest,
     GoogleCalendarEventCreateRequest,
     GoogleCalendarEventCreateResponse,
@@ -107,11 +122,17 @@ from .schemas import (
     GoogleSearchConsoleQueryRequest,
     GoogleSheetCreateRequest,
     GoogleSheetCreateResponse,
+    HubSpotContactCreateRequest,
+    HubSpotContactCreateResponse,
     IntegrationAccountResponse,
     IntegrationStatusEnvelope,
     MagicLinkStartRequest,
     MagicLinkStartResponse,
     MagicLinkVerifyRequest,
+    MailchimpCampaignsListRequest,
+    MailchimpCampaignsListResponse,
+    MetaAdsInsightsRequest,
+    MetaAdsInsightsResponse,
     PriceResponse,
     ProductProjectRequest,
     ProductProjectResponse,
@@ -550,6 +571,74 @@ async def _complete_google_gmail_integration(
     )
 
 
+async def _complete_external_integration(
+    *,
+    code: str | None,
+    error: str | None,
+    state_payload: dict[str, Any],
+    db: Session,
+) -> Response:
+    integration_slug = str(state_payload.get("integration_slug") or "").strip()
+    next_url = _safe_return_url(str(state_payload.get("next") or f"{settings.site_app_url.rstrip('/')}/account?tab=connections"))
+    user_id = str(state_payload.get("sub") or "").strip()
+    if get_external_integration_scopes(integration_slug) is None:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "external-unsupported"}),
+            status_code=303,
+        )
+    user = db.get(User, user_id)
+    if user is None or error or not code:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-failed"}),
+            status_code=303,
+        )
+    client_id, client_secret = external_integration_credentials(settings, integration_slug)
+    if not client_id or not client_secret:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-unavailable"}),
+            status_code=303,
+        )
+
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/oauth/callback"
+    try:
+        token_payload = await exchange_external_code_for_tokens(
+            settings,
+            integration_slug=integration_slug,
+            code=code,
+            redirect_uri=redirect_uri,
+            http_client_cls=httpx.AsyncClient,
+        )
+        access_token = str(token_payload.get("access_token") or "").strip()
+        if not access_token:
+            raise ValueError("Missing external access token")
+        profile = await fetch_external_profile(
+            integration_slug,
+            access_token,
+            settings=settings,
+            http_client_cls=httpx.AsyncClient,
+        )
+        upsert_external_integration_account(
+            db,
+            settings,
+            user=user,
+            integration_slug=integration_slug,
+            token_payload=token_payload,
+            profile=profile,
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": f"{integration_slug}-failed"}),
+            status_code=303,
+        )
+
+    return RedirectResponse(
+        url=_append_url_params(next_url, {"integration": f"{integration_slug}-connected"}),
+        status_code=303,
+    )
+
+
 def get_optional_current_user(request: Request, db: Session = Depends(get_db)) -> User | None:
     token = _read_session_token(request)
     if not token:
@@ -852,6 +941,65 @@ async def google_gmail_integration_callback(
         code=code,
         error=error,
         state_payload={"sub": user.id, "next": next_url},
+        db=db,
+    )
+
+
+@app.get("/integrations/{integration_slug}/start")
+@app.get("/v1/integrations/{integration_slug}/start")
+def external_integration_start(
+    integration_slug: str,
+    next: str | None = Query(default=None),
+    user: User = Depends(require_current_user),
+) -> Response:
+    safe_next = _safe_return_url(next or f"{settings.site_app_url.rstrip('/')}/account?tab=connections")
+    if get_external_integration_scopes(integration_slug) is None:
+        raise HTTPException(status_code=404, detail="Unsupported integration")
+    client_id, client_secret = external_integration_credentials(settings, integration_slug)
+    if not client_id or not client_secret:
+        return RedirectResponse(
+            url=_append_url_params(safe_next, {"integration": f"{integration_slug}-unavailable"}),
+            status_code=303,
+        )
+    redirect_uri = f"{settings.public_api_url.rstrip('/')}/integrations/oauth/callback"
+    state = build_external_integration_state(
+        settings,
+        user_id=user.id,
+        next_url=safe_next,
+        integration_slug=integration_slug,
+    )
+    return RedirectResponse(
+        url=build_external_authorization_url(
+            settings,
+            integration_slug=integration_slug,
+            redirect_uri=redirect_uri,
+            state=state,
+        ),
+        status_code=303,
+    )
+
+
+@app.get("/integrations/oauth/callback")
+@app.get("/v1/integrations/oauth/callback")
+async def external_integration_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    db: Session = Depends(get_db),
+) -> Response:
+    next_url = f"{settings.site_app_url.rstrip('/')}/account?tab=connections"
+    try:
+        state_payload = decode_external_integration_state(settings, state or "")
+        next_url = _safe_return_url(str(state_payload.get("next") or next_url))
+    except Exception:
+        return RedirectResponse(
+            url=_append_url_params(next_url, {"integration": "external-expired"}),
+            status_code=303,
+        )
+    return await _complete_external_integration(
+        code=code,
+        error=error,
+        state_payload=state_payload,
         db=db,
     )
 
@@ -1285,6 +1433,167 @@ async def internal_runtime_razorpay_payments_list(
         _release_internal_connector_action(db, payload=payload, reason="razorpay_payments_list_failed", metadata={"integration_slug": "razorpay", "error": str(exc)[:240]})
         raise HTTPException(status_code=502, detail="Razorpay action failed. Please try again.") from exc
     return RazorpayPaymentsListResponse(ok=True, items=result.get("items") or [], count=int(result.get("count") or 0), credits_spent=final.credits)
+
+
+def _require_connected_external_account(db: Session, *, user: User, integration_slug: str, label: str, payload: Any) -> UserIntegrationAccount:
+    account = get_user_integration_account(db, user_id=user.id, integration_slug=integration_slug)
+    if account is None:
+        _release_internal_connector_action(
+            db,
+            payload=payload,
+            reason=f"{integration_slug}_not_connected",
+            metadata={"integration_slug": integration_slug},
+        )
+        raise HTTPException(status_code=403, detail=f"Connect {label} in Founder Systems before using this action.")
+    return account
+
+
+@app.post("/internal/runtime/actions/github/issues/create", response_model=GithubIssueCreateResponse)
+@app.post("/v1/internal/runtime/actions/github/issues/create", response_model=GithubIssueCreateResponse)
+async def internal_runtime_github_issue_create(
+    payload: GithubIssueCreateRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GithubIssueCreateResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="github_issue_create",
+        provider="github",
+        model_id="issues.create",
+        credits=credits,
+        estimated_input_chars=len(payload.repo) + len(payload.title) + len(payload.body_text),
+        metadata={"approval_text": payload.approval_text, "integration_slug": "github"},
+    )
+    account = _require_connected_external_account(db, user=user, integration_slug="github", label="GitHub", payload=payload)
+    try:
+        result = await create_github_issue(settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "github", **result},
+        )
+        db.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="github_issue_create_failed", metadata={"integration_slug": "github", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="GitHub action failed. Please try again.") from exc
+    return GithubIssueCreateResponse(ok=True, credits_spent=final.credits, **result)
+
+
+@app.post("/internal/runtime/actions/hubspot/contacts/create", response_model=HubSpotContactCreateResponse)
+@app.post("/v1/internal/runtime/actions/hubspot/contacts/create", response_model=HubSpotContactCreateResponse)
+async def internal_runtime_hubspot_contact_create(
+    payload: HubSpotContactCreateRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> HubSpotContactCreateResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="hubspot_contact_create",
+        provider="hubspot",
+        model_id="contacts.create",
+        credits=credits,
+        estimated_input_chars=len(str(payload.email)) + len(payload.first_name or "") + len(payload.last_name or ""),
+        metadata={"approval_text": payload.approval_text, "integration_slug": "hubspot"},
+    )
+    account = _require_connected_external_account(db, user=user, integration_slug="hubspot", label="HubSpot", payload=payload)
+    try:
+        result = await create_hubspot_contact(settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(db, payload=payload, credits=credits, metadata={"integration_slug": "hubspot", **result})
+        db.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="hubspot_contact_create_failed", metadata={"integration_slug": "hubspot", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="HubSpot action failed. Please try again.") from exc
+    return HubSpotContactCreateResponse(ok=True, credits_spent=final.credits, **result)
+
+
+@app.post("/internal/runtime/actions/mailchimp/campaigns/list", response_model=MailchimpCampaignsListResponse)
+@app.post("/v1/internal/runtime/actions/mailchimp/campaigns/list", response_model=MailchimpCampaignsListResponse)
+async def internal_runtime_mailchimp_campaigns_list(
+    payload: MailchimpCampaignsListRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> MailchimpCampaignsListResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="mailchimp_campaigns_list",
+        provider="mailchimp",
+        model_id="campaigns.list",
+        credits=credits,
+        metadata={"integration_slug": "mailchimp"},
+    )
+    account = _require_connected_external_account(db, user=user, integration_slug="mailchimp", label="Mailchimp", payload=payload)
+    try:
+        result = await list_mailchimp_campaigns(settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(db, payload=payload, credits=credits, metadata={"integration_slug": "mailchimp", "count": result.get("count")})
+        db.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="mailchimp_campaigns_list_failed", metadata={"integration_slug": "mailchimp", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Mailchimp action failed. Please try again.") from exc
+    return MailchimpCampaignsListResponse(ok=True, campaigns=result.get("campaigns") or [], count=int(result.get("count") or 0), credits_spent=final.credits)
+
+
+@app.post("/internal/runtime/actions/meta-ads/insights/read", response_model=MetaAdsInsightsResponse)
+@app.post("/v1/internal/runtime/actions/meta-ads/insights/read", response_model=MetaAdsInsightsResponse)
+async def internal_runtime_meta_ads_insights_read(
+    payload: MetaAdsInsightsRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> MetaAdsInsightsResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="meta_ads_insights_read",
+        provider="meta",
+        model_id="ads.insights",
+        credits=credits,
+        estimated_input_chars=len(payload.ad_account_id),
+        metadata={"integration_slug": "meta-ads", "ad_account_id": payload.ad_account_id},
+    )
+    account = _require_connected_external_account(db, user=user, integration_slug="meta-ads", label="Meta Ads", payload=payload)
+    try:
+        result = await read_meta_ads_insights(settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(db, payload=payload, credits=credits, metadata={"integration_slug": "meta-ads", "row_count": len(result.get("rows") or [])})
+        db.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="meta_ads_insights_failed", metadata={"integration_slug": "meta-ads", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Meta Ads action failed. Please try again.") from exc
+    return MetaAdsInsightsResponse(ok=True, rows=result.get("rows") or [], credits_spent=final.credits)
 
 
 @app.post("/auth/logout", response_model=SessionResponse)

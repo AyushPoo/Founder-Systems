@@ -36,6 +36,16 @@ class Settings(BaseSettings):
     google_client_secret: Optional[str] = None
     integration_token_secret: Optional[str] = None
 
+    github_client_id: Optional[str] = None
+    github_client_secret: Optional[str] = None
+    hubspot_client_id: Optional[str] = None
+    hubspot_client_secret: Optional[str] = None
+    mailchimp_client_id: Optional[str] = None
+    mailchimp_client_secret: Optional[str] = None
+    meta_client_id: Optional[str] = None
+    meta_client_secret: Optional[str] = None
+    meta_graph_version: str = "v23.0"
+
     razorpay_key_id: Optional[str] = None
     razorpay_key_secret: Optional[str] = None
     razorpay_webhook_secret: Optional[str] = None

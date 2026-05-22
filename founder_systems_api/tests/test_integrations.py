@@ -24,6 +24,14 @@ def _bootstrap_app(monkeypatch, tmp_path: Path):
     monkeypatch.setenv("FS_PUBLIC_API_URL", "http://localhost:8000")
     monkeypatch.setenv("FS_GOOGLE_CLIENT_ID", "google-client-id")
     monkeypatch.setenv("FS_GOOGLE_CLIENT_SECRET", "google-client-secret")
+    monkeypatch.setenv("FS_GITHUB_CLIENT_ID", "github-client-id")
+    monkeypatch.setenv("FS_GITHUB_CLIENT_SECRET", "github-client-secret")
+    monkeypatch.setenv("FS_HUBSPOT_CLIENT_ID", "hubspot-client-id")
+    monkeypatch.setenv("FS_HUBSPOT_CLIENT_SECRET", "hubspot-client-secret")
+    monkeypatch.setenv("FS_MAILCHIMP_CLIENT_ID", "mailchimp-client-id")
+    monkeypatch.setenv("FS_MAILCHIMP_CLIENT_SECRET", "mailchimp-client-secret")
+    monkeypatch.setenv("FS_META_CLIENT_ID", "meta-client-id")
+    monkeypatch.setenv("FS_META_CLIENT_SECRET", "meta-client-secret")
     monkeypatch.setenv("FS_API_KEY_INTERNAL", "internal-secret")
     monkeypatch.setenv("FS_ADMIN_EMAILS", "founder@example.com")
 
@@ -194,6 +202,84 @@ def test_integration_status_marks_razorpay_connected_when_credentials_exist(monk
         assert razorpay["status"] == "connected"
         assert "payments:read" in razorpay["scopes"]
         assert "settlements:read" in razorpay["scopes"]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_external_connector_start_redirects_to_provider_oauth(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        response = await client.get(
+            "/integrations/github/start",
+            params={"next": "https://foundersystems.in/account?tab=connections"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 303, response.text
+        location = response.headers["location"]
+        assert location.startswith("https://github.com/login/oauth/authorize")
+        params = parse_qs(urlparse(location).query)
+        assert params["client_id"][0] == "github-client-id"
+        assert params["redirect_uri"][0] == "http://localhost:8000/integrations/oauth/callback"
+        assert "repo" in params["scope"][0].split()
+        assert "user:email" in params["scope"][0].split()
+        assert params["state"][0]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_external_connector_callback_stores_github_account(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        start = await client.get("/integrations/github/start", follow_redirects=False)
+        state = parse_qs(urlparse(start.headers["location"]).query)["state"][0]
+
+        class FakeAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return None
+
+            async def post(self, url, **kwargs):
+                assert url == "https://github.com/login/oauth/access_token"
+                return httpx.Response(
+                    200,
+                    json={
+                        "access_token": "github-access-token",
+                        "scope": "repo user:email",
+                        "token_type": "bearer",
+                    },
+                )
+
+            async def get(self, url, **kwargs):
+                if url == "https://api.github.com/user":
+                    return httpx.Response(200, json={"id": 123, "login": "founder", "name": "Founder", "email": None})
+                if url == "https://api.github.com/user/emails":
+                    return httpx.Response(200, json=[{"email": "founder@example.com", "primary": True}])
+                raise AssertionError(f"Unexpected GET {url}")
+
+        monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+        callback = await client.get(
+            "/integrations/oauth/callback",
+            params={"code": "oauth-code", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303, callback.text
+        assert callback.headers["location"] == "https://foundersystems.in/account?tab=connections&integration=github-connected"
+
+        status = await client.get("/integrations")
+        github = next(item for item in status.json()["integrations"] if item["integration_slug"] == "github")
+        assert github["provider"] == "github"
+        assert github["status"] == "connected"
+        assert github["account_email"] == "founder@example.com"
+        assert "repo" in github["scopes"]
 
     asyncio.run(_run_with_client(main, scenario))
 
@@ -409,6 +495,29 @@ def _connect_google_action_account(main, user_id: str, *, integration_slug: str,
                 "name": "Founder Gmail",
             },
         )
+        db.commit()
+
+
+def _connect_external_action_account(main, user_id: str, *, integration_slug: str, provider: str, scopes: list[str], metadata: dict | None = None) -> None:
+    with main.Session(bind=main.engine) as db:
+        user = db.get(main.User, user_id)
+        account = main.upsert_external_integration_account(
+            db,
+            main.settings,
+            user=user,
+            integration_slug=integration_slug,
+            token_payload={
+                "access_token": f"{integration_slug}-access-token",
+                "scope": " ".join(scopes),
+                "token_type": "Bearer",
+            },
+            profile={
+                "email": "founder@example.com",
+                "name": f"{integration_slug} test",
+                **(metadata or {}),
+            },
+        )
+        account.provider = provider
         db.commit()
 
 
@@ -646,5 +755,108 @@ def test_internal_razorpay_payments_action_lists_recent_payments(monkeypatch, tm
         assert response.status_code == 200, response.text
         assert response.json()["items"][0]["id"] == "pay_123"
         assert response.json()["credits_spent"] == 1
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_internal_external_connector_actions(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        user_id = (await client.get("/auth/session")).json()["user"]["id"]
+        _grant_operator_access(main, user_id)
+        _connect_external_action_account(main, user_id, integration_slug="github", provider="github", scopes=["repo", "user:email"])
+        _connect_external_action_account(main, user_id, integration_slug="hubspot", provider="hubspot", scopes=["crm.objects.contacts.write"], metadata={"hub_id": 12345})
+        _connect_external_action_account(main, user_id, integration_slug="mailchimp", provider="mailchimp", scopes=[], metadata={"dc": "us1", "api_endpoint": "https://us1.api.mailchimp.com/3.0"})
+        _connect_external_action_account(main, user_id, integration_slug="meta-ads", provider="meta", scopes=["ads_read", "ads_management"])
+
+        class FakeAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return None
+
+            async def post(self, url, **kwargs):
+                if url == "https://api.github.com/repos/AyushPoo/Founder-Systems/issues":
+                    assert kwargs["json"]["title"] == "Fix connector UX"
+                    return httpx.Response(201, json={"id": 99, "number": 7, "html_url": "https://github.com/AyushPoo/Founder-Systems/issues/7"})
+                if url == "https://api.hubapi.com/crm/v3/objects/contacts":
+                    assert kwargs["json"]["properties"]["email"] == "lead@example.com"
+                    return httpx.Response(201, json={"id": "contact-123"})
+                raise AssertionError(f"Unexpected POST {url}")
+
+            async def get(self, url, **kwargs):
+                if url == "https://us1.api.mailchimp.com/3.0/campaigns":
+                    assert kwargs["params"]["count"] == 5
+                    return httpx.Response(200, json={"campaigns": [{"id": "camp-1", "settings": {"title": "May newsletter"}}], "total_items": 1})
+                if url == "https://graph.facebook.com/v23.0/act_123456/insights":
+                    assert kwargs["params"]["level"] == "campaign"
+                    return httpx.Response(200, json={"data": [{"campaign_name": "Launch", "spend": "42.00", "clicks": "12"}]})
+                raise AssertionError(f"Unexpected GET {url}")
+
+        monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+
+        github = await client.post(
+            "/v1/internal/runtime/actions/github/issues/create",
+            headers={"X-API-Key": "internal-secret"},
+            json={
+                "product_slug": "ops-agent",
+                "user_id": user_id,
+                "reference_id": "github-issue-001",
+                "repo": "AyushPoo/Founder-Systems",
+                "title": "Fix connector UX",
+                "body_text": "Telegram connector flow needs polish.",
+                "approval_text": "Approved in Telegram",
+            },
+        )
+        assert github.status_code == 200, github.text
+        assert github.json()["issue_url"].endswith("/issues/7")
+
+        hubspot = await client.post(
+            "/v1/internal/runtime/actions/hubspot/contacts/create",
+            headers={"X-API-Key": "internal-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "hubspot-contact-001",
+                "email": "lead@example.com",
+                "first_name": "Lead",
+                "approval_text": "Approved in Telegram",
+            },
+        )
+        assert hubspot.status_code == 200, hubspot.text
+        assert hubspot.json()["contact_id"] == "contact-123"
+
+        mailchimp = await client.post(
+            "/v1/internal/runtime/actions/mailchimp/campaigns/list",
+            headers={"X-API-Key": "internal-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "mailchimp-campaigns-001",
+                "count": 5,
+            },
+        )
+        assert mailchimp.status_code == 200, mailchimp.text
+        assert mailchimp.json()["campaigns"][0]["id"] == "camp-1"
+
+        meta = await client.post(
+            "/v1/internal/runtime/actions/meta-ads/insights/read",
+            headers={"X-API-Key": "internal-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "meta-insights-001",
+                "ad_account_id": "123456",
+                "limit": 5,
+            },
+        )
+        assert meta.status_code == 200, meta.text
+        assert meta.json()["rows"][0]["campaign_name"] == "Launch"
 
     asyncio.run(_run_with_client(main, scenario))

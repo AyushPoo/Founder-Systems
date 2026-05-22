@@ -18,12 +18,16 @@ from .config import Settings
 from .models import TelegramLink, User, UserIntegrationAccount, utc_now
 from .schemas import (
     GmailSendRequest,
+    GithubIssueCreateRequest,
     GoogleAnalyticsRunReportRequest,
     GoogleCalendarEventCreateRequest,
     GoogleDocCreateRequest,
     GoogleSearchConsoleQueryRequest,
     GoogleSheetCreateRequest,
+    HubSpotContactCreateRequest,
     IntegrationAccountResponse,
+    MailchimpCampaignsListRequest,
+    MetaAdsInsightsRequest,
     RazorpayPaymentsListRequest,
 )
 
@@ -50,6 +54,23 @@ GOOGLE_INTEGRATION_SCOPES: dict[str, tuple[str, ...]] = {
     "google-analytics-4": ("https://www.googleapis.com/auth/analytics.readonly",),
 }
 GOOGLE_GMAIL_SCOPES = (*GOOGLE_BASE_SCOPES, GMAIL_SEND_SCOPE)
+EXTERNAL_INTEGRATION_SCOPES: dict[str, tuple[str, ...]] = {
+    "github": ("repo", "user:email"),
+    "hubspot": (
+        "crm.objects.contacts.read",
+        "crm.objects.contacts.write",
+        "crm.objects.deals.read",
+        "crm.objects.deals.write",
+    ),
+    "mailchimp": (),
+    "meta-ads": ("ads_read", "ads_management", "business_management"),
+}
+EXTERNAL_PROVIDER_BY_SLUG = {
+    "github": "github",
+    "hubspot": "hubspot",
+    "mailchimp": "mailchimp",
+    "meta-ads": "meta",
+}
 
 
 def get_google_integration_scopes(integration_slug: str) -> tuple[str, ...] | None:
@@ -133,6 +154,106 @@ def decode_google_gmail_state(settings: Settings, state_token: str) -> dict[str,
         return {}
 
 
+def build_external_integration_state(settings: Settings, *, user_id: str, next_url: str, integration_slug: str) -> str:
+    now = utc_now()
+    token = jwt.encode(
+        {
+            "iss": settings.session_issuer,
+            "aud": "external-integration-state",
+            "sub": user_id,
+            "next": next_url,
+            "integration_slug": integration_slug,
+            "iat": int(now.timestamp()),
+            "exp": int((now + timedelta(minutes=20)).timestamp()),
+        },
+        settings.session_secret,
+        algorithm="HS256",
+    )
+    return token if isinstance(token, str) else str(token)
+
+
+def decode_external_integration_state(settings: Settings, state_token: str) -> dict[str, Any]:
+    payload = jwt.decode(
+        state_token,
+        settings.session_secret,
+        algorithms=["HS256"],
+        issuer=settings.session_issuer,
+        audience="external-integration-state",
+    )
+    return payload if isinstance(payload, dict) else {}
+
+
+def get_external_integration_scopes(integration_slug: str) -> tuple[str, ...] | None:
+    return EXTERNAL_INTEGRATION_SCOPES.get(integration_slug)
+
+
+def _external_integration_provider(integration_slug: str) -> str:
+    return EXTERNAL_PROVIDER_BY_SLUG.get(integration_slug, integration_slug)
+
+
+def external_integration_credentials(settings: Settings, integration_slug: str) -> tuple[str | None, str | None]:
+    if integration_slug == "github":
+        return settings.github_client_id, settings.github_client_secret
+    if integration_slug == "hubspot":
+        return settings.hubspot_client_id, settings.hubspot_client_secret
+    if integration_slug == "mailchimp":
+        return settings.mailchimp_client_id, settings.mailchimp_client_secret
+    if integration_slug == "meta-ads":
+        return settings.meta_client_id, settings.meta_client_secret
+    return None, None
+
+
+def build_external_authorization_url(
+    settings: Settings,
+    *,
+    integration_slug: str,
+    redirect_uri: str,
+    state: str,
+) -> str:
+    client_id, _client_secret = external_integration_credentials(settings, integration_slug)
+    scopes = get_external_integration_scopes(integration_slug)
+    if client_id is None or scopes is None:
+        raise ValueError("Unsupported external integration")
+
+    if integration_slug == "github":
+        base_url = "https://github.com/login/oauth/authorize"
+        params = {
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "scope": " ".join(scopes),
+            "state": state,
+        }
+    elif integration_slug == "hubspot":
+        base_url = "https://app.hubspot.com/oauth/authorize"
+        params = {
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "scope": " ".join(scopes),
+            "state": state,
+        }
+    elif integration_slug == "mailchimp":
+        base_url = "https://login.mailchimp.com/oauth2/authorize"
+        params = {
+            "response_type": "code",
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "state": state,
+        }
+    elif integration_slug == "meta-ads":
+        base_url = f"https://www.facebook.com/{settings.meta_graph_version}/dialog/oauth"
+        params = {
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "scope": ",".join(scopes),
+            "response_type": "code",
+            "state": state,
+        }
+    else:
+        raise ValueError("Unsupported external integration")
+
+    return str(httpx.URL(base_url).copy_merge_params(params))
+
+
 def _scope_list(scopes: Any) -> list[str]:
     if isinstance(scopes, str):
         return [scope for scope in scopes.split() if scope]
@@ -174,6 +295,18 @@ def get_user_google_account(db: Session, *, user_id: str, integration_slug: str)
         select(UserIntegrationAccount).where(
             UserIntegrationAccount.user_id == user_id,
             UserIntegrationAccount.provider == "google",
+            UserIntegrationAccount.integration_slug == integration_slug,
+            UserIntegrationAccount.status == "connected",
+        )
+    )
+
+
+def get_user_integration_account(db: Session, *, user_id: str, integration_slug: str) -> UserIntegrationAccount | None:
+    provider = _external_integration_provider(integration_slug)
+    return db.scalar(
+        select(UserIntegrationAccount).where(
+            UserIntegrationAccount.user_id == user_id,
+            UserIntegrationAccount.provider == provider,
             UserIntegrationAccount.integration_slug == integration_slug,
             UserIntegrationAccount.status == "connected",
         )
@@ -267,6 +400,56 @@ def upsert_google_gmail_account(
     )
 
 
+def upsert_external_integration_account(
+    db: Session,
+    settings: Settings,
+    *,
+    user: User,
+    integration_slug: str,
+    token_payload: dict[str, Any],
+    profile: dict[str, Any],
+) -> UserIntegrationAccount:
+    now = utc_now()
+    provider = _external_integration_provider(integration_slug)
+    existing = get_user_integration_account(db, user_id=user.id, integration_slug=integration_slug)
+    existing_tokens = decrypt_token_payload(settings, existing.encrypted_token_json) if existing else {}
+    expires_in_raw = token_payload.get("expires_in")
+    expires_in = int(expires_in_raw) if expires_in_raw is not None else None
+    token_state = {
+        **existing_tokens,
+        "access_token": token_payload.get("access_token") or existing_tokens.get("access_token"),
+        "refresh_token": token_payload.get("refresh_token") or existing_tokens.get("refresh_token"),
+        "token_type": token_payload.get("token_type") or existing_tokens.get("token_type") or "Bearer",
+    }
+    expires_at = None
+    if expires_in:
+        expires_at = now + timedelta(seconds=expires_in)
+        token_state["expires_at"] = int(expires_at.timestamp())
+
+    scopes = _scope_list(token_payload.get("scope")) or list(get_external_integration_scopes(integration_slug) or [])
+    account = existing or UserIntegrationAccount(
+        user_id=user.id,
+        provider=provider,
+        integration_slug=integration_slug,
+    )
+    account.account_email = str(profile.get("email") or "").strip().lower() or None
+    account.display_name = str(profile.get("name") or profile.get("login") or profile.get("account_name") or "").strip() or None
+    account.status = "connected"
+    account.scopes_json = {"scopes": scopes}
+    account.encrypted_token_json = encrypt_token_payload(settings, token_state)
+    account.connected_at = account.connected_at or now
+    account.expires_at = expires_at
+    account.metadata_json = {
+        **((account.metadata_json or {}) if existing else {}),
+        **{key: value for key, value in profile.items() if key not in {"email", "name", "login"}},
+    }
+    if existing is None:
+        db.add(account)
+    db.flush()
+    db.refresh(account)
+    return account
+
+
 async def exchange_google_code_for_tokens(
     settings: Settings,
     *,
@@ -291,6 +474,72 @@ async def exchange_google_code_for_tokens(
         return response.json()
 
 
+async def exchange_external_code_for_tokens(
+    settings: Settings,
+    *,
+    integration_slug: str,
+    code: str,
+    redirect_uri: str,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    client_id, client_secret = external_integration_credentials(settings, integration_slug)
+    if not client_id or not client_secret:
+        raise ValueError("External integration credentials are not configured.")
+
+    async with http_client_cls(timeout=20) as client:
+        if integration_slug == "github":
+            response = await client.post(
+                "https://github.com/login/oauth/access_token",
+                data={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "code": code,
+                    "redirect_uri": redirect_uri,
+                },
+                headers={"Accept": "application/json"},
+            )
+        elif integration_slug == "hubspot":
+            response = await client.post(
+                "https://api.hubapi.com/oauth/v1/token",
+                data={
+                    "grant_type": "authorization_code",
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri": redirect_uri,
+                    "code": code,
+                },
+                headers={"Accept": "application/json"},
+            )
+        elif integration_slug == "mailchimp":
+            response = await client.post(
+                "https://login.mailchimp.com/oauth2/token",
+                data={
+                    "grant_type": "authorization_code",
+                    "redirect_uri": redirect_uri,
+                    "code": code,
+                },
+                auth=(client_id, client_secret),
+                headers={"Accept": "application/json"},
+            )
+        elif integration_slug == "meta-ads":
+            response = await client.get(
+                f"https://graph.facebook.com/{settings.meta_graph_version}/oauth/access_token",
+                params={
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "redirect_uri": redirect_uri,
+                    "code": code,
+                },
+                headers={"Accept": "application/json"},
+            )
+        else:
+            raise ValueError("Unsupported external integration")
+        if response.status_code >= 400:
+            raise ValueError(f"{integration_slug} token exchange failed with status {response.status_code}")
+        payload = response.json()
+        return payload if isinstance(payload, dict) else {}
+
+
 async def fetch_google_profile(access_token: str, *, http_client_cls=httpx.AsyncClient) -> dict[str, Any]:
     async with http_client_cls(timeout=20) as client:
         response = await client.get(
@@ -300,6 +549,74 @@ async def fetch_google_profile(access_token: str, *, http_client_cls=httpx.Async
         if response.status_code >= 400:
             raise ValueError(f"Google profile fetch failed with status {response.status_code}")
         return response.json()
+
+
+async def fetch_external_profile(
+    integration_slug: str,
+    access_token: str,
+    *,
+    settings: Settings,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+    async with http_client_cls(timeout=20) as client:
+        if integration_slug == "github":
+            profile_response = await client.get("https://api.github.com/user", headers=headers)
+            if profile_response.status_code >= 400:
+                raise ValueError(f"GitHub profile fetch failed with status {profile_response.status_code}")
+            profile = profile_response.json()
+            email = str(profile.get("email") or "").strip().lower()
+            if not email:
+                emails_response = await client.get("https://api.github.com/user/emails", headers=headers)
+                if emails_response.status_code < 400:
+                    emails = emails_response.json()
+                    if isinstance(emails, list):
+                        primary = next((item for item in emails if item.get("primary")), None) or (emails[0] if emails else {})
+                        email = str(primary.get("email") or "").strip().lower()
+            return {
+                "email": email,
+                "name": profile.get("name"),
+                "login": profile.get("login"),
+                "provider_user_id": str(profile.get("id") or ""),
+            }
+        if integration_slug == "hubspot":
+            response = await client.get(f"https://api.hubapi.com/oauth/v1/access-tokens/{access_token}", headers={"Accept": "application/json"})
+            if response.status_code >= 400:
+                raise ValueError(f"HubSpot profile fetch failed with status {response.status_code}")
+            profile = response.json()
+            return {
+                "email": profile.get("user"),
+                "name": profile.get("hub_domain") or profile.get("app_id"),
+                "hub_id": profile.get("hub_id"),
+                "hub_domain": profile.get("hub_domain"),
+            }
+        if integration_slug == "mailchimp":
+            response = await client.get("https://login.mailchimp.com/oauth2/metadata", headers=headers)
+            if response.status_code >= 400:
+                raise ValueError(f"Mailchimp metadata fetch failed with status {response.status_code}")
+            profile = response.json()
+            return {
+                "email": profile.get("login", {}).get("email") if isinstance(profile.get("login"), dict) else None,
+                "name": profile.get("accountname") or profile.get("dc"),
+                "dc": profile.get("dc"),
+                "api_endpoint": profile.get("api_endpoint"),
+                "login_url": profile.get("login_url"),
+            }
+        if integration_slug == "meta-ads":
+            response = await client.get(
+                f"https://graph.facebook.com/{settings.meta_graph_version}/me",
+                params={"fields": "id,name,email", "access_token": access_token},
+                headers={"Accept": "application/json"},
+            )
+            if response.status_code >= 400:
+                raise ValueError(f"Meta profile fetch failed with status {response.status_code}")
+            profile = response.json()
+            return {
+                "email": profile.get("email"),
+                "name": profile.get("name"),
+                "provider_user_id": profile.get("id"),
+            }
+    raise ValueError("Unsupported external integration")
 
 
 async def _refresh_google_access_token(
@@ -409,6 +726,17 @@ async def _google_headers(
         http_client_cls=http_client_cls,
     )
     return {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
+
+
+def get_external_access_token(settings: Settings, *, account: UserIntegrationAccount, integration_label: str) -> str:
+    tokens = decrypt_token_payload(settings, account.encrypted_token_json)
+    access_token = str(tokens.get("access_token") or "").strip()
+    expires_at = int(tokens.get("expires_at") or 0)
+    if expires_at and expires_at <= int((utc_now() + timedelta(seconds=60)).timestamp()):
+        raise ValueError(f"{integration_label} must be reconnected before this action.")
+    if not access_token:
+        raise ValueError(f"{integration_label} must be connected before this action.")
+    return access_token
 
 
 def _build_gmail_raw_message(account: UserIntegrationAccount, payload: GmailSendRequest) -> str:
@@ -702,3 +1030,134 @@ async def list_razorpay_payments(
         "items": result.get("items") or [],
         "count": int(result.get("count") or len(result.get("items") or [])),
     }
+
+
+async def create_github_issue(
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GithubIssueCreateRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    access_token = get_external_access_token(settings, account=account, integration_label="GitHub")
+    body: dict[str, Any] = {"title": payload.title}
+    if payload.body_text:
+        body["body"] = payload.body_text
+    if payload.labels:
+        body["labels"] = payload.labels
+    async with http_client_cls(timeout=20) as client:
+        response = await client.post(
+            f"https://api.github.com/repos/{payload.repo}/issues",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+            json=body,
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"GitHub issue create failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    return {
+        "issue_id": result.get("id"),
+        "issue_number": result.get("number"),
+        "issue_url": result.get("html_url"),
+    }
+
+
+async def create_hubspot_contact(
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: HubSpotContactCreateRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    access_token = get_external_access_token(settings, account=account, integration_label="HubSpot")
+    properties = {"email": str(payload.email)}
+    if payload.first_name:
+        properties["firstname"] = payload.first_name
+    if payload.last_name:
+        properties["lastname"] = payload.last_name
+    if payload.company:
+        properties["company"] = payload.company
+    if payload.phone:
+        properties["phone"] = payload.phone
+    async with http_client_cls(timeout=20) as client:
+        response = await client.post(
+            "https://api.hubapi.com/crm/v3/objects/contacts",
+            headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+            json={"properties": properties},
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"HubSpot contact create failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    portal_id = (account.metadata_json or {}).get("hub_id")
+    contact_id = str(result.get("id") or "")
+    return {
+        "contact_id": contact_id or None,
+        "contact_url": f"https://app.hubspot.com/contacts/{portal_id}/contact/{contact_id}" if portal_id and contact_id else None,
+    }
+
+
+async def list_mailchimp_campaigns(
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: MailchimpCampaignsListRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    access_token = get_external_access_token(settings, account=account, integration_label="Mailchimp")
+    api_endpoint = str((account.metadata_json or {}).get("api_endpoint") or "").rstrip("/")
+    dc = str((account.metadata_json or {}).get("dc") or "").strip()
+    if not api_endpoint and dc:
+        api_endpoint = f"https://{dc}.api.mailchimp.com/3.0"
+    if not api_endpoint:
+        raise ValueError("Reconnect Mailchimp before reading campaigns.")
+    params: dict[str, Any] = {"count": payload.count}
+    if payload.status:
+        params["status"] = payload.status
+    async with http_client_cls(timeout=20) as client:
+        response = await client.get(
+            f"{api_endpoint}/campaigns",
+            headers={"Authorization": f"OAuth {access_token}", "Accept": "application/json"},
+            params=params,
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Mailchimp campaigns list failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    campaigns = result.get("campaigns") if isinstance(result, dict) else []
+    return {"campaigns": campaigns or [], "count": int(result.get("total_items") or len(campaigns or []))}
+
+
+async def read_meta_ads_insights(
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: MetaAdsInsightsRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    access_token = get_external_access_token(settings, account=account, integration_label="Meta Ads")
+    ad_account_id = payload.ad_account_id
+    if not ad_account_id.startswith("act_"):
+        ad_account_id = f"act_{ad_account_id}"
+    async with http_client_cls(timeout=20) as client:
+        response = await client.get(
+            f"https://graph.facebook.com/{settings.meta_graph_version}/{ad_account_id}/insights",
+            params={
+                "access_token": access_token,
+                "fields": "campaign_name,spend,impressions,clicks,cpc,ctr",
+                "date_preset": payload.date_preset,
+                "level": payload.level,
+                "limit": payload.limit,
+            },
+            headers={"Accept": "application/json"},
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Meta Ads insights failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    rows = result.get("data") if isinstance(result, dict) else []
+    return {"rows": rows or []}
