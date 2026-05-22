@@ -1,34 +1,17 @@
 <svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
-  <rect x="36" y="36" width="1128" height="828" rx="44" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
-  <rect x="82" y="82" width="248" height="58" rx="29" fill="white" stroke="#1B1C1A" stroke-width="3"/>
-  <circle cx="116" cy="111" r="8" fill="#FF5A1F"/>
-  <text x="138" y="120" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3">FOUNDER GUIDE</text>
-  <rect x="960" y="82" width="174" height="58" rx="29" fill="#1B1C1A"/>
-  <text x="1006" y="120" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2">6 MIN READ</text>
-
-  <rect x="84" y="184" width="470" height="532" rx="34" fill="#101828"/>
-  <text x="124" y="274" fill="#FFB493" font-family="Arial, sans-serif" font-size="50" font-weight="900">REACT TO AI</text>
-  <text x="124" y="334" fill="#FFB493" font-family="Arial, sans-serif" font-size="50" font-weight="900">NEWS WITHOUT</text>
-  <text x="124" y="394" fill="#FFB493" font-family="Arial, sans-serif" font-size="50" font-weight="900">GETTING DISTRACTED</text>
-  <rect x="124" y="476" width="344" height="120" rx="26" fill="#FFF7EF"/>
-  <text x="156" y="536" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Headline → assumption</text>
-  <text x="156" y="574" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">→ test → decision</text>
-
-  <rect x="610" y="184" width="514" height="172" rx="34" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="4"/>
-  <text x="648" y="244" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="26" font-weight="800">DO NOT ASK:</text>
-  <text x="648" y="310" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="36" font-weight="800">“Is this interesting?”</text>
-
-  <rect x="610" y="390" width="514" height="196" rx="34" fill="#FF5A1F"/>
-  <text x="648" y="450" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800">ASK INSTEAD:</text>
-  <text x="648" y="514" fill="white" font-family="Arial, sans-serif" font-size="34" font-weight="800">Which product, workflow,</text>
-  <text x="648" y="558" fill="white" font-family="Arial, sans-serif" font-size="34" font-weight="800">or GTM assumption should</text>
-  <text x="648" y="602" fill="white" font-family="Arial, sans-serif" font-size="34" font-weight="800">we re-test in 7 days?</text>
-
-  <rect x="610" y="626" width="152" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="648" y="660" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Ignore</text>
-  <rect x="778" y="626" width="146" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="817" y="660" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Watch</text>
-  <rect x="940" y="626" width="144" height="54" rx="22" fill="#1B1C1A"/>
-  <text x="979" y="660" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Test</text>
+  <rect width="1200" height="900" fill="#F7F1E8"/>
+  <rect x="64" y="64" width="1072" height="772" rx="36" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="126" y="146" width="948" height="146" rx="28" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="126" y="350" width="432" height="330" rx="28" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="642" y="350" width="432" height="330" rx="28" fill="#FFF1E8" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="200" cy="220" r="18" fill="#FF6B1A"/>
+  <path d="M246 190H510" stroke="#1B1C1A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M246 230H690" stroke="#1B1C1A" stroke-width="6" stroke-linecap="round"/>
+  <path d="M246 270H594" stroke="#1B1C1A" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="342" cy="516" r="88" stroke="#1B1C1A" stroke-width="4"/>
+  <path d="M342 462V570M288 516H396" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M746 520C746 458.144 796.144 408 858 408C919.856 408 970 458.144 970 520C970 581.856 919.856 632 858 632H746V520Z" stroke="#1B1C1A" stroke-width="4"/>
+  <circle cx="858" cy="520" r="28" fill="#FF6B1A"/>
+  <path d="M722 734H1070" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round" stroke-opacity="0.16"/>
+  <path d="M130 734H478" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round" stroke-opacity="0.16"/>
 </svg>

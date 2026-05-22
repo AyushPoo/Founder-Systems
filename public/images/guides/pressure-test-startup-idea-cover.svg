@@ -1,34 +1,23 @@
 <svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
-  <rect x="36" y="36" width="1128" height="828" rx="44" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
-  <rect x="82" y="82" width="248" height="58" rx="29" fill="white" stroke="#1B1C1A" stroke-width="3"/>
-  <circle cx="116" cy="111" r="8" fill="#FF5A1F"/>
-  <text x="138" y="120" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3">FOUNDER GUIDE</text>
-  <rect x="938" y="82" width="196" height="58" rx="29" fill="#1B1C1A"/>
-  <text x="986" y="120" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2">8 MIN READ</text>
-
-  <rect x="84" y="190" width="460" height="526" rx="34" fill="#1B1C1A"/>
-  <text x="126" y="286" fill="#FFF7EF" font-family="Arial, sans-serif" font-size="56" font-weight="900">PRESSURE-TEST</text>
-  <text x="126" y="352" fill="#FFF7EF" font-family="Arial, sans-serif" font-size="56" font-weight="900">THE IDEA</text>
-  <text x="126" y="438" fill="#FFB493" font-family="Arial, sans-serif" font-size="34" font-weight="700">before you build the wrong v1</text>
-  <rect x="126" y="506" width="338" height="94" rx="24" fill="#FFF7EF"/>
-  <text x="156" y="558" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="30" font-weight="800">Pain. Urgency.</text>
-  <text x="156" y="594" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="30" font-weight="800">Workflow. Proof.</text>
-
-  <rect x="620" y="190" width="496" height="266" rx="34" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="4"/>
-  <text x="658" y="252" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="800">QUICK FOUNDER TEST</text>
-  <text x="658" y="312" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="34" font-weight="800">1. What painful workflow repeats?</text>
-  <text x="658" y="364" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="34" font-weight="800">2. Who already feels the cost?</text>
-  <text x="658" y="416" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="34" font-weight="800">3. What proof earns a build?</text>
-
-  <rect x="620" y="494" width="150" height="54" rx="22" fill="#FF5A1F"/>
-  <text x="655" y="528" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Demand</text>
-  <rect x="788" y="494" width="138" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="824" y="528" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Wedge</text>
-  <rect x="944" y="494" width="138" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="982" y="528" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Proof</text>
-
-  <rect x="620" y="592" width="496" height="124" rx="30" fill="#FFFFFF" stroke="#1B1C1A" stroke-width="4"/>
-  <text x="656" y="652" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Do not ask “is this interesting?”</text>
-  <text x="656" y="694" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Ask “what would make us not build this?”</text>
+  <rect width="1200" height="900" fill="#F7F1E8"/>
+  <rect x="64" y="64" width="1072" height="772" rx="36" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="120" y="120" width="420" height="240" rx="28" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="660" y="120" width="420" height="240" rx="28" fill="#FFF1E8" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="390" y="420" width="420" height="320" rx="30" stroke="#1B1C1A" stroke-width="3"/>
+  <path d="M330 240H540" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M660 240H870" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M600 362V420" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M540 520H660" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M600 460L640 520L600 580L560 520L600 460Z" fill="#FF6B1A" stroke="#1B1C1A" stroke-width="3"/>
+  <path d="M238 214C238 185.281 261.281 162 290 162H370C398.719 162 422 185.281 422 214V270C422 298.719 398.719 322 370 322H290C261.281 322 238 298.719 238 270V214Z" stroke="#1B1C1A" stroke-width="3"/>
+  <path d="M778 214C778 185.281 801.281 162 830 162H910C938.719 162 962 185.281 962 214V270C962 298.719 938.719 322 910 322H830C801.281 322 778 298.719 778 270V214Z" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="330" cy="242" r="32" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="870" cy="242" r="32" fill="#FF6B1A"/>
+  <path d="M568 660H632" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M518 610H682" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M468 560H732" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <rect x="120" y="710" width="236" height="52" rx="26" stroke="#1B1C1A" stroke-opacity="0.14" stroke-width="2"/>
+  <rect x="378" y="710" width="208" height="52" rx="26" stroke="#1B1C1A" stroke-opacity="0.14" stroke-width="2"/>
+  <rect x="608" y="710" width="214" height="52" rx="26" fill="#1B1C1A"/>
+  <rect x="844" y="710" width="236" height="52" rx="26" stroke="#1B1C1A" stroke-opacity="0.14" stroke-width="2"/>
 </svg>

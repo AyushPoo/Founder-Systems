@@ -1,35 +1,25 @@
 <svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
-  <rect x="36" y="36" width="1128" height="828" rx="44" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
-  <rect x="82" y="82" width="248" height="58" rx="29" fill="white" stroke="#1B1C1A" stroke-width="3"/>
-  <circle cx="116" cy="111" r="8" fill="#FF5A1F"/>
-  <text x="138" y="120" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3">FOUNDER GUIDE</text>
-  <rect x="948" y="82" width="186" height="58" rx="29" fill="#1B1C1A"/>
-  <text x="995" y="120" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2">7 MIN READ</text>
-
-  <rect x="84" y="188" width="452" height="540" rx="34" fill="#FF5A1F"/>
-  <text x="124" y="284" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">OUTREACH THAT</text>
-  <text x="124" y="348" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">DOESN'T SOUND</text>
-  <text x="124" y="412" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">GENERIC</text>
-  <rect x="124" y="484" width="334" height="108" rx="26" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="3"/>
-  <text x="154" y="544" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Offer. Pain. Proof.</text>
-  <text x="154" y="582" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Ask.</text>
-
-  <rect x="610" y="188" width="514" height="180" rx="34" fill="#1B1C1A"/>
-  <text x="648" y="244" fill="#FFB493" font-family="Arial, sans-serif" font-size="24" font-weight="800">BAD</text>
-  <text x="648" y="304" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="700">“We help teams move faster</text>
-  <text x="648" y="346" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="700">with AI-powered workflows.”</text>
-
-  <rect x="610" y="398" width="514" height="246" rx="34" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="4"/>
-  <text x="648" y="454" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="800">BETTER</text>
-  <text x="648" y="514" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">“We turn scattered founder</text>
-  <text x="648" y="556" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">materials into one clean update</text>
-  <text x="648" y="598" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">draft without rebuilding it by hand.”</text>
-
-  <rect x="610" y="682" width="164" height="54" rx="22" fill="#1B1C1A"/>
-  <text x="656" y="716" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Offer</text>
-  <rect x="794" y="682" width="138" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="831" y="716" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Proof</text>
-  <rect x="950" y="682" width="132" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
-  <text x="986" y="716" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">CTA</text>
+  <rect width="1200" height="900" fill="#F7F1E8"/>
+  <rect x="64" y="64" width="1072" height="772" rx="36" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="112" y="112" width="408" height="612" rx="28" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="572" y="112" width="516" height="612" rx="28" stroke="#1B1C1A" stroke-width="3"/>
+  <rect x="160" y="176" width="310" height="56" rx="18" fill="#FF6B1A"/>
+  <rect x="160" y="272" width="216" height="20" rx="10" fill="#1B1C1A" fill-opacity="0.1"/>
+  <rect x="160" y="316" width="278" height="20" rx="10" fill="#1B1C1A" fill-opacity="0.1"/>
+  <rect x="160" y="360" width="248" height="20" rx="10" fill="#1B1C1A" fill-opacity="0.1"/>
+  <rect x="160" y="432" width="102" height="40" rx="20" stroke="#1B1C1A" stroke-width="2"/>
+  <rect x="280" y="432" width="128" height="40" rx="20" fill="#1B1C1A"/>
+  <rect x="626" y="176" width="408" height="120" rx="24" fill="#FFF1E8" stroke="#1B1C1A" stroke-width="3"/>
+  <path d="M648 352H1010" stroke="#1B1C1A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M648 412H934" stroke="#1B1C1A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M648 472H982" stroke="#1B1C1A" stroke-width="5" stroke-linecap="round"/>
+  <path d="M648 532H870" stroke="#1B1C1A" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="950" cy="240" r="34" fill="#FF6B1A"/>
+  <path d="M938 240L946 248L966 228" stroke="#1B1C1A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M520 418L572 418" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round"/>
+  <path d="M560 390L588 418L560 446" stroke="#1B1C1A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="112" y="754" width="976" height="38" rx="19" stroke="#1B1C1A" stroke-opacity="0.14" stroke-width="2"/>
+  <rect x="136" y="764" width="162" height="18" rx="9" fill="#1B1C1A" fill-opacity="0.08"/>
+  <rect x="320" y="764" width="118" height="18" rx="9" fill="#1B1C1A" fill-opacity="0.08"/>
+  <rect x="460" y="764" width="152" height="18" rx="9" fill="#FF6B1A"/>
 </svg>
