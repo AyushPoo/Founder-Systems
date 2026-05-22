@@ -1,20 +1,125 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import Navbar from '../components/Navbar';
 import SEO from '../components/SEO';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import GuideInlineVisual from '../components/guides/GuideInlineVisual';
 import { guidesData } from '../data/guidesData';
 
-const previewLabels = ['Live KPI dashboard', 'Model inputs', 'Scenario planning'];
+function slugify(value) {
+    return value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+}
+
+function formatDate(value) {
+    if (!value) {
+        return '';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    }).format(date);
+}
+
+function parseGuideMarkdown(markdown) {
+    const normalized = (markdown || '').replace(/\r\n/g, '\n').trim();
+    if (!normalized) {
+        return { intro: '', sections: [] };
+    }
+
+    const parts = normalized.split(/\n(?=## )/);
+    const intro = parts[0]?.startsWith('## ') ? '' : parts.shift() || '';
+
+    const sections = parts
+        .map((part) => {
+            const [headingLine, ...rest] = part.split('\n');
+            const title = headingLine.replace(/^##\s+/, '').trim();
+            const content = rest.join('\n').trim();
+
+            if (!title || !content) {
+                return null;
+            }
+
+            return {
+                title,
+                id: slugify(title),
+                content,
+            };
+        })
+        .filter(Boolean);
+
+    return { intro, sections };
+}
+
+const markdownComponents = {
+    p: ({ children }) => (
+        <p className="text-[1.06rem] font-medium leading-9 text-brand-black/82 md:text-[1.12rem]">
+            {children}
+        </p>
+    ),
+    ul: ({ children }) => (
+        <ul className="space-y-4 pl-6 text-brand-black/82 marker:text-brand-orange">
+            {children}
+        </ul>
+    ),
+    ol: ({ children }) => (
+        <ol className="space-y-4 pl-6 text-brand-black/82 marker:font-black marker:text-brand-orange">
+            {children}
+        </ol>
+    ),
+    li: ({ children }) => (
+        <li className="pl-2 text-[1.02rem] font-medium leading-8">
+            {children}
+        </li>
+    ),
+    h3: ({ children }) => (
+        <h3 className="mt-10 text-[2rem] font-black leading-[1.02] tracking-tight-brand text-brand-black md:text-[2.4rem]">
+            {children}
+        </h3>
+    ),
+    blockquote: ({ children }) => (
+        <blockquote className="my-10 border-l-4 border-brand-orange pl-6 text-[1.35rem] font-medium italic leading-9 text-brand-black/76">
+            {children}
+        </blockquote>
+    ),
+    code: ({ children }) => (
+        <code className="rounded-md bg-brand-black/6 px-2 py-1 text-[0.95em] font-black text-brand-orange">
+            {children}
+        </code>
+    ),
+    a: ({ href, children }) => (
+        <a
+            href={href}
+            className="font-black text-brand-orange no-underline transition hover:text-brand-orange-dark"
+        >
+            {children}
+        </a>
+    ),
+};
 
 const GuideDetail = () => {
     const { id } = useParams();
     const [markdownData, setMarkdownData] = useState('');
     const [relatedProduct, setRelatedProduct] = useState(null);
+    const [progress, setProgress] = useState(0);
+    const [activeSection, setActiveSection] = useState('');
 
     const guide = guidesData.find((g) => g.id === id);
+
+    const parsedGuide = useMemo(() => parseGuideMarkdown(markdownData), [markdownData]);
+    const introMarkdown = parsedGuide.intro;
+    const sections = parsedGuide.sections;
 
     useEffect(() => {
         let cancelled = false;
@@ -70,6 +175,56 @@ const GuideDetail = () => {
         };
     }, [guide, id]);
 
+    useEffect(() => {
+        const onScroll = () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const nextProgress = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+            setProgress(nextProgress);
+        };
+
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    useEffect(() => {
+        if (!sections.length) {
+            return undefined;
+        }
+
+        const targets = sections
+            .map((section) => document.getElementById(section.id))
+            .filter(Boolean);
+
+        if (!targets.length) {
+            return undefined;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+                if (visible?.target?.id) {
+                    setActiveSection(visible.target.id);
+                }
+            },
+            {
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: [0.2, 0.35, 0.5],
+            }
+        );
+
+        targets.forEach((target) => observer.observe(target));
+        if (!activeSection && sections[0]) {
+            setActiveSection(sections[0].id);
+        }
+
+        return () => observer.disconnect();
+    }, [sections]);
+
     if (!guide) {
         return (
             <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
@@ -90,7 +245,9 @@ const GuideDetail = () => {
         );
     }
 
-    const previewImages = relatedProduct?.images?.slice(1, 3) || [];
+    const currentUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/guides/${guide.id}`
+        : `https://foundersystems.in/guides/${guide.id}`;
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
@@ -101,8 +258,8 @@ const GuideDetail = () => {
             />
             <Navbar />
 
-            <main className="flex-grow w-full px-6 py-32 md:px-12">
-                <section className="mx-auto max-w-[980px]">
+            <main className="flex-grow w-full px-6 pb-20 pt-28 md:px-12 md:pt-32">
+                <section className="mx-auto max-w-7xl">
                     <Link
                         to="/guides"
                         className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-brand-black/58 transition hover:text-brand-orange"
@@ -111,110 +268,193 @@ const GuideDetail = () => {
                         Back to Guides
                     </Link>
 
-                    <div className="mt-8">
-                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/52">
-                            <span className="rounded-full border border-brand-black/15 bg-white px-3 py-1">Founder Guide</span>
-                            {guide.category ? (
-                                <span className="rounded-full border border-brand-black/15 bg-brand-cream px-3 py-1">{guide.category}</span>
+                    <div className="mt-10 grid gap-10 border-t border-brand-black/14 pt-10 lg:grid-cols-[minmax(0,1.1fr)_360px] lg:items-start">
+                        <div>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-3 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/54">
+                                <span>Founder Guide</span>
+                                <span className="hidden h-4 w-px bg-brand-black/16 md:block" />
+                                {guide.category ? <span>{guide.category}</span> : null}
+                                <span className="hidden h-4 w-px bg-brand-black/16 md:block" />
+                                {guide.lastUpdated ? <span>{formatDate(guide.lastUpdated)}</span> : null}
+                                <span className="hidden h-4 w-px bg-brand-black/16 md:block" />
+                                {guide.readTime ? <span>{guide.readTime}</span> : null}
+                            </div>
+
+                            <h1 className="mt-8 max-w-[13ch] text-[3.2rem] font-black leading-[0.92] tracking-tight-brand text-brand-black md:text-[5.4rem]">
+                                {guide.title}
+                            </h1>
+
+                            <p className="mt-8 max-w-3xl text-[1.24rem] font-medium leading-9 text-brand-black/72 md:text-[1.5rem]">
+                                {guide.description}
+                            </p>
+
+                            {guide.heroNote ? (
+                                <p className="mt-8 max-w-2xl border-l-4 border-brand-orange pl-5 text-[1.03rem] font-semibold leading-8 text-brand-black/62">
+                                    {guide.heroNote}
+                                </p>
                             ) : null}
-                            {guide.readTime ? <span>{guide.readTime}</span> : null}
                         </div>
 
-                        <h1 className="mt-5 max-w-[13ch] text-4xl font-black leading-[0.94] tracking-tight-brand text-brand-black md:text-6xl">
-                            {guide.title}
-                        </h1>
-
-                        <p className="mt-5 max-w-[760px] text-lg font-medium leading-8 text-brand-black/68 md:text-[1.35rem]">
-                            {guide.description}
-                        </p>
-
-                        {guide.coverSubtitle ? (
-                            <p className="mt-4 max-w-[680px] text-[15px] font-semibold leading-7 text-brand-black/54 md:text-base">
-                                {guide.coverSubtitle}
-                            </p>
-                        ) : null}
-                    </div>
-
-                    <div className="mt-10 overflow-hidden rounded-[32px] border-2 border-brand-black bg-white shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]">
-                        <img
-                            src={guide.thumbnail}
-                            alt={guide.title}
-                            className="w-full object-cover"
-                        />
+                        <div className="max-w-[340px] rounded-[30px] border-2 border-brand-black bg-white p-4 shadow-[5px_5px_0px_0px_rgba(27,28,26,1)] sm:max-w-[420px] lg:max-w-none">
+                            <div className="overflow-hidden rounded-[22px] border border-brand-black/12 bg-[#f8f2ea]">
+                                <img
+                                    src={guide.thumbnail}
+                                    alt={guide.title}
+                                    className="h-full w-full object-contain"
+                                />
+                            </div>
+                            {guide.coverTags?.length ? (
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {guide.coverTags.map((tag) => (
+                                        <span
+                                            key={tag}
+                                            className="rounded-full border border-brand-black/12 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/62"
+                                        >
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 </section>
 
-                {previewImages.length > 0 ? (
-                    <section className="mx-auto mt-16 max-w-[980px]">
-                        <div className="mb-5 flex items-center gap-3">
-                            <span className="inline-flex rounded-full border border-brand-black/15 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/65">
-                                Related visuals
-                            </span>
-                            <p className="text-sm font-semibold text-brand-black/56">
-                                A quick look at the model or workspace this guide connects to.
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                            {previewImages.map((image, index) => (
+                <section className="mx-auto mt-16 max-w-7xl lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-14">
+                    <aside className="mb-14 lg:mb-0">
+                        <div className="lg:sticky lg:top-28">
+                            <div className="mb-6 h-3 overflow-hidden rounded-full border border-brand-black/16 bg-white">
                                 <div
-                                    key={image}
-                                    className="overflow-hidden rounded-[28px] border-2 border-brand-black bg-white shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]"
-                                >
-                                    <div className="relative aspect-[16/10] border-b-2 border-brand-black bg-brand-black">
-                                        <img
-                                            src={image}
-                                            alt={`${guide.title} preview ${index + 1}`}
-                                            className="h-full w-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0)_45%,rgba(15,23,42,0.24)_100%)]" />
-                                    </div>
-                                    <div className="px-5 py-4">
-                                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/42">
-                                            Visual preview
-                                        </p>
-                                        <p className="mt-2 text-base font-bold leading-6 text-brand-black">
-                                            {previewLabels[index] || 'Working model preview'}
-                                        </p>
-                                    </div>
+                                    className="h-full rounded-full bg-brand-orange transition-[width] duration-200"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+
+                            <div className="rounded-[28px] border-2 border-brand-black bg-brand-black p-6 text-white shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]">
+                                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-white/68">
+                                    Table of contents
+                                </p>
+                                <div className="mt-5 space-y-1">
+                                    {sections.map((section) => {
+                                        const isActive = activeSection === section.id;
+                                        return (
+                                            <a
+                                                key={section.id}
+                                                href={`#${section.id}`}
+                                                className={`block border-t border-white/16 py-4 text-[1.02rem] font-bold leading-7 transition ${isActive ? 'text-brand-orange' : 'text-white hover:text-brand-orange'}`}
+                                            >
+                                                {section.title}
+                                            </a>
+                                        );
+                                    })}
                                 </div>
+                            </div>
+
+                            <div className="mt-6 flex items-center gap-3 text-sm font-black uppercase tracking-[0.14em] text-brand-black/52">
+                                <a
+                                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(guide.title)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-brand-black bg-white transition hover:-translate-y-0.5"
+                                    aria-label="Share on X"
+                                >
+                                    X
+                                </a>
+                                <a
+                                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-brand-black bg-white transition hover:-translate-y-0.5"
+                                    aria-label="Share on LinkedIn"
+                                >
+                                    in
+                                </a>
+                                <a
+                                    href={`mailto:?subject=${encodeURIComponent(guide.title)}&body=${encodeURIComponent(currentUrl)}`}
+                                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-brand-black bg-white transition hover:-translate-y-0.5"
+                                    aria-label="Share by email"
+                                >
+                                    @
+                                </a>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div className="min-w-0">
+                        {guide.pullQuote ? (
+                            <div className="mb-12 border-t border-brand-black/14 pt-10">
+                                <p className="max-w-4xl text-[2.15rem] font-medium leading-[1.15] tracking-tight-brand text-brand-black md:text-[3.55rem]">
+                                    {guide.pullQuote}
+                                </p>
+                            </div>
+                        ) : null}
+
+                        {introMarkdown ? (
+                            <div className="prose prose-lg max-w-none prose-p:my-0 prose-p:mb-8">
+                                <ReactMarkdown components={markdownComponents}>
+                                    {introMarkdown}
+                                </ReactMarkdown>
+                            </div>
+                        ) : null}
+
+                        <div className="mt-4">
+                            {sections.map((section, index) => (
+                                <section
+                                    key={section.id}
+                                    id={section.id}
+                                    data-guide-section
+                                    className="scroll-mt-28 border-t border-brand-black/12 py-12 first:border-t-0 first:pt-4"
+                                >
+                                    <div className="mb-8 flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/42">
+                                        <span>{String(index + 1).padStart(2, '0')}</span>
+                                        <span className="h-px flex-1 bg-brand-black/12" />
+                                    </div>
+                                    <h2 className="max-w-4xl text-[2.25rem] font-black leading-[0.98] tracking-tight-brand text-brand-black md:text-[4.15rem]">
+                                        {section.title}
+                                    </h2>
+                                    <div className="prose prose-lg mt-8 max-w-none prose-p:my-0 prose-p:mb-8 prose-ul:my-8 prose-ol:my-8 prose-h3:mt-14 prose-h3:mb-6">
+                                        <ReactMarkdown components={markdownComponents}>
+                                            {section.content}
+                                        </ReactMarkdown>
+                                    </div>
+                                    {guide.articleVisuals?.[index] ? (
+                                        <GuideInlineVisual visual={guide.articleVisuals[index]} />
+                                    ) : null}
+                                </section>
                             ))}
                         </div>
-                    </section>
-                ) : null}
 
-                <article className="prose prose-lg mx-auto mt-[4.5rem] max-w-[760px] prose-headings:font-black prose-headings:tracking-tight-brand prose-headings:text-brand-black prose-h2:mt-14 prose-h2:text-[2rem] prose-h2:leading-[1.04] prose-h3:mt-10 prose-h3:text-[1.5rem] prose-h3:leading-[1.12] prose-p:text-brand-black/82 prose-p:font-medium prose-p:leading-8 prose-li:text-brand-black/82 prose-li:leading-8 prose-li:marker:text-brand-orange prose-ol:text-brand-black/82 prose-ul:text-brand-black/82 prose-hr:my-12 prose-hr:border-brand-black/12 prose-a:text-brand-orange prose-a:font-black prose-a:no-underline hover:prose-a:text-brand-orange-dark prose-strong:text-brand-black prose-strong:font-black prose-code:text-brand-orange prose-code:before:content-none prose-code:after:content-none">
-                    <ReactMarkdown>{markdownData}</ReactMarkdown>
-                </article>
+                        {relatedProduct ? (
+                            <section className="mt-20 border-t border-brand-black/12 pt-12">
+                                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+                                    <div className="max-w-2xl">
+                                        <span className="inline-flex rounded-full border border-brand-black/15 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/65">
+                                            Recommended tool
+                                        </span>
+                                        <h3 className="mt-5 text-[2.1rem] font-black leading-[1.02] tracking-tight-brand text-brand-black md:text-[2.8rem]">
+                                            Keep going with the tool that turns this idea into work.
+                                        </h3>
+                                        <p className="mt-4 text-[1.02rem] font-medium leading-8 text-brand-black/64">
+                                            {guide.relatedProductTeaser || 'If this guide is useful, the connected Founder Systems product should make the next step easier to execute.'}
+                                        </p>
+                                    </div>
 
-                {relatedProduct ? (
-                    <section className="mx-auto mt-20 max-w-[980px] border-t border-brand-black/12 pt-12">
-                        <div className="mb-8 max-w-[560px]">
-                            <span className="inline-flex rounded-full border border-brand-black/15 bg-white px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/65">
-                                Recommended tool
-                            </span>
-                            <h3 className="mt-4 text-3xl font-black tracking-tight-brand text-brand-black">
-                                Go deeper with the product behind this guide.
-                            </h3>
-                            <p className="mt-3 text-base font-medium leading-7 text-brand-black/62">
-                                If this topic matters right now, the connected Founder Systems tool should save you time on the next step.
-                            </p>
-                        </div>
-
-                        <div className="max-w-md">
-                            <ProductCard
-                                id={relatedProduct.id}
-                                name={relatedProduct.name || relatedProduct.catalogName || relatedProduct.title}
-                                description={relatedProduct.description || relatedProduct.catalogDescription || relatedProduct.subtitle}
-                                thumbnail={relatedProduct.thumbnail}
-                                category={relatedProduct.category}
-                                priceInr={relatedProduct.priceInr}
-                                priceUsd={relatedProduct.priceUsd}
-                                creditPrice={relatedProduct.creditPrice}
-                            />
-                        </div>
-                    </section>
-                ) : null}
+                                    <div className="max-w-md">
+                                        <ProductCard
+                                            id={relatedProduct.id}
+                                            name={relatedProduct.name || relatedProduct.catalogName || relatedProduct.title}
+                                            description={guide.relatedProductTeaser || relatedProduct.description || relatedProduct.catalogDescription || relatedProduct.subtitle}
+                                            thumbnail={relatedProduct.thumbnail}
+                                            category={relatedProduct.category}
+                                            priceInr={relatedProduct.priceInr}
+                                            priceUsd={relatedProduct.priceUsd}
+                                            creditPrice={relatedProduct.creditPrice}
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+                        ) : null}
+                    </div>
+                </section>
             </main>
 
             <Footer />
