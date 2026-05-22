@@ -6,6 +6,7 @@ import json
 from datetime import timedelta
 from email.message import EmailMessage
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 import jwt
@@ -15,7 +16,16 @@ from sqlalchemy.orm import Session
 
 from .config import Settings
 from .models import TelegramLink, User, UserIntegrationAccount, utc_now
-from .schemas import GmailSendRequest, IntegrationAccountResponse
+from .schemas import (
+    GmailSendRequest,
+    GoogleAnalyticsRunReportRequest,
+    GoogleCalendarEventCreateRequest,
+    GoogleDocCreateRequest,
+    GoogleSearchConsoleQueryRequest,
+    GoogleSheetCreateRequest,
+    IntegrationAccountResponse,
+    RazorpayPaymentsListRequest,
+)
 
 
 GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
@@ -339,6 +349,23 @@ async def ensure_gmail_access_token(
     account: UserIntegrationAccount,
     http_client_cls=httpx.AsyncClient,
 ) -> str:
+    return await ensure_google_access_token(
+        db,
+        settings,
+        account=account,
+        integration_label="Gmail",
+        http_client_cls=http_client_cls,
+    )
+
+
+async def ensure_google_access_token(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    integration_label: str = "Google",
+    http_client_cls=httpx.AsyncClient,
+) -> str:
     tokens = decrypt_token_payload(settings, account.encrypted_token_json)
     access_token = str(tokens.get("access_token") or "").strip()
     expires_at = int(tokens.get("expires_at") or 0)
@@ -351,7 +378,37 @@ async def ensure_gmail_access_token(
         tokens=tokens,
         http_client_cls=http_client_cls,
     )
-    return str(refreshed.get("access_token") or "").strip()
+    refreshed_access_token = str(refreshed.get("access_token") or "").strip()
+    if not refreshed_access_token:
+        raise ValueError(f"{integration_label} must be reconnected before this action.")
+    return refreshed_access_token
+
+
+def _require_google_scopes(account: UserIntegrationAccount, required_scopes: tuple[str, ...]) -> None:
+    granted_scopes = set(_scope_list((account.scopes_json or {}).get("scopes")))
+    missing = [scope for scope in required_scopes if scope not in granted_scopes]
+    if missing:
+        raise ValueError("Reconnect Google with the required permissions before this action.")
+
+
+async def _google_headers(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    integration_label: str,
+    required_scopes: tuple[str, ...],
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, str]:
+    _require_google_scopes(account, required_scopes)
+    access_token = await ensure_google_access_token(
+        db,
+        settings,
+        account=account,
+        integration_label=integration_label,
+        http_client_cls=http_client_cls,
+    )
+    return {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
 
 
 def _build_gmail_raw_message(account: UserIntegrationAccount, payload: GmailSendRequest) -> str:
@@ -399,3 +456,249 @@ async def send_gmail_message(
     account.last_used_at = utc_now()
     db.flush()
     return result if isinstance(result, dict) else {}
+
+
+async def create_google_doc(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GoogleDocCreateRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = await _google_headers(
+        db,
+        settings,
+        account=account,
+        integration_label="Google Docs",
+        required_scopes=GOOGLE_INTEGRATION_SCOPES["google-docs"],
+        http_client_cls=http_client_cls,
+    )
+    async with http_client_cls(timeout=20) as client:
+        create_response = await client.post(
+            "https://docs.googleapis.com/v1/documents",
+            headers=headers,
+            json={"title": payload.title},
+        )
+        if create_response.status_code >= 400:
+            raise ValueError(f"Google Docs create failed with status {create_response.status_code}")
+        document = create_response.json()
+        document_id = str(document.get("documentId") or "").strip()
+        if not document_id:
+            raise ValueError("Google Docs did not return a document id.")
+        update_response = await client.post(
+            f"https://docs.googleapis.com/v1/documents/{document_id}:batchUpdate",
+            headers=headers,
+            json={
+                "requests": [
+                    {
+                        "insertText": {
+                            "location": {"index": 1},
+                            "text": payload.body_text,
+                        }
+                    }
+                ]
+            },
+        )
+        if update_response.status_code >= 400:
+            raise ValueError(f"Google Docs update failed with status {update_response.status_code}")
+    account.last_used_at = utc_now()
+    db.flush()
+    return {
+        "document_id": document_id,
+        "document_url": f"https://docs.google.com/document/d/{document_id}/edit",
+    }
+
+
+async def create_google_sheet(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GoogleSheetCreateRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = await _google_headers(
+        db,
+        settings,
+        account=account,
+        integration_label="Google Sheets",
+        required_scopes=GOOGLE_INTEGRATION_SCOPES["google-sheets"],
+        http_client_cls=http_client_cls,
+    )
+    async with http_client_cls(timeout=20) as client:
+        create_response = await client.post(
+            "https://sheets.googleapis.com/v4/spreadsheets",
+            headers=headers,
+            json={
+                "properties": {"title": payload.title},
+                "sheets": [{"properties": {"title": payload.sheet_name}}],
+            },
+        )
+        if create_response.status_code >= 400:
+            raise ValueError(f"Google Sheets create failed with status {create_response.status_code}")
+        spreadsheet = create_response.json()
+        spreadsheet_id = str(spreadsheet.get("spreadsheetId") or "").strip()
+        if not spreadsheet_id:
+            raise ValueError("Google Sheets did not return a spreadsheet id.")
+        updated_rows = 0
+        if payload.values:
+            append_response = await client.post(
+                f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}/values/{payload.sheet_name}!A1:append",
+                headers=headers,
+                params={"valueInputOption": "USER_ENTERED", "insertDataOption": "INSERT_ROWS"},
+                json={"values": payload.values},
+            )
+            if append_response.status_code >= 400:
+                raise ValueError(f"Google Sheets append failed with status {append_response.status_code}")
+            updated_rows = int(((append_response.json() or {}).get("updates") or {}).get("updatedRows") or 0)
+    account.last_used_at = utc_now()
+    db.flush()
+    return {
+        "spreadsheet_id": spreadsheet_id,
+        "spreadsheet_url": spreadsheet.get("spreadsheetUrl"),
+        "updated_rows": updated_rows,
+    }
+
+
+async def create_google_calendar_event(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GoogleCalendarEventCreateRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = await _google_headers(
+        db,
+        settings,
+        account=account,
+        integration_label="Google Calendar",
+        required_scopes=GOOGLE_INTEGRATION_SCOPES["google-calendar"],
+        http_client_cls=http_client_cls,
+    )
+    event_body: dict[str, Any] = {
+        "summary": payload.summary,
+        "start": {"dateTime": payload.start_at.isoformat(), "timeZone": payload.timezone},
+        "end": {"dateTime": payload.end_at.isoformat(), "timeZone": payload.timezone},
+    }
+    if payload.description:
+        event_body["description"] = payload.description
+    if payload.location:
+        event_body["location"] = payload.location
+    if payload.attendees:
+        event_body["attendees"] = [{"email": str(email)} for email in payload.attendees]
+    async with http_client_cls(timeout=20) as client:
+        response = await client.post(
+            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+            headers=headers,
+            json=event_body,
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Google Calendar event create failed with status {response.status_code}")
+        event = response.json()
+    account.last_used_at = utc_now()
+    db.flush()
+    return {
+        "event_id": str(event.get("id") or ""),
+        "html_link": event.get("htmlLink"),
+    }
+
+
+async def query_google_search_console(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GoogleSearchConsoleQueryRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = await _google_headers(
+        db,
+        settings,
+        account=account,
+        integration_label="Google Search Console",
+        required_scopes=GOOGLE_INTEGRATION_SCOPES["google-search-console"],
+        http_client_cls=http_client_cls,
+    )
+    encoded_site = quote(payload.site_url, safe="")
+    async with http_client_cls(timeout=20) as client:
+        response = await client.post(
+            f"https://searchconsole.googleapis.com/webmasters/v3/sites/{encoded_site}/searchAnalytics/query",
+            headers=headers,
+            json={
+                "startDate": payload.start_date,
+                "endDate": payload.end_date,
+                "dimensions": payload.dimensions,
+                "rowLimit": payload.row_limit,
+            },
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Search Console query failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    db.flush()
+    return {"rows": result.get("rows") or []}
+
+
+async def run_google_analytics_report(
+    db: Session,
+    settings: Settings,
+    *,
+    account: UserIntegrationAccount,
+    payload: GoogleAnalyticsRunReportRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    headers = await _google_headers(
+        db,
+        settings,
+        account=account,
+        integration_label="Google Analytics",
+        required_scopes=GOOGLE_INTEGRATION_SCOPES["google-analytics-4"],
+        http_client_cls=http_client_cls,
+    )
+    async with http_client_cls(timeout=20) as client:
+        response = await client.post(
+            f"https://analyticsdata.googleapis.com/v1beta/properties/{payload.property_id}:runReport",
+            headers=headers,
+            json={
+                "dateRanges": [{"startDate": payload.start_date, "endDate": payload.end_date}],
+                "metrics": [{"name": metric} for metric in payload.metrics],
+                "dimensions": [{"name": dimension} for dimension in payload.dimensions],
+            },
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Google Analytics report failed with status {response.status_code}")
+        result = response.json()
+    account.last_used_at = utc_now()
+    db.flush()
+    return {"rows": result.get("rows") or []}
+
+
+async def list_razorpay_payments(
+    settings: Settings,
+    *,
+    payload: RazorpayPaymentsListRequest,
+    http_client_cls=httpx.AsyncClient,
+) -> dict[str, Any]:
+    if not settings.razorpay_key_id or not settings.razorpay_key_secret:
+        raise ValueError("Razorpay credentials are not configured.")
+    params: dict[str, Any] = {"count": payload.count, "skip": payload.skip}
+    if payload.from_timestamp is not None:
+        params["from"] = payload.from_timestamp
+    if payload.to_timestamp is not None:
+        params["to"] = payload.to_timestamp
+    async with http_client_cls(timeout=20) as client:
+        response = await client.get(
+            "https://api.razorpay.com/v1/payments",
+            auth=(settings.razorpay_key_id, settings.razorpay_key_secret),
+            params=params,
+            headers={"Accept": "application/json"},
+        )
+        if response.status_code >= 400:
+            raise ValueError(f"Razorpay payments list failed with status {response.status_code}")
+        result = response.json()
+    return {
+        "items": result.get("items") or [],
+        "count": int(result.get("count") or len(result.get("items") or [])),
+    }

@@ -28,13 +28,20 @@ from .cost_guard import (
 from .db import Base, engine, get_db
 from .integrations import (
     build_google_integration_state,
+    create_google_calendar_event,
+    create_google_doc,
+    create_google_sheet,
     decode_google_gmail_state,
     exchange_google_code_for_tokens,
     fetch_google_profile,
     get_google_integration_scopes,
+    get_user_google_account,
     get_user_gmail_account,
     integration_to_response,
+    list_razorpay_payments,
+    query_google_search_console,
     resolve_action_user,
+    run_google_analytics_report,
     send_gmail_message,
     upsert_google_integration_account,
 )
@@ -91,6 +98,15 @@ from .schemas import (
     EntitlementResponse,
     GmailSendRequest,
     GmailSendResponse,
+    GoogleAnalyticsRunReportRequest,
+    GoogleCalendarEventCreateRequest,
+    GoogleCalendarEventCreateResponse,
+    GoogleDocCreateRequest,
+    GoogleDocCreateResponse,
+    GoogleRowsResponse,
+    GoogleSearchConsoleQueryRequest,
+    GoogleSheetCreateRequest,
+    GoogleSheetCreateResponse,
     IntegrationAccountResponse,
     IntegrationStatusEnvelope,
     MagicLinkStartRequest,
@@ -103,6 +119,8 @@ from .schemas import (
     ProductStatusResponse,
     PurchaseItemResponse,
     PurchaseResponse,
+    RazorpayPaymentsListRequest,
+    RazorpayPaymentsListResponse,
     RazorpayWebhookAck,
     SessionResponse,
     TelegramLinkStartRequest,
@@ -954,6 +972,319 @@ async def internal_runtime_email_send(
         credits_spent=final.credits,
         from_email=account.account_email,
     )
+
+
+def _resolve_internal_action_user_or_404(db: Session, payload: Any) -> User:
+    user = resolve_action_user(
+        db,
+        product_slug=payload.product_slug,
+        user_id=payload.user_id,
+        telegram_user_id=payload.telegram_user_id,
+    )
+    if user is None:
+        raise HTTPException(status_code=404, detail="Action user not found")
+    return user
+
+
+def _reserve_internal_connector_action(
+    db: Session,
+    settings: Settings,
+    *,
+    payload: Any,
+    user: User,
+    authorized: User | None,
+    action: str,
+    provider: str,
+    model_id: str,
+    credits: int = 1,
+    estimated_input_chars: int = 0,
+    metadata: dict[str, Any] | None = None,
+) -> AiUsageGuardResponse:
+    guard = reserve_ai_usage(
+        db,
+        settings,
+        payload=AiUsageReserveRequest(
+            product_slug=payload.product_slug,
+            action=action,
+            reference_id=payload.reference_id,
+            credits=credits,
+            provider=provider,
+            model_id=model_id,
+            user_id=user.id,
+            telegram_user_id=payload.telegram_user_id,
+            estimated_input_chars=estimated_input_chars,
+            estimated_output_tokens=0,
+            metadata={**(payload.metadata or {}), **(metadata or {})},
+        ),
+        authorized_user=authorized,
+    )
+    if not guard.ok:
+        raise HTTPException(status_code=403, detail=guard.reason or "Action denied")
+    return guard
+
+
+def _release_internal_connector_action(db: Session, *, payload: Any, reason: str, metadata: dict[str, Any] | None = None) -> None:
+    release_ai_usage(
+        db,
+        payload=AiUsageReleaseRequest(
+            reference_id=payload.reference_id,
+            reason=reason,
+            metadata=metadata or {},
+        ),
+    )
+
+
+def _finalize_internal_connector_action(db: Session, *, payload: Any, credits: int, metadata: dict[str, Any] | None = None) -> AiUsageGuardResponse:
+    return finalize_ai_usage(
+        db,
+        payload=AiUsageFinalizeRequest(
+            reference_id=payload.reference_id,
+            credits=credits,
+            metadata=metadata or {},
+        ),
+    )
+
+
+@app.post("/internal/runtime/actions/google/docs/create", response_model=GoogleDocCreateResponse)
+@app.post("/v1/internal/runtime/actions/google/docs/create", response_model=GoogleDocCreateResponse)
+async def internal_runtime_google_docs_create(
+    payload: GoogleDocCreateRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GoogleDocCreateResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="google_docs_create",
+        provider="google",
+        model_id="docs.create",
+        credits=credits,
+        estimated_input_chars=len(payload.title) + len(payload.body_text),
+        metadata={"approval_text": payload.approval_text, "integration_slug": "google-docs"},
+    )
+    account = get_user_google_account(db, user_id=user.id, integration_slug="google-docs")
+    if account is None:
+        _release_internal_connector_action(db, payload=payload, reason="google_docs_not_connected", metadata={"integration_slug": "google-docs"})
+        raise HTTPException(status_code=403, detail="Connect Google Docs in Founder Systems before creating documents.")
+    try:
+        result = await create_google_doc(db, settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "google-docs", **result},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="google_docs_create_failed", metadata={"integration_slug": "google-docs", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Google Docs action failed. Please try again.") from exc
+    return GoogleDocCreateResponse(ok=True, credits_spent=final.credits, **result)
+
+
+@app.post("/internal/runtime/actions/google/sheets/create", response_model=GoogleSheetCreateResponse)
+@app.post("/v1/internal/runtime/actions/google/sheets/create", response_model=GoogleSheetCreateResponse)
+async def internal_runtime_google_sheets_create(
+    payload: GoogleSheetCreateRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GoogleSheetCreateResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="google_sheets_create",
+        provider="google",
+        model_id="sheets.create",
+        credits=credits,
+        estimated_input_chars=len(payload.title) + len(str(payload.values)),
+        metadata={"approval_text": payload.approval_text, "integration_slug": "google-sheets"},
+    )
+    account = get_user_google_account(db, user_id=user.id, integration_slug="google-sheets")
+    if account is None:
+        _release_internal_connector_action(db, payload=payload, reason="google_sheets_not_connected", metadata={"integration_slug": "google-sheets"})
+        raise HTTPException(status_code=403, detail="Connect Google Sheets in Founder Systems before creating spreadsheets.")
+    try:
+        result = await create_google_sheet(db, settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "google-sheets", **result},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="google_sheets_create_failed", metadata={"integration_slug": "google-sheets", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Google Sheets action failed. Please try again.") from exc
+    return GoogleSheetCreateResponse(ok=True, credits_spent=final.credits, **result)
+
+
+@app.post("/internal/runtime/actions/google/calendar/events/create", response_model=GoogleCalendarEventCreateResponse)
+@app.post("/v1/internal/runtime/actions/google/calendar/events/create", response_model=GoogleCalendarEventCreateResponse)
+async def internal_runtime_google_calendar_event_create(
+    payload: GoogleCalendarEventCreateRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GoogleCalendarEventCreateResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="google_calendar_event_create",
+        provider="google",
+        model_id="calendar.events.create",
+        credits=credits,
+        estimated_input_chars=len(payload.summary) + len(payload.description or ""),
+        metadata={"approval_text": payload.approval_text, "integration_slug": "google-calendar"},
+    )
+    account = get_user_google_account(db, user_id=user.id, integration_slug="google-calendar")
+    if account is None:
+        _release_internal_connector_action(db, payload=payload, reason="google_calendar_not_connected", metadata={"integration_slug": "google-calendar"})
+        raise HTTPException(status_code=403, detail="Connect Google Calendar in Founder Systems before creating events.")
+    try:
+        result = await create_google_calendar_event(db, settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "google-calendar", **result},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="google_calendar_create_failed", metadata={"integration_slug": "google-calendar", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Google Calendar action failed. Please try again.") from exc
+    return GoogleCalendarEventCreateResponse(ok=True, credits_spent=final.credits, **result)
+
+
+@app.post("/internal/runtime/actions/google/search-console/query", response_model=GoogleRowsResponse)
+@app.post("/v1/internal/runtime/actions/google/search-console/query", response_model=GoogleRowsResponse)
+async def internal_runtime_google_search_console_query(
+    payload: GoogleSearchConsoleQueryRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GoogleRowsResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="google_search_console_query",
+        provider="google",
+        model_id="search-console.query",
+        credits=credits,
+        estimated_input_chars=len(payload.site_url) + len(",".join(payload.dimensions)),
+        metadata={"integration_slug": "google-search-console", "site_url": payload.site_url},
+    )
+    account = get_user_google_account(db, user_id=user.id, integration_slug="google-search-console")
+    if account is None:
+        _release_internal_connector_action(db, payload=payload, reason="google_search_console_not_connected", metadata={"integration_slug": "google-search-console"})
+        raise HTTPException(status_code=403, detail="Connect Google Search Console in Founder Systems before reading search data.")
+    try:
+        result = await query_google_search_console(db, settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "google-search-console", "row_count": len(result.get("rows") or [])},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="google_search_console_query_failed", metadata={"integration_slug": "google-search-console", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Google Search Console action failed. Please try again.") from exc
+    return GoogleRowsResponse(ok=True, integration_slug="google-search-console", rows=result.get("rows") or [], credits_spent=final.credits)
+
+
+@app.post("/internal/runtime/actions/google/analytics/run-report", response_model=GoogleRowsResponse)
+@app.post("/v1/internal/runtime/actions/google/analytics/run-report", response_model=GoogleRowsResponse)
+async def internal_runtime_google_analytics_run_report(
+    payload: GoogleAnalyticsRunReportRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> GoogleRowsResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="google_analytics_run_report",
+        provider="google",
+        model_id="analytics.run-report",
+        credits=credits,
+        estimated_input_chars=len(payload.property_id) + len(",".join(payload.metrics)) + len(",".join(payload.dimensions)),
+        metadata={"integration_slug": "google-analytics-4", "property_id": payload.property_id},
+    )
+    account = get_user_google_account(db, user_id=user.id, integration_slug="google-analytics-4")
+    if account is None:
+        _release_internal_connector_action(db, payload=payload, reason="google_analytics_not_connected", metadata={"integration_slug": "google-analytics-4"})
+        raise HTTPException(status_code=403, detail="Connect Google Analytics in Founder Systems before reading analytics data.")
+    try:
+        result = await run_google_analytics_report(db, settings, account=account, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "google-analytics-4", "row_count": len(result.get("rows") or [])},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="google_analytics_report_failed", metadata={"integration_slug": "google-analytics-4", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Google Analytics action failed. Please try again.") from exc
+    return GoogleRowsResponse(ok=True, integration_slug="google-analytics-4", rows=result.get("rows") or [], credits_spent=final.credits)
+
+
+@app.post("/internal/runtime/actions/razorpay/payments/list", response_model=RazorpayPaymentsListResponse)
+@app.post("/v1/internal/runtime/actions/razorpay/payments/list", response_model=RazorpayPaymentsListResponse)
+async def internal_runtime_razorpay_payments_list(
+    payload: RazorpayPaymentsListRequest,
+    authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> RazorpayPaymentsListResponse:
+    user = _resolve_internal_action_user_or_404(db, payload)
+    credits = settings.ai_guard_default_credit_cost
+    _reserve_internal_connector_action(
+        db,
+        settings,
+        payload=payload,
+        user=user,
+        authorized=authorized,
+        action="razorpay_payments_list",
+        provider="razorpay",
+        model_id="payments.list",
+        credits=credits,
+        estimated_input_chars=0,
+        metadata={"integration_slug": "razorpay"},
+    )
+    try:
+        result = await list_razorpay_payments(settings, payload=payload, http_client_cls=httpx.AsyncClient)
+        final = _finalize_internal_connector_action(
+            db,
+            payload=payload,
+            credits=credits,
+            metadata={"integration_slug": "razorpay", "count": result.get("count")},
+        )
+    except Exception as exc:
+        db.rollback()
+        _release_internal_connector_action(db, payload=payload, reason="razorpay_payments_list_failed", metadata={"integration_slug": "razorpay", "error": str(exc)[:240]})
+        raise HTTPException(status_code=502, detail="Razorpay action failed. Please try again.") from exc
+    return RazorpayPaymentsListResponse(ok=True, items=result.get("items") or [], count=int(result.get("count") or 0), credits_spent=final.credits)
 
 
 @app.post("/auth/logout", response_model=SessionResponse)

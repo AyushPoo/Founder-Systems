@@ -561,3 +561,104 @@ class GmailSendResponse(BaseModel):
     thread_id: str | None = None
     credits_spent: int = 0
     from_email: EmailStr | None = None
+
+
+class ConnectorActionBaseRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"), min_length=1, max_length=120)
+    reference_id: str = Field(validation_alias=AliasChoices("reference_id", "referenceId"), min_length=1, max_length=160)
+    user_id: str | None = Field(default=None, validation_alias=AliasChoices("user_id", "userId"), max_length=36)
+    telegram_user_id: str | None = Field(default=None, validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), max_length=120)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ApprovedConnectorActionRequest(ConnectorActionBaseRequest):
+    approval_text: str = Field(validation_alias=AliasChoices("approval_text", "approvalText"), min_length=1, max_length=1000)
+
+
+class GoogleDocCreateRequest(ApprovedConnectorActionRequest):
+    title: str = Field(min_length=1, max_length=240)
+    body_text: str = Field(validation_alias=AliasChoices("body_text", "bodyText"), min_length=1, max_length=100000)
+
+
+class GoogleDocCreateResponse(BaseModel):
+    ok: bool
+    provider: str = "google"
+    integration_slug: str = "google-docs"
+    document_id: str
+    document_url: str
+    credits_spent: int = 0
+
+
+class GoogleSheetCreateRequest(ApprovedConnectorActionRequest):
+    title: str = Field(min_length=1, max_length=240)
+    sheet_name: str = Field(default="Sheet1", validation_alias=AliasChoices("sheet_name", "sheetName"), min_length=1, max_length=80)
+    values: list[list[Any]] = Field(default_factory=list, max_length=500)
+
+
+class GoogleSheetCreateResponse(BaseModel):
+    ok: bool
+    provider: str = "google"
+    integration_slug: str = "google-sheets"
+    spreadsheet_id: str
+    spreadsheet_url: str | None = None
+    updated_rows: int = 0
+    credits_spent: int = 0
+
+
+class GoogleCalendarEventCreateRequest(ApprovedConnectorActionRequest):
+    summary: str = Field(min_length=1, max_length=240)
+    start_at: datetime = Field(validation_alias=AliasChoices("start_at", "startAt"))
+    end_at: datetime = Field(validation_alias=AliasChoices("end_at", "endAt"))
+    timezone: str = Field(default="UTC", max_length=80)
+    description: str | None = Field(default=None, max_length=20000)
+    location: str | None = Field(default=None, max_length=500)
+    attendees: list[EmailStr] = Field(default_factory=list, max_length=25)
+
+
+class GoogleCalendarEventCreateResponse(BaseModel):
+    ok: bool
+    provider: str = "google"
+    integration_slug: str = "google-calendar"
+    event_id: str
+    html_link: str | None = None
+    credits_spent: int = 0
+
+
+class GoogleSearchConsoleQueryRequest(ConnectorActionBaseRequest):
+    site_url: str = Field(validation_alias=AliasChoices("site_url", "siteUrl"), min_length=1, max_length=500)
+    start_date: str = Field(validation_alias=AliasChoices("start_date", "startDate"), min_length=10, max_length=10)
+    end_date: str = Field(validation_alias=AliasChoices("end_date", "endDate"), min_length=10, max_length=10)
+    dimensions: list[str] = Field(default_factory=lambda: ["query"], max_length=5)
+    row_limit: int = Field(default=25, validation_alias=AliasChoices("row_limit", "rowLimit"), ge=1, le=250)
+
+
+class GoogleRowsResponse(BaseModel):
+    ok: bool
+    provider: str = "google"
+    integration_slug: str
+    rows: list[dict[str, Any]] = Field(default_factory=list)
+    credits_spent: int = 0
+
+
+class GoogleAnalyticsRunReportRequest(ConnectorActionBaseRequest):
+    property_id: str = Field(validation_alias=AliasChoices("property_id", "propertyId"), min_length=1, max_length=80)
+    start_date: str = Field(validation_alias=AliasChoices("start_date", "startDate"), min_length=10, max_length=10)
+    end_date: str = Field(validation_alias=AliasChoices("end_date", "endDate"), min_length=10, max_length=10)
+    metrics: list[str] = Field(default_factory=lambda: ["activeUsers"], min_length=1, max_length=10)
+    dimensions: list[str] = Field(default_factory=list, max_length=10)
+
+
+class RazorpayPaymentsListRequest(ConnectorActionBaseRequest):
+    count: int = Field(default=10, ge=1, le=100)
+    skip: int = Field(default=0, ge=0, le=10000)
+    from_timestamp: int | None = Field(default=None, validation_alias=AliasChoices("from_timestamp", "fromTimestamp", "from"), ge=0)
+    to_timestamp: int | None = Field(default=None, validation_alias=AliasChoices("to_timestamp", "toTimestamp", "to"), ge=0)
+
+
+class RazorpayPaymentsListResponse(BaseModel):
+    ok: bool
+    provider: str = "razorpay"
+    integration_slug: str = "razorpay"
+    items: list[dict[str, Any]] = Field(default_factory=list)
+    count: int = 0
+    credits_spent: int = 0
