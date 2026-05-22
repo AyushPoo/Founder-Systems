@@ -18,7 +18,7 @@
     "productId": "FS002",
     "priceInr": 2499,
     "priceUsd": 30,
-    "creditPrice": 13,
+    "creditPrice": 8,
     "thumbnail": "/images/products/advanced-saas-model/thumbnail.jpg"
   },
   {
@@ -29,7 +29,7 @@
     "productId": "FS003",
     "priceInr": 1999,
     "priceUsd": 25,
-    "creditPrice": 10,
+    "creditPrice": 8,
     "thumbnail": "/images/products/marketplace-model/thumbnail.jpg"
   },
   {
@@ -40,7 +40,7 @@
     "productId": "FS004",
     "priceInr": 1999,
     "priceUsd": 25,
-    "creditPrice": 10,
+    "creditPrice": 8,
     "thumbnail": "/images/products/d2c-model/thumbnail.jpg"
   },
   {
