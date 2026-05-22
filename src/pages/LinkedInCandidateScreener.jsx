@@ -8,7 +8,8 @@ const LinkedInCandidateScreener = () => {
       <SEO
         title="LinkedIn Candidate Screener"
         description="Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds."
-        canonical="/tools/linkedin-candidate-screener"
+        canonical="/products/linkedin-candidate-screener"
+        noIndex
       />
       <Navbar />
 

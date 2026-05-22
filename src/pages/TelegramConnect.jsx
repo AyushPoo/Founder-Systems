@@ -132,7 +132,7 @@ export default function TelegramConnect() {
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title={`Connect ${productMeta.name}`} description={`Connect ${productMeta.name} to Telegram through Founder Systems.`} canonical={`/account/telegram-connect/${productMeta.slug}`} />
+      <SEO title={`Connect ${productMeta.name}`} description={`Connect ${productMeta.name} to Telegram through Founder Systems.`} canonical={`/account/telegram-connect/${productMeta.slug}`} noIndex />
       <Navbar />
       <main className="flex-grow w-full max-w-5xl mx-auto px-6 md:px-12 pt-32 md:pt-40 pb-20">
         <div className="mb-10 text-center">

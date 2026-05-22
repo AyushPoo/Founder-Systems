@@ -8,7 +8,8 @@ const FounderUpdateGenerator = () => {
       <SEO
         title="Founder Update Generator"
         description="Upload messy founder materials and turn them into one polished founder update with wins, challenges, metrics, and next focus."
-        canonical="/tools/founder-update-generator"
+        canonical="/products/founder-update-generator"
+        noIndex
       />
       <Navbar />
 

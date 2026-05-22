@@ -52,7 +52,7 @@ export default function AuthVerify() {
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title="Verify Sign In" description="Verify your Founder Systems magic link and continue back into the app." canonical="/auth/verify" />
+      <SEO title="Verify Sign In" description="Verify your Founder Systems magic link and continue back into the app." canonical="/auth/verify" noIndex />
       <Navbar />
 
       <main className="flex-grow w-full max-w-3xl mx-auto px-6 md:px-12 pt-32 md:pt-40 pb-20">

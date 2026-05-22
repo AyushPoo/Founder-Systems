@@ -6,7 +6,7 @@ import SEO from '../components/SEO';
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title="Page Not Found" description="The page you were looking for could not be found on Founder Systems." canonical="/404" />
+      <SEO title="Page Not Found" description="The page you were looking for could not be found on Founder Systems." canonical="/404" noIndex />
       <Navbar />
       <main className="flex-grow w-full max-w-4xl mx-auto px-6 md:px-12 pt-32 md:pt-40 pb-20 flex items-center">
         <div className="w-full rounded-[28px] border-2 border-brand-black bg-white p-8 md:p-12 shadow-[8px_8px_0px_0px_rgba(27,28,26,1)] text-center">

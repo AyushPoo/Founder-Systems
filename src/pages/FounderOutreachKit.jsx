@@ -8,7 +8,8 @@ const FounderOutreachKit = () => {
       <SEO
         title="Founder Outreach Kit"
         description="Turn a rough founder offer into a structured outreach campaign with strategist notes, sendable copy, and local saves."
-        canonical="/tools/founder-outreach-kit"
+        canonical="/products/founder-outreach-kit"
+        noIndex
       />
       <Navbar />
 

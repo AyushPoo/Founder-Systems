@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SEO from '../components/SEO';
 import { getProductLaunchState, getProductPrimaryAction, hasProductPricing } from '../utils/productExperience';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { getAgentAccountStatus } from '../utils/founderApi';
@@ -235,6 +236,7 @@ const ProductDetail = () => {
     if (notFound || !product) {
         return (
             <div className="min-h-screen bg-brand-cream flex flex-col font-sans">
+                <SEO title="Product Not Found" description="The product you were looking for could not be found in Founder Systems." canonical="/products" noIndex />
                 <Navbar />
                 <main className="flex-grow flex flex-col items-center justify-center">
                     <h1 className="text-4xl font-black text-brand-black mb-4">Product Not Found</h1>
@@ -309,6 +311,11 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen bg-surface text-brand-black flex flex-col font-sans">
+            <SEO
+                title={product.name || product.title}
+                description={product.description || product.subtitle || product.descriptionBody || 'Founder Systems product detail page.'}
+                canonical={`/products/${id}`}
+            />
             <Navbar />
 
             {/* ── Hero Header ──────────────────────────────────────────── */}

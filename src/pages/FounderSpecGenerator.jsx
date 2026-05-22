@@ -474,7 +474,8 @@ const FounderSpecGenerator = () => {
       <SEO
         title="Founder Strategy Copilot"
         description="A guided founder copilot that helps you build a market brief, review a messy plan, and turn a known direction into a tighter founder-ready execution plan."
-        canonical="/tools/founder-spec-generator"
+        canonical="/products/founder-spec-generator"
+        noIndex
       />
       <Navbar />
 

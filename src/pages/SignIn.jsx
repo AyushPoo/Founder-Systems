@@ -82,7 +82,7 @@ export default function SignIn() {
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title="Sign In" description="Use your Founder Systems account to continue into PromptDeck and the rest of the workspace." canonical={`/sign-in?returnTo=${encodeURIComponent(returnTo)}`} />
+      <SEO title="Sign In" description="Use your Founder Systems account to continue into PromptDeck and the rest of the workspace." canonical="/sign-in" noIndex />
       <Navbar />
 
       <main className="flex-grow w-full max-w-4xl mx-auto px-6 md:px-12 pt-32 md:pt-40 pb-20">

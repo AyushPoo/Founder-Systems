@@ -9,7 +9,8 @@ function FounderCommandCenter() {
       <SEO
         title="Founder Command Center"
         description="See what is happening across your company, what changed, and what needs attention next."
-        canonical="/tools/founder-command-center"
+        canonical="/products/founder-command-center"
+        noIndex
       />
       <Navbar />
       <main className="flex-grow pb-6 pt-16 sm:pt-18 lg:pt-22">

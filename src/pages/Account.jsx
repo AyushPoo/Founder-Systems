@@ -311,7 +311,7 @@ function Account() {
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-      <SEO title="Account" description="Manage your Founder Systems workspace memory, credits, products, and history." canonical="/account" />
+      <SEO title="Account" description="Manage your Founder Systems workspace memory, credits, products, and history." canonical="/account" noIndex />
       <Navbar />
 
       <div className="w-full pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b-2 border-brand-black bg-white">

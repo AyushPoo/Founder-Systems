@@ -8,7 +8,8 @@ const FounderPdfSummarizer = () => {
       <SEO
         title="Founder Document Intelligence"
         description="Upload a founder document, spreadsheet, or deck and turn it into a summary, financial readout, or financing-doc explainer with exportable Markdown."
-        canonical="/tools/founder-pdf-summarizer"
+        canonical="/products/founder-pdf-summarizer"
+        noIndex
       />
       <Navbar />
 

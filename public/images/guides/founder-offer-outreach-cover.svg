@@ -1,0 +1,35 @@
+<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="900" rx="56" fill="#F7EFE5"/>
+  <rect x="36" y="36" width="1128" height="828" rx="44" fill="#FFFDF9" stroke="#1B1C1A" stroke-width="4"/>
+  <rect x="82" y="82" width="248" height="58" rx="29" fill="white" stroke="#1B1C1A" stroke-width="3"/>
+  <circle cx="116" cy="111" r="8" fill="#FF5A1F"/>
+  <text x="138" y="120" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="3">FOUNDER GUIDE</text>
+  <rect x="948" y="82" width="186" height="58" rx="29" fill="#1B1C1A"/>
+  <text x="995" y="120" fill="white" font-family="Arial, sans-serif" font-size="26" font-weight="800" letter-spacing="2">7 MIN READ</text>
+
+  <rect x="84" y="188" width="452" height="540" rx="34" fill="#FF5A1F"/>
+  <text x="124" y="284" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">OUTREACH THAT</text>
+  <text x="124" y="348" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">DOESN'T SOUND</text>
+  <text x="124" y="412" fill="white" font-family="Arial, sans-serif" font-size="54" font-weight="900">GENERIC</text>
+  <rect x="124" y="484" width="334" height="108" rx="26" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="3"/>
+  <text x="154" y="544" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Offer. Pain. Proof.</text>
+  <text x="154" y="582" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="28" font-weight="800">Ask.</text>
+
+  <rect x="610" y="188" width="514" height="180" rx="34" fill="#1B1C1A"/>
+  <text x="648" y="244" fill="#FFB493" font-family="Arial, sans-serif" font-size="24" font-weight="800">BAD</text>
+  <text x="648" y="304" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="700">“We help teams move faster</text>
+  <text x="648" y="346" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="700">with AI-powered workflows.”</text>
+
+  <rect x="610" y="398" width="514" height="246" rx="34" fill="#FFF7EF" stroke="#1B1C1A" stroke-width="4"/>
+  <text x="648" y="454" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="800">BETTER</text>
+  <text x="648" y="514" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">“We turn scattered founder</text>
+  <text x="648" y="556" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">materials into one clean update</text>
+  <text x="648" y="598" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="32" font-weight="800">draft without rebuilding it by hand.”</text>
+
+  <rect x="610" y="682" width="164" height="54" rx="22" fill="#1B1C1A"/>
+  <text x="656" y="716" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="800">Offer</text>
+  <rect x="794" y="682" width="138" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
+  <text x="831" y="716" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">Proof</text>
+  <rect x="950" y="682" width="132" height="54" rx="22" fill="#101828" fill-opacity="0.1"/>
+  <text x="986" y="716" fill="#1B1C1A" font-family="Arial, sans-serif" font-size="24" font-weight="700">CTA</text>
+</svg>
