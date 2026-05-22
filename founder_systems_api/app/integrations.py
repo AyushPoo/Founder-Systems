@@ -64,12 +64,14 @@ EXTERNAL_INTEGRATION_SCOPES: dict[str, tuple[str, ...]] = {
     ),
     "mailchimp": (),
     "meta-ads": ("ads_read", "ads_management", "business_management"),
+    "linkedin": ("openid", "profile", "email"),
 }
 EXTERNAL_PROVIDER_BY_SLUG = {
     "github": "github",
     "hubspot": "hubspot",
     "mailchimp": "mailchimp",
     "meta-ads": "meta",
+    "linkedin": "linkedin",
 }
 
 
@@ -200,6 +202,8 @@ def external_integration_credentials(settings: Settings, integration_slug: str) 
         return settings.mailchimp_client_id, settings.mailchimp_client_secret
     if integration_slug == "meta-ads":
         return settings.meta_client_id, settings.meta_client_secret
+    if integration_slug == "linkedin":
+        return settings.linkedin_client_id, settings.linkedin_client_secret
     return None, None
 
 
@@ -246,6 +250,15 @@ def build_external_authorization_url(
             "redirect_uri": redirect_uri,
             "scope": ",".join(scopes),
             "response_type": "code",
+            "state": state,
+        }
+    elif integration_slug == "linkedin":
+        base_url = "https://www.linkedin.com/oauth/v2/authorization"
+        params = {
+            "response_type": "code",
+            "client_id": client_id,
+            "redirect_uri": redirect_uri,
+            "scope": " ".join(scopes),
             "state": state,
         }
     else:
@@ -532,6 +545,18 @@ async def exchange_external_code_for_tokens(
                 },
                 headers={"Accept": "application/json"},
             )
+        elif integration_slug == "linkedin":
+            response = await client.post(
+                "https://www.linkedin.com/oauth/v2/accessToken",
+                data={
+                    "grant_type": "authorization_code",
+                    "code": code,
+                    "redirect_uri": redirect_uri,
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                },
+                headers={"Accept": "application/json"},
+            )
         else:
             raise ValueError("Unsupported external integration")
         if response.status_code >= 400:
@@ -615,6 +640,17 @@ async def fetch_external_profile(
                 "email": profile.get("email"),
                 "name": profile.get("name"),
                 "provider_user_id": profile.get("id"),
+            }
+        if integration_slug == "linkedin":
+            response = await client.get("https://api.linkedin.com/v2/userinfo", headers=headers)
+            if response.status_code >= 400:
+                raise ValueError(f"LinkedIn profile fetch failed with status {response.status_code}")
+            profile = response.json()
+            return {
+                "email": profile.get("email"),
+                "name": profile.get("name"),
+                "provider_user_id": profile.get("sub"),
+                "locale": profile.get("locale"),
             }
     raise ValueError("Unsupported external integration")
 

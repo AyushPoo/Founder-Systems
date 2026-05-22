@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     meta_client_id: Optional[str] = None
     meta_client_secret: Optional[str] = None
     meta_graph_version: str = "v23.0"
+    linkedin_client_id: Optional[str] = None
+    linkedin_client_secret: Optional[str] = None
 
     razorpay_key_id: Optional[str] = None
     razorpay_key_secret: Optional[str] = None

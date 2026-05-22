@@ -48,6 +48,18 @@ const apiBase = 'https://api.foundersystems.in';
 }
 
 {
+  const url = getIntegrationConnectUrl({
+    connectorSlug: 'linkedin',
+    apiBase,
+    origin: 'https://foundersystems.in',
+  });
+  assert.equal(
+    url,
+    'https://api.foundersystems.in/integrations/linkedin/start?next=https%3A%2F%2Ffoundersystems.in%2Faccount%3Ftab%3Dconnections',
+  );
+}
+
+{
   const normalized = normalizeIntegrations({
     integrations: [
       {
@@ -92,6 +104,7 @@ const apiBase = 'https://api.foundersystems.in';
   assert.ok(CONNECTOR_CATALOG.length >= 30);
   assert.equal(getConnectorBySlug('meta-ads').name, 'Meta Ads');
   assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).find((connector) => connector.key === 'github').status, 'available');
+  assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).find((connector) => connector.key === 'linkedin').status, 'available');
   assert.equal(getConnectorBySlug('quickbooks').agents.includes('Finance Operator'), true);
   assert.equal(getConnectorsForAgent('Marketing Operator').some((connector) => connector.slug === 'linkedin'), true);
   assert.equal(getConnectorsForAgent('Ops Operator').some((connector) => connector.slug === 'zendesk'), true);

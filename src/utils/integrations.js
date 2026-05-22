@@ -26,6 +26,7 @@ const EXTERNAL_OAUTH_CONNECTOR_SLUGS = new Set([
   'hubspot',
   'mailchimp',
   'meta-ads',
+  'linkedin',
 ]);
 
 export const CONNECTOR_CATALOG = [
@@ -123,11 +124,11 @@ export const CONNECTOR_CATALOG = [
     slug: 'linkedin',
     name: 'LinkedIn',
     group: 'Social & Outbound',
-    phase: 'planned',
+    phase: 'live',
     agents: ['Marketing Operator'],
-    description: 'Prepare company/page posts, ads, and outreach workflows where official access is available.',
-    actions: ['Post drafts', 'Company page publishing', 'LinkedIn ad drafts'],
-    scopes: ['Marketing API access'],
+    description: 'Connect LinkedIn for profile-aware drafts and official LinkedIn page, ads, or lead workflows where API access is approved.',
+    actions: ['Profile-aware drafts', 'Company page post prep', 'LinkedIn ad/lead-gen workflows'],
+    scopes: ['openid', 'profile', 'email', 'approved LinkedIn API products when available'],
   },
   {
     slug: 'hubspot',

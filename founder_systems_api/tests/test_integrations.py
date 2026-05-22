@@ -32,6 +32,8 @@ def _bootstrap_app(monkeypatch, tmp_path: Path):
     monkeypatch.setenv("FS_MAILCHIMP_CLIENT_SECRET", "mailchimp-client-secret")
     monkeypatch.setenv("FS_META_CLIENT_ID", "meta-client-id")
     monkeypatch.setenv("FS_META_CLIENT_SECRET", "meta-client-secret")
+    monkeypatch.setenv("FS_LINKEDIN_CLIENT_ID", "linkedin-client-id")
+    monkeypatch.setenv("FS_LINKEDIN_CLIENT_SECRET", "linkedin-client-secret")
     monkeypatch.setenv("FS_API_KEY_INTERNAL", "internal-secret")
     monkeypatch.setenv("FS_ADMIN_EMAILS", "founder@example.com")
 
@@ -229,6 +231,28 @@ def test_external_connector_start_redirects_to_provider_oauth(monkeypatch, tmp_p
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_linkedin_connector_start_redirects_to_linkedin_oauth(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        response = await client.get(
+            "/integrations/linkedin/start",
+            params={"next": "https://foundersystems.in/account?tab=connections"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 303, response.text
+        location = response.headers["location"]
+        assert location.startswith("https://www.linkedin.com/oauth/v2/authorization")
+        params = parse_qs(urlparse(location).query)
+        assert params["client_id"][0] == "linkedin-client-id"
+        assert params["redirect_uri"][0] == "http://localhost:8000/integrations/oauth/callback"
+        assert set(params["scope"][0].split()) == {"openid", "profile", "email"}
+        assert params["state"][0]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def test_external_connector_callback_stores_github_account(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 
@@ -280,6 +304,66 @@ def test_external_connector_callback_stores_github_account(monkeypatch, tmp_path
         assert github["status"] == "connected"
         assert github["account_email"] == "founder@example.com"
         assert "repo" in github["scopes"]
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_external_connector_callback_stores_linkedin_account(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        start = await client.get("/integrations/linkedin/start", follow_redirects=False)
+        state = parse_qs(urlparse(start.headers["location"]).query)["state"][0]
+
+        class FakeAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return None
+
+            async def post(self, url, **kwargs):
+                assert url == "https://www.linkedin.com/oauth/v2/accessToken"
+                return httpx.Response(
+                    200,
+                    json={
+                        "access_token": "linkedin-access-token",
+                        "expires_in": 3600,
+                        "scope": "openid profile email",
+                        "token_type": "Bearer",
+                    },
+                )
+
+            async def get(self, url, **kwargs):
+                assert url == "https://api.linkedin.com/v2/userinfo"
+                return httpx.Response(
+                    200,
+                    json={
+                        "sub": "linkedin-user-123",
+                        "name": "Founder LinkedIn",
+                        "email": "founder@example.com",
+                    },
+                )
+
+        monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+        callback = await client.get(
+            "/integrations/oauth/callback",
+            params={"code": "oauth-code", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303, callback.text
+        assert callback.headers["location"] == "https://foundersystems.in/account?tab=connections&integration=linkedin-connected"
+
+        status = await client.get("/integrations")
+        linkedin = next(item for item in status.json()["integrations"] if item["integration_slug"] == "linkedin")
+        assert linkedin["provider"] == "linkedin"
+        assert linkedin["status"] == "connected"
+        assert linkedin["account_email"] == "founder@example.com"
+        assert "openid" in linkedin["scopes"]
 
     asyncio.run(_run_with_client(main, scenario))
 
