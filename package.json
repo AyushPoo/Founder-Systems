@@ -18,7 +18,8 @@
     "test:document-intelligence": "npm run test:document-intelligence-workspace && npm run test:pdf-summary && npm run test:safe-explainer",
     "test:founder-copilot": "node src/utils/founderCopilotSession.test.js",
     "test:linkedin-candidate-screener": "node shared/linkedinCandidateScreener.test.js && node api/linkedin-candidate-screener.test.js && node extensions/linkedin-candidate-screener/profileExtractor.test.js && node extensions/linkedin-candidate-screener/release-docs.test.js && node src/components/linkedin-candidate-screener/catalog.test.js",
-    "test:founder-command-center": "node src/utils/founderCommandCenterMemory.test.js && node src/utils/founderCommandCenterIngest.test.js && node api/founder-command-center-ingest.test.js && node src/components/founder-command-center/catalog.test.js && node src/utils/workspaceMemory.test.js"
+    "test:founder-command-center": "node src/utils/founderCommandCenterMemory.test.js && node src/utils/founderCommandCenterIngest.test.js && node api/founder-command-center-ingest.test.js && node src/components/founder-command-center/catalog.test.js && node src/utils/workspaceMemory.test.js",
+    "test:account-settings": "node src/utils/accountSections.test.js && node src/components/account/AccountSettingsShell.test.js && node src/components/account/ConnectionsPanel.test.js"
   },
   "dependencies": {
     "react": "^19.2.0",

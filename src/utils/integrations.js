@@ -23,6 +23,61 @@ export function normalizeIntegrations(payload) {
   };
 }
 
+export function buildConnectionCatalog(integrationStatus = {}) {
+  return [
+    {
+      key: 'gmail',
+      name: 'Gmail',
+      group: 'communication',
+      groupLabel: 'Communication',
+      description: 'Send approved emails from your connected Gmail account.',
+      status: integrationStatus.gmail?.can_send ? 'connected' : 'available',
+      accountLabel: integrationStatus.gmail?.account_email || '',
+      usedBy: ['Marketing Operator', 'Founder Update Generator'],
+    },
+    {
+      key: 'google-sheets',
+      name: 'Google Sheets',
+      group: 'sheets-reporting',
+      groupLabel: 'Sheets and reporting',
+      description: 'Read KPI trackers, finance models, and planning sheets.',
+      status: 'coming-soon',
+      accountLabel: '',
+      usedBy: ['Finance Operator', 'Founder Command Center'],
+    },
+    {
+      key: 'google-docs',
+      name: 'Google Docs',
+      group: 'docs-files',
+      groupLabel: 'Docs and files',
+      description: 'Read strategy notes, update drafts, and shared operating docs.',
+      status: 'coming-soon',
+      accountLabel: '',
+      usedBy: ['Ops Operator', 'Founder Update Generator'],
+    },
+    {
+      key: 'google-slides',
+      name: 'Google Slides',
+      group: 'docs-files',
+      groupLabel: 'Docs and files',
+      description: 'Pull narrative decks and presentation drafts into Founder Systems.',
+      status: 'coming-soon',
+      accountLabel: '',
+      usedBy: ['Marketing Operator', 'Founder Spec Generator'],
+    },
+    {
+      key: 'google-drive',
+      name: 'Google Drive',
+      group: 'docs-files',
+      groupLabel: 'Docs and files',
+      description: 'Access shared folders and workspace files without copy-pasting links.',
+      status: 'coming-soon',
+      accountLabel: '',
+      usedBy: ['Ops Operator', 'Founder Command Center'],
+    },
+  ];
+}
+
 export function getGmailConnectUrl({ apiBase, origin, nextPath = '/account?tab=settings' }) {
   const cleanBase = String(apiBase || '').replace(/\/+$/, '');
   const cleanOrigin = String(origin || '').replace(/\/+$/, '');
