@@ -1,6 +1,6 @@
 function PreferenceToggle({ label, checked, onChange }) {
   return (
-    <label className="flex items-center justify-between gap-4 rounded-lg border border-brand-black/10 bg-[#faf8f5]/40 hover:bg-[#faf8f5] transition-colors px-4 py-2.5 cursor-pointer">
+    <label className="flex items-center justify-between gap-4 hover:bg-[#faf8f5]/60 transition-colors px-4 py-3 cursor-pointer first:rounded-t-lg last:rounded-b-lg">
       <span className="text-[13px] font-semibold text-brand-black/75">{label}</span>
       <input type="checkbox" checked={checked} onChange={onChange} className="accent-brand-orange w-4 h-4 cursor-pointer" />
     </label>
@@ -36,18 +36,7 @@ export default function ProductsPanel({
               </div>
               <p className="text-[13px] font-semibold leading-relaxed text-brand-black/60">{product.description}</p>
               
-              <div className="rounded-lg border border-brand-black/10 bg-brand-cream/15 p-4 space-y-1">
-                <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-brand-black/45">// Current context import rule</p>
-                <p className="text-[13px] font-black text-brand-black/80">
-                  {preference.import_mode === 'always_allow'
-                    ? 'Always use shared workspace context.'
-                    : preference.import_mode === 'start_fresh'
-                      ? 'Start fresh by default.'
-                      : 'Ask every time.'}
-                </p>
-              </div>
-
-              <div className="space-y-3.5 pt-2">
+              <div className="space-y-4 pt-2">
                 <label className="block">
                   <span className="mb-1.5 block text-[9px] font-mono font-bold uppercase tracking-wider text-brand-black/45">// Workspace context mode</span>
                   <select
@@ -63,7 +52,7 @@ export default function ProductsPanel({
                 
                 <div className="space-y-2">
                   <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-brand-black/45 mb-1.5">// Permission Flags</p>
-                  <div className="grid gap-2">
+                  <div className="rounded-lg border border-brand-black/10 bg-[#faf8f5]/30 divide-y divide-brand-black/5 overflow-hidden">
                     <PreferenceToggle
                       label="Allow read access to workspace context"
                       checked={preference.allow_product_read}

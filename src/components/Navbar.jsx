@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 
 const NAV_LINKS = [
-    { label: 'Toolkit', href: '/#toolkit' },
     { label: 'Products', href: '/products' },
     { label: 'Guides', href: '/guides' },
     { label: 'Account', href: '/account' },
