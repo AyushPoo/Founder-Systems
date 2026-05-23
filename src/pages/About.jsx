@@ -42,6 +42,12 @@ const About = () => {
                             <p>
                                 When I'm not building AI co-pilots for grading, you'll find me deep in a Souls-like boss fight or overthinking my next Slay the Spire run. I build Founder Systems to give you the operational 'cheat codes' I wish I had when I started.
                             </p>
+                            <p>
+                                I believe most startup operations are weighed down by unnecessary noise and expensive SaaS subscriptions that underdeliver. At Founder Systems, our goal is to cut through that noise. We package hard-earned financial formulas, capital outreach heuristics, and automated engineering pipelines into simple, high-leverage AI command centers that actually get work done.
+                            </p>
+                            <p>
+                                Instead of building massive teams to manage back-office admin, we give you the tools to remain small, hyper-efficient, and focused purely on building what your users love. Leverage is the ultimate unfair advantage in the early stages, and we are here to build yours.
+                            </p>
                         </div>
 
                         {/* Social Buttons */}
@@ -82,6 +88,43 @@ const About = () => {
                         </div>
                     </div>
 
+                </div>
+
+                {/* Core Beliefs Section */}
+                <div className="mt-24 border-t-2 border-brand-black pt-16">
+                    <h2 className="text-3xl md:text-5xl font-black text-brand-black tracking-tight-brand mb-12">
+                        Core Operating Beliefs
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            <span className="text-2xl font-black text-brand-orange">01</span>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Leverage Over Headcount</h3>
+                            <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
+                                Build systems, not large organizations. We believe a single founder armed with high-fidelity agents can out-compete teams ten times their size.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            <span className="text-2xl font-black text-brand-orange">02</span>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Obsessive Domain Logic</h3>
+                            <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
+                                No generic, lazy LLM prompt wrappers. Our agents embed real financial models, professional CFA/CA constraints, and battle-tested outreach heuristics.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            <span className="text-2xl font-black text-brand-orange">03</span>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Zero Operational Noise</h3>
+                            <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
+                                Strip out bloat, distracting metrics, and bloated dashboards. If a tool doesn't directly generate leverage or save time, it doesn't belong in the catalog.
+                            </p>
+                        </div>
+                        <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            <span className="text-2xl font-black text-brand-orange">04</span>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Owner-Operator Focus</h3>
+                            <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
+                                Every tool and update template we design is optimized from the perspective of an owner: maximizing capital efficiency, speed, and clear outcomes.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </main>
 
