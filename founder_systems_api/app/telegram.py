@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+import os
 from urllib.parse import quote
 
 from .agents import AGENT_PRODUCT_SLUGS
 from .models import TelegramLink, utc_now
 from .schemas import TelegramLinkStatusResponse
 
-AGENT_TELEGRAM_BOT_USERNAMES = {
+DEFAULT_AGENT_TELEGRAM_BOT_USERNAMES = {
     "marketing-agent": "FSMaAgBot",
-    "finance-agent": "founder_systems_finance_bot",
-    "ops-agent": "founder_systems_ops_bot",
 }
 
 TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY = "link_token_expires_at"
@@ -19,7 +18,11 @@ def get_agent_bot_username(product_slug: str) -> str | None:
     normalized = str(product_slug or "").strip()
     if normalized not in AGENT_PRODUCT_SLUGS:
         return None
-    return AGENT_TELEGRAM_BOT_USERNAMES.get(normalized)
+    env_key = f"FS_TELEGRAM_BOT_USERNAME_{normalized.upper().replace('-', '_')}"
+    configured = str(os.environ.get(env_key) or "").strip().lstrip("@")
+    if configured:
+        return configured
+    return DEFAULT_AGENT_TELEGRAM_BOT_USERNAMES.get(normalized)
 
 
 def build_agent_bot_url(product_slug: str) -> str | None:

@@ -116,7 +116,7 @@
     "accessKind": "operator_pass",
     "passDurationDays": 30,
     "sharedWalletCredits": 750,
-    "telegramBotUsername": "founder_systems_finance_bot",
+    "telegramBotUsername": null,
     "thumbnail": "/images/finance.png"
   },
   {
@@ -130,7 +130,7 @@
     "accessKind": "operator_pass",
     "passDurationDays": 30,
     "sharedWalletCredits": 500,
-    "telegramBotUsername": "founder_systems_ops_bot",
+    "telegramBotUsername": null,
     "thumbnail": "/images/systems.png"
   },
   {

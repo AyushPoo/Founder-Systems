@@ -232,6 +232,30 @@ def test_relink_without_username_clears_previous_telegram_username(monkeypatch, 
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_unprovisioned_agent_bot_does_not_return_dead_telegram_link(monkeypatch, tmp_path):
+    monkeypatch.delenv("FS_TELEGRAM_BOT_USERNAME_FINANCE_AGENT", raising=False)
+    main = _bootstrap_app(monkeypatch, tmp_path)
+    _grant_agent_pass(main, email="founder@example.com", product_slug="finance-agent")
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+
+        account = await client.get("/account/agent-status")
+        assert account.status_code == 200, account.text
+        products = {item["product_slug"]: item for item in account.json()["products"]}
+        assert products["finance-agent"]["telegram_link"]["bot_username"] is None
+        assert products["finance-agent"]["bot_username"] is None
+
+        start = await client.post(
+            "/agents/telegram/link/start",
+            json={"product_slug": "finance-agent"},
+        )
+        assert start.status_code == 503, start.text
+        assert start.json()["detail"] == "Telegram bot is not configured for this product yet"
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def test_agent_diagnostics_matches_account_status(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 

@@ -2393,23 +2393,26 @@ def telegram_link_start(
     user: User = Depends(require_current_user),
     db: Session = Depends(get_db),
 ) -> TelegramLinkStartResponse:
+    product_slug = str(payload.product_slug or "").strip()
+    bot_username = get_agent_bot_username(product_slug)
+    bot_url = build_agent_bot_url(product_slug)
+    if bot_username is None or bot_url is None:
+        raise HTTPException(status_code=503, detail="Telegram bot is not configured for this product yet")
+
     try:
         _link, token, expires_in_seconds = issue_telegram_link_token(
             db,
             user_id=user.id,
-            product_slug=payload.product_slug,
+            product_slug=product_slug,
         )
     except PermissionError as exc:
         raise HTTPException(status_code=403, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    product_slug = str(payload.product_slug or "").strip()
-    bot_username = get_agent_bot_username(product_slug)
-    bot_url = build_agent_bot_url(product_slug)
     deep_link_url = build_agent_bot_deep_link(product_slug, token)
-    if bot_username is None or bot_url is None or deep_link_url is None:
-        raise HTTPException(status_code=404, detail="Unsupported agent product")
+    if deep_link_url is None:
+        raise HTTPException(status_code=503, detail="Telegram bot is not configured for this product yet")
     return TelegramLinkStartResponse(
         product_slug=product_slug,
         bot_username=bot_username,
