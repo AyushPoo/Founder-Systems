@@ -8,9 +8,12 @@ import {
   buildTelegramBotUrl,
   buildTelegramStartCommand,
   buildTelegramWebBotUrl,
+  canStartTelegramSetup,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramLaunchUrl,
+  getTelegramSetupStatus,
+  isTelegramBotProvisioned,
   normalizeAgentAccountStatus,
 } from '../utils/agents';
 import { getAgentAccountStatus, startTelegramLink } from '../utils/founderApi';
@@ -78,9 +81,20 @@ export default function TelegramConnect() {
   const linkedBotUrl = telegramLinked ? buildTelegramBotUrl(botUsername) : null;
   const webBotUrl = buildTelegramWebBotUrl(botUsername || launchPayload?.bot_username);
   const fallbackStartCommand = buildTelegramStartCommand(launchPayload?.token);
-  const botProvisioned = Boolean(botUsername || launchPayload?.bot_username);
-  const canOpenTelegram = authenticated && hasActivePass && !telegramLinked && !loadingStatus && botProvisioned;
-  const visibleTelegramStatus = launchPayload && !telegramLinked ? 'fresh link ready' : productState?.telegram_link?.status || 'unlinked';
+  const botProvisioned = isTelegramBotProvisioned(botUsername, launchPayload?.bot_username);
+  const canOpenTelegram = canStartTelegramSetup({
+    authenticated,
+    hasActivePass,
+    telegramLinked,
+    loadingStatus,
+    botProvisioned,
+  });
+  const visibleTelegramStatus = getTelegramSetupStatus({
+    linked: telegramLinked,
+    launchReady: Boolean(launchPayload),
+    botProvisioned,
+    status: productState?.telegram_link?.status || 'unlinked',
+  });
 
   async function handleMagicLink(event) {
     event.preventDefault();
@@ -177,7 +191,7 @@ export default function TelegramConnect() {
                   </div>
                 ) : null}
 
-                {hasActivePass && visibleTelegramStatus === 'expired' ? (
+                {hasActivePass && botProvisioned && visibleTelegramStatus === 'expired' ? (
                   <div className="rounded-2xl border-2 border-brand-black border-dashed bg-brand-orange/5 p-5">
                     <p className="font-black">Your previous Telegram setup link expired.</p>
                     <p className="mt-2 text-sm font-medium text-brand-black/70">
@@ -202,7 +216,11 @@ export default function TelegramConnect() {
                   </div>
                 ) : null}
 
-                {telegramLinked && linkedBotUrl ? (
+                {!botProvisioned && hasActivePass && !telegramLinked ? (
+                  <div className="inline-flex min-h-[56px] items-center justify-center rounded-2xl border-2 border-brand-black bg-brand-black/10 px-6 py-4 text-center font-black text-brand-black/50 shadow-[6px_6px_0_#1f1f1f]">
+                    Telegram setup unavailable until this bot is live
+                  </div>
+                ) : telegramLinked && linkedBotUrl ? (
                   <a href={linkedBotUrl} target="_blank" rel="noreferrer" className="btn-cta text-center">
                     Open linked Telegram bot &rarr;
                   </a>

@@ -95,6 +95,26 @@ export function buildTelegramStartCommand(token) {
   return normalizedToken ? `/start ${normalizedToken}` : '';
 }
 
+export function isTelegramBotProvisioned(...botUsernames) {
+  return botUsernames.some((botUsername) => String(botUsername || '').trim().replace(/^@+/, ''));
+}
+
+export function getTelegramSetupStatus({ linked = false, launchReady = false, botProvisioned = false, status = 'unlinked' } = {}) {
+  if (!botProvisioned && !linked) return 'not provisioned';
+  if (launchReady && !linked) return 'fresh link ready';
+  return status || (linked ? 'linked' : 'unlinked');
+}
+
+export function canStartTelegramSetup({
+  authenticated = false,
+  hasActivePass = false,
+  telegramLinked = false,
+  loadingStatus = false,
+  botProvisioned = false,
+} = {}) {
+  return Boolean(authenticated && hasActivePass && !telegramLinked && !loadingStatus && botProvisioned);
+}
+
 export function getTelegramLaunchUrl(value) {
   const raw = value && typeof value === 'object' ? value : {};
   return raw.deep_link_url || buildTelegramDeepLinkUrl(raw.bot_username, raw.token);

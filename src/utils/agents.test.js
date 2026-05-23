@@ -5,10 +5,13 @@ import {
   buildTelegramBotUrl,
   buildTelegramStartCommand,
   buildTelegramWebBotUrl,
+  canStartTelegramSetup,
   getAgentProductMeta,
   getAgentProductStatus,
   getTelegramConnectPath,
   getTelegramLaunchUrl,
+  getTelegramSetupStatus,
+  isTelegramBotProvisioned,
   normalizeAgentAccountStatus,
 } from './agents.js';
 
@@ -36,6 +39,33 @@ test('telegram URL helpers normalize usernames and deep links', () => {
   );
   assert.equal(buildTelegramStartCommand('server-token'), '/start server-token');
   assert.equal(getTelegramConnectPath('ops-agent'), '/account/telegram-connect/ops-agent');
+});
+
+test('telegram setup state blocks unprovisioned bot links clearly', () => {
+  assert.equal(isTelegramBotProvisioned('', null, undefined), false);
+  assert.equal(isTelegramBotProvisioned('@FSMaAgBot'), true);
+  assert.equal(getTelegramSetupStatus({ status: 'expired', botProvisioned: false }), 'not provisioned');
+  assert.equal(getTelegramSetupStatus({ status: 'expired', botProvisioned: true }), 'expired');
+  assert.equal(
+    canStartTelegramSetup({
+      authenticated: true,
+      hasActivePass: true,
+      telegramLinked: false,
+      loadingStatus: false,
+      botProvisioned: false,
+    }),
+    false,
+  );
+  assert.equal(
+    canStartTelegramSetup({
+      authenticated: true,
+      hasActivePass: true,
+      telegramLinked: false,
+      loadingStatus: false,
+      botProvisioned: true,
+    }),
+    true,
+  );
 });
 
 test('normalizeAgentAccountStatus indexes products by slug and normalizes telegram state', () => {
