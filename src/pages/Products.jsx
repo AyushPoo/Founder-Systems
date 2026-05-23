@@ -12,6 +12,27 @@ const COMING_SOON_PRODUCTS = [
     { id: 'cs-4', name: 'LinkedIn Summarizer', description: 'Automated extraction of key insights from professional profiles.' }
 ];
 
+const PHASES = [
+    {
+        id: 'money-ops',
+        title: 'Phase 1: Projections & AI Operators',
+        subtitle: 'Model your unit economics and delegate routine work to 30-day AI operational partners.',
+        categories: ['Finance', 'AI Operators']
+    },
+    {
+        id: 'strategy',
+        title: 'Phase 2: Strategy & Pitch Decks',
+        subtitle: 'Solidify your startup idea, draft investor decks, and align candidate fit.',
+        categories: ['Strategy']
+    },
+    {
+        id: 'outbound-talent',
+        title: 'Phase 3: Outbound & Talent',
+        subtitle: 'Launch outreach campaigns and screen candidate fit before hiring.',
+        categories: ['Marketing Tools', 'Hiring Tools']
+    }
+];
+
 const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
     const [products, setProducts] = useState([]);
@@ -63,31 +84,81 @@ const Products = () => {
                     ))}
                 </div>
                 <div className="mb-24">
-                    <h2 className="text-2xl font-black tracking-tight-brand mb-8 text-brand-black flex items-center gap-3">
-                        <span className="w-2 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />Available Now
-                    </h2>
                     {loading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[1,2,3].map(i => (<div key={i} className="rounded-xl border-2 border-brand-black bg-white p-6 h-48 animate-pulse shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]" />))}
                         </div>
                     ) : visibleProducts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {visibleProducts.map(product => (
-                                <ProductCard 
-                                    key={product.id} 
-                                    id={product.id} 
-                                    name={product.name} 
-                                    description={product.description} 
-                                    thumbnail={product.thumbnail}
-                                    category={product.category}
-                                    priceInr={product.priceInr}
-                                    priceUsd={product.priceUsd}
-                                    creditPrice={product.creditPrice}
-                                    isBundle={product.isBundle}
-                                    isComingSoon={product.isComingSoon}
-                                />
-                            ))}
-                        </div>
+                        activeTab === 'All' ? (
+                            <div className="flex flex-col gap-16">
+                                {PHASES.map(phase => {
+                                    const phaseProducts = visibleProducts.filter(p => phase.categories.includes(p.category));
+                                    if (phaseProducts.length === 0) return null;
+                                    return (
+                                        <div key={phase.id}>
+                                            <div className="border-b-2 border-brand-black pb-4 mb-8">
+                                                <h2 className="text-2xl md:text-3xl font-black tracking-tight-brand text-brand-black flex items-center gap-3">
+                                                    <span className="w-2.5 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />
+                                                    {phase.title}
+                                                </h2>
+                                                <p className="text-sm md:text-base text-brand-black/60 font-bold mt-1">
+                                                    {phase.subtitle}
+                                                </p>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                {phaseProducts.map(product => (
+                                                    <ProductCard 
+                                                        key={product.id} 
+                                                        id={product.id} 
+                                                        name={product.name} 
+                                                        description={product.description} 
+                                                        thumbnail={product.thumbnail}
+                                                        category={product.category}
+                                                        priceInr={product.priceInr}
+                                                        priceUsd={product.priceUsd}
+                                                        creditPrice={product.creditPrice}
+                                                        isBundle={product.isBundle}
+                                                        isComingSoon={product.isComingSoon}
+                                                        launchUrl={product.launchUrl}
+                                                        theme={product.category === 'AI Operators' ? 'terminal' : 'standard'}
+                                                        isFeatured={['promptdeck-ai'].includes(product.id)}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div>
+                                <div className="border-b-2 border-brand-black pb-4 mb-8">
+                                    <h2 className="text-2xl md:text-3xl font-black tracking-tight-brand text-brand-black flex items-center gap-3">
+                                        <span className="w-2.5 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />
+                                        {activeTab}
+                                    </h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {visibleProducts.map(product => (
+                                        <ProductCard 
+                                            key={product.id} 
+                                            id={product.id} 
+                                            name={product.name} 
+                                            description={product.description} 
+                                            thumbnail={product.thumbnail}
+                                            category={product.category}
+                                            priceInr={product.priceInr}
+                                            priceUsd={product.priceUsd}
+                                            creditPrice={product.creditPrice}
+                                            isBundle={product.isBundle}
+                                            isComingSoon={product.isComingSoon}
+                                            launchUrl={product.launchUrl}
+                                            theme={product.category === 'AI Operators' ? 'terminal' : 'standard'}
+                                            isFeatured={['promptdeck-ai'].includes(product.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )
                     ) : (
                         <div className="w-full p-12 border-2 border-dashed border-brand-black bg-white rounded-xl text-center shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                             <p className="text-lg font-black text-brand-black">No products available in this category yet.</p>
@@ -96,7 +167,7 @@ const Products = () => {
                 </div>
                 <div>
                     <h2 className="text-2xl font-black tracking-tight-brand mb-8 text-brand-black/40 flex items-center gap-3">
-                        <span className="w-2 h-8 bg-brand-black/20 border-2 border-brand-black rounded-sm" />Coming Soon
+                        <span className="w-2.5 h-8 bg-brand-black/20 border-2 border-brand-black rounded-sm" />Coming Soon
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {COMING_SOON_PRODUCTS.map(product => (

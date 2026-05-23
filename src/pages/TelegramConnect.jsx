@@ -78,7 +78,8 @@ export default function TelegramConnect() {
   const linkedBotUrl = telegramLinked ? buildTelegramBotUrl(botUsername) : null;
   const webBotUrl = buildTelegramWebBotUrl(botUsername || launchPayload?.bot_username);
   const fallbackStartCommand = buildTelegramStartCommand(launchPayload?.token);
-  const canOpenTelegram = authenticated && hasActivePass && !telegramLinked && !loadingStatus;
+  const botProvisioned = Boolean(botUsername || launchPayload?.bot_username);
+  const canOpenTelegram = authenticated && hasActivePass && !telegramLinked && !loadingStatus && botProvisioned;
   const visibleTelegramStatus = launchPayload && !telegramLinked ? 'fresh link ready' : productState?.telegram_link?.status || 'unlinked';
 
   async function handleMagicLink(event) {
@@ -181,6 +182,15 @@ export default function TelegramConnect() {
                     <p className="font-black">Your previous Telegram setup link expired.</p>
                     <p className="mt-2 text-sm font-medium text-brand-black/70">
                       That is normal. Click below and Founder Systems will create a fresh one.
+                    </p>
+                  </div>
+                ) : null}
+
+                {hasActivePass && !botProvisioned && !loadingStatus ? (
+                  <div className="rounded-2xl border-2 border-brand-black border-dashed bg-brand-orange/5 p-5">
+                    <p className="font-black mb-2">{productMeta.name} Telegram bot is being provisioned.</p>
+                    <p className="text-sm font-medium text-brand-black/70">
+                      This product is active on your account, but the Telegram bot username has not been connected by Founder Systems yet. You will not be sent to a dead Telegram link.
                     </p>
                   </div>
                 ) : null}

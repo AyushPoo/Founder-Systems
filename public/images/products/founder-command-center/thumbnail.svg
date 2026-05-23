@@ -1,78 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1600" height="1200" fill="#f7f1e7" />
-  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="#f7f1e7" stroke="#1b1c1a" stroke-width="4" />
-  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&amp;family=Plus+Jakarta+Sans:wght@500;600&amp;display=swap');
+      .title-text { font-family: 'Outfit', sans-serif; font-weight: 900; fill: #1b1c1a; }
+      .body-text { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; fill: #4b5563; }
+      .badge-text { font-family: 'Outfit', sans-serif; font-weight: 800; fill: #ffffff; letter-spacing: 2px; }
+      .mono-text { font-family: monospace; font-size: 11px; fill: #7c3aed; font-weight: bold; }
+    </style>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ff" />
+      <stop offset="100%" stop-color="#f3e8ff" />
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="70%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#1b1c1a" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)" />
+  <rect width="800" height="600" fill="url(#glowGrad)" />
+
+  <!-- Tech Grid Overlay -->
+  <path d="M 0,100 H 800 M 0,200 H 800 M 0,300 H 800 M 0,400 H 800 M 0,500 H 800 M 100,0 V 600 M 200,0 V 600 M 300,0 V 600 M 400,0 V 600 M 500,0 V 600 M 600,0 V 600 M 700,0 V 600" stroke="#1b1c1a" stroke-opacity="0.04" stroke-width="1" />
   
-    <rect x="126" y="110" width="324" height="62" rx="31" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#1b1c1a">
-      WORKSPACE
-    </text>
-    <rect x="1210" y="110" width="248" height="62" rx="31" fill="#1b1c1a" />
-    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
-      CONTROL LAYER
-    </text>
-  
-  
-      <text x="148" y="300" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        Run
-      </text>
+  <!-- Outer Border -->
+  <rect x="20" y="20" width="760" height="560" rx="24" fill="none" stroke="#1b1c1a" stroke-width="3" />
+
+  <!-- Spec / Decision Tree Mockup -->
+  <!-- Main Wrapper -->
+  <g filter="url(#shadow)" transform="translate(-175, 0)">
+    <rect x="420" y="80" width="310" height="440" rx="16" fill="#111210" stroke="#1b1c1a" stroke-width="3" />
     
-      <text x="148" y="400" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        the
-      </text>
+    <!-- Window Header (Dark Theme) -->
+    <rect x="420" y="80" width="310" height="40" rx="16" fill="#1a1c18" />
+    <rect x="420" y="120" width="310" height="2" fill="#2d2f2a" />
+    <circle cx="445" cy="100" r="5" fill="#7c3aed" stroke="#1b1c1a" stroke-width="1.5" />
+    <circle cx="460" cy="100" r="5" fill="#2d2f2a" />
+    <circle cx="475" cy="100" r="5" fill="#2d2f2a" />
+    <text x="575" y="105" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#7c3aed">workspace_v2.sh</text>
+
+    <!-- Console Dashboard layout -->
+    <!-- Health Monitors -->
+    <rect x="440" y="140" width="125" height="100" rx="12" fill="#1c1d1a" stroke="#2d2f2a" stroke-width="1.5" />
+    <text x="455" y="165" font-family="monospace" font-size="9" fill="#9ca3af">RUNWAY STATUS</text>
+    <text x="455" y="195" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#a78bfa">14 Mo.</text>
+    <text x="455" y="220" font-family="monospace" font-size="8" fill="#10b981">● SECURE</text>
+
+    <rect x="585" y="140" width="125" height="100" rx="12" fill="#1c1d1a" stroke="#2d2f2a" stroke-width="1.5" />
+    <text x="600" y="165" font-family="monospace" font-size="9" fill="#9ca3af">TEAM VELOCITY</text>
+    <text x="600" y="195" font-family="'Outfit', sans-serif" font-weight="900" font-size="20" fill="#a78bfa">94%</text>
+    <text x="600" y="220" font-family="monospace" font-size="8" fill="#10b981">● ON TRACK</text>
+
+    <!-- Central Graph Console -->
+    <rect x="440" y="260" width="270" height="120" rx="12" fill="#1c1d1a" stroke="#7c3aed" stroke-width="2" />
+    <text x="455" y="282" font-family="monospace" font-size="9" fill="#a78bfa">SYS_HEALTH // ACTIVE</text>
     
-      <text x="148" y="500" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        company
-      </text>
+    <!-- Vector Wave Graph inside Command center dashboard -->
+    <path d="M 455,340 Q 485,320 515,330 T 575,290 T 635,310 T 695,270" fill="none" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" />
+    <path d="M 455,340 Q 485,320 515,330 T 575,290 T 635,310 T 695,270 L 695,350 H 455 Z" fill="none" opacity="0.08" />
+    <circle cx="695" cy="270" r="4" fill="#a78bfa" stroke="#1b1c1a" stroke-width="1" />
+
+    <!-- Process checklist in console -->
+    <rect x="440" y="400" width="270" height="90" rx="12" fill="#161715" stroke="#2d2f2a" stroke-width="1.5" />
+    <text x="455" y="422" font-family="monospace" font-size="9.5" fill="#10b981">ACTIVE ALERTS</text>
     
-  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="#4c54c8">
-    FOUNDER SYSTEMS • PREMIUM TOOL
-  </text>
-  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="#1b1c1a">
-    Designed to look priced, not placeholder.
-  </text>
-  
-    <rect x="92" y="202" width="1416" height="680" rx="56" fill="#ebeaff" />
-    <rect x="846" y="210" width="558" height="530" rx="46" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="900" y="286" width="176" height="150" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1098" y="286" width="244" height="116" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1098" y="424" width="244" height="146" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="900" y="468" width="442" height="212" rx="32" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    
-        <rect x="652" y="406" width="520" height="170" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-        <rect x="652" y="606" width="520" height="182" rx="34" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-        <rect x="252" y="410" width="360" height="260" rx="34" fill="#fffdf8" stroke="#d9d0c2" stroke-width="3" />
-      
-    <path d="M 934 330 L 1032 330" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 934 372 L 1008 372" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1132 330 L 1284 330" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1132 476 L 1286 476" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 934 538 L 1262 538" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 934 596 L 1228 596" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 934 650 L 1186 650" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-  
-  
-    <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    
-    <rect x="170" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="262" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Health
-    </text>
-  
-    <rect x="384" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="476" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Actions
-    </text>
-  
-    <rect x="598" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="690" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Sync
-    </text>
-  
-    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="#7b84ff" />
-    <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
-      One connected snapshot
-    </text>
-  
+    <text x="455" y="445" font-family="monospace" font-size="9.5" fill="#ffffff">[x] Outreach seq. loaded</text>
+    <text x="455" y="465" font-family="monospace" font-size="9.5" fill="#ffffff">[ ] PDF Terms audited (1 pending)</text>
+  </g>
 </svg>

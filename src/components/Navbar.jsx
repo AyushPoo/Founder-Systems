@@ -10,7 +10,7 @@ const NAV_LINKS = [
     { label: 'About', href: '/about' },
 ];
 
-const Navbar = () => {
+const Navbar = ({ theme = 'light' }) => {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const location = useLocation();
@@ -40,7 +40,9 @@ const Navbar = () => {
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
                 scrolled
-                    ? 'bg-white border-b-2 border-brand-black py-2.5 lg:py-3'
+                    ? (theme === 'dark'
+                        ? 'bg-black border-b border-[#2d2e2b] py-2.5 lg:py-3'
+                        : 'bg-white border-b-2 border-brand-black py-2.5 lg:py-3')
                     : 'bg-transparent py-3.5 lg:py-5'
             }`}
         >
@@ -49,7 +51,9 @@ const Navbar = () => {
                 <Link
                     to="/"
                     onClick={closeMenu}
-                    className="max-w-[140px] text-[1.05rem] leading-[0.9] sm:max-w-none sm:text-xl lg:text-2xl font-black tracking-tight-brand text-brand-black uppercase"
+                    className={`max-w-[140px] text-[1.05rem] sm:max-w-none sm:text-xl lg:text-2xl font-black tracking-tight-brand uppercase transition-colors ${
+                        theme === 'dark' ? 'text-white hover:text-[#10b981] font-mono' : 'text-brand-black'
+                    }`}
                 >
                     Founder Systems
                 </Link>
@@ -64,7 +68,11 @@ const Navbar = () => {
                                 closeMenu();
                                 handleAnchor(e, link.href);
                             }}
-                            className="text-sm font-semibold text-brand-black/70 hover:text-brand-orange transition-colors duration-300 tracking-wide uppercase"
+                            className={`text-sm font-semibold transition-colors duration-300 tracking-wide uppercase ${
+                                theme === 'dark'
+                                    ? 'text-gray-400 hover:text-[#10b981] font-mono'
+                                    : 'text-brand-black/70 hover:text-brand-orange'
+                            }`}
                         >
                             {link.label}
                         </Link>
@@ -73,7 +81,11 @@ const Navbar = () => {
                         <Link
                             to="/account?tab=credits"
                             onClick={closeMenu}
-                            className="rounded-full border-2 border-brand-black bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all"
+                            className={`rounded-full border px-4 py-2 text-sm uppercase tracking-[0.14em] transition-all ${
+                                theme === 'dark'
+                                    ? 'border-[#10b981]/40 bg-[#10b981]/10 text-[#10b981] hover:bg-[#10b981] hover:text-black font-mono font-bold'
+                                    : 'border-2 border-brand-black bg-white text-brand-black font-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white'
+                            }`}
                         >
                             {wallet?.balance ?? 0} Credits
                         </Link>
@@ -81,7 +93,11 @@ const Navbar = () => {
                     <Link
                         to="/products"
                         onClick={closeMenu}
-                        className="btn-cta !py-2.5 !px-6 !text-sm"
+                        className={`text-center py-2.5 px-6 rounded-lg text-sm transition-all duration-200 ${
+                            theme === 'dark'
+                                ? 'border border-[#10b981] bg-transparent text-[#10b981] font-mono hover:bg-[#10b981] hover:text-black font-bold shadow-[2px_2px_0px_0px_rgba(16,185,129,0.3)]'
+                                : 'btn-cta !py-2.5 !px-6 !text-sm'
+                        }`}
                     >
                         Get Started
                     </Link>
@@ -94,19 +110,19 @@ const Navbar = () => {
                     aria-label="Toggle menu"
                 >
                     <span
-                        className={`w-6 h-0.5 bg-brand-black transition-all duration-300 ${
-                            menuOpen ? 'rotate-45 translate-y-2' : ''
-                        }`}
+                        className={`w-6 h-0.5 transition-all duration-300 ${
+                            theme === 'dark' ? 'bg-[#10b981]' : 'bg-brand-black'
+                        } ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
                     />
                     <span
-                        className={`w-6 h-0.5 bg-brand-black transition-all duration-300 ${
-                            menuOpen ? 'opacity-0' : ''
-                        }`}
+                        className={`w-6 h-0.5 transition-all duration-300 ${
+                            theme === 'dark' ? 'bg-[#10b981]' : 'bg-brand-black'
+                        } ${menuOpen ? 'opacity-0' : ''}`}
                     />
                     <span
-                        className={`w-6 h-0.5 bg-brand-black transition-all duration-300 ${
-                            menuOpen ? '-rotate-45 -translate-y-2' : ''
-                        }`}
+                        className={`w-6 h-0.5 transition-all duration-300 ${
+                            theme === 'dark' ? 'bg-[#10b981]' : 'bg-brand-black'
+                        } ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
                     />
                 </button>
             </div>
@@ -117,7 +133,11 @@ const Navbar = () => {
                     menuOpen ? 'max-h-80' : 'max-h-0'
                 }`}
             >
-                <div className="glass px-6 py-6 flex flex-col gap-4 border-t ghost-border">
+                <div className={`px-6 py-6 flex flex-col gap-4 border-t ${
+                    theme === 'dark'
+                        ? 'bg-black border-[#2d2e2b] text-white font-mono'
+                        : 'glass ghost-border text-brand-black'
+                }`}>
                     {NAV_LINKS.map((link) => (
                         <Link
                             key={link.label}
@@ -126,7 +146,11 @@ const Navbar = () => {
                                 closeMenu();
                                 handleAnchor(e, link.href);
                             }}
-                            className="text-base font-semibold text-brand-black/70 hover:text-brand-orange transition-colors py-2 uppercase tracking-wide"
+                            className={`text-base font-semibold py-2 uppercase tracking-wide transition-colors ${
+                                theme === 'dark'
+                                    ? 'text-gray-300 hover:text-[#10b981]'
+                                    : 'text-brand-black/70 hover:text-brand-orange'
+                            }`}
                         >
                             {link.label}
                         </Link>
@@ -135,7 +159,11 @@ const Navbar = () => {
                         <Link
                             to="/account?tab=credits"
                             onClick={closeMenu}
-                            className="rounded-full border-2 border-brand-black bg-white px-4 py-2 text-sm font-black uppercase tracking-[0.14em] shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white transition-all text-center"
+                            className={`rounded-full border px-4 py-2 text-sm uppercase tracking-[0.14em] transition-all text-center ${
+                                theme === 'dark'
+                                    ? 'border-[#10b981]/40 bg-[#10b981]/10 text-[#10b981] font-mono'
+                                    : 'border-2 border-brand-black bg-white text-brand-black font-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] hover:bg-brand-orange hover:text-white'
+                            }`}
                         >
                             {wallet?.balance ?? 0} Credits
                         </Link>
@@ -143,7 +171,11 @@ const Navbar = () => {
                     <Link
                         to="/products"
                         onClick={closeMenu}
-                        className="btn-cta !text-sm text-center mt-2"
+                        className={`text-center py-3.5 rounded-lg text-sm transition-all duration-200 ${
+                            theme === 'dark'
+                                ? 'border border-[#10b981] bg-[#10b981]/10 text-[#10b981] font-mono hover:bg-[#10b981] hover:text-black font-bold'
+                                : 'btn-cta !text-sm text-center mt-2'
+                        }`}
                     >
                         Get Started
                     </Link>

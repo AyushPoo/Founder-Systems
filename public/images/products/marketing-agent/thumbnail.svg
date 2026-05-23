@@ -1,76 +1,72 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1600" height="1200" fill="#f7f1e7" />
-  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="#f7f1e7" stroke="#1b1c1a" stroke-width="4" />
-  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
-  
-    <rect x="126" y="110" width="324" height="62" rx="31" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#1b1c1a">
-      OPERATOR
-    </text>
-    <rect x="1210" y="110" width="248" height="62" rx="31" fill="#1b1c1a" />
-    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
-      CAMPAIGN RHYTHM
-    </text>
-  
-  
-      <text x="148" y="300" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        Run
-      </text>
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&amp;family=Plus+Jakarta+Sans:wght@500;600&amp;display=swap');
+      .title-text { font-family: 'Outfit', sans-serif; font-weight: 900; fill: #1b1c1a; }
+      .body-text { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; fill: #4b5563; }
+      .badge-text { font-family: 'Outfit', sans-serif; font-weight: 800; fill: #ffffff; letter-spacing: 2px; }
+      .mono-text { font-family: monospace; font-size: 11px; fill: #10b981; font-weight: bold; }
+    </style>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#121311" />
+      <stop offset="100%" stop-color="#181a17" />
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="75%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#000000" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)" />
+  <rect width="800" height="600" fill="url(#glowGrad)" />
+
+  <!-- Outer Border (Green Retro Tech) -->
+  <rect x="20" y="20" width="760" height="560" rx="24" fill="none" stroke="#10b981" stroke-opacity="0.3" stroke-width="3" />
+  <rect x="23" y="23" width="754" height="554" rx="21" fill="none" stroke="#1b1c1a" stroke-width="2" />
+
+  <!-- Terminal Window Mockup -->
+  <g filter="url(#shadow)" transform="translate(-175, 0)">
+    <rect x="420" y="80" width="310" height="440" rx="16" fill="#090a09" stroke="#10b981" stroke-width="2.5" />
     
-      <text x="148" y="400" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        weekly
-      </text>
+    <!-- Window Header -->
+    <rect x="420" y="80" width="310" height="40" rx="16" fill="#121412" />
+    <rect x="420" y="120" width="310" height="1.5" fill="#1c201c" />
+    <circle cx="445" cy="100" r="5" fill="#ef4444" opacity="0.8" />
+    <circle cx="460" cy="100" r="5" fill="#eab308" opacity="0.8" />
+    <circle cx="475" cy="100" r="5" fill="#10b981" opacity="0.8" />
+    <text x="575" y="105" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#10b981">growth_ops_v1.py</text>
+
+    <!-- Shell Text -->
+    <text x="440" y="155" class="mono-text" font-size="10" fill="#6b7280">sh marketing-operator.sh</text>
+    <text x="440" y="175" class="mono-text" font-size="10" fill="#10b981">Initializing Growth Engine...</text>
     
-      <text x="148" y="500" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        growth
-      </text>
-    
-  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="#be5630">
-    FOUNDER SYSTEMS • PREMIUM TOOL
-  </text>
-  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="#1b1c1a">
-    Designed to look priced, not placeholder.
-  </text>
-  
-    <rect x="92" y="202" width="1416" height="680" rx="56" fill="#fee4da" />
-    <rect x="850" y="250" width="520" height="496" rx="44" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="906" y="320" width="148" height="238" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="320" width="224" height="128" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="478" width="224" height="82" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="584" width="224" height="94" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    
-        <rect x="760" y="418" width="250" height="110" rx="30" fill="#ff6a1a" opacity="0.16" />
-        <rect x="1040" y="418" width="250" height="110" rx="30" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-      
-    <rect x="1174" y="320" width="134" height="52" rx="18" fill="#ff8459" />
-    <path d="M 1118 386 L 1248 386" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1118 518 L 1266 518" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1118 630 L 1252 630" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 936 620 L 1022 620" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 936 664 L 1008 664" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-  
-  
-    <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    
-    <rect x="170" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="262" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Positioning
-    </text>
-  
-    <rect x="384" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="476" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Channels
-    </text>
-  
-    <rect x="598" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="690" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Cadence
-    </text>
-  
-    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="#ff8459" />
-    <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
-      Ship the next campaign
-    </text>
-  
+    <!-- Active Automation Pipeline -->
+    <rect x="440" y="200" width="270" height="100" rx="8" fill="#121412" stroke="#1c201c" stroke-width="1.5" />
+    <text x="455" y="222" font-family="monospace" font-size="10" font-weight="bold" fill="#10b981">[SYSTEM STATUS: SCHEDULING]</text>
+    <text x="455" y="247" font-family="monospace" font-size="9" fill="#9ca3af">> Channel: LinkedIn Outbound</text>
+    <text x="455" y="262" font-family="monospace" font-size="9" fill="#9ca3af">> Wedge: VC Pitch (Founder-Led)</text>
+    <text x="455" y="280" font-family="monospace" font-size="9" fill="#10b981">● active_campaigns: 4 loaded [OK]</text>
+
+    <text x="440" y="325" class="mono-text" font-size="10" fill="#6b7280">&gt; compiling_copy_metrics...</text>
+
+    <!-- Visual Campaign Nodes -->
+    <g transform="translate(440, 350)">
+      <rect width="270" height="135" rx="8" fill="#121412" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" />
+      <!-- Small metric bars -->
+      <text x="15" y="25" font-family="monospace" font-size="10" fill="#ffffff">Offers: A/B Test Ready</text>
+      <rect x="15" y="40" width="160" height="8" rx="4" fill="#1e293b" />
+      <rect x="15" y="40" width="120" height="8" rx="4" fill="#10b981" />
+      <text x="190" y="48" font-family="monospace" font-size="10" fill="#10b981">75%</text>
+
+      <text x="15" y="80" font-family="monospace" font-size="10" fill="#ffffff">Objection Responses</text>
+      <rect x="15" y="95" width="160" height="8" rx="4" fill="#1e293b" />
+      <rect x="15" y="95" width="144" height="8" rx="4" fill="#10b981" />
+      <text x="190" y="103" font-family="monospace" font-size="10" fill="#10b981">90%</text>
+    </g>
+
+  </g>
 </svg>

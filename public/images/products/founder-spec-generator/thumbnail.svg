@@ -1,79 +1,74 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1600" height="1200" fill="#f7f1e7" />
-  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="#f7f1e7" stroke="#1b1c1a" stroke-width="4" />
-  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&amp;family=Plus+Jakarta+Sans:wght@500;600&amp;display=swap');
+      .title-text { font-family: 'Outfit', sans-serif; font-weight: 900; fill: #1b1c1a; }
+      .body-text { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; fill: #4b5563; }
+      .mono-text { font-family: monospace; font-size: 11px; fill: #ff5f15; font-weight: bold; }
+    </style>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff7ef" />
+      <stop offset="100%" stop-color="#f5e2d0" />
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff7a3d" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#ff7a3d" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#1b1c1a" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)" />
+  <rect width="800" height="600" fill="url(#glowGrad)" />
+
+  <!-- Tech Grid Overlay -->
+  <path d="M 0,100 H 800 M 0,200 H 800 M 0,300 H 800 M 0,400 H 800 M 0,500 H 800 M 100,0 V 600 M 200,0 V 600 M 300,0 V 600 M 400,0 V 600 M 500,0 V 600 M 600,0 V 600 M 700,0 V 600" stroke="#1b1c1a" stroke-opacity="0.04" stroke-width="1" />
   
-    <rect x="126" y="110" width="324" height="62" rx="31" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#1b1c1a">
-      STRATEGY
-    </text>
-    <rect x="1210" y="110" width="248" height="62" rx="31" fill="#1b1c1a" />
-    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
-      DECISION MAP
-    </text>
-  
-  
-      <text x="148" y="300" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        Tighten
-      </text>
+  <!-- Outer Border -->
+  <rect x="20" y="20" width="760" height="560" rx="24" fill="none" stroke="#1b1c1a" stroke-width="3" />
+
+  <!-- Spec / Decision Tree Mockup (Centered) -->
+  <g filter="url(#shadow)" transform="translate(-175, 0)">
+    <rect x="420" y="80" width="310" height="440" rx="16" fill="#ffffff" stroke="#1b1c1a" stroke-width="3" />
     
-      <text x="148" y="400" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        the first
-      </text>
-    
-      <text x="148" y="500" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        move
-      </text>
-    
-  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="#b84b18">
-    FOUNDER SYSTEMS • PREMIUM TOOL
-  </text>
-  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="#1b1c1a">
-    Designed to look priced, not placeholder.
-  </text>
-  
-    <rect x="92" y="202" width="1416" height="680" rx="56" fill="#f9ded0" />
-    <rect x="850" y="250" width="520" height="496" rx="44" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="906" y="356" width="128" height="128" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1112" y="302" width="192" height="96" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1112" y="496" width="192" height="96" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1040" y="648" width="250" height="70" rx="35" fill="#ff6a1a" stroke="#ff6a1a" stroke-width="0" />
-    
-        <circle cx="396" cy="566" r="20" fill="#ff6a1a" stroke="#1b1c1a" stroke-width="4" />
-        <circle cx="986" cy="420" r="18" fill="#ffffff" stroke="#1b1c1a" stroke-width="4" />
-        <circle cx="986" cy="712" r="18" fill="#ffffff" stroke="#1b1c1a" stroke-width="4" />
-      
-    <path d="M 1034 420 H 1104" stroke="#1b1c1a" stroke-width="5" stroke-linecap="round" />
-    <path d="M 1034 420 C 1088 420 1088 350 1112 350" stroke="#ff6a1a" stroke-width="5" stroke-linecap="round" fill="none" />
-    <path d="M 1034 420 C 1088 420 1088 544 1112 544" stroke="#ff6a1a" stroke-width="5" stroke-linecap="round" fill="none" />
-    <path d="M 936 428 L 1002 428" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 936 474 L 988 474" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1142 350 L 1270 350" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1142 544 L 1260 544" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <circle cx="1034" cy="420" r="14" fill="#ff6a1a" stroke="#1b1c1a" stroke-width="3" />
-  
-  
-    <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    
-    <rect x="170" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="262" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Idea
-    </text>
-  
-    <rect x="384" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="476" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Scope
-    </text>
-  
-    <rect x="598" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="690" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      GTM
-    </text>
-  
-    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="#ff6a1a" />
-    <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
-      Scope the move
-    </text>
-  
+    <!-- Window Header -->
+    <rect x="420" y="80" width="310" height="40" rx="16" fill="#fcfbf7" />
+    <rect x="420" y="120" width="310" height="2" fill="#1b1c1a" />
+    <circle cx="445" cy="100" r="5" fill="#ff5f15" stroke="#1b1c1a" stroke-width="1.5" />
+    <circle cx="460" cy="100" r="5" fill="#1b1c1a" />
+    <circle cx="475" cy="100" r="5" fill="#1b1c1a" />
+    <text x="575" y="105" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#1b1c1a">strategy_brief.md</text>
+
+    <!-- Content: Decision Graph -->
+    <path d="M 575,190 L 515,280 M 575,190 L 635,280 M 515,280 L 475,370 M 515,280 L 555,370 M 635,280 L 635,370" stroke="#1b1c1a" stroke-width="2.5" stroke-dasharray="4 4" />
+    <path d="M 575,190 L 515,280" stroke="#ff5f15" stroke-width="3" />
+    <path d="M 515,280 L 555,370" stroke="#ff5f15" stroke-width="3" />
+
+    <!-- Graph Nodes -->
+    <circle cx="575" cy="190" r="24" fill="#ffffff" stroke="#1b1c1a" stroke-width="3" />
+    <text x="575" y="195" text-anchor="middle" class="title-text" font-size="14" fill="#1b1c1a">W1</text>
+
+    <circle cx="515" cy="280" r="20" fill="#ffefea" stroke="#ff5f15" stroke-width="3" />
+    <text x="515" y="285" text-anchor="middle" class="title-text" font-size="12" fill="#ff5f15">MVP</text>
+
+    <circle cx="635" cy="280" r="20" fill="#ffffff" stroke="#1b1c1a" stroke-width="3" />
+    <text x="635" y="285" text-anchor="middle" class="title-text" font-size="12">GTM</text>
+
+    <circle cx="475" cy="370" r="16" fill="#ffffff" stroke="#1b1c1a" stroke-width="2.5" />
+    <text x="475" y="374" text-anchor="middle" class="title-text" font-size="10">v1</text>
+
+    <circle cx="555" cy="370" r="16" fill="#ff5f15" stroke="#1b1c1a" stroke-width="2.5" />
+    <path d="M 551,370 L 554,373 L 560,367" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+
+    <circle cx="635" cy="370" r="16" fill="#ffffff" stroke="#1b1c1a" stroke-width="2.5" />
+    <text x="635" y="374" text-anchor="middle" class="title-text" font-size="10">Ads</text>
+
+    <!-- Code Block Mimic -->
+    <rect x="440" y="420" width="270" height="70" rx="8" fill="#1b1c1a" />
+    <text x="455" y="442" class="mono-text" fill="#ff7a3d">Assumptions: Validated</text>
+    <text x="455" y="462" class="mono-text" fill="#22c55e">Confidence Score: 87%</text>
+    <text x="455" y="482" class="mono-text" fill="#9ca3af">Exclusions: Out of Scope</text>
+  </g>
 </svg>

@@ -430,35 +430,39 @@ export default function Account() {
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-10 pt-26 md:pt-28 pb-14 md:pb-16">
         {loadingSession ? (
-          <div className="rounded-[24px] border border-brand-black/10 bg-white p-10">
-            <p className="text-lg font-black">Checking your Founder Systems session...</p>
+          <div className="rounded-xl border border-brand-black/10 bg-white p-10 shadow-sm">
+            <p className="text-lg font-black text-brand-black">Checking your Founder Systems session...</p>
           </div>
         ) : !authenticated ? (
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
-            <section className="rounded-[24px] border border-brand-black/10 bg-white p-8 md:p-10">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">Workspace settings</p>
-              <h1 className="mt-4 text-3xl md:text-5xl font-black tracking-tight-brand">Sign in to open your workspace.</h1>
-              <p className="mt-4 max-w-3xl text-base md:text-lg font-medium leading-relaxed text-brand-black/65">
+            <section className="rounded-xl border border-brand-black/10 bg-white p-8 md:p-10 shadow-sm space-y-6">
+              <div>
+                <p className="text-[9px] font-mono font-bold uppercase tracking-wider text-brand-black/45">// Workspace Settings</p>
+                <h1 className="mt-2 text-3xl md:text-4xl font-black tracking-tight-brand text-brand-black">Sign in to open your workspace.</h1>
+              </div>
+              <p className="text-[14px] font-medium leading-relaxed text-brand-black/60 max-w-3xl">
                 Shared context, purchases, operator access, and connected tools all live here. Once you sign in, your context can move across Founder Systems with your approval.
               </p>
               <form className="mt-8 grid gap-4 md:grid-cols-2" onSubmit={handleMagicLink}>
-                <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" />
-                <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="founder@example.com" type="email" required className="rounded-2xl border border-brand-black/10 bg-brand-cream px-4 py-3 font-semibold outline-none focus:border-brand-orange" />
-                <button disabled={submitting} className="btn-cta md:col-span-2 justify-center text-base">
+                <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="rounded-lg border border-brand-black/10 bg-brand-cream/30 px-3.5 py-2.5 text-[13px] font-semibold outline-none focus:border-brand-orange focus:bg-white transition-all" />
+                <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="founder@example.com" type="email" required className="rounded-lg border border-brand-black/10 bg-brand-cream/30 px-3.5 py-2.5 text-[13px] font-semibold outline-none focus:border-brand-orange focus:bg-white transition-all" />
+                <button disabled={submitting} className="btn-cta md:col-span-2 justify-center text-sm !py-2.5">
                   {submitting ? 'Sending magic link...' : 'Email me a magic link'}
                 </button>
               </form>
-              <button onClick={() => startGoogleSignIn(returnTo)} className="mt-4 inline-flex items-center justify-center rounded-2xl border border-brand-black/10 bg-white px-5 py-3 font-black uppercase tracking-[0.14em] hover:bg-brand-orange hover:text-white transition-all">
-                Continue with Google
-              </button>
-              <p className="mt-6 text-sm font-semibold text-brand-black/55">
-                Older email-only downloads are still available on <Link to="/access" className="text-brand-orange underline">the legacy access page</Link> if you ever need them.
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+                <button onClick={() => startGoogleSignIn(returnTo)} className="inline-flex items-center justify-center rounded-lg border border-brand-black/10 bg-white px-4 py-2.5 text-[11px] font-mono font-bold uppercase tracking-wider hover:bg-neutral-50 transition-all shadow-sm">
+                  Continue with Google
+                </button>
+                <p className="text-[12px] font-semibold text-brand-black/45">
+                  Older email downloads: <Link to="/access" className="text-brand-orange underline">Legacy access page</Link>
+                </p>
+              </div>
             </section>
-
-            <aside className="rounded-[24px] border border-brand-black/10 bg-white p-8">
-              <h3 className="text-xl font-black tracking-tight-brand">What lives here</h3>
-              <ul className="mt-5 space-y-3 text-sm font-medium leading-relaxed text-brand-black/72">
+ 
+            <aside className="rounded-xl border border-brand-black/10 bg-white p-6 shadow-sm self-start space-y-4">
+              <h3 className="text-lg font-black tracking-tight-brand text-brand-black border-b border-brand-black/5 pb-2">// What lives here</h3>
+              <ul className="space-y-3 text-[13px] font-semibold leading-relaxed text-brand-black/60 list-disc list-inside">
                 <li>Shared founder context across strategy, outreach, decks, updates, and documents.</li>
                 <li>Operator access and connection controls for Gmail and future workspace apps.</li>
                 <li>Credits, purchases, entitlements, and usage activity in one place.</li>
@@ -468,7 +472,9 @@ export default function Account() {
         ) : (
             <div className="space-y-6">
               {(notice || error) ? (
-              <div className="rounded-[18px] border border-brand-black/10 bg-white px-4 py-3 text-[14px] font-semibold">
+              <div className={`rounded-lg border px-4 py-3 text-[13px] font-semibold shadow-sm ${
+                error ? 'border-red-200 bg-red-50 text-red-700' : 'border-[#bae6fd] bg-[#e0f2fe] text-[#0369a1]'
+              }`}>
                 {notice || error}
               </div>
             ) : null}

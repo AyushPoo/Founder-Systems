@@ -37,37 +37,37 @@ const HowItWorks = () => {
     const ref = useReveal();
 
     return (
-        <section id="how-it-works" ref={ref} className="scroll-mt-28 py-24 md:scroll-mt-32 md:py-32">
+        <section id="how-it-works" ref={ref} className="scroll-mt-28 py-24 md:scroll-mt-32 md:py-32 bg-white border-y-2 border-brand-black">
             <div className="max-w-7xl mx-auto px-6 md:px-12">
                 {/* Header */}
-                <div className="reveal text-center mb-16 md:mb-20">
+                <div className="reveal text-center mb-16 md:mb-24">
                     <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">
                         How it works
                     </span>
                     <h2 className="text-4xl md:text-5xl font-black tracking-tight-brand text-brand-black">
-                        Three steps to clarity
+                        Three steps to <span className="font-editorial italic font-normal text-brand-orange">operating clarity</span>
                     </h2>
                 </div>
 
                 {/* Steps grid */}
                 <div className="stagger grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
                     {/* Connecting line (desktop only) */}
-                    <div className="hidden md:block absolute top-16 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-brand-black z-0" />
+                    <div className="hidden md:block absolute top-12 left-[16.67%] right-[16.67%] border-t-2 border-dashed border-brand-black z-0" />
 
                     {STEPS.map((step, i) => (
-                        <div key={i} className="reveal relative z-10 flex flex-col items-center text-center">
+                        <div key={i} className="reveal relative z-10 flex flex-col items-center text-center p-6 md:p-0">
                             {/* Number circle */}
-                            <div className="w-16 h-16 rounded-full bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] flex items-center justify-center mb-6 text-brand-black">
+                            <div className="w-16 h-16 rounded-full bg-white border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] flex items-center justify-center mb-6 text-brand-black hover:rotate-12 transition-transform duration-300">
                                 {step.icon}
                             </div>
                             {/* Step number */}
-                            <span className="text-xs font-black text-brand-black uppercase tracking-widest mb-2 border border-brand-black px-2 py-1 rounded-sm">
-                                {step.number}
+                            <span className="text-[10px] font-mono font-black text-brand-orange uppercase tracking-widest mb-3 bg-brand-cream border border-brand-black/15 px-2.5 py-0.5 rounded-full">
+                                STEP {step.number}
                             </span>
                             <h3 className="text-xl font-black text-brand-black mb-3">
                                 {step.title}
                             </h3>
-                            <p className="text-brand-black/70 font-bold leading-relaxed max-w-xs">
+                            <p className="text-brand-black/70 font-bold leading-relaxed max-w-xs text-sm">
                                 {step.description}
                             </p>
                         </div>

@@ -1,76 +1,87 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1600" height="1200" fill="#f7f1e7" />
-  <rect x="92" y="92" width="1416" height="1016" rx="56" fill="#f7f1e7" stroke="#1b1c1a" stroke-width="4" />
-  <rect x="112" y="112" width="1416" height="1016" rx="56" fill="rgba(27,28,26,0.12)" />
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&amp;family=Plus+Jakarta+Sans:wght@500;600&amp;display=swap');
+      .title-text { font-family: 'Outfit', sans-serif; font-weight: 900; fill: #1b1c1a; }
+      .body-text { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; fill: #4b5563; }
+      .mono-text { font-family: monospace; font-size: 11px; fill: #0d9488; font-weight: bold; }
+    </style>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdfa" />
+      <stop offset="100%" stop-color="#ccfbf1" />
+    </linearGradient>
+    <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0d9488" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#0d9488" stop-opacity="0" />
+    </radialGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="4" dy="4" stdDeviation="0" flood-color="#1b1c1a" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#bgGrad)" />
+  <rect width="800" height="600" fill="url(#glowGrad)" />
+
+  <!-- Tech Grid Overlay -->
+  <path d="M 0,100 H 800 M 0,200 H 800 M 0,300 H 800 M 0,400 H 800 M 0,500 H 800 M 100,0 V 600 M 200,0 V 600 M 300,0 V 600 M 400,0 V 600 M 500,0 V 600 M 600,0 V 600 M 700,0 V 600" stroke="#1b1c1a" stroke-opacity="0.04" stroke-width="1" />
   
-    <rect x="126" y="110" width="324" height="62" rx="31" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="288" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5" fill="#1b1c1a">
-      DOCUMENTS
-    </text>
-    <rect x="1210" y="110" width="248" height="62" rx="31" fill="#1b1c1a" />
-    <text x="1334" y="149" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#ffffff">
-      SIGNAL GRID
-    </text>
-  
-  
-      <text x="148" y="300" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        Read
-      </text>
+  <!-- Outer Border -->
+  <rect x="20" y="20" width="760" height="560" rx="24" fill="none" stroke="#1b1c1a" stroke-width="3" />
+
+  <!-- Main Wrapper (Centered) -->
+  <g filter="url(#shadow)" transform="translate(-175, 0)">
+    <rect x="420" y="80" width="310" height="440" rx="16" fill="#ffffff" stroke="#1b1c1a" stroke-width="3" />
     
-      <text x="148" y="400" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        the file
-      </text>
-    
-      <text x="148" y="500" font-family="Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="-2" fill="#1b1c1a">
-        faster
-      </text>
-    
-  <text x="148" y="632" font-family="Arial, sans-serif" font-size="26" font-weight="700" letter-spacing="4" fill="#b37a1b">
-    FOUNDER SYSTEMS • PREMIUM TOOL
-  </text>
-  <text x="148" y="676" font-family="Arial, sans-serif" font-size="28" font-weight="500" fill="#1b1c1a">
-    Designed to look priced, not placeholder.
-  </text>
-  
-    <rect x="92" y="202" width="1416" height="680" rx="56" fill="#f9ecd1" />
-    <rect x="850" y="250" width="520" height="496" rx="44" fill="#fffdf8" stroke="#1b1c1a" stroke-width="4" />
-    <rect x="906" y="320" width="148" height="238" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="320" width="224" height="128" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="478" width="224" height="82" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    <rect x="1084" y="584" width="224" height="94" rx="26" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
-    
-        <rect x="334" y="442" width="180" height="212" rx="28" fill="#fffdf8" stroke="#d9d0c2" stroke-width="3" />
-        <rect x="370" y="474" width="180" height="212" rx="28" fill="#ffffff" stroke="#d9d0c2" stroke-width="3" />
+    <!-- Window Header -->
+    <rect x="420" y="80" width="310" height="40" rx="16" fill="#fcfbf7" />
+    <rect x="420" y="120" width="310" height="2" fill="#1b1c1a" />
+    <circle cx="445" cy="100" r="5" fill="#0d9488" stroke="#1b1c1a" stroke-width="1.5" />
+    <circle cx="460" cy="100" r="5" fill="#1b1c1a" />
+    <circle cx="475" cy="100" r="5" fill="#1b1c1a" />
+    <text x="575" y="105" text-anchor="middle" font-family="monospace" font-size="10" font-weight="bold" fill="#1b1c1a">document_audit.pdf</text>
+
+    <!-- Document File Visual Mockup -->
+    <g transform="translate(450, 140)">
+      <!-- Back Page -->
+      <rect x="30" y="10" width="180" height="240" rx="8" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2" />
       
-    <rect x="1174" y="320" width="134" height="52" rx="18" fill="#f2ad43" />
-    <path d="M 1118 386 L 1248 386" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1118 518 L 1266 518" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 1118 630 L 1252 630" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-    <path d="M 936 620 L 1022 620" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
-    <path d="M 936 664 L 1008 664" stroke="#8d877f" stroke-width="4" stroke-linecap="round" />
-  
-  
-    <rect x="132" y="986" width="1336" height="118" rx="42" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
+      <!-- Front Document Page -->
+      <rect x="10" y="30" width="180" height="240" rx="8" fill="#ffffff" stroke="#1b1c1a" stroke-width="2" filter="url(#shadow)" />
+      
+      <!-- Inside Text Lines -->
+      <line x1="30" y1="60" x2="170" y2="60" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+      <line x1="30" y1="80" x2="140" y2="80" stroke="#1b1c1a" stroke-width="4" stroke-linecap="round" />
+      
+      <!-- Redacted/Highlighted term sheet lines -->
+      <rect x="30" y="105" width="80" height="15" fill="#ccfbf1" stroke="#0d9488" stroke-width="1" />
+      <text x="35" y="116" font-family="monospace" font-size="9" font-weight="bold" fill="#0f766e">VALUATION</text>
+      
+      <line x1="120" y1="112" x2="170" y2="112" stroke="#1b1c1a" stroke-width="3" stroke-linecap="round" />
+      
+      <rect x="30" y="135" width="60" height="15" fill="#fef3c7" stroke="#d97706" stroke-width="1" />
+      <text x="35" y="146" font-family="monospace" font-size="9" font-weight="bold" fill="#b45309">VESTING</text>
+      
+      <line x1="100" y1="142" x2="170" y2="142" stroke="#9ca3af" stroke-width="3" stroke-dasharray="2 2" />
+
+      <!-- Extraction Line/Arrow pointing outwards -->
+      <path d="M 120,200 L 230,200" stroke="#0d9488" stroke-width="3" stroke-dasharray="4 4" stroke-linecap="round" />
+      <polygon points="230,195 240,200 230,205" fill="#0d9488" stroke="#1b1c1a" stroke-width="1.5" />
+    </g>
+
+    <!-- Glowing Extract Window (placed inside) -->
+    <rect x="580" y="320" width="130" height="180" rx="12" fill="#ffffff" stroke="#0d9488" stroke-width="3" filter="url(#shadow)" />
     
-    <rect x="170" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="262" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Docs
-    </text>
-  
-    <rect x="384" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="476" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Sheets
-    </text>
-  
-    <rect x="598" y="1032" width="184" height="48" rx="24" fill="#ffffff" stroke="#d9d0c2" stroke-width="2" />
-    <text x="690" y="1063" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1b1c1a">
-      Clauses
-    </text>
-  
-    <rect x="1048" y="1018" width="348" height="58" rx="29" fill="#f2ad43" />
-    <text x="1257" y="1055" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#ffffff">
-      Extract what matters
-    </text>
-  
+    <!-- Extraction header -->
+    <rect x="580" y="320" width="130" height="30" rx="12" fill="#0d9488" />
+    <text x="645" y="339" text-anchor="middle" font-family="'Outfit', sans-serif" font-weight="800" font-size="10" fill="#ffffff">SUMMARY</text>
+    
+    <text x="595" y="375" font-family="sans-serif" font-size="9" font-weight="bold" fill="#1b1c1a">1. Pre-Money: $4M</text>
+    <text x="595" y="395" font-family="sans-serif" font-size="9" font-weight="bold" fill="#1b1c1a">2. Vesting: 4 Yrs</text>
+    <text x="595" y="415" font-family="sans-serif" font-size="9" font-weight="bold" fill="#1b1c1a">3. Board Seats: 3</text>
+    
+    <!-- Checklist Check -->
+    <circle cx="645" cy="460" r="14" fill="#ccfbf1" stroke="#0d9488" stroke-width="2" />
+    <path d="M 641,460 L 644,463 L 650,457" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
 </svg>

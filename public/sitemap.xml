@@ -43,6 +43,24 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://foundersystems.in/products/finance-agent</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/ops-agent</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://foundersystems.in/products/marketing-agent</loc>
+    <lastmod>2026-05-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://foundersystems.in/products/saas-financial-model</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
@@ -67,13 +85,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/products/founder-spec-generator</loc>
+    <loc>https://foundersystems.in/products/promptdeck-ai</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/products/founder-outreach-kit</loc>
+    <loc>https://foundersystems.in/products/founder-spec-generator</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -91,37 +109,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/products/linkedin-candidate-screener</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://foundersystems.in/products/founder-command-center</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/products/marketing-agent</loc>
+    <loc>https://foundersystems.in/products/founder-outreach-kit</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://foundersystems.in/products/finance-agent</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://foundersystems.in/products/ops-agent</loc>
-    <lastmod>2026-05-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://foundersystems.in/products/promptdeck-ai</loc>
+    <loc>https://foundersystems.in/products/linkedin-candidate-screener</loc>
     <lastmod>2026-05-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

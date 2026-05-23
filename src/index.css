@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Lora:ital,wght@0,400..700;1,400..700&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,6 +7,10 @@
 @layer base {
   body {
     @apply font-sans bg-brand-cream text-brand-black antialiased overflow-x-hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
@@ -109,5 +113,13 @@
   .neo-shadow-sm {
     box-shadow: 4px 4px 0px 0px rgba(27, 28, 26, 1);
     border: 2px solid rgba(27, 28, 26, 1);
+  }
+
+  .font-editorial {
+    font-family: 'Lora', Georgia, serif;
+  }
+
+  .font-display {
+    font-family: 'Outfit', sans-serif;
   }
 }
