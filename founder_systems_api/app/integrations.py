@@ -793,6 +793,23 @@ def _build_gmail_raw_message(account: UserIntegrationAccount, payload: GmailSend
     return base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
 
 
+def _google_error_detail(response: httpx.Response) -> str:
+    try:
+        payload = response.json()
+    except ValueError:
+        return response.text[:240].strip()
+    if isinstance(payload, dict):
+        error = payload.get("error")
+        if isinstance(error, dict):
+            message = str(error.get("message") or "").strip()
+            status = str(error.get("status") or "").strip()
+            if message and status:
+                return f"{message} ({status})"
+            if message:
+                return message
+    return str(payload)[:240]
+
+
 async def send_gmail_message(
     db: Session,
     settings: Settings,
@@ -817,7 +834,9 @@ async def send_gmail_message(
             json={"raw": raw_message},
         )
         if response.status_code >= 400:
-            raise ValueError(f"Gmail send failed with status {response.status_code}")
+            detail = _google_error_detail(response)
+            suffix = f": {detail}" if detail else ""
+            raise ValueError(f"Gmail send failed with status {response.status_code}{suffix}")
         result = response.json()
     account.last_used_at = utc_now()
     db.flush()

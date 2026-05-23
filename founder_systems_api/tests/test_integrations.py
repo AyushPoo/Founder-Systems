@@ -541,6 +541,110 @@ def test_internal_gmail_send_uses_user_connection_and_burns_credit(monkeypatch, 
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_internal_gmail_send_returns_google_failure_reason(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        await _authenticate(client)
+        session = await client.get("/auth/session")
+        user_id = session.json()["user"]["id"]
+
+        with main.Session(bind=main.engine) as db:
+            user = db.get(main.User, user_id)
+            purchase = main.Purchase(
+                user_id=user.id,
+                status="paid",
+                currency="INR",
+                amount_minor=99900,
+                metadata_json={"kind": "test_operator_pass"},
+            )
+            db.add(purchase)
+            db.flush()
+            main.grant_product_pass(db, user_id=user.id, product_slug="marketing-agent", purchase=purchase)
+            main.grant_shared_wallet_credits(db, user_id=user.id, purchase=purchase, credits_granted=3)
+            db.commit()
+
+        start = await client.get("/integrations/google/gmail/start", follow_redirects=False)
+        state = parse_qs(urlparse(start.headers["location"]).query)["state"][0]
+
+        class FakeAsyncClient:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, *args):
+                return None
+
+            async def post(self, url, **kwargs):
+                if url == "https://oauth2.googleapis.com/token":
+                    return httpx.Response(
+                        200,
+                        json={
+                            "access_token": "gmail-access-token",
+                            "refresh_token": "gmail-refresh-token",
+                            "expires_in": 3600,
+                            "scope": "openid email profile https://www.googleapis.com/auth/gmail.send",
+                            "token_type": "Bearer",
+                        },
+                    )
+                if url == "https://gmail.googleapis.com/gmail/v1/users/me/messages/send":
+                    return httpx.Response(
+                        403,
+                        json={
+                            "error": {
+                                "message": "Request had insufficient authentication scopes.",
+                                "status": "PERMISSION_DENIED",
+                            }
+                        },
+                    )
+                raise AssertionError(f"Unexpected POST {url}")
+
+            async def get(self, url, **kwargs):
+                return httpx.Response(
+                    200,
+                    json={
+                        "email": "founder@gmail.com",
+                        "email_verified": True,
+                        "name": "Founder Gmail",
+                    },
+                )
+
+        monkeypatch.setattr(main.httpx, "AsyncClient", FakeAsyncClient)
+        callback = await client.get(
+            "/auth/google/callback",
+            params={"code": "oauth-code", "state": state},
+            follow_redirects=False,
+        )
+        assert callback.status_code == 303, callback.text
+
+        response = await client.post(
+            "/v1/internal/runtime/actions/email/send",
+            headers={"X-API-Key": "internal-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "email-send-failed-001",
+                "to": ["customer@example.com"],
+                "subject": "Welcome",
+                "body_text": "Hello",
+                "approval_text": "Send",
+            },
+        )
+
+        assert response.status_code == 502
+        assert "insufficient authentication scopes" in response.json()["detail"].lower()
+        events = await client.get("/analytics/cost-guard/events", headers={"X-API-Key": "internal-secret"})
+        assert any(
+            event["reference_id"] == "email-send-failed-001"
+            and "insufficient authentication scopes" in str(event["metadata"]).lower()
+            for event in events.json()
+        )
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def _grant_operator_access(main, user_id: str, *, credits: int = 12) -> None:
     with main.Session(bind=main.engine) as db:
         user = db.get(main.User, user_id)

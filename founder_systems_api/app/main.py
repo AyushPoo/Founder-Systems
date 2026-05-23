@@ -1160,15 +1160,16 @@ async def internal_runtime_email_send(
         db.commit()
     except Exception as exc:
         db.rollback()
+        error_detail = str(exc)[:240]
         release_ai_usage(
             db,
             payload=AiUsageReleaseRequest(
                 reference_id=payload.reference_id,
                 reason="gmail_send_failed",
-                metadata={"channel": "gmail", "error": str(exc)[:240]},
+                metadata={"channel": "gmail", "error": error_detail},
             ),
         )
-        raise HTTPException(status_code=502, detail="Gmail send failed. Please try again.") from exc
+        raise HTTPException(status_code=502, detail=f"Gmail send failed: {error_detail}") from exc
 
     return GmailSendResponse(
         ok=True,
