@@ -17,6 +17,10 @@ function writeJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
+function cleanText(value) {
+  return String(value ?? '').trim();
+}
+
 function buildFallbackResponse(request) {
   const profileSignals = [
     request.profile.headline,

@@ -44,6 +44,7 @@ assert.match(parseJsonBody(malformedRes).error, /invalid json|malformed json|par
 
 const originalFetch = globalThis.fetch;
 const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
+const originalInternalApiKey = process.env.FS_API_KEY_INTERNAL;
 
 delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 const missingKeyReq = {
@@ -129,7 +130,44 @@ const annualReportReq = {
 let capturedRequests = [];
 
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
+process.env.FS_API_KEY_INTERNAL = 'internal-test-key';
 globalThis.fetch = async (url, options = {}) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          authenticated: true,
+          user: { id: 'user_test_123' },
+        };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/reserve')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          ok: true,
+          reference_id: `reserve-doc-test-${capturedRequests.length + 1}`,
+        };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/finalize')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true };
+      },
+    };
+  }
+
   capturedRequests.push({
     url,
     options,
@@ -273,6 +311,42 @@ let workspaceCapturedRequests = [];
 
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 globalThis.fetch = async (url, options = {}) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          authenticated: true,
+          user: { id: 'user_test_123' },
+        };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/reserve')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          ok: true,
+          reference_id: `reserve-workspace-test-${workspaceCapturedRequests.length + 1}`,
+        };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/finalize')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true };
+      },
+    };
+  }
+
   workspaceCapturedRequests.push({
     url,
     options,
@@ -401,6 +475,11 @@ if (typeof originalApiKey === 'undefined') {
   delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
   process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
+}
+if (typeof originalInternalApiKey === 'undefined') {
+  delete process.env.FS_API_KEY_INTERNAL;
+} else {
+  process.env.FS_API_KEY_INTERNAL = originalInternalApiKey;
 }
 globalThis.fetch = originalFetch;
 

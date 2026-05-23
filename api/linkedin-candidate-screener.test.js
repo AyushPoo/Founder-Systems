@@ -18,25 +18,66 @@ function createResponse() {
 
 const originalFetch = globalThis.fetch;
 const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
+const originalInternalApiKey = process.env.FS_API_KEY_INTERNAL;
 
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
-globalThis.fetch = async () => ({
-  ok: true,
-  async json() {
+process.env.FS_API_KEY_INTERNAL = 'internal-test-key';
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
     return {
-      output_text: JSON.stringify({
-        verdict: 'potential_fit',
-        confidence: 'medium',
-        candidateSummary: 'Strong SaaS marketer with some enterprise gaps.',
-        fitSignals: ['Relevant GTM background.'],
-        gapsOrRisks: ['No clear pricing ownership.'],
-        interviewChecks: ['Verify enterprise sales enablement depth.'],
-        recruiterNotes: ['Worth screening if pricing exposure is sufficient.'],
-        inputsUsed: ['linkedin_profile', 'job_description'],
-      }),
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          authenticated: true,
+          user: { id: 'user_test_123' },
+        };
+      },
     };
-  },
-});
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/reserve')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          ok: true,
+          reference_id: 'reserve-linkedin-test-1',
+        };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/finalize')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true };
+      },
+    };
+  }
+
+  return {
+    ok: true,
+    status: 200,
+    async json() {
+      return {
+        output_text: JSON.stringify({
+          verdict: 'potential_fit',
+          confidence: 'medium',
+          candidateSummary: 'Strong SaaS marketer with some enterprise gaps.',
+          fitSignals: ['Relevant GTM background.'],
+          gapsOrRisks: ['No clear pricing ownership.'],
+          interviewChecks: ['Verify enterprise sales enablement depth.'],
+          recruiterNotes: ['Worth screening if pricing exposure is sufficient.'],
+          inputsUsed: ['linkedin_profile', 'job_description'],
+        }),
+      };
+    },
+  };
+};
 
 const res = createResponse();
 await handler(
@@ -58,6 +99,11 @@ assert.equal(JSON.parse(res.body).ok, true);
 
 globalThis.fetch = originalFetch;
 delete process.env.AWS_BEARER_TOKEN_BEDROCK;
+if (typeof originalInternalApiKey === 'undefined') {
+  delete process.env.FS_API_KEY_INTERNAL;
+} else {
+  process.env.FS_API_KEY_INTERNAL = originalInternalApiKey;
+}
 
 const fallbackRes = createResponse();
 await handler(
