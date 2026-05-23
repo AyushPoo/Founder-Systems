@@ -85,6 +85,8 @@ from .schemas import (
     AccessResponse,
     AgentAccountStatusResponse,
     AgentRuntimeAccessCheckRequest,
+    AgentRuntimeMemoryContextRequest,
+    AgentRuntimeMemoryFactsRequest,
     AiModelPolicyPatchRequest,
     AiModelPolicyResponse,
     AiUsageFinalizeRequest,
@@ -2115,6 +2117,143 @@ def internal_runtime_access_check(
     except ValueError as exc:
         detail = str(exc)
         raise HTTPException(status_code=404 if detail == "Unsupported agent product" else 400, detail=detail) from exc
+
+
+def _resolve_runtime_workspace(
+    db: Session,
+    *,
+    product_slug: str,
+    telegram_user_id: str,
+) -> tuple[User, Workspace]:
+    normalized_slug = str(product_slug or "").strip()
+    normalized_telegram_user_id = str(telegram_user_id or "").strip()
+    if not normalized_slug or not normalized_telegram_user_id:
+        raise HTTPException(status_code=400, detail="product_slug and telegram_user_id are required")
+    link = db.scalar(
+        select(TelegramLink).where(
+            TelegramLink.product_slug == normalized_slug,
+            TelegramLink.telegram_user_id == normalized_telegram_user_id,
+            TelegramLink.status == "linked",
+        )
+    )
+    if link is None:
+        raise HTTPException(status_code=404, detail="Linked Telegram account was not found")
+    user = db.get(User, link.user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="Linked Founder Systems user was not found")
+    workspace, _membership = get_or_create_workspace(db, user=user)
+    return user, workspace
+
+
+def _runtime_profile_facts_from_item(item: WorkspaceMemoryItem | None) -> dict[str, str]:
+    if item is None or not isinstance(item.value_json, dict):
+        return {}
+    facts = item.value_json.get("facts", {})
+    if not isinstance(facts, dict):
+        return {}
+    return {str(key): str(value) for key, value in facts.items() if str(value).strip()}
+
+
+def _runtime_memory_profile_item(
+    db: Session,
+    *,
+    workspace_id: str,
+) -> WorkspaceMemoryItem | None:
+    return db.scalar(
+        select(WorkspaceMemoryItem).where(
+            WorkspaceMemoryItem.workspace_id == workspace_id,
+            WorkspaceMemoryItem.type == "telegram_profile",
+            WorkspaceMemoryItem.status == "active",
+        )
+    )
+
+
+@app.post("/internal/runtime/memory/context")
+@app.post("/v1/internal/runtime/memory/context")
+def internal_runtime_memory_context(
+    payload: AgentRuntimeMemoryContextRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    _user, workspace = _resolve_runtime_workspace(
+        db,
+        product_slug=payload.product_slug,
+        telegram_user_id=payload.telegram_user_id,
+    )
+    items = db.scalars(
+        select(WorkspaceMemoryItem)
+        .where(
+            WorkspaceMemoryItem.workspace_id == workspace.id,
+            WorkspaceMemoryItem.status == "active",
+        )
+        .order_by(WorkspaceMemoryItem.updated_at.desc())
+        .limit(12)
+    ).all()
+    profile = next((item for item in items if item.type == "telegram_profile"), None)
+    return {
+        "workspace_id": workspace.id,
+        "facts": _runtime_profile_facts_from_item(profile),
+        "items": [workspace_memory_to_schema(item).model_dump(mode="json") for item in items],
+    }
+
+
+@app.post("/internal/runtime/memory/facts")
+@app.post("/v1/internal/runtime/memory/facts")
+def internal_runtime_memory_facts(
+    payload: AgentRuntimeMemoryFactsRequest,
+    _authorized: User | None = Depends(require_admin_or_internal),
+    db: Session = Depends(get_db),
+) -> dict[str, Any]:
+    user, workspace = _resolve_runtime_workspace(
+        db,
+        product_slug=payload.product_slug,
+        telegram_user_id=payload.telegram_user_id,
+    )
+    clean_facts = {
+        str(key).strip(): str(value).strip()
+        for key, value in (payload.facts or {}).items()
+        if str(key).strip() and str(value).strip()
+    }
+    item = _runtime_memory_profile_item(db, workspace_id=workspace.id)
+    existing_facts = _runtime_profile_facts_from_item(item)
+    merged_facts = {**existing_facts, **clean_facts}
+    summary = ", ".join(f"{key}: {value}" for key, value in sorted(merged_facts.items()))
+    if item is None:
+        item = create_workspace_memory_item(
+            db,
+            workspace_id=workspace.id,
+            user_id=user.id,
+            memory_scope="canonical",
+            type="telegram_profile",
+            label="Telegram profile",
+            value_json={"facts": merged_facts},
+            summary_text=summary,
+            source_product=payload.product_slug,
+            source_session_id=f"telegram:{payload.telegram_user_id}",
+            confidence="confirmed",
+            visibility="workspace_shared",
+            selected_products=["marketing-agent", "finance-agent", "ops-agent"],
+            editable=True,
+        )
+    else:
+        item.value_json = {"facts": merged_facts}
+        item.summary_text = summary
+        item.memory_scope = "canonical"
+        item.source_product = payload.product_slug
+        item.source_session_id = f"telegram:{payload.telegram_user_id}"
+        item.confidence = "confirmed"
+        item.visibility = "workspace_shared"
+        item.updated_by = user.id
+        item.selected_products_json = {"items": ["marketing-agent", "finance-agent", "ops-agent"]}
+        item.updated_at = utc_now()
+        db.add(item)
+        db.commit()
+        db.refresh(item)
+    return {
+        "workspace_id": workspace.id,
+        "facts": merged_facts,
+        "item": workspace_memory_to_schema(item).model_dump(mode="json"),
+    }
 
 
 @app.post("/internal/runtime/actions/reserve", response_model=AiUsageGuardResponse)

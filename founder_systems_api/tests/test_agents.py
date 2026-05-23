@@ -95,6 +95,61 @@ def test_agent_status_uses_product_specific_links_and_workspaces(monkeypatch, tm
     asyncio.run(_run_with_client(main, scenario))
 
 
+def test_runtime_memory_facts_upsert_and_context_use_workspace_memory(monkeypatch, tmp_path):
+    monkeypatch.setenv("FS_API_KEY_INTERNAL", "runtime-secret")
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        with main.Session(bind=main.engine) as db:
+            user = main.get_or_create_user(db, email="memory@example.com", name="Memory User")
+            db.add(
+                main.TelegramLink(
+                    user_id=user.id,
+                    product_slug="marketing-agent",
+                    telegram_user_id="tg-memory-001",
+                    telegram_chat_id="chat-memory-001",
+                    status="linked",
+                    linked_at=main.utc_now(),
+                )
+            )
+            db.commit()
+
+        upsert = await client.post(
+            "/v1/internal/runtime/memory/facts",
+            headers={"X-API-Key": "runtime-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "telegram_user_id": "tg-memory-001",
+                "facts": {
+                    "name": "Ayush Poojary",
+                    "website": "gradesense.in",
+                },
+            },
+        )
+        assert upsert.status_code == 200, upsert.text
+        assert upsert.json()["facts"]["name"] == "Ayush Poojary"
+
+        context = await client.post(
+            "/v1/internal/runtime/memory/context",
+            headers={"X-API-Key": "runtime-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "telegram_user_id": "tg-memory-001",
+            },
+        )
+        assert context.status_code == 200, context.text
+        body = context.json()
+        assert body["workspace_id"]
+        assert body["facts"] == {
+            "name": "Ayush Poojary",
+            "website": "gradesense.in",
+        }
+        assert body["items"][0]["type"] == "telegram_profile"
+        assert body["items"][0]["memory_scope"] == "canonical"
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
 def test_same_telegram_user_can_link_multiple_products(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 

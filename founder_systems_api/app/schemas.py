@@ -101,6 +101,17 @@ class AgentRuntimeAccessCheckRequest(BaseModel):
     telegram_user_id: str = Field(validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), min_length=1, max_length=120)
 
 
+class AgentRuntimeMemoryContextRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"))
+    telegram_user_id: str = Field(validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), min_length=1, max_length=120)
+
+
+class AgentRuntimeMemoryFactsRequest(BaseModel):
+    product_slug: str = Field(validation_alias=AliasChoices("product_slug", "productSlug", "product", "productId"))
+    telegram_user_id: str = Field(validation_alias=AliasChoices("telegram_user_id", "telegramUserId"), min_length=1, max_length=120)
+    facts: dict[str, str] = Field(default_factory=dict)
+
+
 class AgentProductStatusResponse(BaseModel):
     product_slug: str
     has_active_pass: bool
