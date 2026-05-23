@@ -2154,6 +2154,17 @@ def _runtime_profile_facts_from_item(item: WorkspaceMemoryItem | None) -> dict[s
     return {str(key): str(value) for key, value in facts.items() if str(value).strip()}
 
 
+def _runtime_account_facts(user: User) -> dict[str, str]:
+    facts: dict[str, str] = {}
+    name = str(user.name or "").strip()
+    email = str(user.email or "").strip()
+    if name:
+        facts["name"] = name
+    if email:
+        facts["account_email"] = email
+    return facts
+
+
 def _runtime_memory_profile_item(
     db: Session,
     *,
@@ -2175,7 +2186,7 @@ def internal_runtime_memory_context(
     _authorized: User | None = Depends(require_admin_or_internal),
     db: Session = Depends(get_db),
 ) -> dict[str, Any]:
-    _user, workspace = _resolve_runtime_workspace(
+    user, workspace = _resolve_runtime_workspace(
         db,
         product_slug=payload.product_slug,
         telegram_user_id=payload.telegram_user_id,
@@ -2190,9 +2201,10 @@ def internal_runtime_memory_context(
         .limit(12)
     ).all()
     profile = next((item for item in items if item.type == "telegram_profile"), None)
+    facts = {**_runtime_account_facts(user), **_runtime_profile_facts_from_item(profile)}
     return {
         "workspace_id": workspace.id,
-        "facts": _runtime_profile_facts_from_item(profile),
+        "facts": facts,
         "items": [workspace_memory_to_schema(item).model_dump(mode="json") for item in items],
     }
 

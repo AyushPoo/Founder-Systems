@@ -140,12 +140,46 @@ def test_runtime_memory_facts_upsert_and_context_use_workspace_memory(monkeypatc
         assert context.status_code == 200, context.text
         body = context.json()
         assert body["workspace_id"]
-        assert body["facts"] == {
-            "name": "Ayush Poojary",
-            "website": "gradesense.in",
-        }
+        assert body["facts"]["name"] == "Ayush Poojary"
+        assert body["facts"]["website"] == "gradesense.in"
+        assert body["facts"]["account_email"] == "memory@example.com"
         assert body["items"][0]["type"] == "telegram_profile"
         assert body["items"][0]["memory_scope"] == "canonical"
+
+    asyncio.run(_run_with_client(main, scenario))
+
+
+def test_runtime_memory_context_includes_linked_account_identity(monkeypatch, tmp_path):
+    monkeypatch.setenv("FS_API_KEY_INTERNAL", "runtime-secret")
+    main = _bootstrap_app(monkeypatch, tmp_path)
+
+    async def scenario(client: httpx.AsyncClient):
+        with main.Session(bind=main.engine) as db:
+            user = main.get_or_create_user(db, email="ayush@example.com", name="Ayush Poojary")
+            db.add(
+                main.TelegramLink(
+                    user_id=user.id,
+                    product_slug="marketing-agent",
+                    telegram_user_id="tg-account-memory",
+                    telegram_chat_id="chat-account-memory",
+                    status="linked",
+                    linked_at=main.utc_now(),
+                )
+            )
+            db.commit()
+
+        context = await client.post(
+            "/v1/internal/runtime/memory/context",
+            headers={"X-API-Key": "runtime-secret"},
+            json={
+                "product_slug": "marketing-agent",
+                "telegram_user_id": "tg-account-memory",
+            },
+        )
+        assert context.status_code == 200, context.text
+        body = context.json()
+        assert body["facts"]["name"] == "Ayush Poojary"
+        assert body["facts"]["account_email"] == "ayush@example.com"
 
     asyncio.run(_run_with_client(main, scenario))
 
