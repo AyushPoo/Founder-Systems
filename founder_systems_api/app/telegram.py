@@ -9,6 +9,8 @@ from .schemas import TelegramLinkStatusResponse
 
 DEFAULT_AGENT_TELEGRAM_BOT_USERNAMES = {
     "marketing-agent": "FSMaAgBot",
+    "finance-agent": "FSFaAgBot",
+    "ops-agent": "FSOpAgBot",
 }
 
 TELEGRAM_LINK_TOKEN_EXPIRES_AT_KEY = "link_token_expires_at"
