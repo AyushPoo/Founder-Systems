@@ -802,6 +802,106 @@ def consume_wallet_credits(
     return wallet, usage_event
 
 
+def _usage_units_from_entry(entry: CreditLedgerEntry, key: str) -> int:
+    metadata = entry.metadata_json or {}
+    try:
+        return max(0, int(metadata.get(key) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def get_wallet_pending_usage_units(db: Session, *, wallet_id: str) -> int:
+    entries = db.scalars(select(CreditLedgerEntry).where(CreditLedgerEntry.wallet_id == wallet_id)).all()
+    spent_units = sum(
+        _usage_units_from_entry(entry, "usage_units")
+        for entry in entries
+        if entry.reason == "usage_units_spend"
+    )
+    covered_units = sum(
+        _usage_units_from_entry(entry, "usage_units_covered")
+        for entry in entries
+        if entry.reason == "usage_credit_debit"
+    )
+    return max(0, spent_units - covered_units)
+
+
+def get_wallet_available_usage_units(db: Session, *, wallet: CreditWallet, usage_units_per_credit: int) -> int:
+    units_per_credit = max(1, int(usage_units_per_credit or 1))
+    pending_units = get_wallet_pending_usage_units(db, wallet_id=wallet.id)
+    return max(0, int(wallet.balance or 0) * units_per_credit - pending_units)
+
+
+def consume_wallet_usage_units(
+    db: Session,
+    *,
+    workspace_id: str,
+    user_id: str,
+    product_slug: str,
+    action: str,
+    usage_units: int,
+    usage_units_per_credit: int,
+    metadata: dict[str, Any] | None = None,
+) -> tuple[CreditWallet, ProductUsageEvent]:
+    units = max(0, int(usage_units or 0))
+    units_per_credit = max(1, int(usage_units_per_credit or 1))
+    wallet = get_or_create_credit_wallet(db, workspace_id=workspace_id, user_id=user_id)
+    if get_wallet_available_usage_units(db, wallet=wallet, usage_units_per_credit=units_per_credit) < units:
+        raise ValueError("Insufficient wallet credits")
+
+    usage_metadata = {
+        "usage_units": units,
+        "usage_units_per_credit": units_per_credit,
+        **(metadata or {}),
+    }
+    usage_event = ProductUsageEvent(
+        user_id=user_id,
+        workspace_id=workspace_id,
+        product_slug=product_slug,
+        action=action,
+        credits_spent=units,
+        metadata_json=usage_metadata,
+    )
+    db.add(usage_event)
+    db.flush()
+    record_wallet_entry(
+        db,
+        wallet=wallet,
+        user_id=user_id,
+        workspace_id=workspace_id,
+        delta=0,
+        reason="usage_units_spend",
+        product_slug=product_slug,
+        usage_event_id=usage_event.id,
+        metadata={"action": action, **usage_metadata},
+    )
+
+    pending_units = get_wallet_pending_usage_units(db, wallet_id=wallet.id)
+    credits_to_debit = pending_units // units_per_credit
+    if credits_to_debit > 0:
+        if int(wallet.balance or 0) < credits_to_debit:
+            raise ValueError("Insufficient wallet credits")
+        record_wallet_entry(
+            db,
+            wallet=wallet,
+            user_id=user_id,
+            workspace_id=workspace_id,
+            delta=-credits_to_debit,
+            reason="usage_credit_debit",
+            product_slug=product_slug,
+            usage_event_id=usage_event.id,
+            metadata={
+                "action": action,
+                "usage_units_covered": credits_to_debit * units_per_credit,
+                "usage_units_per_credit": units_per_credit,
+            },
+        )
+
+    db.commit()
+    db.refresh(wallet)
+    db.refresh(usage_event)
+    return wallet, usage_event
+
+
 def recommend_products_for_workspace(
     db: Session,
     *,

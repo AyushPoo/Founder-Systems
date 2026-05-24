@@ -99,6 +99,8 @@ export default function Account() {
     authenticated,
     creditPacks,
     creditUnitAmountsMinor,
+    usageUnitsPerCredit,
+    pendingUsageUnits,
     entitlements,
     error,
     launchCreditPackCheckout,
@@ -544,6 +546,8 @@ export default function Account() {
                 <BillingPanel
                   wallet={wallet}
                   walletValueLabel={walletValueLabel}
+                  usageUnitsPerCredit={usageUnitsPerCredit}
+                  pendingUsageUnits={pendingUsageUnits}
                   creditPacks={creditPacks}
                   preferredCurrency={preferredCurrency}
                   customCredits={customCredits}

@@ -65,6 +65,7 @@ class Settings(BaseSettings):
     ai_guard_heavy_daily_limit: int = Field(default=3)
     ai_guard_global_daily_limit: int = Field(default=1000)
     ai_guard_default_credit_cost: int = Field(default=1)
+    wallet_usage_units_per_credit: int = Field(default=100)
     ai_guard_deepseek_enabled: bool = Field(default=False)
     gmail_send_credit_cost: int = Field(default=1)
 

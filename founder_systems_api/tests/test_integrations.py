@@ -431,7 +431,7 @@ def test_gmail_callback_stores_connected_account(monkeypatch, tmp_path):
     asyncio.run(_run_with_client(main, scenario))
 
 
-def test_internal_gmail_send_uses_user_connection_and_burns_credit(monkeypatch, tmp_path):
+def test_internal_gmail_send_uses_user_connection_and_burns_usage_unit(monkeypatch, tmp_path):
     main = _bootstrap_app(monkeypatch, tmp_path)
 
     async def scenario(client: httpx.AsyncClient):
@@ -529,7 +529,7 @@ def test_internal_gmail_send_uses_user_connection_and_burns_credit(monkeypatch, 
         assert sent_messages and "raw" in sent_messages[0]
 
         wallet = await client.get("/wallet")
-        assert wallet.json()["wallet"]["balance"] == 2
+        assert wallet.json()["wallet"]["balance"] == 3
         events = await client.get("/analytics/cost-guard/events", headers={"X-API-Key": "internal-secret"})
         assert any(
             event["reference_id"] == "email-send-001"

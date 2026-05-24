@@ -1,6 +1,8 @@
 export default function BillingPanel({
   wallet,
   walletValueLabel,
+  usageUnitsPerCredit,
+  pendingUsageUnits,
   creditPacks,
   preferredCurrency,
   customCredits,
@@ -46,6 +48,9 @@ export default function BillingPanel({
           <p className="mt-3.5 text-[2.6rem] font-mono font-black tracking-tight-brand text-white leading-none">{wallet?.balance ?? 0}</p>
           <p className="mt-3 text-[12px] font-mono font-semibold text-white/50">
             {walletValueLabel ? `VALUE: ${walletValueLabel}` : 'ESTIMATED VALUE PENDING...'}
+          </p>
+          <p className="mt-2 text-[11px] font-mono font-semibold text-white/45">
+            1 wallet credit = {usageUnitsPerCredit || 100} usage units. Pending usage: {pendingUsageUnits || 0} units.
           </p>
         </div>
 

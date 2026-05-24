@@ -406,6 +406,8 @@ class CreditWalletEnvelope(BaseModel):
     wallet: CreditWalletResponse
     packs: list[CreditPackResponse] = Field(default_factory=list)
     credit_unit_amounts_minor: dict[str, int] = Field(default_factory=dict)
+    usage_units_per_credit: int = 100
+    pending_usage_units: int = 0
 
 
 class CreditWalletLedgerEnvelope(BaseModel):

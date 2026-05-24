@@ -36,6 +36,8 @@ export function FounderWorkspaceProvider({ children }) {
   const [wallet, setWallet] = useState(null);
   const [creditPacks, setCreditPacks] = useState([]);
   const [creditUnitAmountsMinor, setCreditUnitAmountsMinor] = useState({});
+  const [usageUnitsPerCredit, setUsageUnitsPerCredit] = useState(100);
+  const [pendingUsageUnits, setPendingUsageUnits] = useState(0);
   const [ledger, setLedger] = useState([]);
   const [usageEvents, setUsageEvents] = useState([]);
   const [entitlements, setEntitlements] = useState([]);
@@ -73,6 +75,8 @@ export function FounderWorkspaceProvider({ children }) {
       setWallet(null);
       setCreditPacks([]);
       setCreditUnitAmountsMinor({});
+      setUsageUnitsPerCredit(100);
+      setPendingUsageUnits(0);
       setLedger([]);
       setUsageEvents([]);
       setEntitlements([]);
@@ -101,6 +105,8 @@ export function FounderWorkspaceProvider({ children }) {
       setWallet(walletPayload.wallet || null);
       setCreditPacks(walletPayload.packs || []);
       setCreditUnitAmountsMinor(walletPayload.credit_unit_amounts_minor || {});
+      setUsageUnitsPerCredit(Number(walletPayload.usage_units_per_credit || 100));
+      setPendingUsageUnits(Number(walletPayload.pending_usage_units || 0));
       setLedger(ledgerPayload.entries || []);
       setUsageEvents(usagePayload || []);
       setEntitlements(entitlementsPayload || []);
@@ -149,6 +155,8 @@ export function FounderWorkspaceProvider({ children }) {
     setWallet(null);
     setCreditPacks([]);
     setCreditUnitAmountsMinor({});
+    setUsageUnitsPerCredit(100);
+    setPendingUsageUnits(0);
     setLedger([]);
     setUsageEvents([]);
     setEntitlements([]);
@@ -304,6 +312,8 @@ export function FounderWorkspaceProvider({ children }) {
     wallet,
     creditPacks,
     creditUnitAmountsMinor,
+    usageUnitsPerCredit,
+    pendingUsageUnits,
     ledger,
     usageEvents,
     entitlements,
@@ -336,6 +346,8 @@ export function FounderWorkspaceProvider({ children }) {
     wallet,
     creditPacks,
     creditUnitAmountsMinor,
+    usageUnitsPerCredit,
+    pendingUsageUnits,
     ledger,
     usageEvents,
     entitlements,

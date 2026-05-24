@@ -186,6 +186,7 @@ from .services import (
     grant_product_pass,
     grant_shared_wallet_credits,
     get_or_create_user,
+    get_wallet_pending_usage_units,
     grant_promptdeck_purchase,
     grant_credit_pack_purchase,
     issue_telegram_link_token,
@@ -1909,6 +1910,8 @@ def wallet_summary(user: User = Depends(require_current_user), db: Session = Dep
         wallet=credit_wallet_to_schema(wallet),
         packs=packs,
         credit_unit_amounts_minor={currency: int(amount) for currency, amount in WALLET_CREDIT_UNIT_AMOUNTS_MINOR.items()},
+        usage_units_per_credit=max(1, int(settings.wallet_usage_units_per_credit or 1)),
+        pending_usage_units=get_wallet_pending_usage_units(db, wallet_id=wallet.id),
     )
 
 

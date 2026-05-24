@@ -6,7 +6,7 @@ from typing import Any
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from .config import Settings
+from .config import Settings, get_settings
 from .models import (
     AiModelPolicy,
     AiUsageEvent,
@@ -30,7 +30,13 @@ from .schemas import (
     CostGuardSummaryResponse,
     CostGuardUserRow,
 )
-from .services import consume_wallet_credits, get_or_create_credit_wallet, get_or_create_workspace, is_admin_email
+from .services import (
+    consume_wallet_usage_units,
+    get_or_create_credit_wallet,
+    get_or_create_workspace,
+    get_wallet_available_usage_units,
+    is_admin_email,
+)
 
 
 DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
@@ -362,6 +368,7 @@ def reserve_ai_usage(
     model_id = normalize_model_id(payload.model_id)
     policy = _resolve_policy(db, settings, provider=provider, model_id=model_id)
     credits = int(payload.credits or payload.amount or settings.ai_guard_default_credit_cost)
+    usage_units_per_credit = max(1, int(settings.wallet_usage_units_per_credit or 1))
 
     existing = db.scalar(
         select(AiUsageReservation).where(AiUsageReservation.reference_id == payload.reference_id)
@@ -398,7 +405,7 @@ def reserve_ai_usage(
     admin_bypass = is_admin_email(settings, user.email)
     if not admin_bypass and not _has_active_entitlement(db, user_id=user.id, product_slug=payload.product_slug):
         return _deny(db, payload=payload, reason="product_access_required", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
-    if not admin_bypass and int(wallet.balance or 0) < credits:
+    if not admin_bypass and get_wallet_available_usage_units(db, wallet=wallet, usage_units_per_credit=usage_units_per_credit) < credits:
         return _deny(db, payload=payload, reason="wallet_empty", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
 
     since = utc_now() - timedelta(days=1)
@@ -421,7 +428,11 @@ def reserve_ai_usage(
         credits_reserved=credits,
         estimated_input_chars=payload.estimated_input_chars,
         estimated_output_tokens=payload.estimated_output_tokens,
-        metadata_json=payload.metadata,
+        metadata_json={
+            "usage_units": credits,
+            "usage_units_per_credit": usage_units_per_credit,
+            **(payload.metadata or {}),
+        },
     )
     db.add(reservation)
     db.flush()
@@ -441,7 +452,11 @@ def reserve_ai_usage(
         credits=credits,
         estimated_input_chars=payload.estimated_input_chars,
         estimated_output_tokens=payload.estimated_output_tokens,
-        metadata=payload.metadata,
+        metadata={
+            "usage_units": credits,
+            "usage_units_per_credit": usage_units_per_credit,
+            **(payload.metadata or {}),
+        },
     )
     db.commit()
     db.refresh(reservation)
@@ -490,17 +505,22 @@ def finalize_ai_usage(
         return _response(ok=False, state=reservation.status, reference_id=payload.reference_id, reason=f"reservation_{reservation.status}", reservation=reservation, wallet=wallet)
 
     credits = int(payload.credits if payload.credits is not None else reservation.credits_reserved)
-    wallet, _usage_event = consume_wallet_credits(
+    active_settings = get_settings()
+    usage_units_per_credit = max(1, int(active_settings.wallet_usage_units_per_credit or 1))
+    wallet, _usage_event = consume_wallet_usage_units(
         db,
         workspace_id=reservation.workspace_id,
         user_id=reservation.user_id,
         product_slug=reservation.product_slug,
         action=reservation.action,
-        credits=credits,
+        usage_units=credits,
+        usage_units_per_credit=usage_units_per_credit,
         metadata={
             "ai_reference_id": reservation.reference_id,
             "provider": reservation.provider,
             "model_id": reservation.model_id,
+            "usage_units": credits,
+            "usage_units_per_credit": usage_units_per_credit,
             **(reservation.metadata_json or {}),
             **payload.metadata,
         },

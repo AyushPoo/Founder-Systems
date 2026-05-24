@@ -110,7 +110,8 @@ def test_internal_reserve_finalize_and_release_flow(monkeypatch, tmp_path):
         )
         assert finalize.status_code == 200, finalize.text
         assert finalize.json()["state"] == "finalized"
-        assert finalize.json()["wallet_balance"] == 4
+        assert finalize.json()["credits"] == 1
+        assert finalize.json()["wallet_balance"] == 5
 
         second_finalize = await client.post(
             "/v1/internal/runtime/actions/finalize",
@@ -118,7 +119,78 @@ def test_internal_reserve_finalize_and_release_flow(monkeypatch, tmp_path):
             json={"reference_id": "reply-001"},
         )
         assert second_finalize.status_code == 200, second_finalize.text
-        assert second_finalize.json()["wallet_balance"] == 4
+        assert second_finalize.json()["wallet_balance"] == 5
+
+    asyncio.run(_with_client(main, scenario))
+
+
+def test_runtime_usage_units_only_debit_wallet_after_credit_threshold(monkeypatch, tmp_path):
+    main = _bootstrap_app(monkeypatch, tmp_path)
+    user_id = _create_paid_user(main, credits=1)
+
+    async def scenario(client: httpx.AsyncClient):
+        reserve_99 = await client.post(
+            "/v1/internal/runtime/actions/reserve",
+            headers=_internal_headers(),
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "usage-099",
+                "action": "agent_chat",
+                "provider": "google",
+                "model_id": "gemini-2.5-flash",
+                "amount": 99,
+            },
+        )
+        assert reserve_99.status_code == 200, reserve_99.text
+        assert reserve_99.json()["ok"] is True
+        finalize_99 = await client.post(
+            "/v1/internal/runtime/actions/finalize",
+            headers=_internal_headers(),
+            json={"reference_id": "usage-099"},
+        )
+        assert finalize_99.status_code == 200, finalize_99.text
+        assert finalize_99.json()["wallet_balance"] == 1
+
+        reserve_1 = await client.post(
+            "/v1/internal/runtime/actions/reserve",
+            headers=_internal_headers(),
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "usage-100",
+                "action": "agent_chat",
+                "provider": "google",
+                "model_id": "gemini-2.5-flash",
+                "amount": 1,
+            },
+        )
+        assert reserve_1.status_code == 200, reserve_1.text
+        assert reserve_1.json()["ok"] is True
+        finalize_1 = await client.post(
+            "/v1/internal/runtime/actions/finalize",
+            headers=_internal_headers(),
+            json={"reference_id": "usage-100"},
+        )
+        assert finalize_1.status_code == 200, finalize_1.text
+        assert finalize_1.json()["wallet_balance"] == 0
+
+        reserve_over = await client.post(
+            "/v1/internal/runtime/actions/reserve",
+            headers=_internal_headers(),
+            json={
+                "product_slug": "marketing-agent",
+                "user_id": user_id,
+                "reference_id": "usage-101",
+                "action": "agent_chat",
+                "provider": "google",
+                "model_id": "gemini-2.5-flash",
+                "amount": 1,
+            },
+        )
+        assert reserve_over.status_code == 200, reserve_over.text
+        assert reserve_over.json()["ok"] is False
+        assert reserve_over.json()["reason"] == "wallet_empty"
 
     asyncio.run(_with_client(main, scenario))
 
