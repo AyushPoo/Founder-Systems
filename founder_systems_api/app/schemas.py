@@ -603,6 +603,10 @@ class GoogleSheetCreateRequest(ApprovedConnectorActionRequest):
     title: str = Field(min_length=1, max_length=240)
     sheet_name: str = Field(default="Sheet1", validation_alias=AliasChoices("sheet_name", "sheetName"), min_length=1, max_length=80)
     values: list[list[Any]] = Field(default_factory=list, max_length=500)
+    freeze_rows: int = Field(default=0, validation_alias=AliasChoices("freeze_rows", "freezeRows"), ge=0, le=50)
+    column_widths: list[int] = Field(default_factory=list, validation_alias=AliasChoices("column_widths", "columnWidths"), max_length=26)
+    bold_rows: list[int] = Field(default_factory=list, validation_alias=AliasChoices("bold_rows", "boldRows"), max_length=200)
+    currency_columns: list[int] = Field(default_factory=list, validation_alias=AliasChoices("currency_columns", "currencyColumns"), max_length=26)
 
 
 class GoogleSheetCreateResponse(BaseModel):

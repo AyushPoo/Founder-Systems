@@ -763,6 +763,8 @@ def test_internal_google_workspace_actions_create_docs_sheets_and_calendar_event
                     return httpx.Response(200, json={"spreadsheetId": "sheet-123", "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/sheet-123"})
                 if url == "https://sheets.googleapis.com/v4/spreadsheets/sheet-123/values/Sheet1!A1:append":
                     return httpx.Response(200, json={"updates": {"updatedRows": 2}})
+                if url == "https://sheets.googleapis.com/v4/spreadsheets/sheet-123:batchUpdate":
+                    return httpx.Response(200, json={"replies": [{}]})
                 if url == "https://www.googleapis.com/calendar/v3/calendars/primary/events":
                     return httpx.Response(200, json={"id": "event-123", "htmlLink": "https://calendar.google.com/event?eid=event-123"})
                 raise AssertionError(f"Unexpected POST {url}")
@@ -794,12 +796,25 @@ def test_internal_google_workspace_actions_create_docs_sheets_and_calendar_event
                 "reference_id": "google-sheet-001",
                 "title": "Lead Tracker",
                 "values": [["Lead", "Status"], ["Acme", "Drafted"]],
+                "freeze_rows": 1,
+                "column_widths": [220, 180],
+                "bold_rows": [1],
+                "currency_columns": [2],
                 "approval_text": "Approved in Telegram",
             },
         )
         assert sheet.status_code == 200, sheet.text
         assert sheet.json()["spreadsheet_id"] == "sheet-123"
         assert sheet.json()["updated_rows"] == 2
+        sheet_format_call = next(
+            kwargs
+            for url, kwargs in calls
+            if url == "https://sheets.googleapis.com/v4/spreadsheets/sheet-123:batchUpdate"
+        )
+        sheet_format_requests = sheet_format_call["json"]["requests"]
+        assert any("updateSheetProperties" in request for request in sheet_format_requests)
+        assert any("updateDimensionProperties" in request for request in sheet_format_requests)
+        assert any("repeatCell" in request for request in sheet_format_requests)
 
         event = await client.post(
             "/v1/internal/runtime/actions/google/calendar/events/create",

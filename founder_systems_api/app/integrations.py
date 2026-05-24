@@ -895,6 +895,84 @@ async def create_google_doc(
     }
 
 
+def _google_sheet_id(spreadsheet: dict[str, Any], sheet_name: str) -> int:
+    for sheet in spreadsheet.get("sheets") or []:
+        properties = sheet.get("properties") or {}
+        if str(properties.get("title") or "") == sheet_name:
+            return int(properties.get("sheetId") or 0)
+    return 0
+
+
+def _google_sheet_format_requests(payload: GoogleSheetCreateRequest, *, sheet_id: int) -> list[dict[str, Any]]:
+    requests: list[dict[str, Any]] = []
+    if payload.freeze_rows:
+        requests.append(
+            {
+                "updateSheetProperties": {
+                    "properties": {
+                        "sheetId": sheet_id,
+                        "gridProperties": {"frozenRowCount": payload.freeze_rows},
+                    },
+                    "fields": "gridProperties.frozenRowCount",
+                }
+            }
+        )
+
+    for index, width in enumerate(payload.column_widths):
+        if width <= 0:
+            continue
+        requests.append(
+            {
+                "updateDimensionProperties": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "dimension": "COLUMNS",
+                        "startIndex": index,
+                        "endIndex": index + 1,
+                    },
+                    "properties": {"pixelSize": width},
+                    "fields": "pixelSize",
+                }
+            }
+        )
+
+    for row_number in sorted({row for row in payload.bold_rows if row > 0}):
+        requests.append(
+            {
+                "repeatCell": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startRowIndex": row_number - 1,
+                        "endRowIndex": row_number,
+                    },
+                    "cell": {"userEnteredFormat": {"textFormat": {"bold": True}}},
+                    "fields": "userEnteredFormat.textFormat.bold",
+                }
+            }
+        )
+
+    for column_number in sorted({column for column in payload.currency_columns if column > 0}):
+        requests.append(
+            {
+                "repeatCell": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "startColumnIndex": column_number - 1,
+                        "endColumnIndex": column_number,
+                    },
+                    "cell": {
+                        "userEnteredFormat": {
+                            "numberFormat": {"type": "NUMBER", "pattern": "#,##0.00"}
+                        }
+                    },
+                    "fields": "userEnteredFormat.numberFormat",
+                }
+            }
+        )
+
+    return requests
+
+
 async def create_google_sheet(
     db: Session,
     settings: Settings,
@@ -926,6 +1004,7 @@ async def create_google_sheet(
         spreadsheet_id = str(spreadsheet.get("spreadsheetId") or "").strip()
         if not spreadsheet_id:
             raise ValueError("Google Sheets did not return a spreadsheet id.")
+        sheet_id = _google_sheet_id(spreadsheet, payload.sheet_name)
         updated_rows = 0
         if payload.values:
             append_response = await client.post(
@@ -937,6 +1016,15 @@ async def create_google_sheet(
             if append_response.status_code >= 400:
                 raise ValueError(f"Google Sheets append failed with status {append_response.status_code}")
             updated_rows = int(((append_response.json() or {}).get("updates") or {}).get("updatedRows") or 0)
+        format_requests = _google_sheet_format_requests(payload, sheet_id=sheet_id)
+        if format_requests:
+            format_response = await client.post(
+                f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}:batchUpdate",
+                headers=headers,
+                json={"requests": format_requests},
+            )
+            if format_response.status_code >= 400:
+                raise ValueError(f"Google Sheets format failed with status {format_response.status_code}")
     account.last_used_at = utc_now()
     db.flush()
     return {
