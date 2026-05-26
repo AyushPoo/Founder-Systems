@@ -1,7 +1,7 @@
 [
   {
     "id": "finance-agent",
-    "name": "Finance Operator",
+    "name": "Ledger (Finance Operator)",
     "description": "A 30-day AI operator pass for budget discipline, runway work, reporting structure, and finance workflows backed by shared credits.",
     "category": "AI Operators",
     "productId": "FS018",
@@ -15,7 +15,7 @@
   },
   {
     "id": "ops-agent",
-    "name": "Operations Operator",
+    "name": "Link (Ops Operator)",
     "description": "A 30-day AI operator pass for SOPs, execution handoffs, internal cadence design, and cleaner operational follow-through.",
     "category": "AI Operators",
     "productId": "FS019",
@@ -29,7 +29,7 @@
   },
   {
     "id": "marketing-agent",
-    "name": "Marketing Operator",
+    "name": "Blair (Marketing Operator)",
     "description": "A 30-day AI operator pass for founder-led growth planning, messaging, campaign execution, and Telegram-based marketing work.",
     "category": "AI Operators",
     "productId": "FS017",

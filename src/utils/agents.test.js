@@ -18,7 +18,7 @@ import {
 test('getAgentProductMeta returns metadata for supported operator slugs', () => {
   assert.deepEqual(getAgentProductMeta('marketing-agent'), {
     slug: 'marketing-agent',
-    name: 'Marketing Operator',
+    name: 'Blair (Marketing Operator)',
     productPath: '/products/marketing-agent',
     category: 'Marketing Tools',
   });

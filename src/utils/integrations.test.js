@@ -105,9 +105,9 @@ const apiBase = 'https://api.foundersystems.in';
   assert.equal(getConnectorBySlug('meta-ads').name, 'Meta Ads');
   assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).find((connector) => connector.key === 'github').status, 'available');
   assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).find((connector) => connector.key === 'linkedin').status, 'available');
-  assert.equal(getConnectorBySlug('quickbooks').agents.includes('Finance Operator'), true);
-  assert.equal(getConnectorsForAgent('Marketing Operator').some((connector) => connector.slug === 'linkedin'), true);
-  assert.equal(getConnectorsForAgent('Ops Operator').some((connector) => connector.slug === 'zendesk'), true);
+  assert.equal(getConnectorBySlug('quickbooks').agents.includes('Ledger (Finance Operator)'), true);
+  assert.equal(getConnectorsForAgent('Blair (Marketing Operator)').some((connector) => connector.slug === 'linkedin'), true);
+  assert.equal(getConnectorsForAgent('Link (Ops Operator)').some((connector) => connector.slug === 'zendesk'), true);
   assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).length, CONNECTOR_CATALOG.length);
   assert.equal(buildConnectionCatalog(normalizeIntegrations(null)).find((connector) => connector.key === 'quickbooks').status, 'coming-soon');
 }

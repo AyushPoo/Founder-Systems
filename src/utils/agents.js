@@ -1,19 +1,19 @@
 const AGENT_PRODUCTS = {
   'marketing-agent': {
     slug: 'marketing-agent',
-    name: 'Marketing Operator',
+    name: 'Blair (Marketing Operator)',
     productPath: '/products/marketing-agent',
     category: 'Marketing Tools',
   },
   'finance-agent': {
     slug: 'finance-agent',
-    name: 'Finance Operator',
+    name: 'Ledger (Finance Operator)',
     productPath: '/products/finance-agent',
     category: 'Finance',
   },
   'ops-agent': {
     slug: 'ops-agent',
-    name: 'Operations Operator',
+    name: 'Link (Ops Operator)',
     productPath: '/products/ops-agent',
     category: 'Operations',
   },
