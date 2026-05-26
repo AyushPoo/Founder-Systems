@@ -1,10 +1,10 @@
 {
   "slug": "founder-command-center",
   "productId": "FS016",
-  "catalogName": "Founder Command Center",
+  "catalogName": "Founder Command Center (Workspace Sync)",
   "catalogDescription": "One place to see what is happening across your company, what changed, and what needs attention next.",
   "catalogCategory": "Strategy",
-  "title": "Founder Command Center",
+  "title": "Founder Command Center (Workspace Sync)",
   "subtitle": "A connected company snapshot that gets smarter as Founder Systems learns.",
   "descriptionBody": "Founder Command Center is the connective layer inside Founder Systems. Instead of leaving strategy, documents, updates, and outreach trapped inside separate tools, it turns uploads and product activity into one persistent company memory and one founder-readable operating snapshot.\n\nThe result is not a generic dashboard. It is a command layer that tells you what changed, what is at risk, what the platform knows with confidence, and where you should go next to act.",
   "section1Title": "A memory-backed founder operating view",

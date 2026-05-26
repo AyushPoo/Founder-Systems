@@ -1,10 +1,10 @@
 {
   "slug": "founder-spec-generator",
   "productId": "FS011",
-  "catalogName": "Founder Strategy Copilot",
+  "catalogName": "StrategyForge (Spec Generator)",
   "catalogDescription": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
   "catalogCategory": "Strategy",
-  "title": "Founder Strategy Copilot",
+  "title": "StrategyForge (Spec Generator)",
   "subtitle": "Build the market brief. Review the plan. Leave with a sharper founder-ready execution path.",
   "descriptionBody": "Most startup ideas do not fail because the founder forgot to write a business plan. They fail because the first wedge is fuzzy, the assumptions are untested, the market brief is half-formed, or the founder keeps polishing a weak plan instead of tightening the decision.\n\nFounder Strategy Copilot talks through your idea, challenges the weak parts, builds the rough market brief when needed, reviews messy plans, checks founder fit, and turns the strongest path into a practical execution brief. It covers the jobs people usually split into an idea validator, market brief generator, plan reviewer, SWOT audit, and business plan builder, but keeps them inside one guided founder conversation.",
   "section1Title": "One copilot for research, review, and planning",

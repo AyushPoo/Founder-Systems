@@ -31,22 +31,22 @@ import {
 const PRODUCT_CONNECTIONS = [
   {
     slug: 'founder-command-center',
-    name: 'Founder Command Center',
+    name: 'Founder Command Center (Workspace Sync)',
     description: 'Reads shared workspace context, turns uploads into connected company signals, and keeps the founder snapshot up to date.',
   },
   {
     slug: 'founder-spec-generator',
-    name: 'Founder Spec Generator',
+    name: 'StrategyForge (Spec Generator)',
     description: 'Reads workspace context, sharpens strategy, and can promote the strongest answers back into the shared workspace.',
   },
   {
     slug: 'founder-outreach-kit',
-    name: 'Founder Outreach Kit',
+    name: 'OutreachEngine (Outbound Campaigner)',
     description: 'Pulls in ICP, offer, proof, and tone so outreach starts from real context instead of blank prompts.',
   },
   {
     slug: 'promptdeck-ai',
-    name: 'PromptDeck AI',
+    name: 'StoryDeck (Pitch Deck Copilot)',
     description: 'Uses shared story, customer, and offer context to seed deck generation and recommend the next best product move.',
   },
 ];
