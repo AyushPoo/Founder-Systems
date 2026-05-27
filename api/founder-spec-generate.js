@@ -4,6 +4,7 @@ import {
   createHttpError,
   invokeFounderJsonModel,
 } from './_lib/founderAiRuntime.js';
+import { resolveBackendSession } from './_lib/founderBackendGuard.js';
 
 const SYSTEM_PROMPT = [
   'You are Founder Strategy Copilot, producing the final decision-grade strategy brief.',
@@ -128,6 +129,96 @@ function normalizeFinalPlan(rawOutput, body) {
   };
 }
 
+function buildDegradedFinalPlan(body, reason) {
+  const contextLines = recentConversation(body)
+    .filter((line) => line.toLowerCase().startsWith('user:'))
+    .map((line) => line.replace(/^user:\s*/i, ''));
+  const statedContext = cleanText(contextLines.join(' ')).slice(0, 800);
+  const limitation = cleanText(reason) || 'The live model runtime is unavailable.';
+
+  return {
+    ok: true,
+    mode: 'show_recommendation',
+    stage: 'final_verdict',
+    activePanel: 'action_plan',
+    confidence: 'low',
+    session: {
+      mode: cleanText(body.mode || body?.session?.mode) || 'messy_idea',
+      answers: Array.isArray(body?.session?.answers) ? body.session.answers : [],
+    },
+    runtime: {
+      turnType: 'fast',
+      fallbackUsed: true,
+      fallbackReason: limitation,
+    },
+    recommendation: {
+      title: 'Validate the narrowest promised outcome first',
+      summary: 'This is a lower-confidence provisional plan based only on the context you supplied; validate trust and willingness to pay before building integrations.',
+    },
+    evidence: [
+      {
+        claim: 'Founder-provided context',
+        basis: statedContext || 'No detailed context was available.',
+      },
+    ],
+    inference: [
+      'The painful workflow and payment willingness still require direct validation.',
+      'Trust in uploaded data is a gating assumption, not proven demand.',
+    ],
+    challenge: {
+      summary: 'Do not broaden into a full dashboard before proving one recurring decision memo earns trust.',
+    },
+    founderFit: {
+      fitSummary: 'Proceed only with customer conversations and a lightweight manual prototype until evidence improves.',
+    },
+    actionPlan: {
+      firstWeek: [
+        'Interview reachable target users about their current workflow and trust objections.',
+        'Create one manual output example using anonymized or synthetic data.',
+      ],
+      next30Days: [
+        'Test one narrow deliverable and a concrete price with at least five target users.',
+        'Proceed to integrations only after repeated usage or paid intent appears.',
+      ],
+    },
+    verdict: {
+      standing: 'Validate before building',
+      rationale: 'The concept is specific enough to test, but evidence is not yet strong enough for confident implementation.',
+    },
+    brief: {
+      problem: statedContext || 'A founder workflow needs clearer proof before implementation.',
+      icp: 'Use the narrowly described user segment from the founder context.',
+      wedge: 'Deliver one trusted recurring decision brief before expanding the product.',
+      mvpScope: 'Manual or lightweight generation of one concise decision memo from supplied context.',
+      pricingHypothesis: 'Test willingness to pay directly before committing to a price point.',
+      gtmPlan: 'Start with reachable users already named in the founder context.',
+      next30Days: 'Run interviews, deliver manual samples, test price, and document objections.',
+      risks: 'Data trust, weak evidence of urgency, and premature integrations.',
+    },
+    markdown: [
+      '# Founder Strategy Brief (Lower-Confidence Runtime Fallback)',
+      '',
+      '## Runtime Unavailable',
+      limitation,
+      '',
+      '## Context Used',
+      statedContext || 'No detailed founder context was available.',
+      '',
+      '## Current Verdict',
+      'Validate before building. The concept is specific enough to test, but demand and trust are not proven.',
+      '',
+      '## Narrow MVP',
+      'Deliver one trusted recurring decision brief manually or with a lightweight prototype before expanding into integrations.',
+      '',
+      '## 30-Day Validation Plan',
+      '- Interview reachable target users about their current process and trust objections.',
+      '- Share one manual sample created from safe data.',
+      '- Test willingness to pay for the narrow outcome.',
+      '- Only proceed to integration work after repeated usage or paid intent.',
+    ].join('\n'),
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -143,14 +234,26 @@ export default async function handler(req, res) {
       });
     }
 
-    const modelResult = await invokeFounderJsonModel({
-      req,
-      productKey: 'founder-spec-generator',
-      systemPrompt: SYSTEM_PROMPT,
-      userPrompt: buildPrompt(body),
-      maxOutputTokens: 1200,
-      modelTier: 'quality',
-    });
+    await resolveBackendSession({ req });
+
+    let modelResult;
+    try {
+      modelResult = await invokeFounderJsonModel({
+        req,
+        productKey: 'founder-spec-generator',
+        systemPrompt: SYSTEM_PROMPT,
+        userPrompt: buildPrompt(body),
+        maxOutputTokens: 1200,
+        modelTier: 'quality',
+      });
+    } catch (error) {
+      if (Number.isInteger(error?.statusCode) && error.statusCode >= 500) {
+        applyRateLimitHeaders(res, error?.rateLimit);
+        return json(res, 200, buildDegradedFinalPlan(body, error.message));
+      }
+      throw error;
+    }
+
     applyRateLimitHeaders(res, modelResult.rateLimit);
     const normalized = normalizeFinalPlan(modelResult.parsed, body);
 

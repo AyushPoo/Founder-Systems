@@ -110,6 +110,14 @@ assert.equal(successRes.statusCode, 200, successRes.body);
 assert.equal(parseJsonBody(successRes).stage, 'final_verdict');
 assert.match(parseJsonBody(successRes).markdown, /Founder Strategy Brief/i);
 
+delete process.env.AWS_BEARER_TOKEN_BEDROCK;
+const fallbackRes = createResponse();
+await handler(request, fallbackRes);
+assert.equal(fallbackRes.statusCode, 200, fallbackRes.body);
+assert.equal(parseJsonBody(fallbackRes).runtime.fallbackUsed, true);
+assert.match(parseJsonBody(fallbackRes).markdown, /runtime unavailable|lower-confidence/i);
+process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
+
 globalThis.fetch = async (url) => {
   if (String(url).endsWith('/auth/session')) {
     return {
