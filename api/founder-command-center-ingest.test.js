@@ -7,12 +7,13 @@ async function run() {
     body: {
       files: [
         {
-          name: 'runway.xlsx',
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          size: 2048,
+          filename: 'qa-metrics.csv',
+          mimeType: 'text/csv',
+          fileSize: 2048,
+          fileData: 'data:text/csv;base64,bWV0cmljLG1heV8yMDI2Ck1SUiQ0N2sKQnVybixAJDM1LjVr',
         },
       ],
-      notes: 'Latest finance snapshot and board summary.',
+      notes: 'QA note: renewal slipped into June.',
     },
   };
 
@@ -36,6 +37,9 @@ async function run() {
   assert.equal(Array.isArray(jsonPayload.findings), true);
   assert.equal(Array.isArray(jsonPayload.memoryCandidates), true);
   assert.equal(typeof jsonPayload.companySummary, 'string');
+  assert.match(jsonPayload.companySummary, /qa-metrics\.csv/i);
+  assert.match(jsonPayload.companySummary, /MRR|source preview/i);
+  assert.equal(jsonPayload.findings[0].confidence, 'inferred');
 }
 
 run().then(() => console.log('founder-command-center-ingest API tests passed'));
