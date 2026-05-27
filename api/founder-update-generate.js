@@ -9,6 +9,7 @@ import {
   createHttpError,
   invokeFounderJsonModel,
 } from './_lib/founderAiRuntime.js';
+import { resolveBackendSession } from './_lib/founderBackendGuard.js';
 
 const SYSTEM_PROMPT = [
   'You are a founder reporting editor.',
@@ -148,6 +149,106 @@ async function generateFounderUpdate(req, input) {
   return result;
 }
 
+function splitFounderStatements(value) {
+  return cleanText(value)
+    .split(/(?<=[.!?])\s+/)
+    .map((statement) => cleanText(statement))
+    .filter(Boolean)
+    .slice(0, 8);
+}
+
+function getReadableFilePreview(file = {}) {
+  const readableTypes = new Set([
+    'text/csv',
+    'application/csv',
+    'text/tab-separated-values',
+    'text/plain',
+    'text/markdown',
+    'application/json',
+    'text/html',
+    'application/xml',
+    'text/xml',
+  ]);
+
+  if (!readableTypes.has(cleanText(file.mimeType).toLowerCase())) {
+    return '';
+  }
+
+  const base64Payload = cleanText(file.fileData).match(/^data:[^;,]+;base64,([\s\S]+)$/i)?.[1];
+  if (!base64Payload) {
+    return '';
+  }
+
+  const preview = Buffer.from(base64Payload, 'base64')
+    .toString('utf8')
+    .split(/\r?\n/)
+    .map((line) => cleanText(line))
+    .filter(Boolean)
+    .slice(0, 4)
+    .join(' | ');
+
+  return preview.length > 220 ? `${preview.slice(0, 217).trim()}...` : preview;
+}
+
+function buildDegradedFounderUpdate(input, reason) {
+  const limitation = cleanText(reason) || 'The live model runtime is unavailable.';
+  const statements = splitFounderStatements(input.pastedNotes);
+  const sourcePreviews = input.files
+    .map((file) => {
+      const preview = getReadableFilePreview(file);
+      return preview ? `${file.filename}: ${preview}` : '';
+    })
+    .filter(Boolean);
+  const changedItems = statements.slice(0, 2).map((statement) => `Founder-provided note: ${statement}`);
+  const statedWin = statements.find((statement) => /rose|grew|shipped|completed|signed|improved|fell/i.test(statement));
+  const statedChallenge = statements.find((statement) => /risk|slipped|block|concern|churn|delay|trust/i.test(statement));
+  const statedMetric = statements.find((statement) => /[$%]|\b(mrr|arr|burn|pipeline|revenue|cash)\b/i.test(statement));
+  const statedAsk = statements.find((statement) => /\bask\b|introduction|need|help/i.test(statement));
+
+  return {
+    ok: true,
+    title: 'Founder update (lower-confidence runtime fallback)',
+    reportingPeriod: 'Current period',
+    topline: 'Lower-confidence runtime fallback: your source material was preserved, but model-backed editing is unavailable. Review this draft before sharing.',
+    whatChanged: changedItems.length > 0
+      ? changedItems
+      : ['No written period changes were supplied; uploaded files require manual review while the model runtime is unavailable.'],
+    wins: [
+      statedWin
+        ? `Unverified founder-provided signal: ${statedWin}`
+        : 'No verified win could be identified without model-backed interpretation.',
+    ],
+    challenges: [
+      statedChallenge
+        ? `Unverified founder-provided risk: ${statedChallenge}`
+        : 'Model-backed interpretation is unavailable, so risks require manual review.',
+    ],
+    metricsAndProof: [
+      statedMetric
+        ? `Unverified founder-provided metric: ${statedMetric}`
+        : sourcePreviews[0]
+          ? `Readable source preview (unverified): ${sourcePreviews[0]}`
+          : 'No metrics were verified while the model runtime is unavailable.',
+    ],
+    nextFocus: [
+      cleanText(input.contextNotes)
+        ? `Requested emphasis: ${cleanText(input.contextNotes)}`
+        : 'Review the source inputs directly and rerun once model-backed editing is restored.',
+    ],
+    asks: statedAsk ? [`Founder-provided ask: ${statedAsk}`] : [],
+    confidenceGaps: ['No model-backed interpretation or evidence validation was performed in this fallback output.'],
+    extractionNotes: [
+      `Lower-confidence runtime fallback: ${limitation}`,
+      ...sourcePreviews.map((preview) => `Readable source preview retained: ${preview}`),
+    ],
+    sourceFiles: input.files.map((file) => file.filename),
+    runtime: {
+      fallbackUsed: true,
+      fallbackReason: limitation,
+    },
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -165,7 +266,18 @@ export default async function handler(req, res) {
       });
     }
 
-    const modelResult = await generateFounderUpdate(req, normalized);
+    let modelResult;
+    try {
+      modelResult = await generateFounderUpdate(req, normalized);
+    } catch (error) {
+      if (error?.statusCode === 503 && /aws_bearer_token_bedrock/i.test(cleanText(error.message))) {
+        await resolveBackendSession({ req });
+        return json(res, 200, buildDegradedFounderUpdate(normalized, error.message));
+      }
+
+      throw error;
+    }
+
     applyRateLimitHeaders(res, modelResult.rateLimit);
     const rawOutput = modelResult.parsed;
     const normalizedOutput = normalizeFounderUpdateResponse({

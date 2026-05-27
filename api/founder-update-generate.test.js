@@ -111,6 +111,69 @@ globalThis.fetch = async (url, options = {}) => {
 const res = createResponse();
 await handler(req, res);
 
+assert.equal(res.statusCode, 200);
+const payload = parseJsonBody(res);
+assert.equal(payload.ok, true);
+assert.equal(payload.wins.length, 1);
+assert.equal(payload.sourceFiles.length, 2);
+
+delete process.env.AWS_BEARER_TOKEN_BEDROCK;
+const missingRuntimeReq = {
+  method: 'POST',
+  headers: { cookie: 'session=update-fallback-test' },
+  body: {
+    files: [],
+    pastedNotes: 'MRR rose from $42k to $47k. One renewal slipped into June. Ask: introductions to two founders.',
+    contextNotes: 'Keep the trust risk clear.',
+  },
+};
+const missingRuntimeRes = createResponse();
+await handler(missingRuntimeReq, missingRuntimeRes);
+assert.equal(missingRuntimeRes.statusCode, 200, missingRuntimeRes.body);
+const missingRuntimePayload = parseJsonBody(missingRuntimeRes);
+assert.equal(missingRuntimePayload.runtime.fallbackUsed, true);
+assert.match(missingRuntimePayload.topline, /lower-confidence|runtime/i);
+assert.match(missingRuntimePayload.metricsAndProof[0], /MRR|\$42k/i);
+assert.match(missingRuntimePayload.extractionNotes[0], /aws_bearer_token_bedrock/i);
+
+const fileOnlyMissingRuntimeRes = createResponse();
+await handler({
+  method: 'POST',
+  headers: { cookie: 'session=update-file-fallback-test' },
+  body: {
+    files: [
+      {
+        filename: 'metrics.csv',
+        mimeType: 'text/csv',
+        fileData: 'data:text/csv;base64,bWV0cmljLHZhbHVlCk1SUiw0NzAwMA==',
+        fileSize: 25,
+      },
+    ],
+  },
+}, fileOnlyMissingRuntimeRes);
+assert.equal(fileOnlyMissingRuntimeRes.statusCode, 200, fileOnlyMissingRuntimeRes.body);
+const fileOnlyMissingRuntimePayload = parseJsonBody(fileOnlyMissingRuntimeRes);
+assert.equal(fileOnlyMissingRuntimePayload.sourceFiles[0], 'metrics.csv');
+assert.match(fileOnlyMissingRuntimePayload.metricsAndProof[0], /readable source preview|MRR/i);
+
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: false,
+      status: 401,
+      async json() {
+        return { authenticated: false };
+      },
+    };
+  }
+
+  throw new Error(`Unexpected unauthenticated fallback request: ${url}`);
+};
+const unauthorizedMissingRuntimeRes = createResponse();
+await handler(missingRuntimeReq, unauthorizedMissingRuntimeRes);
+assert.equal(unauthorizedMissingRuntimeRes.statusCode, 401);
+assert.match(parseJsonBody(unauthorizedMissingRuntimeRes).error, /authentication required/i);
+
 globalThis.fetch = originalFetch;
 if (typeof originalApiKey === 'undefined') {
   delete process.env.AWS_BEARER_TOKEN_BEDROCK;
@@ -123,11 +186,5 @@ if (typeof originalInternalApiKey === 'undefined') {
 } else {
   process.env.FS_API_KEY_INTERNAL = originalInternalApiKey;
 }
-
-assert.equal(res.statusCode, 200);
-const payload = parseJsonBody(res);
-assert.equal(payload.ok, true);
-assert.equal(payload.wins.length, 1);
-assert.equal(payload.sourceFiles.length, 2);
 
 console.log('founder-update-generate API tests passed');
