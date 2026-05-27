@@ -43,9 +43,41 @@ assert.match(parseJsonBody(malformedRes).error, /invalid json|malformed json|par
 
 const originalFetch = globalThis.fetch;
 const originalApiKey = process.env.AWS_BEARER_TOKEN_BEDROCK;
+const originalInternalApiKey = process.env.FS_API_KEY_INTERNAL;
 
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
-globalThis.fetch = async () => {
+process.env.FS_API_KEY_INTERNAL = 'internal-test-key';
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { authenticated: true, user: { id: 'user_test_123' } };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/reserve')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true, reference_id: 'reserve-outreach-fallback-test-1' };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/release')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true };
+      },
+    };
+  }
+
   throw new Error('socket hang up');
 };
 
@@ -74,6 +106,36 @@ assert.equal(fallbackPayload.diagnosticNotes.some((note) => /socket hang up/i.te
 
 const fetchCalls = [];
 globalThis.fetch = async (url, options = {}) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { authenticated: true, user: { id: 'user_test_123' } };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/reserve')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true, reference_id: 'reserve-outreach-live-test-1' };
+      },
+    };
+  }
+
+  if (String(url).includes('/v1/internal/runtime/actions/finalize')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { ok: true };
+      },
+    };
+  }
+
   fetchCalls.push({
     url,
     headers: options.headers,
@@ -155,10 +217,35 @@ assert.equal(
   true
 );
 
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: false,
+      status: 401,
+      async json() {
+        return { authenticated: false };
+      },
+    };
+  }
+
+  throw new Error(`Unexpected request after unauthenticated session: ${url}`);
+};
+
+const unauthorizedRes = createResponse();
+await handler(liveReq, unauthorizedRes);
+
+assert.equal(unauthorizedRes.statusCode, 401);
+assert.match(parseJsonBody(unauthorizedRes).error, /authentication required/i);
+
 if (typeof originalApiKey === 'undefined') {
   delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
   process.env.AWS_BEARER_TOKEN_BEDROCK = originalApiKey;
+}
+if (typeof originalInternalApiKey === 'undefined') {
+  delete process.env.FS_API_KEY_INTERNAL;
+} else {
+  process.env.FS_API_KEY_INTERNAL = originalInternalApiKey;
 }
 globalThis.fetch = originalFetch;
 

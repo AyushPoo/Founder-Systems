@@ -777,8 +777,9 @@ export default async function handler(req, res) {
       });
     }
 
+    const statusCode = Number.isInteger(error?.statusCode) ? error.statusCode : 500;
     const message = cleanText(error?.message) || 'Campaign generation failed.';
-    return json(res, 500, {
+    return json(res, statusCode, {
       ok: false,
       error: message,
     });
