@@ -64,6 +64,66 @@ await handler(missingKeyReq, missingKeyRes);
 assert.equal(missingKeyRes.statusCode, 503);
 assert.match(parseJsonBody(missingKeyRes).error, /aws_bearer_token_bedrock/i);
 
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { authenticated: true, user: { id: 'user_document_fallback' } };
+      },
+    };
+  }
+
+  throw new Error(`Unexpected fallback request: ${url}`);
+};
+
+const missingRuntimeWorkspaceReq = {
+  method: 'POST',
+  headers: { cookie: 'session=document-fallback-test' },
+  body: {
+    files: [
+      {
+        filename: 'metrics.csv',
+        mimeType: 'text/csv',
+        fileData: `data:text/csv;base64,${Buffer.from('metric,value\nMRR,47000\nCash Balance,281500').toString('base64')}`,
+        fileSize: 44,
+      },
+    ],
+    focus: 'Identify cash pressure and evidence gaps.',
+  },
+};
+const missingRuntimeWorkspaceRes = createResponse();
+await handler(missingRuntimeWorkspaceReq, missingRuntimeWorkspaceRes);
+
+assert.equal(missingRuntimeWorkspaceRes.statusCode, 200, missingRuntimeWorkspaceRes.body);
+const missingRuntimeWorkspacePayload = parseJsonBody(missingRuntimeWorkspaceRes);
+assert.equal(missingRuntimeWorkspacePayload.runtime.fallbackUsed, true);
+assert.match(missingRuntimeWorkspacePayload.overallRead, /lower-confidence|runtime/i);
+assert.match(missingRuntimeWorkspacePayload.extractionNotes[0], /aws_bearer_token_bedrock/i);
+assert.equal(missingRuntimeWorkspacePayload.fileAnalyses[0].filename, 'metrics.csv');
+assert.match(missingRuntimeWorkspacePayload.fileAnalyses[0].summary, /MRR|readable/i);
+
+globalThis.fetch = async (url) => {
+  if (String(url).endsWith('/auth/session')) {
+    return {
+      ok: false,
+      status: 401,
+      async json() {
+        return { authenticated: false };
+      },
+    };
+  }
+
+  throw new Error(`Unexpected unauthenticated fallback request: ${url}`);
+};
+
+const unauthorizedFallbackWorkspaceRes = createResponse();
+await handler(missingRuntimeWorkspaceReq, unauthorizedFallbackWorkspaceRes);
+assert.equal(unauthorizedFallbackWorkspaceRes.statusCode, 401);
+assert.match(parseJsonBody(unauthorizedFallbackWorkspaceRes).error, /authentication required/i);
+globalThis.fetch = originalFetch;
+
 const oversizedPayloadReq = {
   method: 'POST',
   body: {

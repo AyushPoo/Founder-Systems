@@ -22,6 +22,7 @@ import {
   applyRateLimitHeaders,
   invokeFounderJsonModel,
 } from './_lib/founderAiRuntime.js';
+import { resolveBackendSession } from './_lib/founderBackendGuard.js';
 
 const SYSTEM_PROMPT = [
   'You are a founder-specific document analyst.',
@@ -338,6 +339,93 @@ async function summarizeWorkspaceWithModel(req, { focus = '', fileAnalyses = [],
   });
 }
 
+function getReadableFallbackExcerpt(file = {}) {
+  const readableTypes = new Set([
+    'text/csv',
+    'application/csv',
+    'text/tab-separated-values',
+    'text/plain',
+    'text/markdown',
+    'application/json',
+    'text/html',
+    'application/xml',
+    'text/xml',
+  ]);
+
+  if (!readableTypes.has(cleanText(file.mimeType).toLowerCase())) {
+    return '';
+  }
+
+  const base64Payload = cleanText(file.fileData).match(/^data:[^;,]+;base64,([\s\S]+)$/i)?.[1];
+  if (!base64Payload) {
+    return '';
+  }
+
+  const excerpt = Buffer.from(base64Payload, 'base64')
+    .toString('utf8')
+    .split(/\r?\n/)
+    .map((line) => cleanText(line))
+    .filter(Boolean)
+    .slice(0, 4)
+    .join(' | ');
+
+  return excerpt.length > 220 ? `${excerpt.slice(0, 217).trim()}...` : excerpt;
+}
+
+function buildDegradedWorkspaceAnalysis(requestBody, reason) {
+  const validation = validateFounderDocumentWorkspaceRequest(requestBody || {});
+  const limitation = cleanText(reason) || 'The live model runtime is unavailable.';
+  const fileAnalyses = validation.validFiles.map((file) => {
+    const detectedType = classifyFounderDocumentType(file);
+    const excerpt = getReadableFallbackExcerpt(file);
+
+    return {
+      fileId: file.id,
+      filename: file.filename,
+      detectedType,
+      summary: excerpt
+        ? `Lower-confidence runtime fallback: readable content was accepted (${excerpt}). No model interpretation was performed.`
+        : `Lower-confidence runtime fallback: ${file.filename} was accepted, but its content could not be interpreted without the model runtime.`,
+      strongestSignals: excerpt
+        ? [`Readable source preview: ${excerpt}`]
+        : [`${file.filename} was accepted for analysis.`],
+      concerns: ['Model-backed document interpretation is currently unavailable.'],
+      focusAreas: ['Review the source file directly and rerun analysis once the model runtime is restored.'],
+      extractionQuality: {
+        label: excerpt ? 'limited' : 'unavailable',
+        notes: [`Runtime unavailable: ${limitation}`],
+      },
+      keyMetrics: [],
+      clauseHighlights: [],
+    };
+  });
+
+  return {
+    ok: true,
+    workspaceTitle: 'Founder document workspace (lower-confidence fallback)',
+    filesAnalyzed: validation.validFiles.map((file) => file.filename),
+    overallRead: 'Lower-confidence runtime fallback: the upload set was accepted, but model-backed document interpretation is unavailable. Review the source material manually before making decisions.',
+    whatMattersMost: [
+      'No AI-derived claims have been made while the document-analysis runtime is unavailable.',
+      ...validation.validFiles.map((file) => `${file.filename} was accepted as ${classifyFounderDocumentType(file)}.`),
+    ],
+    contradictions: ['Contradictions cannot be verified while model-backed analysis is unavailable.'],
+    missingProof: ['A model-backed interpretation is required before treating this workspace as analyzed.'],
+    watchouts: ['Do not treat this fallback as financial, legal, or diligence-quality analysis.'],
+    priorityQuestions: ['Which claims need manual verification before this workspace can be used for a decision?'],
+    nextActions: [
+      'Review the uploaded files directly for immediate decisions.',
+      'Restore the model runtime configuration and rerun this workspace analysis.',
+    ],
+    fileAnalyses,
+    extractionNotes: [`Lower-confidence runtime fallback: ${limitation}`],
+    runtime: {
+      fallbackUsed: true,
+      fallbackReason: limitation,
+    },
+  };
+}
+
 async function analyzeWorkspaceFile(req, file, focus) {
   let detectedType = classifyFounderDocumentType({
     filename: file.filename,
@@ -468,10 +556,19 @@ export default async function handler(req, res) {
   try {
     const requestBody = await readJsonBody(req);
     if (Array.isArray(requestBody?.files)) {
-      const workspaceOutput = await analyzeWorkspaceRequest(req, requestBody);
-      applyRateLimitHeaders(res, workspaceOutput.__rateLimit);
-      delete workspaceOutput.__rateLimit;
-      return json(res, 200, workspaceOutput);
+      try {
+        const workspaceOutput = await analyzeWorkspaceRequest(req, requestBody);
+        applyRateLimitHeaders(res, workspaceOutput.__rateLimit);
+        delete workspaceOutput.__rateLimit;
+        return json(res, 200, workspaceOutput);
+      } catch (error) {
+        if (error?.statusCode === 503 && /aws_bearer_token_bedrock/i.test(cleanText(error.message))) {
+          await resolveBackendSession({ req });
+          return json(res, 200, buildDegradedWorkspaceAnalysis(requestBody, error.message));
+        }
+
+        throw error;
+      }
     }
 
     const { normalized, missing, isValid, error } = validateFounderPdfSummaryRequest(requestBody || {});
