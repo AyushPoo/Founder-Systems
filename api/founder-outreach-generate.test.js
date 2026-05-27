@@ -109,10 +109,10 @@ const contextualFallbackReq = {
   body: {
     productName: 'SignalMonday',
     offer: 'Turn weekly Stripe and CRM exports into one Monday memo with one runway risk and one pipeline action.',
-    targetCustomer: 'Bootstrapped B2B SaaS founders',
-    buyerRole: 'Founder or CEO',
+    targetCustomer: 'Bootstrapped B2B SaaS founders with 5 to 25 employees who review cash runway every Monday.',
+    buyerRole: 'Founder or CEO who owns runway decisions and weekly pipeline reviews.',
     painPoint: 'Every Monday they reconcile cash and CRM sheets, then find risk too late.',
-    desiredOutcome: 'Get one trusted Monday action memo by 9 AM',
+    desiredOutcome: 'Get one trusted Monday action memo by 9 AM that identifies the cash risk and pipeline action.',
     proof: 'Three founders agreed to review an anonymized prototype; no paid proof yet.',
     cta: 'Reply Monday to review a sample memo.',
     tone: 'founder-led',
@@ -124,9 +124,24 @@ await handler(contextualFallbackReq, contextualFallbackRes);
 assert.equal(contextualFallbackRes.statusCode, 200, contextualFallbackRes.body);
 const contextualFallbackPayload = parseJsonBody(contextualFallbackRes);
 assert.match(contextualFallbackPayload.icpSnapshot.buyingTrigger, /reconcile cash|risk too late/i);
-assert.equal(contextualFallbackPayload.positioningAngles[0].target, 'Founder or CEO');
+assert.equal(contextualFallbackPayload.positioningAngles[0].target, 'Founder or CEO who owns runway decisions and weekly pipeline reviews');
 assert.match(contextualFallbackPayload.emails[0].body, /Monday memo|runway risk/i);
 assert.doesNotMatch(JSON.stringify(contextualFallbackPayload), /referrals|doing their own outbound|fuzzy positioning/i);
+const renderedFallbackAssets = JSON.stringify({
+  diagnosticNotes: contextualFallbackPayload.diagnosticNotes,
+  icpSnapshot: contextualFallbackPayload.icpSnapshot,
+  positioningAngles: contextualFallbackPayload.positioningAngles,
+  emails: contextualFallbackPayload.emails,
+  subjectLines: contextualFallbackPayload.subjectLines,
+  linkedinMessages: contextualFallbackPayload.linkedinMessages,
+  objectionReplies: contextualFallbackPayload.objectionReplies,
+});
+assert.doesNotMatch(renderedFallbackAssets, /(?<!\.)\.\.(?!\.)|\.\?|\.:/);
+assert.equal(contextualFallbackPayload.subjectLines.every((subject) => subject.length <= 92), true);
+assert.match(contextualFallbackPayload.emails[0].body, /risk too late\./);
+assert.match(contextualFallbackPayload.linkedinMessages[0].body, /risk too late\. Thought/);
+assert.match(contextualFallbackPayload.emails[0].body, /If this outcome matters right now/);
+assert.doesNotMatch(renderedFallbackAssets, /If Get one|If outbound is still on your plate/);
 
 const fetchCalls = [];
 globalThis.fetch = async (url, options = {}) => {

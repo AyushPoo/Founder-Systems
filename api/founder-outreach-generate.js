@@ -269,31 +269,36 @@ function truncateSentence(value, maxLength) {
   return `${text.slice(0, Math.max(0, maxLength - 3)).trim()}...`;
 }
 
+function trimTerminalPunctuation(value) {
+  return cleanText(value).replace(/[.!?]+$/g, '');
+}
+
 function buildFallbackSubjects(input) {
-  const product = input.productName || 'your offer';
-  const customer = input.targetCustomer || 'founders';
-  const outcome = input.desiredOutcome || 'a better next step';
+  const product = trimTerminalPunctuation(input.productName) || 'your offer';
+  const customer = trimTerminalPunctuation(input.targetCustomer) || 'founders';
+  const outcome = trimTerminalPunctuation(input.desiredOutcome) || 'a better next step';
+  const buyerRole = trimTerminalPunctuation(input.buyerRole) || 'the team';
 
   return [
     `Idea for ${customer}: ${outcome}`,
     `${product}: a clearer path to ${outcome}`,
     `Worth pressure-testing this workflow?`,
-    `Quick angle for ${input.buyerRole || 'the team'} at ${product}`,
+    `Quick angle for ${buyerRole} at ${product}`,
     `A practical next step for ${customer}`,
     `Could this help with ${outcome}?`,
-  ];
+  ].map((subject) => truncateSentence(subject, 92));
 }
 
 function buildFallbackCampaign(input) {
-  const product = input.productName || 'Founder Outreach Kit';
-  const customer = input.targetCustomer || 'early-stage founders';
-  const buyerRole = input.buyerRole || 'Founder';
-  const offer = input.offer || 'a focused offer for this buyer';
-  const painPoint = input.painPoint || 'the current workflow is costly and frustrating';
-  const desiredOutcome = input.desiredOutcome || 'make meaningful progress';
-  const cta = input.cta || 'Open to a quick look?';
-  const proof = input.proof || 'No proof provided yet';
-  const triggerEvent = input.triggerEvent || painPoint;
+  const product = trimTerminalPunctuation(input.productName) || 'Founder Outreach Kit';
+  const customer = trimTerminalPunctuation(input.targetCustomer) || 'early-stage founders';
+  const buyerRole = trimTerminalPunctuation(input.buyerRole) || 'Founder';
+  const offer = trimTerminalPunctuation(input.offer) || 'a focused offer for this buyer';
+  const painPoint = trimTerminalPunctuation(input.painPoint) || 'the current workflow is costly and frustrating';
+  const desiredOutcome = trimTerminalPunctuation(input.desiredOutcome) || 'make meaningful progress';
+  const cta = cleanText(input.cta) || 'Open to a quick look?';
+  const proof = trimTerminalPunctuation(input.proof) || 'No proof provided yet';
+  const triggerEvent = trimTerminalPunctuation(input.triggerEvent) || painPoint;
   const channels = cleanList(input.channels);
   const primaryChannel = channels[0] || 'email';
   const subjectLines = buildFallbackSubjects(input);
@@ -314,7 +319,7 @@ function buildFallbackCampaign(input) {
       buyerRole,
       painIntensity: `Pain centers on: ${painPoint}`,
       buyingTrigger: triggerEvent,
-      whyTheyRespond: `They want ${desiredOutcome}.`,
+      whyTheyRespond: `Their stated outcome is: ${desiredOutcome}.`,
     },
     positioningAngles: [
       {
@@ -327,7 +332,7 @@ function buildFallbackCampaign(input) {
       {
         name: 'Outcome path',
         target: customer,
-        angle: `Show how ${offer} supports this result: ${desiredOutcome}.`,
+        angle: `Connect this offer to the stated outcome: ${desiredOutcome}.`,
         whyItWorks: 'It connects the promised deliverable to the stated outcome.',
         openingStyle: 'Outcome-led opener',
       },
@@ -347,9 +352,9 @@ function buildFallbackCampaign(input) {
         title: 'Cold opener',
         subject: subjectLines[0],
         body: [
-          `${customer} often face this problem: ${painPoint}`,
-          `${product} is built around a focused outcome: ${offer}`,
-          `If ${desiredOutcome} matters right now, ${cta}`,
+          `A common problem in this segment is: ${painPoint}.`,
+          `${product} is built around a focused outcome: ${offer}.`,
+          `If this outcome matters right now (${desiredOutcome}), ${cta}`,
         ].join('\n\n'),
         delayDays: 0,
       },
@@ -358,7 +363,7 @@ function buildFallbackCampaign(input) {
         title: 'Problem reframing',
         subject: subjectLines[1],
         body: [
-          `The useful shift is to start with the real trigger: ${triggerEvent}`,
+          `The useful shift is to start with the real trigger: ${triggerEvent}.`,
           `The intended outcome is straightforward: ${desiredOutcome}.`,
           `Happy to show what that could look like for ${customer}.`,
         ].join('\n\n'),
@@ -370,7 +375,7 @@ function buildFallbackCampaign(input) {
         subject: subjectLines[2],
         body: [
           `One thing to be direct about is the evidence behind this offer.`,
-          proof === 'No proof provided yet' ? 'There is no proof supplied yet, so this should stay a validation conversation.' : `Current proof: ${proof}`,
+          proof === 'No proof provided yet' ? 'There is no proof supplied yet, so this should stay a validation conversation.' : `Current proof: ${proof}.`,
           `If useful, I can share a concrete example of ${offer}.`,
         ].join('\n\n'),
         delayDays: 5,
@@ -380,7 +385,7 @@ function buildFallbackCampaign(input) {
         title: 'Low-friction close',
         subject: subjectLines[3],
         body: [
-          `Closing the loop in case this problem is still live: ${painPoint}`,
+          `Closing the loop in case this problem is still live: ${painPoint}.`,
           `${product} is built for teams that want ${desiredOutcome}.`,
           `${cta}`,
         ].join('\n\n'),
@@ -392,23 +397,23 @@ function buildFallbackCampaign(input) {
       {
         step: 'connection_request',
         body: truncateSentence(
-          `Working with ${customer} around this problem: ${painPoint} Thought it might be relevant to your current priorities.`,
+          `Working with ${customer} around this problem: ${painPoint}. Thought it might be relevant to your current priorities.`,
           260
         ),
       },
       {
         step: 'day_2_follow_up',
-        body: `Thanks for connecting. The short version: ${product} is designed to help ${customer} ${desiredOutcome}.`,
+        body: `Thanks for connecting. The short version: ${product} is designed to help ${customer} achieve this outcome: ${desiredOutcome}.`,
       },
       {
         step: 'day_5_nudge',
-        body: `If outbound is still on your plate, I can send over a tighter message angle built around ${triggerEvent}.`,
+        body: `If this problem is still active, I can send over a tighter message angle built around ${triggerEvent}.`,
       },
     ],
     objectionReplies: [
       {
         objection: 'Not interested',
-        reply: `Fair enough. If ${desiredOutcome} becomes more urgent later, I can send a tighter example built around your exact offer.`,
+        reply: `Fair enough. If this outcome becomes more urgent later (${desiredOutcome}), I can send a tighter example built around your exact offer.`,
       },
       {
         objection: 'We already do outbound',
