@@ -272,15 +272,15 @@ function truncateSentence(value, maxLength) {
 function buildFallbackSubjects(input) {
   const product = input.productName || 'your offer';
   const customer = input.targetCustomer || 'founders';
-  const outcome = input.desiredOutcome || 'more replies';
+  const outcome = input.desiredOutcome || 'a better next step';
 
   return [
-    `Idea for ${customer} who want ${outcome}`,
-    `${product}: a cleaner way to start outbound`,
-    `Worth pressure-testing your current outreach?`,
+    `Idea for ${customer}: ${outcome}`,
+    `${product}: a clearer path to ${outcome}`,
+    `Worth pressure-testing this workflow?`,
     `Quick angle for ${input.buyerRole || 'the team'} at ${product}`,
-    `A tighter outbound sequence for ${customer}`,
-    `Could this help you get ${outcome}?`,
+    `A practical next step for ${customer}`,
+    `Could this help with ${outcome}?`,
   ];
 }
 
@@ -288,12 +288,12 @@ function buildFallbackCampaign(input) {
   const product = input.productName || 'Founder Outreach Kit';
   const customer = input.targetCustomer || 'early-stage founders';
   const buyerRole = input.buyerRole || 'Founder';
-  const offer = input.offer || 'a founder-led outbound campaign generator';
-  const painPoint = input.painPoint || 'outbound feels vague and inconsistent';
-  const desiredOutcome = input.desiredOutcome || 'book more qualified calls';
+  const offer = input.offer || 'a focused offer for this buyer';
+  const painPoint = input.painPoint || 'the current workflow is costly and frustrating';
+  const desiredOutcome = input.desiredOutcome || 'make meaningful progress';
   const cta = input.cta || 'Open to a quick look?';
   const proof = input.proof || 'No proof provided yet';
-  const triggerEvent = input.triggerEvent || 'pipeline feels too dependent on referrals';
+  const triggerEvent = input.triggerEvent || painPoint;
   const channels = cleanList(input.channels);
   const primaryChannel = channels[0] || 'email';
   const subjectLines = buildFallbackSubjects(input);
@@ -306,36 +306,38 @@ function buildFallbackCampaign(input) {
     ],
     fixBeforeSending: [
       'Add one concrete proof point, even if it is a small case study or a quantified founder result.',
-      'Tighten the CTA so the ask feels easy to answer in one line.',
-      'Pressure-test the offer against a sharper trigger event before sending at scale.',
+      'Confirm the CTA is easy to answer in one line.',
+      'Pressure-test the stated trigger event before sending at scale.',
     ],
     icpSnapshot: {
       customer,
       buyerRole,
-      painIntensity: 'High when founder-led sales is still manual',
+      painIntensity: `Pain centers on: ${painPoint}`,
       buyingTrigger: triggerEvent,
-      whyTheyRespond: `They want ${desiredOutcome} without sounding templated or hiring outbound help too early.`,
+      whyTheyRespond: `They want ${desiredOutcome}.`,
     },
     positioningAngles: [
       {
-        name: 'Blank-page pain',
-        target: `${buyerRole}s doing their own outbound`,
-        angle: `Turn ${painPoint} into a sendable sequence in one sitting.`,
-        whyItWorks: 'It names the immediate friction instead of promising abstract growth.',
+        name: 'Current pain',
+        target: buyerRole,
+        angle: `Address the immediate problem directly: ${painPoint}`,
+        whyItWorks: 'It starts with the stated workflow pain rather than an invented trigger.',
         openingStyle: 'Direct pain opener',
       },
       {
-        name: 'Founder-speed angle',
+        name: 'Outcome path',
         target: customer,
-        angle: `Use ${offer} to shorten the time between rough positioning and first outreach.`,
-        whyItWorks: 'It respects that the buyer cares about speed and control more than fancy automation.',
-        openingStyle: 'Fast-path opener',
+        angle: `Show how ${offer} supports this result: ${desiredOutcome}.`,
+        whyItWorks: 'It connects the promised deliverable to the stated outcome.',
+        openingStyle: 'Outcome-led opener',
       },
       {
-        name: 'Signal-over-volume angle',
+        name: 'Credibility angle',
         target: customer,
-        angle: `Send fewer, sharper messages that are tied to the buyer's real trigger instead of blasting generic copy.`,
-        whyItWorks: 'It differentiates from spammy outbound and makes the campaign feel more credible.',
+        angle: proof === 'No proof provided yet'
+          ? 'Be explicit that validation is still early rather than overstating confidence.'
+          : `Lead with the available proof without overstating it: ${proof}`,
+        whyItWorks: 'It keeps the campaign honest about the strength of the evidence.',
         openingStyle: 'Credibility opener',
       },
     ],
@@ -345,9 +347,9 @@ function buildFallbackCampaign(input) {
         title: 'Cold opener',
         subject: subjectLines[0],
         body: [
-          `Saw that ${customer} often hit the same wall: ${painPoint}.`,
-          `${product} helps a ${buyerRole.toLowerCase()} turn a rough offer into a usable outbound sequence without defaulting to generic SaaS copy.`,
-          `If ${desiredOutcome} is a priority right now, ${cta}`,
+          `${customer} often face this problem: ${painPoint}`,
+          `${product} is built around a focused outcome: ${offer}`,
+          `If ${desiredOutcome} matters right now, ${cta}`,
         ].join('\n\n'),
         delayDays: 0,
       },
@@ -356,9 +358,9 @@ function buildFallbackCampaign(input) {
         title: 'Problem reframing',
         subject: subjectLines[1],
         body: [
-          `Most founder-led outbound underperforms because the message tries to sound polished before the positioning is actually sharp.`,
-          `The useful shift is to anchor each touchpoint around one buyer trigger, one believable promise, and one clear next step.`,
-          `Happy to show what that would look like for ${customer}.`,
+          `The useful shift is to start with the real trigger: ${triggerEvent}`,
+          `The intended outcome is straightforward: ${desiredOutcome}.`,
+          `Happy to show what that could look like for ${customer}.`,
         ].join('\n\n'),
         delayDays: 2,
       },
@@ -367,9 +369,9 @@ function buildFallbackCampaign(input) {
         title: 'Proof and specificity follow-up',
         subject: subjectLines[2],
         body: [
-          `One thing I would fix before scaling outreach: the proof layer still feels light.`,
-          `Even a small result, teardown, or founder example can make the offer easier to trust.`,
-          `If useful, I can sketch a version of the sequence that leans harder on specificity.`,
+          `One thing to be direct about is the evidence behind this offer.`,
+          proof === 'No proof provided yet' ? 'There is no proof supplied yet, so this should stay a validation conversation.' : `Current proof: ${proof}`,
+          `If useful, I can share a concrete example of ${offer}.`,
         ].join('\n\n'),
         delayDays: 5,
       },
@@ -378,8 +380,8 @@ function buildFallbackCampaign(input) {
         title: 'Low-friction close',
         subject: subjectLines[3],
         body: [
-          `Closing the loop in case outbound is back on the list for this quarter.`,
-          `${product} is built for teams that want ${desiredOutcome} without spending weeks rewriting copy.`,
+          `Closing the loop in case this problem is still live: ${painPoint}`,
+          `${product} is built for teams that want ${desiredOutcome}.`,
           `${cta}`,
         ].join('\n\n'),
         delayDays: 8,
@@ -390,13 +392,13 @@ function buildFallbackCampaign(input) {
       {
         step: 'connection_request',
         body: truncateSentence(
-          `Working on founder-led outbound for ${customer}. Thought a sharper angle on ${painPoint} might be relevant to what you are building.`,
+          `Working with ${customer} around this problem: ${painPoint} Thought it might be relevant to your current priorities.`,
           260
         ),
       },
       {
         step: 'day_2_follow_up',
-        body: `Thanks for connecting. The short version: ${product} helps founders turn fuzzy positioning into a campaign that actually sounds like a person wrote it.`,
+        body: `Thanks for connecting. The short version: ${product} is designed to help ${customer} ${desiredOutcome}.`,
       },
       {
         step: 'day_5_nudge',
@@ -410,11 +412,11 @@ function buildFallbackCampaign(input) {
       },
       {
         objection: 'We already do outbound',
-        reply: `Makes sense. The gap is usually not sending volume, it is whether the sequence is anchored to one clear buyer trigger and believable proof.`,
+        reply: `Makes sense. The question is whether ${painPoint} is already solved well enough, or whether a focused alternative is worth reviewing.`,
       },
       {
         objection: 'No time right now',
-        reply: `Understood. That is exactly why I would keep this lightweight: one sharper angle, one rewritten opener, and a sequence you can edit instead of start from scratch.`,
+        reply: `Understood. That is why the next step stays small: ${cta}`,
       },
       {
         objection: 'Need to see proof',

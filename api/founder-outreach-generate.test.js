@@ -104,6 +104,30 @@ assert.equal(fallbackPayload.ok, true);
 assert.equal(fallbackPayload.emails.length >= 4, true);
 assert.equal(fallbackPayload.diagnosticNotes.some((note) => /socket hang up/i.test(note)), true);
 
+const contextualFallbackReq = {
+  method: 'POST',
+  body: {
+    productName: 'SignalMonday',
+    offer: 'Turn weekly Stripe and CRM exports into one Monday memo with one runway risk and one pipeline action.',
+    targetCustomer: 'Bootstrapped B2B SaaS founders',
+    buyerRole: 'Founder or CEO',
+    painPoint: 'Every Monday they reconcile cash and CRM sheets, then find risk too late.',
+    desiredOutcome: 'Get one trusted Monday action memo by 9 AM',
+    proof: 'Three founders agreed to review an anonymized prototype; no paid proof yet.',
+    cta: 'Reply Monday to review a sample memo.',
+    tone: 'founder-led',
+    channels: ['email', 'linkedin'],
+  },
+};
+const contextualFallbackRes = createResponse();
+await handler(contextualFallbackReq, contextualFallbackRes);
+assert.equal(contextualFallbackRes.statusCode, 200, contextualFallbackRes.body);
+const contextualFallbackPayload = parseJsonBody(contextualFallbackRes);
+assert.match(contextualFallbackPayload.icpSnapshot.buyingTrigger, /reconcile cash|risk too late/i);
+assert.equal(contextualFallbackPayload.positioningAngles[0].target, 'Founder or CEO');
+assert.match(contextualFallbackPayload.emails[0].body, /Monday memo|runway risk/i);
+assert.doesNotMatch(JSON.stringify(contextualFallbackPayload), /referrals|doing their own outbound|fuzzy positioning/i);
+
 const fetchCalls = [];
 globalThis.fetch = async (url, options = {}) => {
   if (String(url).endsWith('/auth/session')) {
