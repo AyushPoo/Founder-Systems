@@ -15,6 +15,16 @@ if (!globalThis.__founderSystemsRateLimitStore) {
 }
 
 const PRODUCT_POLICIES = {
+  'founder-spec-generator': {
+    productSlug: 'founder-spec-generator',
+    usageAction: 'generate',
+    reserveCredits: 2,
+    modelTier: 'quality',
+    maxRequestsPerWindow: 5,
+    windowMs: ONE_HOUR_MS,
+    maxOutputTokens: 1200,
+    temperature: 0.1,
+  },
   'founder-update-generator': {
     productSlug: 'founder-update-generator',
     usageAction: 'generate',

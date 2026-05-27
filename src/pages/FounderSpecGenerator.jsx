@@ -21,7 +21,8 @@ import {
 } from '../utils/founderCopilotSession';
 import { buildSpecMemoryCandidates } from '../utils/workspaceMemory';
 
-const API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
+const CONVERSATION_API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
+const FINAL_API_URL = '/api/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
 const MAX_ATTACHMENT_CHARS = 1800;
 const MAX_ATTACHMENTS = 4;
@@ -280,13 +281,19 @@ const FounderSpecGenerator = () => {
     };
   }, [authenticated, fetchRecommendations, session.brief, session.recommendation, session.verdict]);
 
-  async function submitPayload({ message = '', selection = null, nextSession = session, documents = [] }) {
+  async function submitPayload({
+    message = '',
+    selection = null,
+    nextSession = session,
+    documents = [],
+    apiUrl = CONVERSATION_API_URL,
+  }) {
     setLoading(true);
     setError('');
     setCopied(false);
 
     try {
-      const response = await fetch(API_URL, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -417,6 +424,7 @@ const FounderSpecGenerator = () => {
       message: 'Generate the founder verdict and spec now.',
       selection: { id: 'generate_founder_spec', title: 'Generate founder spec' },
       nextSession: session,
+      apiUrl: FINAL_API_URL,
     });
   }
 
