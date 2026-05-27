@@ -116,6 +116,10 @@ await handler(request, fallbackRes);
 assert.equal(fallbackRes.statusCode, 200, fallbackRes.body);
 assert.equal(parseJsonBody(fallbackRes).runtime.fallbackUsed, true);
 assert.match(parseJsonBody(fallbackRes).markdown, /runtime unavailable|lower-confidence/i);
+assert.equal(Boolean(parseJsonBody(fallbackRes).brief.excludedFeatures), true);
+assert.equal(Boolean(parseJsonBody(fallbackRes).evidence[0].title), true);
+assert.equal(Boolean(parseJsonBody(fallbackRes).evidence[0].summary), true);
+assert.doesNotMatch(parseJsonBody(fallbackRes).brief.problem, /Generate the founder verdict/i);
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 
 globalThis.fetch = async (url) => {

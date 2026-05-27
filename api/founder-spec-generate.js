@@ -30,6 +30,7 @@ const RESPONSE_SHAPE = {
     icp: '',
     wedge: '',
     mvpScope: '',
+    excludedFeatures: '',
     pricingHypothesis: '',
     gtmPlan: '',
     next30Days: '',
@@ -132,8 +133,12 @@ function normalizeFinalPlan(rawOutput, body) {
 function buildDegradedFinalPlan(body, reason) {
   const contextLines = recentConversation(body)
     .filter((line) => line.toLowerCase().startsWith('user:'))
-    .map((line) => line.replace(/^user:\s*/i, ''));
-  const statedContext = cleanText(contextLines.join(' ')).slice(0, 800);
+    .map((line) => line.replace(/^user:\s*/i, ''))
+    .filter((line) => !/^generate the founder verdict and spec now\.?$/i.test(line));
+  const completeContext = cleanText(contextLines.join(' '));
+  const statedContext = completeContext.length > 800
+    ? `${completeContext.slice(0, 797).trim()}...`
+    : completeContext;
   const limitation = cleanText(reason) || 'The live model runtime is unavailable.';
 
   return {
@@ -157,8 +162,8 @@ function buildDegradedFinalPlan(body, reason) {
     },
     evidence: [
       {
-        claim: 'Founder-provided context',
-        basis: statedContext || 'No detailed context was available.',
+        title: 'Founder-provided context',
+        summary: statedContext || 'No detailed context was available.',
       },
     ],
     inference: [
@@ -190,6 +195,7 @@ function buildDegradedFinalPlan(body, reason) {
       icp: 'Use the narrowly described user segment from the founder context.',
       wedge: 'Deliver one trusted recurring decision brief before expanding the product.',
       mvpScope: 'Manual or lightweight generation of one concise decision memo from supplied context.',
+      excludedFeatures: 'Do not build broad dashboards, live integrations, or workflow automation before demand and trust are validated.',
       pricingHypothesis: 'Test willingness to pay directly before committing to a price point.',
       gtmPlan: 'Start with reachable users already named in the founder context.',
       next30Days: 'Run interviews, deliver manual samples, test price, and document objections.',
