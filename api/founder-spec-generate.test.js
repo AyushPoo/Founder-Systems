@@ -120,6 +120,30 @@ assert.equal(Boolean(parseJsonBody(fallbackRes).brief.excludedFeatures), true);
 assert.equal(Boolean(parseJsonBody(fallbackRes).evidence[0].title), true);
 assert.equal(Boolean(parseJsonBody(fallbackRes).evidence[0].summary), true);
 assert.doesNotMatch(parseJsonBody(fallbackRes).brief.problem, /Generate the founder verdict/i);
+
+const longContextFallbackRes = createResponse();
+await handler({
+  ...request,
+  body: {
+    ...request.body,
+    session: {
+      ...request.body.session,
+      messages: [
+        {
+          role: 'user',
+          content: `Initial context: ${'cash visibility and pipeline reconciliation. '.repeat(24)}`,
+        },
+        {
+          role: 'user',
+          content: 'Second signal: eight reachable founders agreed to review an anonymized memo prototype.',
+        },
+      ],
+    },
+  },
+}, longContextFallbackRes);
+assert.equal(longContextFallbackRes.statusCode, 200, longContextFallbackRes.body);
+assert.match(parseJsonBody(longContextFallbackRes).brief.problem, /- Initial context:/);
+assert.match(parseJsonBody(longContextFallbackRes).brief.problem, /\n- Second signal:/);
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 
 globalThis.fetch = async (url) => {

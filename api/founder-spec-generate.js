@@ -135,10 +135,14 @@ function buildDegradedFinalPlan(body, reason) {
     .filter((line) => line.toLowerCase().startsWith('user:'))
     .map((line) => line.replace(/^user:\s*/i, ''))
     .filter((line) => !/^generate the founder verdict and spec now\.?$/i.test(line));
-  const completeContext = cleanText(contextLines.join(' '));
-  const statedContext = completeContext.length > 800
-    ? `${completeContext.slice(0, 797).trim()}...`
-    : completeContext;
+  const lineBudget = contextLines.length
+    ? Math.floor((800 - (contextLines.length * 3)) / contextLines.length)
+    : 0;
+  const statedContext = contextLines
+    .map((line) => (
+      `- ${line.length > lineBudget ? `${line.slice(0, lineBudget - 3).trim()}...` : line}`
+    ))
+    .join('\n');
   const limitation = cleanText(reason) || 'The live model runtime is unavailable.';
 
   return {
