@@ -89,8 +89,8 @@ const PRODUCT_POLICIES = {
 
 const BEDROCK_MODEL_IDS = {
   cheap: 'amazon.nova-micro-v1:0',
-  quality: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
-  premium: 'us.anthropic.claude-sonnet-4-6',
+  quality: 'amazon.nova-lite-v1:0',
+  premium: 'amazon.nova-pro-v1:0',
 };
 
 const TEXT_FORMATS = new Set(['txt', 'md', 'html', 'csv']);
@@ -318,10 +318,10 @@ function countEstimatedInputChars(userPrompt, files = []) {
 }
 
 export function estimateReservedOutputTokens(outputTokenCap, credits = 1) {
-  const creditAwareEstimate = 500 + (Math.max(1, Number(credits) || 1) * 75);
+  const creditAwareEstimate = 450 + (Math.max(1, Number(credits) || 1) * 50);
   return Math.min(
     clampNumber(outputTokenCap, 64, 4000, 700),
-    clampNumber(creditAwareEstimate, 500, 800, 700)
+    clampNumber(creditAwareEstimate, 450, 500, 500)
   );
 }
 

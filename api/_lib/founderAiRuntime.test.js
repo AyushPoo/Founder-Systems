@@ -9,7 +9,7 @@ import {
 
 test('getBedrockModelId returns cheap defaults and supports quality tier', () => {
   assert.equal(getBedrockModelId('cheap'), 'amazon.nova-micro-v1:0');
-  assert.equal(getBedrockModelId('quality'), 'us.anthropic.claude-haiku-4-5-20251001-v1:0');
+  assert.equal(getBedrockModelId('quality'), 'amazon.nova-lite-v1:0');
 });
 
 test('consumeProductRateLimit throws after the configured window budget is exhausted', () => {
@@ -56,8 +56,8 @@ test('consumeProductRateLimit ignores spoofable email headers when deriving iden
 });
 
 test('estimateReservedOutputTokens keeps guard estimates below oversized model caps', () => {
-  assert.equal(estimateReservedOutputTokens(2400, 4), 800);
-  assert.equal(estimateReservedOutputTokens(2200, 3), 725);
+  assert.equal(estimateReservedOutputTokens(2400, 4), 500);
+  assert.equal(estimateReservedOutputTokens(2200, 3), 500);
   assert.equal(estimateReservedOutputTokens(500, 1), 500);
 });
 
