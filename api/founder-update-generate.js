@@ -47,6 +47,10 @@ function cleanText(value) {
   return String(value ?? '').trim();
 }
 
+function cleanList(values) {
+  return Array.isArray(values) ? values.map(cleanText).filter(Boolean) : [];
+}
+
 function isJsonParseError(error) {
   return error instanceof SyntaxError;
 }
@@ -161,6 +165,90 @@ function splitFounderStatements(value) {
     .map((statement) => cleanText(statement))
     .filter(Boolean)
     .slice(0, 8);
+}
+
+function getFounderEvidenceText(input = {}) {
+  return [
+    cleanText(input.contextNotes),
+    cleanText(input.pastedNotes),
+    ...(Array.isArray(input.files) ? input.files.map((file) => cleanText(file.filename)) : []),
+  ].filter(Boolean).join(' ').toLowerCase();
+}
+
+function hasExplicitReportingPeriod(input = {}) {
+  const evidence = getFounderEvidenceText(input);
+  return /\b(q[1-4]|fy\s?\d{2,4}|20\d{2}|jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b/i.test(evidence);
+}
+
+function isSupportedByFounderEvidence(claim, evidenceText) {
+  const normalizedClaim = cleanText(claim).toLowerCase();
+  if (!normalizedClaim) return false;
+
+  const metricSignals = ['mrr', 'arr', 'pipeline', 'cash', 'churn', 'revenue', 'burn', 'runway'];
+  if (metricSignals.some((signal) => normalizedClaim.includes(signal) && evidenceText.includes(signal))) {
+    return true;
+  }
+
+  const ignoredWords = new Set([
+    'successfully',
+    'contributing',
+    'reflects',
+    'based',
+    'internal',
+    'metrics',
+    'customer',
+    'customers',
+    'clients',
+  ]);
+  const claimWords = normalizedClaim
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((word) => word.length >= 5 && !ignoredWords.has(word));
+
+  const matchedWords = claimWords.filter((word) => evidenceText.includes(word));
+  return matchedWords.length >= 2;
+}
+
+function firstSupportedWinFromInput(input = {}) {
+  const statements = splitFounderStatements(`${input.contextNotes || ''} ${input.pastedNotes || ''}`);
+  return statements.find((statement) => /\b(grew|growth|increased|improved|expanded|shipped|signed|won)\b/i.test(statement));
+}
+
+function repairFounderUpdateOutput(output, input) {
+  const evidenceText = getFounderEvidenceText(input);
+  const nextOutput = {
+    ...output,
+    confidenceGaps: cleanList(output.confidenceGaps),
+  };
+
+  if (!hasExplicitReportingPeriod(input)) {
+    const suppliedPeriod = cleanText(nextOutput.reportingPeriod);
+    if (suppliedPeriod && suppliedPeriod.toLowerCase() !== 'current period') {
+      nextOutput.confidenceGaps.push(`Reporting period was not supplied, so the model-proposed period "${suppliedPeriod}" was replaced.`);
+    }
+    nextOutput.reportingPeriod = 'Current period';
+  }
+
+  const wins = cleanList(nextOutput.wins);
+  const supportedWins = wins.filter((win) => isSupportedByFounderEvidence(win, evidenceText));
+  const removedWins = wins.filter((win) => !supportedWins.includes(win));
+
+  if (removedWins.length > 0) {
+    nextOutput.confidenceGaps.push(
+      ...removedWins.map((win) => `Unsupported win removed from draft: ${win}`)
+    );
+  }
+
+  if (supportedWins.length === 0) {
+    const inputWin = firstSupportedWinFromInput(input);
+    nextOutput.wins = inputWin
+      ? [`Founder-provided positive signal: ${inputWin}`]
+      : ['No source-backed win was supplied; keep this section cautious.'];
+  } else {
+    nextOutput.wins = supportedWins;
+  }
+
+  return nextOutput;
 }
 
 function getReadableFilePreview(file = {}) {
@@ -286,12 +374,13 @@ export default async function handler(req, res) {
 
     applyRateLimitHeaders(res, modelResult.rateLimit);
     const rawOutput = modelResult.parsed;
+    const repairedOutput = repairFounderUpdateOutput(rawOutput, normalized);
     const normalizedOutput = normalizeFounderUpdateResponse({
-      ...rawOutput,
-      title: rawOutput?.title || 'Founder update',
+      ...repairedOutput,
+      title: repairedOutput?.title || 'Founder update',
       sourceFiles:
-        Array.isArray(rawOutput?.sourceFiles) && rawOutput.sourceFiles.length > 0
-          ? rawOutput.sourceFiles
+        Array.isArray(repairedOutput?.sourceFiles) && repairedOutput.sourceFiles.length > 0
+          ? repairedOutput.sourceFiles
           : normalized.files.map((file) => file.filename),
     });
 
