@@ -16,6 +16,9 @@ const SYSTEM_PROMPT = [
   'Turn messy founder materials into one concise, honest founder update.',
   'Prioritize signal, not completeness.',
   'Surface weak evidence instead of hiding it.',
+  'Do not invent reporting periods, wins, customers, launches, dates, or causes that are not stated in the source material.',
+  'If the reporting period is not explicitly provided, use "Current period" and note the missing period in confidenceGaps.',
+  'Treat every claim as evidence-bound: unsupported positives belong in confidenceGaps, not wins.',
   'Always return valid JSON only.',
 ].join('\n');
 
@@ -96,6 +99,9 @@ function buildFounderUpdatePrompt(input) {
     `Source files: ${input.files.map((file) => file.filename).join(', ')}`,
     '',
     'Return one founder-ready update with signal-first sections.',
+    'Only include wins that are directly supported by notes or files.',
+    'Do not infer a calendar month or year unless the input states it.',
+    'If a metric improved, describe the metric movement without inventing the operational cause.',
     'Match this shape and keep every top-level key present:',
     JSON.stringify(RESPONSE_SHAPE, null, 2),
     '',

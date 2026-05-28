@@ -246,7 +246,7 @@ assert.equal(liveRes.statusCode, 200);
 assert.equal(fetchCalls.length, 1);
 assert.match(fetchCalls[0].url, /bedrock-runtime\..+\/model\/.+\/converse$/i);
 assert.equal(fetchCalls[0].headers.Authorization, 'Bearer test-key');
-assert.equal(JSON.parse(fetchCalls[0].body).inferenceConfig.maxTokens, 950);
+assert.equal(JSON.parse(fetchCalls[0].body).inferenceConfig.maxTokens, 2200);
 assert.equal(JSON.parse(fetchCalls[0].body).inferenceConfig.temperature, 0.1);
 const livePayload = parseJsonBody(liveRes);
 assert.equal(livePayload.ok, true);

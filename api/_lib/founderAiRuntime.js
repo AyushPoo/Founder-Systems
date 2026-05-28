@@ -82,7 +82,7 @@ const PRODUCT_POLICIES = {
     modelTier: 'cheap',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
-    maxOutputTokens: 950,
+    maxOutputTokens: 2200,
     temperature: 0.1,
   },
 };

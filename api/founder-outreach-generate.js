@@ -705,7 +705,7 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
       productKey: 'founder-outreach-kit',
       systemPrompt,
       userPrompt,
-      maxOutputTokens: 950,
+      maxOutputTokens: 2200,
       modelTier: 'cheap',
     });
     return {
