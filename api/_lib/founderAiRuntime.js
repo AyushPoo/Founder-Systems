@@ -89,8 +89,8 @@ const PRODUCT_POLICIES = {
 
 const BEDROCK_MODEL_IDS = {
   cheap: 'amazon.nova-micro-v1:0',
-  quality: 'anthropic.claude-haiku-4-5-20251001-v1:0',
-  premium: 'anthropic.claude-sonnet-4-6',
+  quality: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+  premium: 'us.anthropic.claude-sonnet-4-6',
 };
 
 const TEXT_FORMATS = new Set(['txt', 'md', 'html', 'csv']);
