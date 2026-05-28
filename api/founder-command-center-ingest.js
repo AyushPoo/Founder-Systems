@@ -44,18 +44,73 @@ function buildFallbackFindings(files = [], notes = '') {
     };
   });
 
-  return [
-    ...uploadedFindings,
-    notes
-      ? {
+  const noteFindings = notes
+    ? [
+        {
           type: 'priority',
           label: 'Founder note',
           text: `Founder-provided note: ${notes}`,
           area: 'strategy',
           confidence: 'confirmed',
-        }
-      : null,
+        },
+        ...extractNoteSignals(notes),
+      ]
+    : [];
+
+  return [
+    ...uploadedFindings,
+    ...noteFindings,
   ].filter(Boolean);
+}
+
+function extractNoteSignals(notes = '') {
+  const text = cleanText(notes);
+  const lower = text.toLowerCase();
+  const findings = [];
+
+  const mrrMatch = text.match(/mrr\s+grew\s+from\s+([^,.;]+?)\s+to\s+([^,.;]+)/i);
+  if (mrrMatch) {
+    findings.push({
+      type: 'metric',
+      label: 'MRR growth',
+      text: `MRR grew from ${mrrMatch[1].trim()} to ${mrrMatch[2].trim()}.`,
+      area: 'finance',
+      confidence: 'confirmed',
+    });
+  }
+
+  const cashMatch = text.match(/cash collection\s+slipped\s+from\s+([^,.;]+?)\s+to\s+([^,.;]+)/i);
+  if (cashMatch) {
+    findings.push({
+      type: 'risk',
+      label: 'Cash collection pressure',
+      text: `Cash collection slipped from ${cashMatch[1].trim()} to ${cashMatch[2].trim()} despite revenue growth.`,
+      area: 'finance',
+      confidence: 'confirmed',
+    });
+  }
+
+  if (/churn risk|onboarding delay|delayed onboarding/.test(lower)) {
+    findings.push({
+      type: 'risk',
+      label: 'Onboarding churn risk',
+      text: 'Two accounts have churn risk because onboarding is delayed.',
+      area: 'customer',
+      confidence: 'confirmed',
+    });
+  }
+
+  if (/hiring.*paused|paused.*hiring/.test(lower)) {
+    findings.push({
+      type: 'risk',
+      label: 'Hiring pause',
+      text: 'Hiring is paused until collections recover, which may constrain delivery capacity.',
+      area: 'hiring',
+      confidence: 'confirmed',
+    });
+  }
+
+  return findings;
 }
 
 export default async function handler(req, res) {

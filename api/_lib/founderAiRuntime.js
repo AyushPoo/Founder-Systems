@@ -79,7 +79,7 @@ const PRODUCT_POLICIES = {
     productSlug: 'founder-outreach-kit',
     usageAction: 'generate',
     reserveCredits: 3,
-    modelTier: 'cheap',
+    modelTier: 'quality',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
     maxOutputTokens: 2200,

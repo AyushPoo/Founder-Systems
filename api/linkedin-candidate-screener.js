@@ -188,7 +188,15 @@ export default async function handler(req, res) {
     const parsed = normalizeLinkedinCandidateResponse(modelResult.parsed);
 
     if (!parsed.ok) {
-      writeJson(res, 502, { error: parsed.error });
+      applyRateLimitHeaders(res, modelResult.rateLimit);
+      writeJson(res, 200, {
+        ok: true,
+        ...buildFallbackResponse(request),
+        runtime: {
+          fallbackUsed: true,
+          fallbackReason: parsed.error || 'Model-backed candidate screen was incomplete.',
+        },
+      });
       return;
     }
 
@@ -199,8 +207,13 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     applyRateLimitHeaders(res, error?.rateLimit);
-    writeJson(res, Number.isInteger(error?.statusCode) ? error.statusCode : 502, {
-      error: cleanText(error?.message) || 'LinkedIn candidate screener generation failed.',
+    writeJson(res, 200, {
+      ok: true,
+      ...buildFallbackResponse(request),
+      runtime: {
+        fallbackUsed: true,
+        fallbackReason: cleanText(error?.message) || 'LinkedIn candidate screener generation failed.',
+      },
     });
   }
 }
