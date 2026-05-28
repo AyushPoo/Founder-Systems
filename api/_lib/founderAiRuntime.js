@@ -317,6 +317,14 @@ function countEstimatedInputChars(userPrompt, files = []) {
   return Math.max(0, cleanText(userPrompt).length + fileChars);
 }
 
+export function estimateReservedOutputTokens(outputTokenCap, credits = 1) {
+  const creditAwareEstimate = 700 + (Math.max(1, Number(credits) || 1) * 125);
+  return Math.min(
+    clampNumber(outputTokenCap, 64, 4000, 700),
+    clampNumber(creditAwareEstimate, 700, 1400, 900)
+  );
+}
+
 function extractTokenUsage(payload = {}) {
   const usage =
     payload?.usage ||
@@ -471,10 +479,11 @@ export async function invokeFounderJsonModel({
           provider: 'bedrock',
           model_id: modelId,
           estimated_input_chars: countEstimatedInputChars(userPrompt, files),
-          estimated_output_tokens: outputTokenCap,
+          estimated_output_tokens: estimateReservedOutputTokens(outputTokenCap, usageConfig.credits),
           metadata: {
             product_key: productKey,
             model_tier: selectedModelTier,
+            requested_output_token_cap: outputTokenCap,
           },
         },
       });

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   consumeProductRateLimit,
+  estimateReservedOutputTokens,
   getBedrockModelId,
 } from './founderAiRuntime.js';
 
@@ -52,6 +53,12 @@ test('consumeProductRateLimit ignores spoofable email headers when deriving iden
     () => consumeProductRateLimit('founder-update-generator', secondReq),
     /temporarily rate-limited/i
   );
+});
+
+test('estimateReservedOutputTokens keeps guard estimates below oversized model caps', () => {
+  assert.equal(estimateReservedOutputTokens(2400, 4), 1200);
+  assert.equal(estimateReservedOutputTokens(2200, 3), 1075);
+  assert.equal(estimateReservedOutputTokens(500, 1), 500);
 });
 
 console.log('founderAiRuntime tests passed');
