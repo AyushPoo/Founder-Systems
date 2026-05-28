@@ -21,7 +21,7 @@ import {
 } from '../utils/founderCopilotSession';
 import { buildSpecMemoryCandidates } from '../utils/workspaceMemory';
 
-const CONVERSATION_API_URL = 'https://n8n.foundersystems.in/webhook/founder-spec-generate';
+const CONVERSATION_API_URL = '/api/founder-spec-conversation';
 const FINAL_API_URL = '/api/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
 const MAX_ATTACHMENT_CHARS = 1800;

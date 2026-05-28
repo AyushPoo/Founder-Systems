@@ -99,6 +99,9 @@
     "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
+    "priceInr": 499,
+    "priceUsd": 6,
+    "creditPrice": 5,
     "thumbnail": "/images/products/founder-spec-generator/thumbnail.svg",
     "launchUrl": "/tools/founder-spec-generator"
   },
@@ -108,6 +111,9 @@
     "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
     "category": "Strategy",
     "productId": "FS013",
+    "priceInr": 399,
+    "priceUsd": 5,
+    "creditPrice": 4,
     "thumbnail": "/images/products/founder-pdf-summarizer/thumbnail.svg",
     "launchUrl": "/tools/founder-pdf-summarizer"
   },
@@ -117,6 +123,9 @@
     "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
     "category": "Strategy",
     "productId": "FS014",
+    "priceInr": 299,
+    "priceUsd": 4,
+    "creditPrice": 2,
     "thumbnail": "/images/products/founder-update-generator/thumbnail.svg",
     "launchUrl": "/tools/founder-update-generator"
   },
@@ -126,6 +135,9 @@
     "description": "One place to see what is happening across your company, what changed, and what needs attention next.",
     "category": "Strategy",
     "productId": "FS016",
+    "priceInr": 299,
+    "priceUsd": 4,
+    "creditPrice": 2,
     "thumbnail": "/images/products/founder-command-center/thumbnail.svg",
     "launchUrl": "/tools/founder-command-center"
   },
@@ -135,6 +147,9 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
+    "priceInr": 399,
+    "priceUsd": 5,
+    "creditPrice": 3,
     "thumbnail": "/images/products/founder-outreach-kit/thumbnail.svg",
     "launchUrl": "/tools/founder-outreach-kit"
   },
@@ -144,6 +159,9 @@
     "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
     "category": "Hiring Tools",
     "productId": "FS015",
+    "priceInr": 199,
+    "priceUsd": 3,
+    "creditPrice": 1,
     "thumbnail": "/images/products/linkedin-candidate-screener/thumbnail.svg",
     "launchUrl": "/tools/linkedin-candidate-screener"
   }

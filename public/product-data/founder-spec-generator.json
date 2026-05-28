@@ -47,8 +47,8 @@
       "desc": "The output can lean India-first, global-first, or mixed depending on the market you want to target."
     }
   ],
-  "footerSummaryTitle": "Beta Access",
-  "footerSummaryDetails": "(Free while we validate and tighten the output quality).",
+  "footerSummaryTitle": "Pricing",
+  "footerSummaryDetails": "Includes one free beta strategy draft, then 4 credits per final plan or a low-friction one-time unlock.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A founder-ready execution spec you can refine, share, and build from.",
   "whatYouGet": [
@@ -92,6 +92,9 @@
     "/images/products/founder-spec-generator/preview-2.png",
     "/images/products/founder-spec-generator/preview-3.png"
   ],
+  "priceInr": 499,
+  "priceUsd": 6,
+  "creditPrice": 5,
   "launchUrl": "/tools/founder-spec-generator",
   "category": "Strategy"
 }

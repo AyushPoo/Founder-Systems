@@ -176,6 +176,40 @@ const DEEP_LINKS = [
   { to: '/tools/founder-outreach-kit', label: 'Go deeper: GTM' },
 ];
 
+function buildPreviewMemoryItems(result) {
+  if (!result) {
+    return [];
+  }
+
+  const companySummary = result.companySummary
+    ? [{
+        id: 'latest-refresh-company-summary',
+        type: 'update',
+        label: 'Latest refresh summary',
+        summary_text: result.companySummary,
+        value_json: { text: result.companySummary, area: 'strategy' },
+        source_product: 'founder-command-center-ingest',
+        confidence: 'confirmed',
+        created_at: new Date().toISOString(),
+      }]
+    : [];
+
+  const findings = Array.isArray(result.findings)
+    ? result.findings.map((item, index) => ({
+        id: `latest-refresh-${index}`,
+        type: item.type || 'fact',
+        label: item.label || `Refresh finding ${index + 1}`,
+        summary_text: item.text,
+        value_json: { text: item.text, area: item.area || 'general' },
+        source_product: 'founder-command-center-ingest',
+        confidence: item.confidence || 'inferred',
+        created_at: new Date().toISOString(),
+      }))
+    : [];
+
+  return [...companySummary, ...findings];
+}
+
 const FounderCommandCenterWorkspace = () => {
   const fileInputRef = useRef(null);
   const {
@@ -193,15 +227,26 @@ const FounderCommandCenterWorkspace = () => {
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
   const [copyState, setCopyState] = useState(false);
+  const previewMemoryItems = useMemo(() => buildPreviewMemoryItems(result), [result]);
 
-  const snapshot = useMemo(
+  const memorySnapshot = useMemo(
     () => buildFounderCommandCenterSnapshot({ memoryItems }),
     [memoryItems],
   );
-  const sections = useMemo(
+  const memorySections = useMemo(
     () => buildFounderCommandCenterSections({ memoryItems }),
     [memoryItems],
   );
+  const previewSnapshot = useMemo(
+    () => buildFounderCommandCenterSnapshot({ memoryItems: previewMemoryItems }),
+    [previewMemoryItems],
+  );
+  const previewSections = useMemo(
+    () => buildFounderCommandCenterSections({ memoryItems: previewMemoryItems }),
+    [previewMemoryItems],
+  );
+  const snapshot = result ? previewSnapshot : memorySnapshot;
+  const sections = result ? previewSections : memorySections;
   const editableItems = useMemo(
     () => extractEditableMemoryItems(memoryItems).slice(0, 6),
     [memoryItems],
@@ -403,6 +448,11 @@ const FounderCommandCenterWorkspace = () => {
             {notice ? (
               <p className="mt-3 rounded-[14px] border border-brand-black/10 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-black/68">
                 {notice}
+              </p>
+            ) : null}
+            {result ? (
+              <p className="mt-3 rounded-[14px] border border-brand-black/10 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-black/68">
+                Showing the latest refresh only. Older workspace memory is still saved below, but it is not blended into this refreshed snapshot until you confirm it is still relevant.
               </p>
             ) : null}
             {error ? (

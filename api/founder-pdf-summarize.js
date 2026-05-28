@@ -281,7 +281,7 @@ async function summarizeWithModel(req, input) {
     userPrompt: buildUserPrompt(input),
     files: [input],
     modelTier,
-    maxOutputTokens: modelTier === 'quality' ? 950 : 700,
+    maxOutputTokens: modelTier === 'quality' ? 1800 : 1400,
   });
 }
 
@@ -332,7 +332,7 @@ async function summarizeWorkspaceWithModel(req, { focus = '', fileAnalyses = [],
       invalidFiles,
     }),
     modelTier: 'quality',
-    maxOutputTokens: 1100,
+    maxOutputTokens: 2400,
     usage: {
       action: 'analyze_workspace',
     },

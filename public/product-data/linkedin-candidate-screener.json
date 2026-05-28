@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Chrome Extension",
-  "footerSummaryDetails": "(Landing page on Founder Systems, with installation through the Chrome Web Store listing).",
+  "footerSummaryDetails": "(3 free screens to start, then 1 credit per candidate screen through the Chrome extension workflow).",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A fast first-pass candidate screen with recruiter notes your team can scan, discuss, and reuse.",
   "whatYouGet": [
@@ -80,6 +80,9 @@
   "images": [
     "/images/products/linkedin-candidate-screener/thumbnail.svg"
   ],
+  "priceInr": 199,
+  "priceUsd": 3,
+  "creditPrice": 1,
   "launchUrl": "/tools/linkedin-candidate-screener",
   "category": "Hiring Tools"
 }

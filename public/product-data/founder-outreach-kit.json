@@ -43,8 +43,8 @@
       "desc": "Useful when the founder is still doing early outbound, refining positioning, and learning from objections in real time."
     }
   ],
-  "footerSummaryTitle": "Beta Access",
-  "footerSummaryDetails": "(Free beta with open access while we validate the workflow and tighten the output quality).",
+  "footerSummaryTitle": "Pricing",
+  "footerSummaryDetails": "Includes one free beta campaign preview, then 3 credits per generated campaign or a one-time unlock.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A structured outbound campaign with strategist notes, sendable messages, objection replies, exports, and local saves.",
   "whatYouGet": [
@@ -55,7 +55,7 @@
     "Copy actions for individual assets",
     "CSV export for operational use",
     "Local campaign saves on your device",
-    "Free beta access"
+    "Credit-based campaign generation"
   ],
   "whoThisIsFor": [
     "Founders shaping outbound before hiring a growth team.",
@@ -66,7 +66,7 @@
   "faq": [
     {
       "q": "Is this free to use right now?",
-      "a": "Yes. The current beta is open access and free while we validate the workflow."
+      "a": "The beta includes a free campaign preview. Full generation and repeated usage are credit-based so output quality and model spend stay controlled."
     },
     {
       "q": "Does it save my campaigns?",
@@ -84,6 +84,9 @@
     "/images/products/founder-outreach-kit/preview-3.png",
     "/images/products/founder-outreach-kit/preview-4.png"
   ],
+  "priceInr": 399,
+  "priceUsd": 5,
+  "creditPrice": 3,
   "launchUrl": "/tools/founder-outreach-kit",
   "category": "Marketing Tools"
 }

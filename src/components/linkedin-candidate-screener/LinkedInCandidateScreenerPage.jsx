@@ -1,4 +1,16 @@
+import { useState } from 'react';
+
 const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/linkedin-candidate-screener';
+
+const EMPTY_FORM = {
+  fullName: '',
+  headline: '',
+  currentCompany: '',
+  profileNotes: '',
+  skills: '',
+  jobDescription: '',
+  resumeText: '',
+};
 
 function MetaPill({ children }) {
   return (
@@ -25,6 +37,48 @@ function ListBlock({ title, items }) {
   );
 }
 
+function formatLabel(value) {
+  return String(value || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function splitLines(value) {
+  return String(value || '')
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function ResultBlock({ result }) {
+  if (!result) {
+    return null;
+  }
+
+  return (
+    <section className="rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
+      <div className="border-b border-brand-black/7 px-4 py-3">
+        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
+          Live screen result
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <MetaPill>{formatLabel(result.verdict)}</MetaPill>
+          <MetaPill>{formatLabel(result.confidence)} confidence</MetaPill>
+        </div>
+      </div>
+      <div className="space-y-3 px-4 py-4">
+        <p className="rounded-[14px] border border-brand-black/8 bg-brand-cream/16 px-3.5 py-3 text-[13px] font-medium leading-6 text-brand-black/74">
+          {result.candidateSummary}
+        </p>
+        <ListBlock title="Fit signals" items={result.fitSignals || []} />
+        <ListBlock title="Gaps or risks" items={result.gapsOrRisks || []} />
+        <ListBlock title="Interview checks" items={result.interviewChecks || []} />
+        <ListBlock title="Recruiter notes" items={result.recruiterNotes || []} />
+      </div>
+    </section>
+  );
+}
+
 const sampleResult = {
   verdict: 'Potential fit',
   confidence: 'Medium confidence',
@@ -46,6 +100,63 @@ const sampleResult = {
 };
 
 const LinkedInCandidateScreenerPage = () => {
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  function updateField(field, value) {
+    setForm((current) => ({ ...current, [field]: value }));
+    setError('');
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    if (loading) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    try {
+      const response = await fetch('/api/linkedin-candidate-screener', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobDescription: form.jobDescription,
+          resumeText: form.resumeText,
+          includeActivity: Boolean(form.profileNotes),
+          includeExternalLinks: false,
+          profile: {
+            fullName: form.fullName,
+            headline: form.headline,
+            currentCompany: form.currentCompany,
+            about: form.profileNotes,
+            experience: splitLines(form.profileNotes),
+            skills: splitLines(form.skills),
+          },
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok || payload.error) {
+        throw new Error(payload.error || 'Candidate screen failed. Please retry with profile and role details.');
+      }
+
+      setResult(payload);
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : 'Candidate screen failed. Please retry with profile and role details.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-4 rounded-[20px] border border-brand-black/10 bg-white px-4 py-4 shadow-[0_14px_30px_rgba(27,28,26,0.05)] lg:flex-row lg:items-end lg:justify-between">
@@ -79,6 +190,87 @@ const LinkedInCandidateScreenerPage = () => {
 
       <div className="grid gap-4 xl:grid-cols-[minmax(620px,1fr)_430px] xl:gap-5">
         <div className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-[20px] border border-brand-black/7 bg-white px-4 py-4 shadow-[0_10px_28px_rgba(27,28,26,0.035)]"
+          >
+            <div className="flex flex-col gap-2 border-b border-brand-black/7 pb-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
+                  Test a live screen
+                </p>
+                <p className="mt-1 text-[13px] font-medium text-brand-black/52">
+                  Use this web fallback when the extension workflow is not available during QA.
+                </p>
+              </div>
+              <MetaPill>1 credit after free screens</MetaPill>
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <input
+                value={form.fullName}
+                onChange={(event) => updateField('fullName', event.target.value)}
+                placeholder="Candidate name"
+                className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
+              />
+              <input
+                value={form.headline}
+                onChange={(event) => updateField('headline', event.target.value)}
+                placeholder="LinkedIn headline"
+                className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
+              />
+              <input
+                value={form.currentCompany}
+                onChange={(event) => updateField('currentCompany', event.target.value)}
+                placeholder="Current company"
+                className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
+              />
+              <input
+                value={form.skills}
+                onChange={(event) => updateField('skills', event.target.value)}
+                placeholder="Skills, comma-separated"
+                className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
+              />
+            </div>
+            <textarea
+              value={form.jobDescription}
+              onChange={(event) => updateField('jobDescription', event.target.value)}
+              rows={4}
+              placeholder="Role or JD. Example: Founding product marketer for B2B SaaS, owns positioning, launches, customer research, and pricing narrative."
+              className="mt-3 w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
+            />
+            <textarea
+              value={form.profileNotes}
+              onChange={(event) => updateField('profileNotes', event.target.value)}
+              rows={4}
+              placeholder="Visible profile notes, experience bullets, or recent activity."
+              className="mt-3 w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
+            />
+            <textarea
+              value={form.resumeText}
+              onChange={(event) => updateField('resumeText', event.target.value)}
+              rows={3}
+              placeholder="Optional resume text for higher-confidence screening."
+              className="mt-3 w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
+            />
+
+            {error ? (
+              <p className="mt-3 rounded-[14px] border border-[#d9485f]/20 bg-[#fff1f3] px-3.5 py-2 text-[12.5px] font-semibold text-[#b42318]">
+                {error}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-3 rounded-full border border-brand-black bg-brand-orange px-4 py-2 text-[12px] font-black uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? 'Screening...' : 'Screen candidate'}
+            </button>
+          </form>
+
+          <ResultBlock result={result} />
+
           <div className="grid gap-4 md:grid-cols-3">
             <ListBlock
               title="How it works"

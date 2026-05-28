@@ -68,4 +68,22 @@ assert.deepEqual(
   ['metric', 'priority', 'risk'],
 );
 
+const refreshOnlySnapshot = buildFounderCommandCenterSnapshot({
+  memoryItems: [
+    {
+      id: 'latest',
+      type: 'metric',
+      label: 'MRR',
+      summary_text: 'MRR increased from 8.2L to 9.1L INR.',
+      value_json: { area: 'finance', text: 'MRR increased from 8.2L to 9.1L INR.' },
+      source_product: 'founder-command-center-ingest',
+      confidence: 'confirmed',
+      created_at: '2026-05-20T12:00:00.000Z',
+    },
+  ],
+  now: '2026-05-20T12:00:00.000Z',
+});
+assert.match(refreshOnlySnapshot.companySummary, /9\.1L INR/);
+assert.doesNotMatch(refreshOnlySnapshot.companySummary, /Runway pressure/);
+
 console.log('founderCommandCenterMemory tests passed');

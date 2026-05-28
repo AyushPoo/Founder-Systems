@@ -51,8 +51,8 @@
       "desc": "The same tool can help on decks, memos, grants, annual reports, market research, and financing files."
     }
   ],
-  "footerSummaryTitle": "Beta Access",
-  "footerSummaryDetails": "(Free while we validate quality, file limits, and the strongest document modes).",
+  "footerSummaryTitle": "Pricing",
+  "footerSummaryDetails": "Includes two free small beta summaries, then 2 credits for standard analysis and 5 credits for quality, SAFE, or multi-file synthesis.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A concise founder-ready summary you can copy, export, and use as a decision brief.",
   "whatYouGet": [
@@ -89,6 +89,9 @@
   "images": [
     "/images/products/founder-pdf-summarizer/thumbnail.svg"
   ],
+  "priceInr": 399,
+  "priceUsd": 5,
+  "creditPrice": 4,
   "launchUrl": "/tools/founder-pdf-summarizer",
   "category": "Strategy"
 }

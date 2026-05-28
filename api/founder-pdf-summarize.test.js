@@ -350,7 +350,7 @@ assert.match(capturedRequests[0].url, /bedrock-runtime\..+\/model\/.+\/converse$
 assert.equal(capturedRequests[0].options.method, 'POST');
 
 const parsedBody = JSON.parse(capturedRequests[0].options.body);
-assert.equal(parsedBody.inferenceConfig.maxTokens, 950);
+assert.equal(parsedBody.inferenceConfig.maxTokens, 1800);
 assert.equal(parsedBody.messages[0].content[0].text.includes('Analyze this founder document for decision-making.'), true);
 assert.equal(parsedBody.messages[0].content[1].document.format, 'xlsx');
 assert.equal(parsedBody.messages[0].content[1].document.source.bytes, 'QUJDRA==');
