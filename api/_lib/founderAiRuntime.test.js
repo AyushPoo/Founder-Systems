@@ -56,8 +56,8 @@ test('consumeProductRateLimit ignores spoofable email headers when deriving iden
 });
 
 test('estimateReservedOutputTokens keeps guard estimates below oversized model caps', () => {
-  assert.equal(estimateReservedOutputTokens(2400, 4), 1200);
-  assert.equal(estimateReservedOutputTokens(2200, 3), 1075);
+  assert.equal(estimateReservedOutputTokens(2400, 4), 800);
+  assert.equal(estimateReservedOutputTokens(2200, 3), 725);
   assert.equal(estimateReservedOutputTokens(500, 1), 500);
 });
 

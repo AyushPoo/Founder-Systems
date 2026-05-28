@@ -318,10 +318,10 @@ function countEstimatedInputChars(userPrompt, files = []) {
 }
 
 export function estimateReservedOutputTokens(outputTokenCap, credits = 1) {
-  const creditAwareEstimate = 700 + (Math.max(1, Number(credits) || 1) * 125);
+  const creditAwareEstimate = 500 + (Math.max(1, Number(credits) || 1) * 75);
   return Math.min(
     clampNumber(outputTokenCap, 64, 4000, 700),
-    clampNumber(creditAwareEstimate, 700, 1400, 900)
+    clampNumber(creditAwareEstimate, 500, 800, 700)
   );
 }
 
