@@ -253,7 +253,7 @@ export default async function handler(req, res) {
         productKey: 'founder-spec-generator',
         systemPrompt: SYSTEM_PROMPT,
         userPrompt: buildPrompt(body),
-        maxOutputTokens: 1200,
+        maxOutputTokens: 2400,
         modelTier: 'quality',
       });
     } catch (error) {

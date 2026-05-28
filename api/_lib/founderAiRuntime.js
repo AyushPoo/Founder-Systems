@@ -22,7 +22,7 @@ const PRODUCT_POLICIES = {
     modelTier: 'quality',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
-    maxOutputTokens: 1200,
+    maxOutputTokens: 2400,
     temperature: 0.1,
   },
   'founder-update-generator': {
