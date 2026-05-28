@@ -21,6 +21,59 @@ function cleanText(value) {
   return String(value ?? '').trim();
 }
 
+const FALLBACK_STOP_WORDS = new Set([
+  'about',
+  'against',
+  'and',
+  'candidate',
+  'company',
+  'current',
+  'description',
+  'experience',
+  'founding',
+  'for',
+  'from',
+  'have',
+  'hiring',
+  'lead',
+  'manager',
+  'role',
+  'senior',
+  'team',
+  'that',
+  'the',
+  'this',
+  'with',
+]);
+
+function tokenizeFallbackText(value) {
+  return cleanText(value)
+    .toLowerCase()
+    .split(/[^a-z0-9+#]+/i)
+    .filter((token) => token.length >= 3 && !FALLBACK_STOP_WORDS.has(token));
+}
+
+function buildFallbackKeywordSet(values = []) {
+  return new Set((Array.isArray(values) ? values : [values]).flatMap(tokenizeFallbackText));
+}
+
+function scoreFallbackRoleMatch(request, profileSignals = []) {
+  const roleKeywords = buildFallbackKeywordSet(request.jobDescription);
+  const profileKeywords = buildFallbackKeywordSet(profileSignals);
+  const matchedKeywords = [...roleKeywords].filter((token) => profileKeywords.has(token));
+  const matchCount = matchedKeywords.length;
+
+  return {
+    matchedKeywords,
+    verdict:
+      matchCount >= 3
+        ? LINKEDIN_CANDIDATE_VERDICTS.strong_fit
+        : matchCount >= 1
+          ? LINKEDIN_CANDIDATE_VERDICTS.potential_fit
+          : LINKEDIN_CANDIDATE_VERDICTS.weak_fit,
+  };
+}
+
 function buildFallbackResponse(request) {
   const profileSignals = [
     request.profile.headline,
@@ -29,24 +82,26 @@ function buildFallbackResponse(request) {
     ...request.profile.skills,
   ].filter(Boolean);
 
-  const signalText = profileSignals.join(' ').toLowerCase();
-  const looksStrong =
-    signalText.includes('lead') ||
-    signalText.includes('head') ||
-    signalText.includes('manager');
+  const roleMatch = scoreFallbackRoleMatch(request, profileSignals);
   const confidence = request.resumeText ? 'medium' : 'low';
+  const hasRoleEvidence = roleMatch.matchedKeywords.length > 0;
 
   return {
-    verdict: looksStrong
-      ? LINKEDIN_CANDIDATE_VERDICTS.strong_fit
-      : LINKEDIN_CANDIDATE_VERDICTS.potential_fit,
+    verdict: roleMatch.verdict,
     confidence,
-    candidateSummary: `${request.profile.fullName || 'This candidate'} shows visible relevance to the target role, but this result is running in fallback mode without a live model-backed screen.`,
-    fitSignals: profileSignals.slice(0, 3).length
-      ? profileSignals.slice(0, 3)
+    candidateSummary: hasRoleEvidence
+      ? `${request.profile.fullName || 'This candidate'} has visible overlap with the role on ${roleMatch.matchedKeywords.slice(0, 4).join(', ')}, but this result is running in fallback mode without a live model-backed screen.`
+      : `${request.profile.fullName || 'This candidate'} has limited visible role evidence for the target job, and this result is running in fallback mode without a live model-backed screen.`,
+    fitSignals: hasRoleEvidence
+      ? roleMatch.matchedKeywords.slice(0, 4).map((token) => `Visible overlap with role keyword: ${token}.`)
+      : profileSignals.slice(0, 3).length
+        ? profileSignals.slice(0, 3)
       : ['Visible profile details suggest partial relevance to the role.'],
     gapsOrRisks: [
       'Visible profile context is limited compared with a full model-backed screen.',
+      hasRoleEvidence
+        ? 'Keyword overlap is not a substitute for validated scope, outcomes, or hiring-bar evidence.'
+        : 'Role evidence is thin in the visible profile; do not treat title seniority as role fit.',
     ],
     interviewChecks: ['Verify ownership, measurable outcomes, and role scope live.'],
     recruiterNotes: [

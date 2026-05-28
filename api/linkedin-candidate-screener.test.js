@@ -126,6 +126,36 @@ assert.equal(fallbackRes.statusCode, 200);
 assert.equal(fallbackPayload.ok, true);
 assert.equal(Array.isArray(fallbackPayload.recruiterNotes), true);
 
+const mismatchFallbackRes = createResponse();
+await handler(
+  {
+    method: 'POST',
+    body: {
+      jobDescription:
+        'Founding product marketing manager for B2B SaaS. Own launches, positioning, customer research, and pricing narrative.',
+      profile: {
+        fullName: 'Jordan Lee',
+        headline: 'Engineering Manager for infrastructure',
+        currentCompany: 'CloudOps',
+        experience: ['Led Kubernetes reliability team'],
+        skills: ['Kubernetes', 'SRE', 'Terraform'],
+      },
+    },
+  },
+  mismatchFallbackRes
+);
+
+const mismatchFallbackPayload = JSON.parse(mismatchFallbackRes.body);
+assert.equal(mismatchFallbackRes.statusCode, 200);
+assert.equal(mismatchFallbackPayload.ok, true);
+assert.notEqual(mismatchFallbackPayload.verdict, 'strong_fit');
+assert.equal(mismatchFallbackPayload.verdict, 'weak_fit');
+assert.match(mismatchFallbackPayload.candidateSummary, /limited visible role evidence|fallback mode/i);
+assert.equal(
+  mismatchFallbackPayload.gapsOrRisks.some((item) => /role evidence|model-backed/i.test(item)),
+  true
+);
+
 if (typeof originalApiKey === 'undefined') {
   delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {
