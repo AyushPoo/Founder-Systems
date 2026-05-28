@@ -68,7 +68,7 @@ function extractNoteSignals(notes = '') {
   const lower = text.toLowerCase();
   const findings = [];
 
-  const mrrMatch = text.match(/mrr\s+grew\s+from\s+([^,.;]+?)\s+to\s+([^,.;]+)/i);
+  const mrrMatch = text.match(/mrr\s+grew\s+from\s+(.+?)\s+to\s+(.+?)(?:,|\.|;|$)/i);
   if (mrrMatch) {
     findings.push({
       type: 'metric',
@@ -79,7 +79,7 @@ function extractNoteSignals(notes = '') {
     });
   }
 
-  const cashMatch = text.match(/cash collection\s+slipped\s+from\s+([^,.;]+?)\s+to\s+([^,.;]+)/i);
+  const cashMatch = text.match(/cash collection\s+slipped\s+from\s+(.+?)\s+to\s+(.+?)(?:,|\.|;|$)/i);
   if (cashMatch) {
     findings.push({
       type: 'risk',
