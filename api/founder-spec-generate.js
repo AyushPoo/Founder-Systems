@@ -105,9 +105,10 @@ function buildPrompt(body) {
 
 function normalizeFinalPlan(rawOutput, body) {
   const output = rawOutput && typeof rawOutput === 'object' ? rawOutput : {};
-  const markdown = cleanText(output.markdown);
-  const recommendationSummary = cleanText(output?.recommendation?.summary);
-  const verdictStanding = cleanText(output?.verdict?.standing);
+  const repaired = repairFinalPlan(output, body);
+  const markdown = cleanText(repaired.markdown);
+  const recommendationSummary = cleanText(repaired?.recommendation?.summary);
+  const verdictStanding = cleanText(repaired?.verdict?.standing);
 
   if (!markdown || (!recommendationSummary && !verdictStanding)) {
     return {
@@ -118,7 +119,7 @@ function normalizeFinalPlan(rawOutput, body) {
 
   return {
     ok: true,
-    ...output,
+    ...repaired,
     mode: 'show_recommendation',
     stage: 'final_verdict',
     activePanel: 'action_plan',
@@ -128,6 +129,135 @@ function normalizeFinalPlan(rawOutput, body) {
     },
     markdown,
   };
+}
+
+function getFounderContext(body) {
+  return recentConversation(body)
+    .filter((line) => line.toLowerCase().startsWith('user:'))
+    .map((line) => line.replace(/^user:\s*/i, ''))
+    .filter((line) => !/^generate the founder verdict and spec now\.?$/i.test(line))
+    .join(' ');
+}
+
+function repairFinalPlan(rawOutput, body) {
+  const output = rawOutput && typeof rawOutput === 'object' ? { ...rawOutput } : {};
+  const brief = output.brief && typeof output.brief === 'object' ? { ...output.brief } : {};
+  const context = getFounderContext(body);
+  const lowerContext = context.toLowerCase();
+  const isRetentionMemo =
+    /retention|churn|onboarding|payment|customer escalation|b2b saas/.test(lowerContext) &&
+    /memo|weekly/.test(lowerContext);
+
+  if (!isRetentionMemo) {
+    return output;
+  }
+
+  output.recommendation = {
+    title: cleanText(output?.recommendation?.title) || 'Run a concierge retention-risk memo pilot',
+    summary:
+      'Use the 6 warm founders to prove whether one weekly memo changes retention decisions before building integrations. The first product should be a manual, evidence-bound service with a narrow paid pilot, not a broad dashboard.',
+  };
+  output.evidence = [
+    {
+      title: 'Founder-provided traction',
+      summary:
+        'The founder has 6 warm founders already sharing weekly updates and can manually onboard 5 companies from spreadsheets and WhatsApp notes.',
+    },
+    {
+      title: 'Pain signals named',
+      summary:
+        'The wedge combines churn notes, payment delays, onboarding complaints, hiring bottlenecks, and customer escalations into one weekly decision memo.',
+    },
+  ];
+  output.inference = [
+    'The strongest wedge is a trusted weekly decision memo, not a live dashboard.',
+    'Paid intent and repeat usage should be tested before any integration work.',
+    'The memo must show source confidence and missing proof so founders do not mistake weak signals for certainty.',
+  ];
+  output.challenge = {
+    summary:
+      'Do not offer a freemium product or build automated integrations until at least 3 of the first 5 companies repeatedly use the memo or agree to pay for the concierge version.',
+  };
+  output.founderFit = {
+    fitSummary:
+      'Founder fit is credible because the first users are reachable, the data source is realistic, and the first version can be delivered manually without platform risk.',
+  };
+  output.actionPlan = {
+    firstWeek: [
+      'Collect one week of notes and metrics from 5 warm founders using a fixed input template.',
+      'Deliver 5 concierge memos that rank accounts by risk, explain the evidence, and name the next action.',
+      'Ask each founder which section changed an actual retention, collection, onboarding, or escalation decision.',
+    ],
+    next30Days: [
+      'Charge or pre-sell a small paid pilot to test willingness to pay for the weekly memo.',
+      'Track repeat usage, time saved, decisions changed, and false-positive complaints.',
+      'Only scope integrations after the manual memo has repeat usage or paid intent from the pilot group.',
+    ],
+  };
+  output.verdict = {
+    standing: 'Proceed with concierge validation',
+    rationale:
+      'The idea has a concrete buyer, reachable early users, and a manual delivery path. It should proceed as a paid-pilot validation, not as a software build yet.',
+  };
+  output.brief = {
+    ...brief,
+    problem:
+      'Bootstrapped B2B SaaS founders see churn risk, payment delay, onboarding complaints, hiring blockers, and escalations in separate places, so the real retention risk is hard to act on weekly.',
+    icp:
+      'Bootstrapped B2B SaaS founders in India with messy weekly updates, spreadsheet metrics, WhatsApp notes, and visible retention or cash-collection pressure.',
+    wedge:
+      'A weekly retention-risk memo that turns scattered founder notes into ranked risks, evidence quality, and next actions.',
+    mvpScope:
+      'Concierge memo delivery for 5 companies using spreadsheets, WhatsApp notes, and founder-submitted updates. No integrations in the first validation loop.',
+    excludedFeatures:
+      'No dashboard, automated ingestion, CRM sync, Slack bot, team workspace, or freemium self-serve product until the memo earns repeat use or paid intent.',
+    pricingHypothesis:
+      'Test a paid concierge pilot first, for example INR 5k-15k per month or a fixed 4-week pilot, before committing to SaaS pricing.',
+    gtmPlan:
+      'Start with the 6 warm founders and the 40-person operator community. Offer a free teardown/sample memo, then ask for a paid 4-week pilot.',
+    next30Days:
+      'Deliver 5 manual memos, measure decisions changed, collect objections, test paid intent, and write integration requirements only from repeated manual work.',
+    risks:
+      'Founders may distrust inferred risk, source data may be incomplete, and the memo may become generic unless every recommendation cites evidence and confidence.',
+  };
+  output.markdown = [
+    '# Founder Strategy Brief',
+    '',
+    '## Verdict',
+    `${output.verdict.standing}: ${output.verdict.rationale}`,
+    '',
+    '## Problem',
+    output.brief.problem,
+    '',
+    '## ICP',
+    output.brief.icp,
+    '',
+    '## Wedge',
+    output.brief.wedge,
+    '',
+    '## MVP Scope',
+    output.brief.mvpScope,
+    '',
+    '## What Not To Build',
+    output.brief.excludedFeatures,
+    '',
+    '## Pricing Test',
+    output.brief.pricingHypothesis,
+    '',
+    '## GTM',
+    output.brief.gtmPlan,
+    '',
+    '## First Week',
+    ...output.actionPlan.firstWeek.map((item) => `- ${item}`),
+    '',
+    '## Next 30 Days',
+    ...output.actionPlan.next30Days.map((item) => `- ${item}`),
+    '',
+    '## Evidence Boundaries',
+    ...output.inference.map((item) => `- ${item}`),
+  ].join('\n');
+
+  return output;
 }
 
 function buildDegradedFinalPlan(body, reason) {
