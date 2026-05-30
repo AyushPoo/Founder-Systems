@@ -255,6 +255,13 @@ assert.equal(
   livePayload.diagnosticNotes.some((note) => /local fallback scaffold/i.test(note)),
   true
 );
+assert.equal(
+  livePayload.diagnosticNotes.some((note) => /Weak model campaign sections were repaired/i.test(note)),
+  true
+);
+assert.equal(livePayload.emails.length >= 4, true);
+assert.match(livePayload.emails[0].body, /They do not know what to say in cold outreach/i);
+assert.doesNotMatch(livePayload.emails[0].body, /^Short email body$/i);
 
 globalThis.fetch = async (url) => {
   if (String(url).endsWith('/auth/session')) {

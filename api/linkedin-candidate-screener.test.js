@@ -156,6 +156,34 @@ assert.equal(
   true
 );
 
+const negatedEvidenceFallbackRes = createResponse();
+await handler(
+  {
+    method: 'POST',
+    body: {
+      jobDescription:
+        'Founding product marketing manager for B2B SaaS. Own launches, positioning, customer research, and pricing narrative.',
+      profile: {
+        fullName: 'Jordan Lee',
+        headline: 'Engineering Manager for infrastructure reliability',
+        currentCompany: 'CloudOps',
+        experience: [
+          'Led Kubernetes reliability team and managed incident response programs.',
+          'No visible launches, positioning, pricing, or customer research ownership.',
+        ],
+        skills: ['Kubernetes', 'SRE', 'incident response', 'platform engineering'],
+      },
+    },
+  },
+  negatedEvidenceFallbackRes
+);
+
+const negatedEvidenceFallbackPayload = JSON.parse(negatedEvidenceFallbackRes.body);
+assert.equal(negatedEvidenceFallbackRes.statusCode, 200);
+assert.equal(negatedEvidenceFallbackPayload.ok, true);
+assert.equal(negatedEvidenceFallbackPayload.verdict, 'weak_fit');
+assert.doesNotMatch(negatedEvidenceFallbackPayload.candidateSummary, /visible overlap.*launches/i);
+
 if (typeof originalApiKey === 'undefined') {
   delete process.env.AWS_BEARER_TOKEN_BEDROCK;
 } else {

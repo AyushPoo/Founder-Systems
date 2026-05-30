@@ -77,6 +77,7 @@ const MAX_PROMPT_LONG_FIELD_CHARS = 600;
 const MAX_PROMPT_LIST_ITEMS = 6;
 const MAX_PROMPT_ATTACHMENTS = 2;
 const MAX_ATTACHMENT_EXCERPT_CHARS = 1400;
+const MIN_USEFUL_EMAIL_CHARS = 120;
 
 function json(res, status, body) {
   res.statusCode = status;
@@ -625,6 +626,108 @@ function mergeCampaignWithFallback(rawCampaign, fallbackCampaign) {
   return merged;
 }
 
+function countInputMatches(value, input) {
+  const haystack = cleanText(value).toLowerCase();
+  if (!haystack) {
+    return 0;
+  }
+
+  const phrases = [
+    input.productName,
+    input.offer,
+    input.targetCustomer,
+    input.buyerRole,
+    input.painPoint,
+    input.desiredOutcome,
+    input.proof,
+    input.pricing,
+    input.cta,
+    input.triggerEvent,
+  ]
+    .map((phrase) => cleanText(phrase).toLowerCase())
+    .filter((phrase) => phrase.length >= 12);
+
+  return phrases.filter((phrase) => haystack.includes(phrase.slice(0, Math.min(phrase.length, 52)))).length;
+}
+
+function hasGenericOutreachDrift(value) {
+  return /\b(automate risk tracking|scale risk management|saves time, reduces errors|last chance pilot|free sample inside|pilot offer\?|confirm pilot\?)\b/i.test(
+    cleanText(value)
+  );
+}
+
+function isUsefulEmail(email = {}, input) {
+  const body = cleanText(email.body);
+  if (body.length < MIN_USEFUL_EMAIL_CHARS) {
+    return false;
+  }
+
+  const combined = `${email.subject || ''}\n${body}`;
+  if (hasGenericOutreachDrift(combined)) {
+    return false;
+  }
+
+  return countInputMatches(combined, input) >= 1;
+}
+
+function isUsefulAngle(angle = {}, input) {
+  const combined = `${angle.name || ''}\n${angle.target || ''}\n${angle.angle || ''}\n${angle.whyItWorks || ''}`;
+  if (hasGenericOutreachDrift(combined)) {
+    return false;
+  }
+
+  return countInputMatches(combined, input) >= 1;
+}
+
+function repairWeakCampaignOutput(campaign, fallbackCampaign, input) {
+  const repairs = [];
+  const emails = Array.isArray(campaign.emails) ? campaign.emails : [];
+  const angles = Array.isArray(campaign.positioningAngles) ? campaign.positioningAngles : [];
+  const subjectLines = Array.isArray(campaign.subjectLines) ? campaign.subjectLines : [];
+
+  let repaired = campaign;
+
+  if (emails.length < 3 || emails.some((email) => !isUsefulEmail(email, input))) {
+    repairs.push('emails');
+    repaired = {
+      ...repaired,
+      emails: fallbackCampaign.emails,
+    };
+  }
+
+  if (angles.length < 3 || angles.some((angle) => !isUsefulAngle(angle, input))) {
+    repairs.push('positioningAngles');
+    repaired = {
+      ...repaired,
+      positioningAngles: fallbackCampaign.positioningAngles,
+    };
+  }
+
+  if (
+    subjectLines.length < 4 ||
+    subjectLines.some((subject) => hasGenericOutreachDrift(subject) || cleanText(subject).length < 8)
+  ) {
+    repairs.push('subjectLines');
+    repaired = {
+      ...repaired,
+      subjectLines: fallbackCampaign.subjectLines,
+    };
+  }
+
+  if (repairs.length === 0) {
+    return repaired;
+  }
+
+  return {
+    ...repaired,
+    diagnosticNotes: [
+      `Weak model campaign sections were repaired from the founder-specific scaffold: ${repairs.join(', ')}.`,
+      ...cleanList(repaired.diagnosticNotes),
+    ],
+    fixBeforeSending: cleanList(repaired.fixBeforeSending).filter((item) => !hasGenericOutreachDrift(item)),
+  };
+}
+
 function buildChatCompletionsPayload({ systemPrompt, userPrompt, model, maxOutputTokens, temperature }) {
   return {
     model,
@@ -706,7 +809,7 @@ async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) 
       systemPrompt,
       userPrompt,
       maxOutputTokens: 2200,
-      modelTier: 'cheap',
+      modelTier: 'quality',
     });
     return {
       ...modelResult.parsed,
@@ -753,7 +856,12 @@ export default async function handler(req, res) {
     });
     applyRateLimitHeaders(res, rawOutput.__rateLimit);
     delete rawOutput.__rateLimit;
-    const hydratedOutput = mergeCampaignWithFallback(rawOutput, buildFallbackCampaign(normalized));
+    const fallbackCampaign = buildFallbackCampaign(normalized);
+    const hydratedOutput = repairWeakCampaignOutput(
+      mergeCampaignWithFallback(rawOutput, fallbackCampaign),
+      fallbackCampaign,
+      normalized
+    );
 
     const withMetadata = {
       ...hydratedOutput,

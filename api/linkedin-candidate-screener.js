@@ -57,10 +57,23 @@ function buildFallbackKeywordSet(values = []) {
   return new Set((Array.isArray(values) ? values : [values]).flatMap(tokenizeFallbackText));
 }
 
+function isNegatedFallbackKeyword(text, token) {
+  const escapedToken = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(
+    `\\b(?:no|not|without|lacks?|missing|thin)\\b[^.\\n;]{0,80}\\b${escapedToken}\\b`,
+    'i'
+  ).test(cleanText(text));
+}
+
 function scoreFallbackRoleMatch(request, profileSignals = []) {
   const roleKeywords = buildFallbackKeywordSet(request.jobDescription);
-  const profileKeywords = buildFallbackKeywordSet(profileSignals);
-  const matchedKeywords = [...roleKeywords].filter((token) => profileKeywords.has(token));
+  const profileTexts = Array.isArray(profileSignals) ? profileSignals.map(cleanText).filter(Boolean) : [];
+  const profileKeywords = buildFallbackKeywordSet(profileTexts);
+  const matchedKeywords = [...roleKeywords].filter(
+    (token) =>
+      profileKeywords.has(token) &&
+      profileTexts.some((text) => tokenizeFallbackText(text).includes(token) && !isNegatedFallbackKeyword(text, token))
+  );
   const matchCount = matchedKeywords.length;
 
   return {
