@@ -274,6 +274,24 @@ function trimTerminalPunctuation(value) {
   return cleanText(value).replace(/[.!?]+$/g, '');
 }
 
+function toLowerSentenceFragment(value) {
+  const text = trimTerminalPunctuation(value);
+  if (!text) {
+    return '';
+  }
+  return `${text.charAt(0).toLowerCase()}${text.slice(1)}`;
+}
+
+function toGerundPhrase(value) {
+  const text = toLowerSentenceFragment(value);
+  return text
+    .replace(/^get\b/i, 'getting')
+    .replace(/^turn\b/i, 'turning')
+    .replace(/^book\b/i, 'booking')
+    .replace(/^make\b/i, 'making')
+    .replace(/^send\b/i, 'sending');
+}
+
 function buildFallbackSubjects(input) {
   const product = trimTerminalPunctuation(input.productName) || 'your offer';
 
@@ -294,6 +312,8 @@ function buildFallbackCampaign(input) {
   const offer = trimTerminalPunctuation(input.offer) || 'a focused offer for this buyer';
   const painPoint = trimTerminalPunctuation(input.painPoint) || 'the current workflow is costly and frustrating';
   const desiredOutcome = trimTerminalPunctuation(input.desiredOutcome) || 'make meaningful progress';
+  const offerFragment = toGerundPhrase(offer);
+  const desiredOutcomeFragment = toGerundPhrase(desiredOutcome);
   const cta = cleanText(input.cta) || 'Open to a quick look?';
   const proof = trimTerminalPunctuation(input.proof) || 'No proof provided yet';
   const triggerEvent = trimTerminalPunctuation(input.triggerEvent) || painPoint;
@@ -351,7 +371,7 @@ function buildFallbackCampaign(input) {
         subject: subjectLines[0],
         body: [
           `Noticed a pattern with ${customer}: ${painPoint}.`,
-          `${product} turns that into ${offer}.`,
+          `${product} helps with ${offerFragment}.`,
           proof === 'No proof provided yet' ? `If this is live for you, ${cta}` : `Current proof: ${proof}. ${cta}`,
         ].join('\n\n'),
         delayDays: 0,
@@ -386,7 +406,7 @@ function buildFallbackCampaign(input) {
         subject: subjectLines[3],
         body: [
           `Closing the loop in case this is still showing up: ${painPoint}.`,
-          `${product} is probably only worth a look if ${desiredOutcome} would change your week.`,
+          `${product} is probably only worth a look if ${desiredOutcomeFragment} would change your week.`,
           `${cta}`,
         ].join('\n\n'),
         delayDays: 8,
@@ -413,7 +433,7 @@ function buildFallbackCampaign(input) {
     objectionReplies: [
       {
         objection: 'Not interested',
-        reply: `Fair enough. If this outcome becomes more urgent later (${desiredOutcome}), I can send a tighter example built around your exact offer.`,
+        reply: `Fair enough. If ${desiredOutcomeFragment} becomes more urgent later, I can send a tighter example built around your exact offer.`,
       },
       {
         objection: 'We already do outbound',

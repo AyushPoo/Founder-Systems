@@ -41,6 +41,32 @@ function toCard(item = {}, now = Date.now()) {
   };
 }
 
+function cardSignature(card = {}) {
+  const text = cleanText(card.text).toLowerCase();
+  const area = cleanText(card.area).toLowerCase();
+  if (text) {
+    return `${area}|${text}`;
+  }
+
+  return [
+    cleanText(card.type).toLowerCase(),
+    cleanText(card.label).toLowerCase(),
+    area,
+  ].join('|');
+}
+
+function dedupeCards(cards = []) {
+  const seen = new Set();
+  return cards.filter((card) => {
+    const signature = cardSignature(card);
+    if (seen.has(signature)) {
+      return false;
+    }
+    seen.add(signature);
+    return true;
+  });
+}
+
 function sortRecent(items = [], now = Date.now()) {
   return [...items].sort((left, right) => {
     return toCard(left, now).ageDays - toCard(right, now).ageDays;
@@ -60,7 +86,7 @@ export function summarizeMemoryFreshness(memoryItems = [], now = Date.now()) {
 
 export function buildFounderCommandCenterSnapshot({ memoryItems = [], now = Date.now() } = {}) {
   const list = toList(memoryItems);
-  const recent = sortRecent(list, now).map((item) => toCard(item, now));
+  const recent = dedupeCards(sortRecent(list, now).map((item) => toCard(item, now)));
   const metrics = recent.filter((item) => item.type === 'metric');
   const risks = recent.filter((item) => item.type === 'risk');
 
@@ -74,13 +100,16 @@ export function buildFounderCommandCenterSnapshot({ memoryItems = [], now = Date
 }
 
 export function buildFounderCommandCenterSections({ memoryItems = [], now = Date.now() } = {}) {
-  const cards = toList(memoryItems).map((item) => toCard(item, now));
+  const cards = dedupeCards(toList(memoryItems).map((item) => toCard(item, now)));
   return {
     strategy: {
       items: cards.filter((item) => item.area === 'strategy' || item.type === 'priority' || item.type === 'question'),
     },
     finance: {
-      items: cards.filter((item) => item.area === 'finance' || item.type === 'metric' || item.type === 'risk'),
+      items: cards.filter((item) => item.area === 'finance' || (item.type === 'metric' && item.area === 'general')),
+    },
+    customer: {
+      items: cards.filter((item) => item.area === 'customer'),
     },
     fundraising: {
       items: cards.filter((item) => item.area === 'fundraising' || item.type === 'document'),
@@ -101,7 +130,6 @@ export function buildFounderCommandCenterSections({ memoryItems = [], now = Date
 }
 
 export function extractEditableMemoryItems(memoryItems = [], now = Date.now()) {
-  return toList(memoryItems)
-    .map((item) => toCard(item, now))
+  return dedupeCards(toList(memoryItems).map((item) => toCard(item, now)))
     .filter((item) => ['metric', 'priority', 'risk', 'fact', 'update'].includes(item.type));
 }

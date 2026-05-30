@@ -572,6 +572,7 @@ const FounderCommandCenterWorkspace = () => {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:col-span-2">
         <SectionCard title="Strategy" items={sections.strategy.items} />
         <SectionCard title="Finance" items={sections.finance.items} />
+        <SectionCard title="Customer" items={sections.customer.items} />
         <SectionCard title="Fundraising" items={sections.fundraising.items} />
         <SectionCard title="GTM" items={sections.gtm.items} />
         <SectionCard title="Hiring" items={sections.hiring.items} />

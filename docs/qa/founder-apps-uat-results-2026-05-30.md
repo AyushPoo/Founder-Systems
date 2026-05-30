@@ -80,7 +80,7 @@ Covered:
 
 Residual risk:
 
-- Copy is now specific and usable, but some repaired fallback sentences are still slightly verbose. This is polish, not a blocker.
+- Repaired fallback copy now avoids awkward leading-verb phrases such as `if Get one...`; remaining copy polish is editorial, not functional.
 - Conversational intake can still mis-map answers if the user ignores the current question; the approval step allows correction before generation.
 
 ### Founder Document Intelligence
@@ -179,11 +179,9 @@ Error quality:
 ## Open Items
 
 - P2: Outreach generated email bodies need more depth and personalization to reach 9/10.
-- P2: Outreach repaired fallback copy is usable but can still be tightened for more natural sentence shape.
-- P2: Command Center should deduplicate repeated QA memory candidates.
-- P2: Command Center section classification should avoid putting all risks into Finance when the area is customer or hiring.
-- P3: Build still emits the known Vite chunk-size warning.
+- P3: Further Outreach copy polish can improve tone, but generated assets are specific and usable.
+- P3: Command Center could add richer customer/fundraising drill-downs later, but repeated signals and customer/hiring risk classification are fixed.
 
 ## UAT Judgment
 
-No P0/P1 blockers were found after fresh automated, API, production, and signed-in browser verification. The scoped apps are functionally stable enough for controlled production use. Remaining work is polish: Outreach copy smoothness, Command Center memory dedupe/section cleanup, and bundle chunk-size optimization.
+No P0/P1 blockers were found after fresh automated, API, production, and signed-in browser verification. The scoped apps are functionally stable enough for controlled production use. The final polish pass fixed Outreach fallback sentence shape, Command Center dedupe/section classification, and the prior Vite chunk-size warning.
