@@ -11,7 +11,7 @@ The scoped apps are substantially production-safe after the stabilization fixes.
 
 A fresh production edge sweep on 2026-05-30 caught one additional Command Center parsing issue: decimal metrics such as `$48.5k` were truncated to `$48` by the prior live deployment. The parser has been fixed, covered with a regression test, deployed, and retested successfully against production.
 
-The main remaining caveat is signed-in browser automation: Chrome was not running during this UAT turn, and the selected Chrome profile did not have the Codex extension installed. Because of that, the signed-in UI walkthrough could not be freshly repeated in this run. Previous signed-in production checks were completed on 2026-05-28, and this run adds fresh automated and API-level verification.
+Signed-in browser UAT was completed after Chrome was launched with the extension-enabled `Ayush` profile. This pass found and fixed two additional issues: Outreach model output could return too-thin/generic campaign assets, and the LinkedIn web fallback could count negated profile notes as positive role evidence. Both fixes are covered by regression tests, deployed, and retested against production.
 
 ## Verification Evidence
 
@@ -42,12 +42,21 @@ Production API edge checks:
 - LinkedIn missing JD/profile returned `400 Provide a job description and a visible LinkedIn profile before screening.`
 - LinkedIn profile/JD mismatch returned structured `weak_fit`, `low` confidence fallback.
 
+Signed-in browser checks:
+
+- Founder Strategy Copilot generated a fresh downloadable founder brief; visible pricing recommended a paid concierge pilot rather than generic freemium.
+- Founder Document Intelligence uploaded `founder-metrics.csv`, generated a workspace brief, surfaced MRR/cash contradiction, and enabled copy/download.
+- Founder Update Generator generated a notes-only update with sections, caveats, copy, and download.
+- Founder Outreach Kit completed intake, approval, generation, email tab, copy sequence, export tab, and saved-memory prompt. After fixes, production generated 4 specific emails and 6 specific subject lines with no generic automation drift.
+- Founder Command Center refreshed signed-in workspace memory from notes, preserved `$48.5k` and `$39.5k`, populated changed/risk/metric cards, and kept connected tool links valid.
+- LinkedIn Candidate Screener web fallback returned `Weak Fit`, low confidence, structured gaps/checks/notes, and clear fallback wording for a profile whose notes explicitly lacked launch, positioning, pricing, and customer research evidence.
+
 ## App Results
 
 ### Founder Strategy Copilot
 
-Status: Pass with browser-retake recommended.
-Rating: 8.5/10.
+Status: Pass.
+Rating: 9/10.
 
 Covered:
 
@@ -55,29 +64,24 @@ Covered:
 - Short prompt asks a targeted follow-up.
 - Final generation is auth-protected.
 - Server-side repair layer prevents generic Nova output for the retention memo scenario.
-
-Residual risk:
-
-- Fresh signed-in browser retest still needed because Chrome automation was unavailable in this run.
+- Signed-in browser retest produced a fresh downloadable founder brief.
 
 ### Founder Outreach Kit
 
-Status: Functional, output quality follow-up needed.
-Rating: 7.5-8/10.
+Status: Pass with minor copy polish recommended.
+Rating: 8.5-9/10.
 
 Covered:
 
 - API test suite passed.
-- Previous production UI pass confirmed intake, approval, and generation now complete.
+- Production UI pass confirmed intake, approval, generation, email review, copy, export, and memory handoff.
 - Current runtime tier is Nova Lite rather than Nova Micro for stronger campaign generation.
+- Weak/generic model campaign sections are repaired from a founder-specific scaffold when needed.
 
 Residual risk:
 
-- Email copy in the previous production pass was too short and generic. This is P2 quality risk, not a P0/P1 functional blocker.
-
-Recommended fix:
-
-- Add server-side campaign repair or stricter prompt rules requiring each email to include a pain trigger, one proof point, a relevant personalization line, and a clear CTA.
+- Copy is now specific and usable, but some repaired fallback sentences are still slightly verbose. This is polish, not a blocker.
+- Conversational intake can still mis-map answers if the user ignores the current question; the approval step allows correction before generation.
 
 ### Founder Document Intelligence
 
@@ -88,12 +92,13 @@ Covered:
 
 - Document suite passed.
 - Previous production upload generated workspace analysis.
+- Signed-in browser upload retest generated workspace analysis from CSV.
 - Empty upload rejects clearly.
 - Output covered contradiction between MRR growth and cash collection decline, missing proof, watch-outs, priority questions, key metrics, and extraction notes.
 
 Residual risk:
 
-- Fresh signed-in browser upload retake is still recommended once Chrome automation is available.
+- Broader DOCX/PPTX browser upload coverage remains useful, but the signed-in CSV upload path passed.
 
 ### Founder Update Generator
 
@@ -105,15 +110,16 @@ Covered:
 - Update suite passed.
 - Empty input rejects clearly.
 - Previous production notes-only run produced `Current period`, avoided invented dates, split wins/challenges, and included confidence gaps.
+- Signed-in browser notes-only run passed with copy/download controls.
 
 Residual risk:
 
-- File-plus-notes production retake should be repeated with browser upload available.
+- File-plus-notes production retake remains useful for broader upload coverage.
 
 ### LinkedIn Candidate Screener
 
 Status: Pass for web fallback; model-backed quality still dependent on runtime.
-Rating: 8/10.
+Rating: 8.5/10.
 
 Covered:
 
@@ -121,11 +127,13 @@ Covered:
 - Missing JD/profile rejects clearly.
 - Model malformed/incomplete response no longer traps the user.
 - Mismatched profile/JD returns conservative `weak_fit`, `low` confidence fallback.
+- Negated profile evidence no longer creates a false `Strong Fit` verdict.
+- Signed-in browser UI retest returned `Weak Fit`, low confidence, and structured recruiter notes.
 
 Residual risk:
 
 - Fallback keyword scoring is intentionally conservative and lower-confidence.
-- Chrome extension flow on LinkedIn was not retested in this run.
+- Chrome extension flow on LinkedIn was not retested in this run; the web fallback path was.
 
 ### Founder Command Center
 
@@ -135,6 +143,7 @@ Rating: 8.5/10.
 Covered:
 
 - Command Center suite passed.
+- Signed-in browser refresh passed from notes.
 - Empty notes/files path rejects clearly in UI/API coverage.
 - Latest refresh is separated from older workspace memory.
 - Notes now extract metric/risk cards: MRR growth, cash pressure, onboarding churn risk, hiring pause.
@@ -150,7 +159,7 @@ Residual risk:
 Auth:
 
 - Final AI generation endpoints enforce authentication where expected.
-- Browser signed-in checks are blocked until Chrome is running with the extension-enabled profile.
+- Signed-in checks were completed in the extension-enabled Chrome profile.
 
 Credits and model gating:
 
@@ -170,11 +179,11 @@ Error quality:
 ## Open Items
 
 - P2: Outreach generated email bodies need more depth and personalization to reach 9/10.
+- P2: Outreach repaired fallback copy is usable but can still be tightened for more natural sentence shape.
 - P2: Command Center should deduplicate repeated QA memory candidates.
 - P2: Command Center section classification should avoid putting all risks into Finance when the area is customer or hiring.
-- P2: Repeat signed-in UI UAT when Chrome is running and the Codex extension-enabled profile is selected.
 - P3: Build still emits the known Vite chunk-size warning.
 
 ## UAT Judgment
 
-No P0/P1 blockers were found in the fresh automated/API pass. The scoped apps are functionally stable enough for controlled production use, with Outreach copy quality and fresh signed-in browser retest as the main remaining follow-ups.
+No P0/P1 blockers were found after fresh automated, API, production, and signed-in browser verification. The scoped apps are functionally stable enough for controlled production use. Remaining work is polish: Outreach copy smoothness, Command Center memory dedupe/section cleanup, and bundle chunk-size optimization.
