@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 Environment: `https://foundersystems.in`
-Production deployment: `founder-systems-mzns8tgno-ayushpoos-projects.vercel.app`
+Production deployment: current `https://foundersystems.in` production alias
 Branch: `codex/production-e2e-stabilization-20260527`
 
 ## Executive Summary
@@ -27,7 +27,7 @@ Automated suites:
 
 Production deployment:
 
-- `npx.cmd --yes vercel inspect https://foundersystems.in`: ready on deployment `founder-systems-mzns8tgno-ayushpoos-projects.vercel.app`.
+- `npx.cmd --yes vercel inspect https://foundersystems.in`: production alias ready.
 - Aliases include `https://foundersystems.in` and `https://www.foundersystems.in`.
 
 Production API edge checks:
