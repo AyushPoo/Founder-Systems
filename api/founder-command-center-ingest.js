@@ -2,6 +2,10 @@ function cleanText(value) {
   return String(value || '').trim();
 }
 
+function cleanCapturedMetricValue(value) {
+  return cleanText(value).replace(/[.。]+$/g, '').trim();
+}
+
 function getFileName(file = {}) {
   return cleanText(file.filename || file.name) || 'founder material';
 }
@@ -68,23 +72,27 @@ function extractNoteSignals(notes = '') {
   const lower = text.toLowerCase();
   const findings = [];
 
-  const mrrMatch = text.match(/mrr\s+grew\s+from\s+(.+?)\s+to\s+(.+?)(?:,|\.|;|$)/i);
+  const mrrMatch = text.match(/mrr\s+grew\s+from\s+(.+?)\s+to\s+(.+?)(?:,|;|$)/i);
   if (mrrMatch) {
+    const fromValue = cleanCapturedMetricValue(mrrMatch[1]);
+    const toValue = cleanCapturedMetricValue(mrrMatch[2]);
     findings.push({
       type: 'metric',
       label: 'MRR growth',
-      text: `MRR grew from ${mrrMatch[1].trim()} to ${mrrMatch[2].trim()}.`,
+      text: `MRR grew from ${fromValue} to ${toValue}.`,
       area: 'finance',
       confidence: 'confirmed',
     });
   }
 
-  const cashMatch = text.match(/cash collection\s+slipped\s+from\s+(.+?)\s+to\s+(.+?)(?:,|\.|;|$)/i);
+  const cashMatch = text.match(/cash collection\s+slipped\s+from\s+(.+?)\s+to\s+(.+?)(?:,|;|$)/i);
   if (cashMatch) {
+    const fromValue = cleanCapturedMetricValue(cashMatch[1]);
+    const toValue = cleanCapturedMetricValue(cashMatch[2]);
     findings.push({
       type: 'risk',
       label: 'Cash collection pressure',
-      text: `Cash collection slipped from ${cashMatch[1].trim()} to ${cashMatch[2].trim()} despite revenue growth.`,
+      text: `Cash collection slipped from ${fromValue} to ${toValue} despite revenue growth.`,
       area: 'finance',
       confidence: 'confirmed',
     });

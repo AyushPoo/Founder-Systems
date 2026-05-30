@@ -40,6 +40,30 @@ async function run() {
   assert.match(jsonPayload.companySummary, /qa-metrics\.csv/i);
   assert.match(jsonPayload.companySummary, /MRR|source preview/i);
   assert.equal(jsonPayload.findings[0].confidence, 'inferred');
+
+  const decimalReq = {
+    method: 'POST',
+    body: {
+      files: [],
+      notes:
+        'MRR grew from $42k to $48.5k, cash collection slipped from $39.5k to $31k, two onboarding accounts have churn risk, and hiring is paused.',
+    },
+  };
+
+  statusCode = 200;
+  jsonPayload = null;
+
+  await handler(decimalReq, res);
+
+  assert.equal(statusCode, 200);
+  assert.equal(
+    jsonPayload.findings.find((finding) => finding.label === 'MRR growth')?.text,
+    'MRR grew from $42k to $48.5k.'
+  );
+  assert.equal(
+    jsonPayload.findings.find((finding) => finding.label === 'Cash collection pressure')?.text,
+    'Cash collection slipped from $39.5k to $31k despite revenue growth.'
+  );
 }
 
 run().then(() => console.log('founder-command-center-ingest API tests passed'));
