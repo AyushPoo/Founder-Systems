@@ -167,9 +167,13 @@ await handler(
         fullName: 'Jordan Lee',
         headline: 'Engineering Manager for infrastructure reliability',
         currentCompany: 'CloudOps',
+        about:
+          'Led Kubernetes reliability team and managed incident response programs. No visible launches, positioning, pricing, or customer research ownership.',
         experience: [
-          'Led Kubernetes reliability team and managed incident response programs.',
-          'No visible launches, positioning, pricing, or customer research ownership.',
+          'Led Kubernetes reliability team and managed incident response programs. No visible launches',
+          'positioning',
+          'pricing',
+          'or customer research ownership.',
         ],
         skills: ['Kubernetes', 'SRE', 'incident response', 'platform engineering'],
       },

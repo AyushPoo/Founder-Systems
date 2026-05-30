@@ -72,7 +72,8 @@ function scoreFallbackRoleMatch(request, profileSignals = []) {
   const matchedKeywords = [...roleKeywords].filter(
     (token) =>
       profileKeywords.has(token) &&
-      profileTexts.some((text) => tokenizeFallbackText(text).includes(token) && !isNegatedFallbackKeyword(text, token))
+      !profileTexts.some((text) => isNegatedFallbackKeyword(text, token)) &&
+      profileTexts.some((text) => tokenizeFallbackText(text).includes(token))
   );
   const matchCount = matchedKeywords.length;
 
@@ -91,6 +92,7 @@ function buildFallbackResponse(request) {
   const profileSignals = [
     request.profile.headline,
     request.profile.currentCompany,
+    request.profile.about,
     ...request.profile.experience,
     ...request.profile.skills,
   ].filter(Boolean);
