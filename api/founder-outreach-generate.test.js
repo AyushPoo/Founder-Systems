@@ -137,10 +137,11 @@ const renderedFallbackAssets = JSON.stringify({
   objectionReplies: contextualFallbackPayload.objectionReplies,
 });
 assert.doesNotMatch(renderedFallbackAssets, /(?<!\.)\.\.(?!\.)|\.\?|\.:/);
-assert.equal(contextualFallbackPayload.subjectLines.every((subject) => subject.length <= 92), true);
+assert.equal(contextualFallbackPayload.subjectLines.every((subject) => subject.length <= 48), true);
 assert.match(contextualFallbackPayload.emails[0].body, /risk too late\./);
 assert.match(contextualFallbackPayload.linkedinMessages[0].body, /risk too late\. Thought/);
-assert.match(contextualFallbackPayload.emails[0].body, /If this outcome matters right now/);
+assert.match(contextualFallbackPayload.emails[0].body, /Current proof: Three founders/i);
+assert.match(contextualFallbackPayload.emails[0].body, /Reply Monday to review a sample memo/i);
 assert.doesNotMatch(renderedFallbackAssets, /If Get one|If outbound is still on your plate/);
 
 const fetchCalls = [];

@@ -276,18 +276,15 @@ function trimTerminalPunctuation(value) {
 
 function buildFallbackSubjects(input) {
   const product = trimTerminalPunctuation(input.productName) || 'your offer';
-  const customer = trimTerminalPunctuation(input.targetCustomer) || 'founders';
-  const outcome = trimTerminalPunctuation(input.desiredOutcome) || 'a better next step';
-  const buyerRole = trimTerminalPunctuation(input.buyerRole) || 'the team';
 
   return [
-    `Idea for ${customer}: ${outcome}`,
-    `${product}: a clearer path to ${outcome}`,
-    `Worth pressure-testing this workflow?`,
-    `Quick angle for ${buyerRole} at ${product}`,
-    `A practical next step for ${customer}`,
-    `Could this help with ${outcome}?`,
-  ].map((subject) => truncateSentence(subject, 92));
+    `${product} sample?`,
+    'Friday risk memo',
+    'Before churn surprises',
+    'Messy notes to actions',
+    'Worth pressure-testing?',
+    'Quick founder memo',
+  ].map((subject) => truncateSentence(subject, 48));
 }
 
 function buildFallbackCampaign(input) {
@@ -353,9 +350,9 @@ function buildFallbackCampaign(input) {
         title: 'Cold opener',
         subject: subjectLines[0],
         body: [
-          `A common problem in this segment is: ${painPoint}.`,
-          `${product} is built around a focused outcome: ${offer}.`,
-          `If this outcome matters right now (${desiredOutcome}), ${cta}`,
+          `Noticed a pattern with ${customer}: ${painPoint}.`,
+          `${product} turns that into ${offer}.`,
+          proof === 'No proof provided yet' ? `If this is live for you, ${cta}` : `Current proof: ${proof}. ${cta}`,
         ].join('\n\n'),
         delayDays: 0,
       },
@@ -364,9 +361,9 @@ function buildFallbackCampaign(input) {
         title: 'Problem reframing',
         subject: subjectLines[1],
         body: [
-          `The useful shift is to start with the real trigger: ${triggerEvent}.`,
-          `The intended outcome is straightforward: ${desiredOutcome}.`,
-          `Happy to show what that could look like for ${customer}.`,
+          `The painful part is not tracking more data. It is deciding what matters before the next churn or cash surprise.`,
+          `That is why ${product} starts from ${triggerEvent}.`,
+          `Happy to send a small example if useful.`,
         ].join('\n\n'),
         delayDays: 2,
       },
@@ -375,9 +372,11 @@ function buildFallbackCampaign(input) {
         title: 'Proof and specificity follow-up',
         subject: subjectLines[2],
         body: [
-          `One thing to be direct about is the evidence behind this offer.`,
-          proof === 'No proof provided yet' ? 'There is no proof supplied yet, so this should stay a validation conversation.' : `Current proof: ${proof}.`,
-          `If useful, I can share a concrete example of ${offer}.`,
+          proof === 'No proof provided yet'
+            ? `Keeping this honest: proof is still early, so I would treat this as a focused validation conversation.`
+            : `The early signal: ${proof}.`,
+          `The output is practical: ${desiredOutcome}.`,
+          `${cta}`,
         ].join('\n\n'),
         delayDays: 5,
       },
@@ -386,8 +385,8 @@ function buildFallbackCampaign(input) {
         title: 'Low-friction close',
         subject: subjectLines[3],
         body: [
-          `Closing the loop in case this problem is still live: ${painPoint}.`,
-          `${product} is built for teams that want ${desiredOutcome}.`,
+          `Closing the loop in case this is still showing up: ${painPoint}.`,
+          `${product} is probably only worth a look if ${desiredOutcome} would change your week.`,
           `${cta}`,
         ].join('\n\n'),
         delayDays: 8,
@@ -651,7 +650,7 @@ function countInputMatches(value, input) {
 }
 
 function hasGenericOutreachDrift(value) {
-  return /\b(automate risk tracking|scale risk management|saves time, reduces errors|last chance pilot|free sample inside|pilot offer\?|confirm pilot\?)\b/i.test(
+  return /\b(automate risk tracking|scale risk management|saves time, reduces errors|last chance pilot|free sample inside|pilot offer\?|confirm pilot\?|risk automation|time saver|growth focus)\b/i.test(
     cleanText(value)
   );
 }
@@ -687,7 +686,9 @@ function repairWeakCampaignOutput(campaign, fallbackCampaign, input) {
 
   let repaired = campaign;
 
-  if (emails.length < 3 || emails.some((email) => !isUsefulEmail(email, input))) {
+  const shouldRepairEmails = emails.length < 3 || emails.some((email) => !isUsefulEmail(email, input));
+
+  if (shouldRepairEmails) {
     repairs.push('emails');
     repaired = {
       ...repaired,
@@ -704,6 +705,7 @@ function repairWeakCampaignOutput(campaign, fallbackCampaign, input) {
   }
 
   if (
+    shouldRepairEmails ||
     subjectLines.length < 4 ||
     subjectLines.some((subject) => hasGenericOutreachDrift(subject) || cleanText(subject).length < 8)
   ) {
