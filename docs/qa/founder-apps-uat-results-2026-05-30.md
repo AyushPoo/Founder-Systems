@@ -2,14 +2,14 @@
 
 Date: 2026-05-30
 Environment: `https://foundersystems.in`
-Production deployment: `founder-systems-hbzrfz2jd-ayushpoos-projects.vercel.app`
+Production deployment: `founder-systems-mzns8tgno-ayushpoos-projects.vercel.app`
 Branch: `codex/production-e2e-stabilization-20260527`
 
 ## Executive Summary
 
 The scoped apps are substantially production-safe after the stabilization fixes. Automated suites passed, production API edge checks passed, and the latest production deployment is ready and aliased to `foundersystems.in`.
 
-A fresh production edge sweep on 2026-05-30 caught one additional Command Center parsing issue: decimal metrics such as `$48.5k` were truncated to `$48` by the live deployment. The parser has been fixed locally and covered with a regression test; this issue should be retested against production after the next deployment.
+A fresh production edge sweep on 2026-05-30 caught one additional Command Center parsing issue: decimal metrics such as `$48.5k` were truncated to `$48` by the prior live deployment. The parser has been fixed, covered with a regression test, deployed, and retested successfully against production.
 
 The main remaining caveat is signed-in browser automation: Chrome was not running during this UAT turn, and the selected Chrome profile did not have the Codex extension installed. Because of that, the signed-in UI walkthrough could not be freshly repeated in this run. Previous signed-in production checks were completed on 2026-05-28, and this run adds fresh automated and API-level verification.
 
@@ -27,7 +27,7 @@ Automated suites:
 
 Production deployment:
 
-- `npx.cmd --yes vercel inspect https://foundersystems.in`: ready.
+- `npx.cmd --yes vercel inspect https://foundersystems.in`: ready on deployment `founder-systems-mzns8tgno-ayushpoos-projects.vercel.app`.
 - Aliases include `https://foundersystems.in` and `https://www.foundersystems.in`.
 
 Production API edge checks:
@@ -38,7 +38,7 @@ Production API edge checks:
 - Document Intelligence empty upload returned `400 Upload at least one supported founder document file.`
 - Founder Update empty input returned `400 Upload at least one founder update file or paste rough period notes.`
 - Command Center notes extracted `Founder note`, `MRR growth`, `Cash collection pressure`, `Onboarding churn risk`, and `Hiring pause`.
-- Command Center decimal metric parsing is covered by regression test for `$48.5k` MRR and `$39.5k` cash collection values.
+- Command Center decimal metric parsing is covered by regression test and production retest for `$48.5k` MRR and `$39.5k` cash collection values.
 - LinkedIn missing JD/profile returned `400 Provide a job description and a visible LinkedIn profile before screening.`
 - LinkedIn profile/JD mismatch returned structured `weak_fit`, `low` confidence fallback.
 
@@ -138,7 +138,7 @@ Covered:
 - Empty notes/files path rejects clearly in UI/API coverage.
 - Latest refresh is separated from older workspace memory.
 - Notes now extract metric/risk cards: MRR growth, cash pressure, onboarding churn risk, hiring pause.
-- Decimal metric values are preserved by the local regression fix.
+- Decimal metric values are preserved in production.
 
 Residual risk:
 
@@ -172,7 +172,6 @@ Error quality:
 - P2: Outreach generated email bodies need more depth and personalization to reach 9/10.
 - P2: Command Center should deduplicate repeated QA memory candidates.
 - P2: Command Center section classification should avoid putting all risks into Finance when the area is customer or hiring.
-- P2: Retest Command Center decimal metric parsing on production after deployment.
 - P2: Repeat signed-in UI UAT when Chrome is running and the Codex extension-enabled profile is selected.
 - P3: Build still emits the known Vite chunk-size warning.
 
