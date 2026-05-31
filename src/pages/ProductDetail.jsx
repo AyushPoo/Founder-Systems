@@ -1003,29 +1003,58 @@ const ProductDetail = () => {
                             </div>
                         )}
 
-                        {/* Testimonials (Persistent for High Trust) */}
+                        {false && (
+                        /* Practical use cases */
                         <div className={`border-t-2 pt-12 transition-colors duration-300 ${isOperatorPass ? 'border-[#2d2e2b]' : 'border-brand-black'}`}>
                             <div className="mb-8">
-                                <h3 className={`text-2xl md:text-3xl font-black tracking-tight-brand mb-2 ${isOperatorPass ? 'text-white font-mono' : ''}`}>Trusted by Early Founders</h3>
+                                <h3 className={`text-2xl md:text-3xl font-black tracking-tight-brand mb-2 ${isOperatorPass ? 'text-white font-mono' : ''}`}>Where this helps</h3>
                                 <div className="flex items-center gap-2">
                                     <span className={isOperatorPass ? 'text-[#10b981] text-lg leading-none' : 'text-brand-orange text-lg leading-none'}>★★★★★</span>
-                                    <span className={`text-sm font-medium ${isOperatorPass ? 'text-gray-500 font-mono' : 'text-brand-black/50'}`}>Early founder feedback</span>
+                                    <span className={`text-sm font-medium ${isOperatorPass ? 'text-gray-500 font-mono' : 'text-brand-black/50'}`}>Use cases before hype</span>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                 {[
-                                    { quote: "Founder Systems helped me organize how I think about building a startup.", author: "Sarah Jenkins, Co-founder at VeloPay" },
-                                    { quote: "Clear frameworks and practical execution systems.", author: "David Chen, CTO at FinFlow" },
-                                    { quote: "Helped me structure startup execution in one weekend.", author: "Marcus Vance, Founder at CommandStack" }
+                                    { title: "When the input is messy", body: "Use it when you have notes, files, or half-formed thinking and need a cleaner first pass.", author: "Use it when you need a cleaner first pass." },
+                                    { title: "When the next step is unclear", body: "Use it to turn scattered context into a sharper decision, draft, screen, or summary.", author: "Use it when the next decision needs shape." },
+                                    { title: "When you need to reuse the work", body: "Use it when the output needs to live beyond one chat and feed the rest of your founder workspace.", author: "Use it when the output has to travel." }
                                 ].map((t, idx) => (
                                     <div key={idx} className={`rounded-xl border-2 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between transition-colors duration-300 ${
                                         isOperatorPass 
                                             ? 'bg-black border-[#2d2e2b] shadow-[4px_4px_0px_0px_rgba(16,185,129,0.1)]' 
                                             : 'bg-white border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
                                     }`}>
-                                        <p className={`font-bold mb-5 italic leading-relaxed ${isOperatorPass ? 'text-gray-300 font-mono text-sm' : 'text-brand-black/90'}`}>"{t.quote}"</p>
+                                        <p className={`font-black text-sm uppercase tracking-wider mb-4 ${isOperatorPass ? 'text-[#10b981]/70 font-mono' : 'text-brand-orange'}`}>{t.title}</p>
                                         <p className={`font-black text-sm uppercase tracking-wider ${isOperatorPass ? 'text-[#10b981]/70 font-mono' : 'text-brand-black/60'}`}>— {t.author}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        )}
+
+                        <div className={`border-t-2 pt-12 transition-colors duration-300 ${isOperatorPass ? 'border-[#2d2e2b]' : 'border-brand-black'}`}>
+                            <div className="mb-8">
+                                <h3 className={`text-2xl md:text-3xl font-black tracking-tight-brand mb-2 ${isOperatorPass ? 'text-white font-mono' : ''}`}>Where this helps</h3>
+                                <div className="flex items-center gap-2">
+                                    <span className={isOperatorPass ? 'text-[#10b981] text-lg leading-none' : 'text-brand-orange text-lg leading-none'}>●</span>
+                                    <span className={`text-sm font-medium ${isOperatorPass ? 'text-gray-500 font-mono' : 'text-brand-black/50'}`}>Use cases before hype</span>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                {[
+                                    { title: 'When the input is messy', body: 'Use it when you have notes, files, or half-formed thinking and need a cleaner first pass.' },
+                                    { title: 'When the next step is unclear', body: 'Use it to turn scattered context into a sharper decision, draft, screen, or summary.' },
+                                    { title: 'When you need to reuse the work', body: 'Use it when the output needs to live beyond one chat and feed the rest of your founder workspace.' },
+                                ].map((item, idx) => (
+                                    <div key={idx} className={`rounded-xl border-2 p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors duration-300 ${
+                                        isOperatorPass
+                                            ? 'bg-black border-[#2d2e2b] shadow-[4px_4px_0px_0px_rgba(16,185,129,0.1)]'
+                                            : 'bg-white border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]'
+                                    }`}>
+                                        <p className={`font-black text-sm uppercase tracking-wider mb-4 ${isOperatorPass ? 'text-[#10b981]/70 font-mono' : 'text-brand-orange'}`}>{item.title}</p>
+                                        <p className={`font-bold leading-relaxed ${isOperatorPass ? 'text-gray-300 font-mono text-sm' : 'text-brand-black/90'}`}>{item.body}</p>
                                     </div>
                                 ))}
                             </div>
@@ -1245,7 +1274,7 @@ const ProductDetail = () => {
                                                 : 'btn-cta'
                                         }`}
                                     >
-                                        Launch App &rarr;
+                                        Open app &rarr;
                                     </a>
                                 ) : (
                                     <Link
@@ -1256,7 +1285,7 @@ const ProductDetail = () => {
                                                 : 'btn-cta'
                                         }`}
                                     >
-                                        Launch App &rarr;
+                                        Open app &rarr;
                                     </Link>
                                 )}
                             </div>
@@ -1265,10 +1294,10 @@ const ProductDetail = () => {
                         <div className="flex flex-col items-center w-full">
                             <div className="flex items-center gap-2 mb-2">
                                 <span className={isOperatorPass ? 'text-[#10b981] text-base leading-none' : 'text-brand-orange text-base leading-none'}>★★★★★</span>
-                                <span className={`font-medium text-xs uppercase tracking-wider ${isOperatorPass ? 'text-gray-500 font-mono' : 'text-brand-black/50'}`}>Early founder feedback</span>
+                                <span className={`font-medium text-xs uppercase tracking-wider ${isOperatorPass ? 'text-gray-500 font-mono' : 'text-brand-black/50'}`}>Account-linked access</span>
                             </div>
                             <p className={`text-xs font-bold uppercase tracking-widest mb-5 text-center ${isOperatorPass ? 'text-[#10b981] font-mono' : 'text-brand-orange'}`}>
-                                {isOperatorPass ? '30-day operator pass with included credits' : 'Launch price — early adopter offer'}
+                                {isOperatorPass ? '30-day operator pass with included credits' : 'Launch price for early adopters'}
                             </p>
 
                             <div className="relative w-full">

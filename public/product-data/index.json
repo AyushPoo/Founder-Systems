@@ -44,7 +44,7 @@
   {
     "id": "saas-financial-model",
     "name": "Runway10 (SaaS Financial Model)",
-    "description": "A professional-grade financial forecasting instrument designed specifically for SaaS founders.",
+    "description": "A SaaS model for runway, burn, payback, and the assumptions investors will ask about.",
     "category": "Finance",
     "productId": "FS001",
     "priceInr": 1499,
@@ -55,7 +55,7 @@
   {
     "id": "advanced-saas-model",
     "name": "SaaS Engine Pro (Advanced Model)",
-    "description": "Stop guessing your unit economics. An investor-grade SaaS model featuring automated cohort analysis, industry benchmarks, and dual-method valuation.",
+    "description": "A deeper SaaS model for cohorts, benchmarks, valuation, and the unit economics you need to defend.",
     "category": "Finance",
     "productId": "FS002",
     "priceInr": 2499,
@@ -66,7 +66,7 @@
   {
     "id": "marketplace-financial-model",
     "name": "GMV-Flow (Marketplace Model)",
-    "description": "Stop guessing your marketplace metrics. This model features dual-sided supply & demand growth, GMV waterfalls, industry benchmarks & 3-method valuation.",
+    "description": "A marketplace model that separates supply, demand, GMV, churn, benchmarks, and valuation.",
     "category": "Finance",
     "productId": "FS003",
     "priceInr": 1999,
@@ -88,7 +88,7 @@
   {
     "id": "promptdeck-ai",
     "name": "StoryDeck (Pitch Deck Copilot)",
-    "description": "Build a fundable pitch deck in 15 minutes - just talk to the AI. Chat with an AI that asks the right questions, builds your pitch deck slide by slide, and lets you edit everything live. Export a professional PDF for INR 500.",
+    "description": "Turn a rough founder story into a cleaner pitch deck flow, then edit the slides before export.",
     "category": "Strategy",
     "thumbnail": "/images/products/promptdeck-ai/thumbnail.svg",
     "launchUrl": "https://promptdeck.foundersystems.in"
@@ -120,7 +120,7 @@
   {
     "id": "founder-update-generator",
     "name": "Founder Update Generator",
-    "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
+    "description": "Upload messy founder materials and get a concise update with wins, risks, metrics, next focus, and caveats.",
     "category": "Strategy",
     "productId": "FS014",
     "priceInr": 299,

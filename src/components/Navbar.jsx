@@ -26,7 +26,10 @@ const Navbar = ({ theme = 'light' }) => {
             e.preventDefault();
             const id = href.replace('/#', '');
             if (location.pathname === '/') {
-                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                document.getElementById(id)?.scrollIntoView({
+                    behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                });
             } else {
                 window.location.assign(href);
             }

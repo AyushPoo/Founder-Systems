@@ -23,7 +23,7 @@ const Guides = () => {
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
             <SEO
                 title="Founder Guides & Strategy"
-                description="Practical founder guides on strategy, outreach, systems, decks, and decision-making."
+                description="Founder guides on strategy, outreach, systems, decks, documents, hiring, and the operating decisions founders keep delaying."
                 canonical="/guides"
             />
             <Navbar />
@@ -31,13 +31,13 @@ const Guides = () => {
                 <div className="max-w-7xl mx-auto">
                     <span className="inline-flex items-center gap-2 rounded-full border border-brand-black/15 bg-brand-cream px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/62">
                         <span className="h-2.5 w-2.5 rounded-full bg-brand-orange" />
-                        Founder Library
+                        Founder library
                     </span>
                     <h1 className="mt-6 max-w-[11ch] text-5xl font-black tracking-tight-brand text-brand-black md:text-7xl">
-                        Guides for founder work that actually matters.
+                        Guides for the work founders keep delaying.
                     </h1>
                     <p className="mt-6 max-w-3xl text-lg font-medium leading-8 text-brand-black/66 md:text-[1.35rem]">
-                        Practical essays on strategy, outreach, systems, fundraising, and the operating decisions that usually get buried under startup noise.
+                        Practical essays on strategy, outreach, systems, fundraising, documents, hiring, and the decisions that get buried when the week gets loud.
                     </p>
                 </div>
             </div>
@@ -84,13 +84,13 @@ const Guides = () => {
             <section className="border-t-2 border-brand-black bg-[#faf8f5] py-20 px-6 md:px-12">
                 <div className="max-w-4xl mx-auto rounded-[32px] border-2 border-brand-black bg-white p-8 md:p-12 shadow-[6px_6px_0px_0px_rgba(27,28,26,1)] text-center">
                     <span className="inline-block text-xs font-black uppercase tracking-[0.16em] text-brand-orange mb-3">
-                        Subscribe to the Library
+                        Subscribe to the library
                     </span>
                     <h2 className="text-3xl md:text-5xl font-black text-brand-black tracking-tight-brand mb-4">
-                        Get early-stage operating blueprints.
+                        Get the next founder guide.
                     </h2>
                     <p className="text-base md:text-lg font-semibold text-brand-black/60 max-w-2xl mx-auto mb-8">
-                        Every couple of weeks, we send one deep, practical essay on startup strategy, outreach templates, or financial models that actually work. No fluff, no spam.
+                        Every couple of weeks, we send one useful essay on startup strategy, outreach, financial models, or the operating mess founders are quietly dealing with.
                     </p>
                     <form
                         onSubmit={(e) => {

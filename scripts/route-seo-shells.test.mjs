@@ -42,10 +42,10 @@ const baseHtml = `<!doctype html>
 const strategySpec = specs.find((spec) => spec.path === '/products/founder-spec-generator');
 const rendered = renderRouteShell(baseHtml, strategySpec);
 
-assert.match(rendered, /<title>Founder Strategy Copilot \| Founder Systems<\/title>/);
+assert.match(rendered, /<title>StrategyForge \(Spec Generator\) \| Founder Systems<\/title>/);
 assert.match(rendered, /<meta name="description" content="Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan\." \/>/);
 assert.match(rendered, /<link rel="canonical" href="https:\/\/foundersystems\.in\/products\/founder-spec-generator" \/>/);
-assert.match(rendered, /<h1[^>]*>Founder Strategy Copilot<\/h1>/);
+assert.match(rendered, /<h1[^>]*>StrategyForge \(Spec Generator\)<\/h1>/);
 assert.match(rendered, /Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan\./);
 
 console.log('route seo shells tests passed');

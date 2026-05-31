@@ -12,6 +12,6 @@ test('hero no longer includes the founders clarity badge copy', () => {
 });
 
 test('hero still keeps the main landing headline', () => {
-  assert.equal(heroSource.includes('Turn Founder Chaos Into'), true);
-  assert.equal(heroSource.includes('Systems.'), true);
+  assert.equal(heroSource.includes('Turn founder chaos'), true);
+  assert.equal(heroSource.includes('clear systems'), true);
 });

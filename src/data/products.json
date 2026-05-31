@@ -3,7 +3,7 @@
         "slug":  "saas-financial-model",
         "productId":  "FS001",
         "catalogName":  "Runway10 (SaaS Financial Model)",
-        "catalogDescription":  "A professional-grade financial forecasting instrument designed specifically for SaaS founders.",
+        "catalogDescription":  "A SaaS model for runway, burn, payback, and the assumptions investors will ask about.",
         "catalogCategory":  "Finance",
         "title":  "Runway10: The 10-Minute SaaS Financial Model",
         "subtitle":  "Stop Guessing Your Runway. Start Winning Your Pitch.",
@@ -18,11 +18,11 @@
                          },
                          {
                              "name":  "The Growth Engine",
-                             "desc":  "No \"magic\" numbersâ€”input your pricing and churn to see the waterfall."
+                             "desc":  "No \"magic\" numbers - input your pricing and churn to see the waterfall."
                          },
                          {
                              "name":  "The Crystal Ball",
-                             "desc":  "Instant sensitivity analysisâ€”toggle one cell and see your 3-year valuation update."
+                             "desc":  "Instant sensitivity analysis - toggle one cell and see your 3-year valuation update."
                          },
                          {
                              "name":  "OpEx Planner",
@@ -117,14 +117,14 @@
         "catalogCategory":  "Finance",
         "title":  "SaaS Engine Pro: B2B SaaS Financial Model (Advanced Edition)",
         "subtitle":  "Stop Guessing Your Unit Economics. Start Raising Like a Pro.",
-        "descriptionBody":  "\"What\u0027s our Net Revenue Retention?\" \"How does our Burn Multiple compare to top-quartile startups?\" If investors are asking these questions and your answer is \"Let me get back to you,\" you\u0027re leaving money on the table. You\u0027ve graduated from the \"scary basement\" of basic runway calculationâ€”now you need to prove your growth engine actually works without paying a fractional CFO $500/hour.",
+        "descriptionBody":  "\"What\u0027s our Net Revenue Retention?\" \"How does our Burn Multiple compare to top-quartile startups?\" If investors are asking these questions and your answer is \"Let me get back to you,\" you\u0027re leaving money on the table. You\u0027ve graduated from the \"scary basement\" of basic runway calculation - now you need to prove your growth engine actually works without paying a fractional CFO $500/hour.",
         "section1Title":  "The Investor-Ready SaaS Engine",
         "section1Body":  "This is a heavy-duty, clean-code financial engine designed specifically for seed and Series A startups. It handles the heavy lifting on unit economics, industry benchmarking, and advanced valuation so you can focus on building.",
         "featuresTitle":  "The Good Stuff:",
         "features":  [
                          {
                              "name":  "The Cohort X-Ray",
-                             "desc":  "A fully automated Monthly Cohort Analysis. Watch exactly how your retention stacks up by acquisition monthâ€”this is the exact chart VCs want to see before writing a check."
+                             "desc":  "A fully automated Monthly Cohort Analysis. Watch exactly how your retention stacks up by acquisition month - this is the exact chart VCs want to see before writing a check."
                          },
                          {
                              "name":  "The \"Top-Quartile\" Benchmarks",
@@ -237,7 +237,7 @@
                          },
                          {
                              "name":  "The Marketplace Benchmarks",
-                             "desc":  "Automatically compare your outputsâ€”like your Buyer-to-Seller Ratio, Take Rate, and Contribution Marginâ€”against top-tier marketplace industry standards."
+                             "desc":  "Automatically compare your outputs - like your Buyer-to-Seller Ratio, Take Rate, and Contribution Margin - against top-tier marketplace industry standards."
                          },
                          {
                              "name":  "The \"Base / Bull / Bear\" Scenarios",
@@ -327,7 +327,7 @@
         "catalogCategory":  "Finance",
         "title":  "ROAS-Scale: D2C & Ecommerce Financial Model",
         "subtitle":  "Stop Guessing Your ROAS. Start Scaling Profitably.",
-        "descriptionBody":  "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS templateâ€”a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
+        "descriptionBody":  "\"When do we need to reorder inventory?\" \"Are our ad campaigns actually profitable after COGS and shipping?\" If you are running a consumer brand, you know that cash flow is king and inventory is the silent killer. Most founders treat their financial models like a scary basement, or they try to force their ecommerce brand into a standard SaaS template - a guaranteed way to stock out of your best-seller or burn your runway on unprofitable ads.",
         "section1Title":  "The Multi-Channel Ecommerce Engine",
         "section1Body":  "This is a battle-tested, clean-code 3-year projection engine built specifically for modern consumer brands. It handles the heavy lifting of traffic conversion, cohort retention, inventory forecasting, and valuation so you can stop wrestling with spreadsheets and get back to building your brand.",
         "featuresTitle":  "The Good Stuff:",

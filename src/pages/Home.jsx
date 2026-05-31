@@ -11,9 +11,9 @@ import Footer from '../components/Footer';
 const Home = () => {
     return (
         <>
-            <SEO 
-                title="Guidance and Systems for Founders" 
-                description="Founder Systems helps founders get guidance, reduce operational headaches, and move faster with practical tools for strategy, outreach, decks, and execution." 
+            <SEO
+                title="Guidance and Systems for Founders"
+                description="Founder Systems gives founders practical tools for strategy, outreach, documents, updates, hiring, and operating memory."
                 canonical="/"
             />
             <Navbar />

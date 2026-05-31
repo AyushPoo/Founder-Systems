@@ -2,16 +2,16 @@ import useReveal from '../hooks/useReveal';
 
 const principles = [
     {
-        label: 'Early-stage',
-        body: 'Founder Systems is still young, so the promise is useful tools and honest iteration, not inflated scale.',
+        label: 'Early',
+        body: 'Founder Systems is still young. The promise is honest iteration and tools that earn their place.',
     },
     {
         label: 'Independent',
-        body: 'Everything here is being built in public around real founder headaches, not vanity positioning.',
+        body: 'Everything here starts from a real founder headache, not a category map or a fake logo wall.',
     },
     {
         label: 'Practical',
-        body: 'The goal is simple: clearer decisions, less repetition, and systems that make founders faster.',
+        body: 'The goal is simple: fewer repeated tasks, cleaner decisions, and outputs you can reuse.',
     },
 ];
 
@@ -25,13 +25,13 @@ const SocialProof = () => {
                     <div className="max-w-3xl">
                         <p className="inline-flex items-center gap-2 text-xs md:text-sm font-bold text-[#ea580c] uppercase tracking-[0.16em] bg-[#ffedd5] px-3.5 py-1.5 rounded-full border border-[#ea580c]/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-[#ea580c]" />
-                            Our Philosophy
+                            How we think
                         </p>
                         <h2 className="mt-6 text-3xl md:text-5xl font-black tracking-tight-brand text-brand-black">
                             Useful systems over <span className="font-editorial italic font-normal text-brand-orange">fake credibility</span>.
                         </h2>
                         <p className="mt-4 text-base md:text-lg font-medium text-brand-black/70 max-w-2xl leading-relaxed">
-                            We don't borrow trust with fake customer logos or inflated claims. The bar is whether the tools help a founder think more clearly and remove one real operational headache at a time.
+                            We do not borrow trust with fake customer logos or inflated claims. The bar is whether a tool helps a founder think clearly and remove one real operational headache.
                         </p>
                     </div>
 

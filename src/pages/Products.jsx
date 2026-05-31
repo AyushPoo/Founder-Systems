@@ -7,31 +7,49 @@ import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { buildCatalogCategories, getProductLaunchState } from '../utils/productExperience';
 
 const COMING_SOON_PRODUCTS = [
-    { id: 'cs-1', name: 'Investor CRM', description: 'Manage fundraising pipelines and investor updates efficiently.' },
-    { id: 'cs-3', name: 'Startup Budget Planner', description: 'Allocate resources and track operational spend against milestones.' },
-    { id: 'cs-4', name: 'LinkedIn Summarizer', description: 'Automated extraction of key insights from professional profiles.' }
+    { id: 'cs-1', name: 'Investor CRM', description: 'A calmer place to track fundraising conversations and follow-ups.' },
+    { id: 'cs-3', name: 'Startup Budget Planner', description: 'A simple way to map spend before the runway math gets tense.' },
+    { id: 'cs-4', name: 'LinkedIn Summarizer', description: 'Profile summaries for quick research, separate from candidate screening.' },
 ];
 
-const PHASES = [
+const CATALOG_SECTIONS = [
     {
-        id: 'money-ops',
-        title: 'Phase 1: Projections & AI Operators',
-        subtitle: 'Model your unit economics and delegate routine work to 30-day AI operational partners.',
-        categories: ['Finance', 'AI Operators']
+        id: 'live-workspaces',
+        eyebrow: 'Start here',
+        title: 'Founder workspaces',
+        subtitle: 'These are the tools to care about first: strategy, docs, updates, outreach, hiring, and company memory. Some are still private-preview gated for non-tester accounts.',
+        productIds: [
+            'founder-spec-generator',
+            'founder-pdf-summarizer',
+            'founder-update-generator',
+            'founder-command-center',
+            'founder-outreach-kit',
+            'linkedin-candidate-screener',
+        ],
     },
     {
-        id: 'strategy',
-        title: 'Phase 2: Strategy & Pitch Decks',
-        subtitle: 'Solidify your startup idea, draft investor decks, and align candidate fit.',
-        categories: ['Strategy']
+        id: 'story-and-models',
+        eyebrow: 'Planning layer',
+        title: 'Decks and financial models',
+        subtitle: 'Use these when the question is story, runway, unit economics, or whether the math survives a serious review.',
+        productIds: [
+            'promptdeck-ai',
+            'saas-financial-model',
+            'advanced-saas-model',
+            'marketplace-financial-model',
+            'd2c-ecommerce-model',
+        ],
     },
     {
-        id: 'outbound-talent',
-        title: 'Phase 3: Outbound & Talent',
-        subtitle: 'Launch outreach campaigns and screen candidate fit before hiring.',
-        categories: ['Marketing Tools', 'Hiring Tools']
-    }
+        id: 'operators',
+        eyebrow: 'Operator layer',
+        title: 'AI operator passes',
+        subtitle: 'Telegram-based operators are still gated. Keep them visible, but do not let them distract from the live workspaces.',
+        productIds: ['finance-agent', 'ops-agent', 'marketing-agent'],
+    },
 ];
+
+const LIVE_IDS = new Set(CATALOG_SECTIONS[0].productIds);
 
 const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
@@ -51,134 +69,156 @@ const Products = () => {
     }, []);
 
     const categories = buildCatalogCategories(products);
-    const filteredProducts = products.filter(product =>
-        activeTab === 'All' || product.category === activeTab
-    );
-    const visibleProducts = filteredProducts.map((product) => ({
+    const productsWithLaunchState = products.map((product) => ({
         ...product,
         isComingSoon: getProductLaunchState(product, user?.email).isComingSoon,
     }));
+    const filteredProducts = productsWithLaunchState.filter(product =>
+        activeTab === 'All' || product.category === activeTab
+    );
+
+    const renderProductGrid = (items) => (
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {items.map(product => (
+                <ProductCard
+                    key={product.id}
+                    id={product.id}
+                    name={product.name}
+                    description={product.description}
+                    thumbnail={product.thumbnail}
+                    category={product.category}
+                    priceInr={product.priceInr}
+                    priceUsd={product.priceUsd}
+                    creditPrice={product.creditPrice}
+                    isBundle={product.isBundle}
+                    isComingSoon={product.isComingSoon}
+                    launchUrl={product.launchUrl}
+                    theme={product.category === 'AI Operators' ? 'terminal' : 'standard'}
+                    isFeatured={['founder-command-center', 'promptdeck-ai'].includes(product.id)}
+                />
+            ))}
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-            <SEO 
-                title="Products" 
-                description="Explore our toolkit of AI-powered systems and financial models designed for founders to turn chaos into clarity." 
+            <SEO
+                title="Products"
+                description="Browse Founder Systems tools for strategy, outreach, documents, updates, hiring, operating memory, and financial models."
                 canonical="/products"
             />
             <Navbar />
-            <div className="w-full pt-32 md:pt-40 pb-16 md:pb-20 px-6 md:px-12 border-b-2 border-brand-black bg-white">
-                <div className="max-w-7xl mx-auto flex flex-col items-center text-center">
-                    <span className="inline-block px-4 py-2 bg-brand-orange border-2 border-brand-black shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] text-white text-sm font-black uppercase tracking-widest mb-6">Catalog</span>
-                    <h1 className="text-5xl md:text-7xl font-black text-brand-black tracking-tight-brand mb-6">Systems Catalog</h1>
-                    <p className="text-lg md:text-xl text-brand-black/70 max-w-2xl font-bold leading-relaxed">Practical tools, templates, and systems to streamline operations and scale faster.</p>
+            <div className="w-full border-b-2 border-brand-black bg-white px-6 pb-16 pt-32 md:px-12 md:pb-20 md:pt-40">
+                <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+                    <div>
+                        <span className="section-kicker">Catalog</span>
+                        <h1 className="mt-6 max-w-[10ch] text-5xl font-black tracking-tight-brand text-brand-black md:text-7xl">
+                            Choose the system for today's founder mess.
+                        </h1>
+                    </div>
+                    <div className="fs-panel-muted p-6 md:p-7">
+                            <p className="text-lg font-bold leading-8 text-brand-black/72">
+                            Start with the founder workspaces if you want to see what the product is becoming. Use the models when you need financial structure. Treat operators as a gated layer until they are fully open.
+                        </p>
+                        <div className="mt-5 grid grid-cols-3 gap-3 text-center">
+                            <div className="rounded-2xl border border-brand-black/15 bg-white p-3">
+                                <p className="text-2xl font-black text-brand-orange">{productsWithLaunchState.filter((product) => LIVE_IDS.has(product.id)).length}</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/50">Workspaces</p>
+                            </div>
+                            <div className="rounded-2xl border border-brand-black/15 bg-white p-3">
+                                <p className="text-2xl font-black text-brand-black">1</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/50">Shared wallet</p>
+                            </div>
+                            <div className="rounded-2xl border border-brand-black/15 bg-white p-3">
+                                <p className="text-2xl font-black text-brand-black">{categories.length - 1}</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/50">Categories</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 py-16">
-                <div className="flex flex-wrap gap-4 mb-12">
+
+            <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-16">
+                <div className="mb-12 flex flex-wrap gap-3">
                     {categories.map(category => (
-                        <button key={category} onClick={() => setActiveTab(category)}
-                            className={`px-5 py-2 font-black text-sm uppercase tracking-wider border-2 border-brand-black transition-all duration-200 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] ${activeTab === category ? 'bg-brand-orange text-white translate-x-[-2px] translate-y-[-2px] shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]' : 'bg-white text-brand-black hover:bg-brand-cream hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]'}`}>
+                        <button
+                            key={category}
+                            onClick={() => setActiveTab(category)}
+                            className={`rounded-xl border-2 border-brand-black px-5 py-2 text-sm font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_rgba(27,28,26,1)] transition-all duration-200 ${
+                                activeTab === category
+                                    ? 'translate-x-[-2px] translate-y-[-2px] bg-brand-orange text-white shadow-[6px_6px_0px_0px_rgba(27,28,26,1)]'
+                                    : 'bg-white text-brand-black hover:bg-brand-cream hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_0px_rgba(27,28,26,1)]'
+                            }`}
+                        >
                             {category}
                         </button>
                     ))}
                 </div>
+
                 <div className="mb-24">
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {[1,2,3].map(i => (<div key={i} className="rounded-xl border-2 border-brand-black bg-white p-6 h-48 animate-pulse shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]" />))}
+                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="h-56 animate-pulse rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]" />
+                            ))}
                         </div>
-                    ) : visibleProducts.length > 0 ? (
+                    ) : filteredProducts.length > 0 ? (
                         activeTab === 'All' ? (
-                            <div className="flex flex-col gap-16">
-                                {PHASES.map(phase => {
-                                    const phaseProducts = visibleProducts.filter(p => phase.categories.includes(p.category));
-                                    if (phaseProducts.length === 0) return null;
+                            <div className="flex flex-col gap-16 md:gap-20">
+                                {CATALOG_SECTIONS.map(section => {
+                                    const sectionProducts = section.productIds
+                                        .map((productId) => productsWithLaunchState.find((product) => product.id === productId))
+                                        .filter(Boolean);
+
+                                    if (sectionProducts.length === 0) return null;
+
                                     return (
-                                        <div key={phase.id}>
-                                            <div className="border-b-2 border-brand-black pb-4 mb-8">
-                                                <h2 className="text-2xl md:text-3xl font-black tracking-tight-brand text-brand-black flex items-center gap-3">
-                                                    <span className="w-2.5 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />
-                                                    {phase.title}
-                                                </h2>
-                                                <p className="text-sm md:text-base text-brand-black/60 font-bold mt-1">
-                                                    {phase.subtitle}
-                                                </p>
+                                        <section key={section.id}>
+                                            <div className="mb-8 grid gap-4 border-b-2 border-brand-black pb-5 md:grid-cols-[0.7fr_1fr] md:items-end">
+                                                <div>
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">{section.eyebrow}</p>
+                                                    <h2 className="mt-2 text-3xl font-black tracking-tight-brand text-brand-black md:text-4xl">{section.title}</h2>
+                                                </div>
+                                                <p className="max-w-3xl text-sm font-bold leading-7 text-brand-black/62 md:text-base">{section.subtitle}</p>
                                             </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                                {phaseProducts.map(product => (
-                                                    <ProductCard 
-                                                        key={product.id} 
-                                                        id={product.id} 
-                                                        name={product.name} 
-                                                        description={product.description} 
-                                                        thumbnail={product.thumbnail}
-                                                        category={product.category}
-                                                        priceInr={product.priceInr}
-                                                        priceUsd={product.priceUsd}
-                                                        creditPrice={product.creditPrice}
-                                                        isBundle={product.isBundle}
-                                                        isComingSoon={product.isComingSoon}
-                                                        launchUrl={product.launchUrl}
-                                                        theme={product.category === 'AI Operators' ? 'terminal' : 'standard'}
-                                                        isFeatured={['promptdeck-ai'].includes(product.id)}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
+                                            {renderProductGrid(sectionProducts)}
+                                        </section>
                                     );
                                 })}
                             </div>
                         ) : (
-                            <div>
-                                <div className="border-b-2 border-brand-black pb-4 mb-8">
-                                    <h2 className="text-2xl md:text-3xl font-black tracking-tight-brand text-brand-black flex items-center gap-3">
-                                        <span className="w-2.5 h-8 bg-brand-orange border-2 border-brand-black rounded-sm" />
-                                        {activeTab}
-                                    </h2>
+                            <section>
+                                <div className="mb-8 border-b-2 border-brand-black pb-5">
+                                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-orange">Filtered view</p>
+                                    <h2 className="mt-2 text-3xl font-black tracking-tight-brand text-brand-black md:text-4xl">{activeTab}</h2>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {visibleProducts.map(product => (
-                                        <ProductCard 
-                                            key={product.id} 
-                                            id={product.id} 
-                                            name={product.name} 
-                                            description={product.description} 
-                                            thumbnail={product.thumbnail}
-                                            category={product.category}
-                                            priceInr={product.priceInr}
-                                            priceUsd={product.priceUsd}
-                                            creditPrice={product.creditPrice}
-                                            isBundle={product.isBundle}
-                                            isComingSoon={product.isComingSoon}
-                                            launchUrl={product.launchUrl}
-                                            theme={product.category === 'AI Operators' ? 'terminal' : 'standard'}
-                                            isFeatured={['promptdeck-ai'].includes(product.id)}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                                {renderProductGrid(filteredProducts)}
+                            </section>
                         )
                     ) : (
-                        <div className="w-full p-12 border-2 border-dashed border-brand-black bg-white rounded-xl text-center shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
-                            <p className="text-lg font-black text-brand-black">No products available in this category yet.</p>
+                        <div className="w-full rounded-xl border-2 border-dashed border-brand-black bg-white p-12 text-center shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+                            <p className="text-lg font-black text-brand-black">Nothing is live in this category yet.</p>
                         </div>
                     )}
                 </div>
-                <div>
-                    <h2 className="text-2xl font-black tracking-tight-brand mb-8 text-brand-black/40 flex items-center gap-3">
-                        <span className="w-2.5 h-8 bg-brand-black/20 border-2 border-brand-black rounded-sm" />Coming Soon
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                <section>
+                    <div className="mb-8 flex items-end justify-between gap-4 border-b-2 border-brand-black pb-5">
+                        <div>
+                            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/35">Backlog</p>
+                            <h2 className="mt-2 text-2xl font-black tracking-tight-brand text-brand-black/60">Coming soon</h2>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                         {COMING_SOON_PRODUCTS.map(product => (
-                            <div key={product.id} className="rounded-xl border-2 border-brand-black bg-brand-cream p-6 flex flex-col relative overflow-hidden opacity-80 border-dashed">
-                                <span className="absolute top-4 right-4 bg-white border-2 border-brand-black text-brand-black text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">Soon</span>
-                                <h3 className="font-black text-lg mb-2 pr-16 text-brand-black/80">{product.name}</h3>
-                                <p className="text-brand-black/60 font-bold text-sm flex-grow">{product.description}</p>
+                            <div key={product.id} className="relative flex flex-col overflow-hidden rounded-xl border-2 border-dashed border-brand-black bg-brand-cream p-6 opacity-80">
+                                <span className="absolute right-4 top-4 rounded-sm border-2 border-brand-black bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">Soon</span>
+                                <h3 className="mb-2 pr-16 text-lg font-black text-brand-black/80">{product.name}</h3>
+                                <p className="flex-grow text-sm font-bold text-brand-black/60">{product.description}</p>
                             </div>
                         ))}
                     </div>
-                </div>
+                </section>
             </main>
             <Footer />
         </div>

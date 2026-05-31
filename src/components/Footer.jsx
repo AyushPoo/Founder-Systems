@@ -29,7 +29,7 @@ const Footer = ({ theme = 'light' }) => {
                         <p className={`text-sm mt-3 leading-relaxed max-w-xs ${
                             isDark ? 'text-gray-500 font-mono text-xs' : 'text-brand-black/40'
                         }`}>
-                            Professional-grade systems helping founders turn chaos into clarity.
+                            Practical tools for the messy middle of building a company.
                         </p>
                     </div>
 
@@ -112,7 +112,7 @@ const Footer = ({ theme = 'light' }) => {
                         <p className={`text-xs font-bold ${
                             isDark ? 'text-gray-600 font-mono' : 'text-brand-black/40'
                         }`}>
-                            Built with 🔥 for ambitious founders
+                            Built in Bangalore for founders who like useful systems
                         </p>
                     </div>
                 </div>

@@ -92,7 +92,7 @@ export const guidesData = [
   {
     id: 'how-to-decide-which-founder-workflow-should-be-manual-automated-or-ai-assisted',
     title: 'How to Decide Which Founder Workflow Should Be Manual, Automated, or AI-Assisted',
-    description: 'A practical way to decide which workflows deserve human judgment, which need automation, and which are perfect for AI handoffs.',
+    description: 'A decision filter for what should stay human, what should be automated, and where AI can safely help.',
     thumbnail: '/images/guides/founder-workflow-automation-cover.svg',
     coverTitle: 'Choose Manual, Automated, or AI-Assisted',
     coverSubtitle: 'A decision framework for founder workflows, handoffs, and where AI actually helps.',

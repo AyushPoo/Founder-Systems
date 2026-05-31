@@ -7,7 +7,7 @@ const Hero = () => {
     return (
         <section
             ref={ref}
-            className="relative min-h-screen flex items-center overflow-hidden pt-20"
+            className="relative min-h-[100dvh] flex items-center overflow-hidden pt-20"
         >
             {/* Background decorative elements */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -27,12 +27,12 @@ const Hero = () => {
                 {/* Text content */}
                 <div className="flex flex-col gap-8">
                     <h1 className="reveal text-5xl md:text-6xl lg:text-7xl font-black tracking-tight-brand text-brand-black leading-[1.05]">
-                        Turn Founder Chaos<br />
-                        Into <span className="font-editorial italic font-normal text-brand-orange">Clear Systems</span>.
+                        Turn founder chaos<br />
+                        Into <span className="font-editorial italic font-normal text-brand-orange">clear systems</span>.
                     </h1>
 
                     <p className="reveal text-lg md:text-xl text-brand-black/70 max-w-lg leading-relaxed font-bold">
-                        Founder Systems helps new founders get guidance, and helps experienced founders get rid of repetitive headaches through practical tools for strategy, outreach, decks, and execution.
+                        Founder Systems helps you turn messy startup work into usable outputs: strategy, outreach, documents, updates, hiring screens, and operating memory.
                     </p>
 
                     {/* CTAs */}
@@ -41,7 +41,7 @@ const Hero = () => {
                             to="/products"
                             className="btn-cta"
                         >
-                            Explore Products
+                            Browse the tools
                             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                             </svg>
@@ -50,7 +50,7 @@ const Hero = () => {
                             href="#how-it-works"
                             className="btn-outline"
                         >
-                            See How It Works
+                            See how it works
                             <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -69,7 +69,7 @@ const Hero = () => {
                             ))}
                         </div>
                         <p className="text-sm text-brand-black/50 font-bold">
-                            Built honestly for founders who want more clarity and less repetition
+                            Built for founders who want fewer loose threads
                         </p>
                     </div>
                 </div>

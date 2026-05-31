@@ -3,8 +3,8 @@ import useReveal from '../hooks/useReveal';
 const STEPS = [
     {
         number: '01',
-        title: 'Get clear on what matters',
-        description: 'Start with practical guidance that helps you see the next priorities across strategy, outreach, decks, and execution.',
+        title: 'Name the real problem',
+        description: 'Start by getting the messy context out of your head: the idea, the files, the outreach angle, or the update you need to send.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -13,8 +13,8 @@ const STEPS = [
     },
     {
         number: '02',
-        title: 'Use tools that remove friction',
-        description: 'Apply founder-ready systems that cut repetitive operational work and turn messy processes into something you can actually run.',
+        title: 'Use the right workspace',
+        description: 'Pick the product that matches the job. Each one is built around a concrete founder output, not a vague chat box.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
@@ -23,8 +23,8 @@ const STEPS = [
     },
     {
         number: '03',
-        title: 'Move faster with confidence',
-        description: 'Keep momentum with clearer decisions, stronger execution, and systems that help you operate without constant reinvention.',
+        title: 'Leave with something usable',
+        description: 'The goal is a brief, screen, campaign, summary, update, or memory snapshot you can actually use after the tab closes.',
         icon: (
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
@@ -45,7 +45,7 @@ const HowItWorks = () => {
                         How it works
                     </span>
                     <h2 className="text-4xl md:text-5xl font-black tracking-tight-brand text-brand-black">
-                        Three steps to <span className="font-editorial italic font-normal text-brand-orange">operating clarity</span>
+                        Three steps to <span className="font-editorial italic font-normal text-brand-orange">less founder fog</span>
                     </h2>
                 </div>
 

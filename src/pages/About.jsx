@@ -11,9 +11,9 @@ const About = () => {
 
     return (
         <div className="min-h-screen bg-brand-cream text-brand-black flex flex-col font-sans">
-            <SEO 
-                title="About" 
-                description="Meet Ayush, the founder of Founder Systems, building professional-grade models and AI co-pilots for startups." 
+            <SEO
+                title="About"
+                description="Meet Ayush, the founder behind Founder Systems and the practical startup tools he is building."
                 canonical="/about"
             />
             <Navbar />
@@ -25,7 +25,7 @@ const About = () => {
                         About
                     </span>
                     <h1 className="text-5xl md:text-7xl font-black text-brand-black tracking-tight-brand mb-4">
-                        Meet the Founder
+                        Meet the founder
                     </h1>
                 </div>
             </div>
@@ -37,16 +37,16 @@ const About = () => {
                     <div className="flex flex-col">
                         <div className="space-y-6 text-lg md:text-xl font-medium leading-relaxed text-brand-black/70">
                             <p>
-                                Hi I'm Ayush, a finance geek turned startup founder with a toolkit full of CA/CFA logic. Currently I am trying to give a crack at solving the broken education system. I have spent years obsessing over investing and financial models so you don't have to.
+                                Hi, I'm Ayush. I like finance models, weird edge cases, and tools that save founders from doing the same work twice. Right now, I am also taking a serious crack at the broken education system.
                             </p>
                             <p>
-                                When I'm not building AI co-pilots for grading, you'll find me deep in a Souls-like boss fight or overthinking my next Slay the Spire run. I build Founder Systems to give you the operational 'cheat codes' I wish I had when I started.
+                                When I am not building AI copilots for grading, I am probably stuck in a Souls-like boss fight or overthinking a Slay the Spire run. Founder Systems is where I put the operating shortcuts I wish I had earlier.
                             </p>
                             <p>
-                                I believe most startup operations are weighed down by unnecessary noise and expensive SaaS subscriptions that underdeliver. At Founder Systems, our goal is to cut through that noise. We package hard-earned financial formulas, capital outreach heuristics, and automated engineering pipelines into simple, high-leverage AI command centers that actually get work done.
+                                A lot of startup work gets buried under noisy tools, half-finished docs, and subscriptions that do less than the founder hoped. I want Founder Systems to be more direct: take a messy job and help you leave with something usable.
                             </p>
                             <p>
-                                Instead of building massive teams to manage back-office admin, we give you the tools to remain small, hyper-efficient, and focused purely on building what your users love. Leverage is the ultimate unfair advantage in the early stages, and we are here to build yours.
+                                The site is built for founders who want to stay small a little longer, make cleaner decisions, and spend less time rebuilding context from scratch.
                             </p>
                         </div>
 
@@ -93,35 +93,35 @@ const About = () => {
                 {/* Core Beliefs Section */}
                 <div className="mt-24 border-t-2 border-brand-black pt-16">
                     <h2 className="text-3xl md:text-5xl font-black text-brand-black tracking-tight-brand mb-12">
-                        Core Operating Beliefs
+                        Core operating beliefs
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                             <span className="text-2xl font-black text-brand-orange">01</span>
-                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Leverage Over Headcount</h3>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Systems before headcount</h3>
                             <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
-                                Build systems, not large organizations. We believe a single founder armed with high-fidelity agents can out-compete teams ten times their size.
+                                Hire when the job truly needs a person. Until then, clean up the process, the data, and the decision path.
                             </p>
                         </div>
                         <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                             <span className="text-2xl font-black text-brand-orange">02</span>
-                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Obsessive Domain Logic</h3>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Domain logic matters</h3>
                             <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
-                                No generic, lazy LLM prompt wrappers. Our agents embed real financial models, professional CFA/CA constraints, and battle-tested outreach heuristics.
+                                A generic prompt is not a product. The tools should carry finance logic, hiring judgment, outreach structure, and the constraints founders actually face.
                             </p>
                         </div>
                         <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                             <span className="text-2xl font-black text-brand-orange">03</span>
-                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Zero Operational Noise</h3>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Less operational noise</h3>
                             <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
-                                Strip out bloat, distracting metrics, and bloated dashboards. If a tool doesn't directly generate leverage or save time, it doesn't belong in the catalog.
+                                If a tool adds another dashboard without helping you decide or ship, it does not belong here.
                             </p>
                         </div>
                         <div className="rounded-xl border-2 border-brand-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
                             <span className="text-2xl font-black text-brand-orange">04</span>
-                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Owner-Operator Focus</h3>
+                            <h3 className="text-xl font-black text-brand-black mt-2 mb-3">Owner-operator focus</h3>
                             <p className="text-[15px] font-semibold text-brand-black/60 leading-relaxed">
-                                Every tool and update template we design is optimized from the perspective of an owner: maximizing capital efficiency, speed, and clear outcomes.
+                                The tools are written for the person who has to live with the decision afterward: the founder, operator, or first serious hire.
                             </p>
                         </div>
                     </div>
