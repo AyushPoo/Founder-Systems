@@ -308,21 +308,21 @@ const ProductCard = ({
                         </span>
                     </div>
 
-                    <div className="mb-3 flex items-start justify-between gap-4">
+                    <div className="mb-3 flex flex-col gap-2">
                         <h3
-                            className={`line-clamp-2 transition-colors duration-200 ${
+                            className={`transition-colors duration-200 ${
                                 isTerminal
-                                    ? 'font-mono text-xl font-bold tracking-tight text-white group-hover:text-[#10b981]'
-                                    : 'text-xl font-black text-brand-black group-hover:text-brand-orange'
+                                    ? 'font-mono text-lg font-bold tracking-tight text-white group-hover:text-[#10b981]'
+                                    : 'text-lg font-black text-brand-black group-hover:text-brand-orange'
                             }`}
                         >
                             {name}
                         </h3>
-                        {(pricingLabel || freeAllowanceLabel || priceUsd || creditPrice) && (
-                            <div className="shrink-0 translate-y-1 flex flex-col items-end gap-1">
+                        {(pricingLabel || freeAllowanceLabel || priceUsd || creditPrice || paidUsageLabel) && (
+                            <div className="flex flex-wrap items-center gap-1.5">
                                 {pricingLabel || freeAllowanceLabel ? (
                                     <div
-                                        className={`rounded-md px-2 py-1 text-sm font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
+                                        className={`rounded-md px-2 py-1 text-[11px] font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
                                             isTerminal
                                                 ? 'border border-[#10b981] bg-black font-mono text-[#10b981] shadow-[2px_2px_0px_0px_rgba(16,185,129,0.3)]'
                                                 : 'border-2 border-brand-black bg-white text-brand-black'
@@ -332,7 +332,7 @@ const ProductCard = ({
                                     </div>
                                 ) : priceUsd ? (
                                     <div
-                                        className={`rounded-md px-2 py-1 text-sm font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
+                                        className={`rounded-md px-2 py-1 text-[11px] font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
                                             isTerminal
                                                 ? 'border border-[#10b981] bg-black font-mono text-[#10b981] shadow-[2px_2px_0px_0px_rgba(16,185,129,0.3)]'
                                                 : 'border-2 border-brand-black bg-white text-brand-black'
@@ -357,10 +357,10 @@ const ProductCard = ({
                     </div>
 
                     <p
-                        className={`mb-3 line-clamp-1 ${
+                        className={`mb-3 ${
                             isTerminal
                                 ? 'font-mono text-xs uppercase tracking-wider text-[#10b981]/80'
-                                : 'text-sm font-black uppercase tracking-[0.14em] text-brand-black/60'
+                                : 'text-[12px] font-black uppercase tracking-[0.12em] text-brand-black/55'
                         }`}
                     >
                         {isTerminal ? `> ${artDirection.hook}` : artDirection.hook}
