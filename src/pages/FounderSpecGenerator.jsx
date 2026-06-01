@@ -171,6 +171,7 @@ const FounderSpecGenerator = () => {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const [sessionAttachments, setSessionAttachments] = useState([]); // Persisted across turns for final generation
   const [showActiveShell, setShowActiveShell] = useState(false);
   const [mobilePane, setMobilePane] = useState('chat');
   const [storageReady, setStorageReady] = useState(false);
@@ -196,7 +197,7 @@ const FounderSpecGenerator = () => {
 
   const hasActiveMode = Boolean(session.selectedMode);
   const canGenerateSpec = hasActiveMode && shouldAllowRecommendation(session);
-  const benchmarkMatches = useMemo(() => getFounderBenchmarkMatches(session), [session]);
+  const benchmarkMatches = []; // Disabled static benchmarks — AI-generated evidence is used instead
   const relevantWorkspaceMemory = useMemo(
     () => memoryItems.filter((item) => item.status === 'active' && RELEVANT_MEMORY_TYPES.has(item.type)),
     [memoryItems]
@@ -455,6 +456,14 @@ const FounderSpecGenerator = () => {
     setInputValue('');
     const submittedAttachments = attachments;
     setAttachments([]);
+    // Persist attachments for the session so Generate Plan can use them
+    if (submittedAttachments.length > 0) {
+      setSessionAttachments((current) => {
+        const existing = new Set(current.map((a) => a.id));
+        const newOnes = submittedAttachments.filter((a) => !existing.has(a.id));
+        return [...current, ...newOnes];
+      });
+    }
     const succeeded = await submitPayload({
       message: submissionMessage,
       nextSession: optimisticSession,
@@ -483,6 +492,7 @@ const FounderSpecGenerator = () => {
       message: 'Generate the founder verdict and spec now.',
       selection: { id: 'generate_founder_spec', title: 'Generate founder spec' },
       nextSession: session,
+      documents: sessionAttachments,
       apiUrl: FINAL_API_URL,
     });
   }
@@ -503,6 +513,7 @@ const FounderSpecGenerator = () => {
     setSession(createFounderCopilotSession());
     setInputValue('');
     setAttachments([]);
+    setSessionAttachments([]);
     setError('');
     setCopied(false);
     setShowActiveShell(false);

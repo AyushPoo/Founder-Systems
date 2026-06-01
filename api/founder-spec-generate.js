@@ -6,10 +6,11 @@ import {
 } from './_lib/founderAiRuntime.js';
 
 const SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot, producing the final decision-grade strategy brief.',
-  'Use only the founder context supplied. State unknowns as assumptions or validation risks.',
-  'Do not ask another question in this response.',
-  'Return valid JSON only.',
+  'You are Founder Strategy Copilot. Produce a decision-grade strategy brief.',
+  'Read any attached documents carefully. Use specific details from them.',
+  'Be brutally honest about what is weak. Name real comparable companies from the same market.',
+  'Do not invent facts. If something is unknown, say so as a validation risk.',
+  'Return valid JSON only. The markdown field must be a complete, export-ready brief.',
 ].join('\n');
 
 const RESPONSE_SHAPE = {
@@ -373,6 +374,16 @@ export default async function handler(req, res) {
       });
     }
 
+    // Extract file attachments if present
+    const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+    const files = attachments
+      .filter((att) => att?.fileData && att?.parsed)
+      .map((att) => ({
+        filename: att.name || 'document.pdf',
+        mimeType: att.type || 'application/pdf',
+        fileData: att.fileData,
+      }));
+
     let modelResult;
     try {
       modelResult = await invokeFounderJsonModel({
@@ -380,8 +391,9 @@ export default async function handler(req, res) {
         productKey: 'founder-spec-generator',
         systemPrompt: SYSTEM_PROMPT,
         userPrompt: buildPrompt(body),
-        maxOutputTokens: 2400,
-        modelTier: 'quality',
+        files,
+        maxOutputTokens: 3000,
+        modelTier: 'premium',
         usage: {
           skipGuard: true,
         },
