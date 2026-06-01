@@ -487,35 +487,35 @@ const FounderSpecGenerator = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] lg:h-[calc(100vh-74px)] lg:overflow-hidden">
-        <div className="mx-auto h-full max-w-[1480px] px-4 sm:px-5 lg:px-8">
-          {authenticated && relevantWorkspaceMemory.length > 0 && !hasAppliedWorkspaceImport ? (
-            <div className="mb-3">
-              <WorkspaceImportPrompt
-                title="Use workspace memory in Founder Strategy Copilot?"
-                description="Bring in shared company context, offer, customer, proof, and pricing assumptions before you ask the copilot to sharpen the strategy."
-                memoryItems={relevantWorkspaceMemory}
-                onUseOnce={applyWorkspaceContextOnce}
-                onAlwaysAllow={async () => {
-                  await savePreference('founder-spec-generator', {
-                    ...(preference || {}),
-                    import_mode: 'always_allow',
-                    start_fresh_by_default: false,
-                  });
-                  applyWorkspaceContextOnce();
-                }}
-                onStartFresh={async () => {
-                  await savePreference('founder-spec-generator', {
-                    ...(preference || {}),
-                    import_mode: 'start_fresh',
-                    start_fresh_by_default: true,
-                  });
-                  setHasAppliedWorkspaceImport(true);
-                  setWorkspaceNotice('Keeping this strategy session fresh. You can still manage shared memory from Account.');
-                }}
-              />
-            </div>
-          ) : null}
+      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] flex flex-col">
+        {authenticated && relevantWorkspaceMemory.length > 0 && !hasAppliedWorkspaceImport ? (
+          <div className="mx-auto w-full max-w-[1480px] px-4 sm:px-5 lg:px-8 mb-3 shrink-0">
+            <WorkspaceImportPrompt
+              title="Use workspace memory in Founder Strategy Copilot?"
+              description="Bring in shared company context, offer, customer, proof, and pricing assumptions before you ask the copilot to sharpen the strategy."
+              memoryItems={relevantWorkspaceMemory}
+              onUseOnce={applyWorkspaceContextOnce}
+              onAlwaysAllow={async () => {
+                await savePreference('founder-spec-generator', {
+                  ...(preference || {}),
+                  import_mode: 'always_allow',
+                  start_fresh_by_default: false,
+                });
+                applyWorkspaceContextOnce();
+              }}
+              onStartFresh={async () => {
+                await savePreference('founder-spec-generator', {
+                  ...(preference || {}),
+                  import_mode: 'start_fresh',
+                  start_fresh_by_default: true,
+                });
+                setHasAppliedWorkspaceImport(true);
+                setWorkspaceNotice('Keeping this strategy session fresh. You can still manage shared memory from Account.');
+              }}
+            />
+          </div>
+        ) : null}
+        <div className="mx-auto h-full w-full max-w-[1480px] px-4 sm:px-5 lg:px-8 min-h-0 flex-1 lg:overflow-hidden">
           {!hasActiveMode ? (
             <section className="flex h-full items-start lg:items-center">
               <div className="w-full max-w-[1120px] pt-2 sm:pt-4 lg:pt-0">
@@ -587,41 +587,41 @@ const FounderSpecGenerator = () => {
                     {String(session.selectedMode || '').replace(/_/g, ' ')}
                   </p>
                 </div>
-                <div className="flex items-center rounded-full border border-brand-black/10 bg-brand-cream/55 p-1">
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setMobilePane('chat')}
-                    className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
-                      mobilePane === 'chat'
-                        ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
-                        : 'text-brand-black/56'
-                    }`}
-                  >
-                    Chat
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      handleStartNewPlan();
-                    }}
-                    className="rounded-full px-3 py-2 text-[11px] font-black text-brand-black/56 transition"
+                    onClick={handleStartNewPlan}
+                    className="rounded-full border border-brand-black/10 bg-brand-cream/55 px-3 py-2 text-[10px] font-black uppercase tracking-[0.1em] text-brand-black/50"
                   >
                     New
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobilePane('analysis');
-                      setShowAnalysis(true);
-                    }}
-                    className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
-                      mobilePane === 'analysis'
-                        ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
-                        : 'text-brand-black/56'
-                    }`}
-                  >
-                    Analysis
-                  </button>
+                  <div className="flex items-center rounded-full border border-brand-black/10 bg-brand-cream/55 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setMobilePane('chat')}
+                      className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
+                        mobilePane === 'chat'
+                          ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
+                          : 'text-brand-black/56'
+                      }`}
+                    >
+                      Chat
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobilePane('analysis');
+                        setShowAnalysis(true);
+                      }}
+                      className={`rounded-full px-3 py-2 text-[11px] font-black transition ${
+                        mobilePane === 'analysis'
+                          ? 'bg-brand-black text-white shadow-[0_8px_18px_rgba(27,28,26,0.16)]'
+                          : 'text-brand-black/56'
+                      }`}
+                    >
+                      Analysis
+                    </button>
+                  </div>
                 </div>
               </div>
 

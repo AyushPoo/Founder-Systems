@@ -456,7 +456,7 @@ const PdfSummaryWorkspace = () => {
               type="button"
               onClick={handleClear}
               disabled={loading}
-              className="hidden rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18 lg:block"
+              className="rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18"
             >
               Clear
             </button>

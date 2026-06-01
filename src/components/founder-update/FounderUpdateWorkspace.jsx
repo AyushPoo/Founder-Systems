@@ -69,11 +69,19 @@ function SummarySection({ title, items = [], emptyText = '' }) {
   );
 }
 
+const TONE_OPTIONS = [
+  { id: 'balanced', label: 'Balanced' },
+  { id: 'investor', label: 'Investor-optimized' },
+  { id: 'honest', label: 'Brutally honest' },
+  { id: 'delivery', label: 'Delivery-focused' },
+  { id: 'runway', label: 'Runway-aware' },
+];
+
 const FounderUpdateWorkspace = () => {
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
-  const [contextNotes, setContextNotes] = useState('');
   const [pastedNotes, setPastedNotes] = useState('');
+  const [selectedTone, setSelectedTone] = useState('balanced');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -161,8 +169,8 @@ const FounderUpdateWorkspace = () => {
     }
 
     setFiles([]);
-    setContextNotes('');
     setPastedNotes('');
+    setSelectedTone('balanced');
     setResult(null);
     setError('');
     setCopied(false);
@@ -197,7 +205,7 @@ const FounderUpdateWorkspace = () => {
         },
         body: JSON.stringify({
           files: filePayloads,
-          contextNotes,
+          contextNotes: selectedTone !== 'balanced' ? `Tone: ${selectedTone}` : '',
           pastedNotes,
         }),
       });
@@ -296,7 +304,7 @@ const FounderUpdateWorkspace = () => {
               type="button"
               onClick={handleClear}
               disabled={loading}
-              className="hidden rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18 lg:block"
+              className="rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18"
             >
               Clear
             </button>
@@ -354,31 +362,40 @@ const FounderUpdateWorkspace = () => {
 
             <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
               <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                Rough period notes
+                Period notes
               </span>
               <textarea
                 value={pastedNotes}
                 onChange={(event) => setPastedNotes(event.target.value)}
-                rows={5}
+                rows={6}
                 disabled={loading}
-                placeholder="Optional: paste the rough founder notes, update draft, or the narrative you already have but want sharpened."
-                className="mt-2 min-h-[120px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
+                placeholder="Paste the rough founder notes, update draft, wins, blockers, metrics, or anything from the period you want shaped into one clean update."
+                className="mt-2 min-h-[150px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
               />
             </label>
 
-            <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
+            <div className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
               <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                Context
+                Tone
               </span>
-              <textarea
-                value={contextNotes}
-                onChange={(event) => setContextNotes(event.target.value)}
-                rows={3}
-                disabled={loading}
-                placeholder="Optional: keep it brutally honest, optimize for investors, highlight blockers, or focus on delivery and runway."
-                className="mt-2 min-h-[90px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
-              />
-            </label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {TONE_OPTIONS.map((tone) => (
+                  <button
+                    key={tone.id}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => setSelectedTone(tone.id)}
+                    className={`rounded-full border px-3 py-1.5 text-[10.5px] font-black uppercase tracking-[0.1em] transition ${
+                      selectedTone === tone.id
+                        ? 'border-brand-black bg-brand-black text-white'
+                        : 'border-brand-black/10 bg-brand-cream/40 text-brand-black/55 hover:border-brand-black/20'
+                    }`}
+                  >
+                    {tone.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {error ? (
               <div className="rounded-[14px] border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] font-semibold text-red-700">

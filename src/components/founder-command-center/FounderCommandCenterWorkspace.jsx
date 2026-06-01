@@ -133,16 +133,25 @@ function MetaPill({ children }) {
   );
 }
 
-function SectionCard({ title, items = [], emptyText = 'No signals yet.' }) {
+function SkeletonPulse({ className = '' }) {
+  return <div className={`animate-pulse rounded-[10px] bg-brand-black/6 ${className}`} />;
+}
+
+function SectionCard({ title, items = [], emptyText = 'No signals yet.', loading = false }) {
   return (
     <section className="rounded-[18px] border border-brand-black/10 bg-white p-4 shadow-[0_1px_0_rgba(27,28,26,0.06)]">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-[13px] font-black uppercase tracking-[0.12em] text-brand-black/50">
           {title}
         </h3>
-        <MetaPill>{items.length} items</MetaPill>
+        {!loading ? <MetaPill>{items.length} items</MetaPill> : null}
       </div>
-      {items.length ? (
+      {loading ? (
+        <div className="mt-3 space-y-3">
+          <SkeletonPulse className="h-[72px]" />
+          <SkeletonPulse className="h-[72px]" />
+        </div>
+      ) : items.length ? (
         <div className="mt-3 space-y-3">
           {items.map((item) => (
             <article
@@ -409,7 +418,24 @@ const FounderCommandCenterWorkspace = () => {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+    <div className="space-y-5">
+      {/* Sticky section nav for desktop */}
+      <nav className="sticky top-[74px] z-10 hidden rounded-[14px] border border-brand-black/8 bg-white/95 px-4 py-2.5 shadow-[0_4px_12px_rgba(27,28,26,0.04)] backdrop-blur-sm lg:block">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[9.5px] font-black uppercase tracking-[0.14em] text-brand-black/35">Jump to:</span>
+          {['Snapshot', 'Signals', 'Categories', 'Memory health'].map((label) => (
+            <a
+              key={label}
+              href={`#cc-${label.toLowerCase().replace(/\s/g, '-')}`}
+              className="rounded-full border border-brand-black/8 bg-brand-cream/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-brand-black/55 transition hover:border-brand-black/18 hover:text-brand-black/75"
+            >
+              {label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+    <div id="cc-snapshot" className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
       <section className="rounded-[26px] border border-brand-black/10 bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl">
@@ -551,39 +577,44 @@ const FounderCommandCenterWorkspace = () => {
         </div>
       </section>
 
-      <section className="grid gap-4">
+      <section id="cc-signals" className="grid gap-4">
         <SectionCard
           title="What changed"
           items={snapshot.whatChanged}
           emptyText="Fresh uploads and tool activity will show the most meaningful changes here."
+          loading={loadingAccount}
         />
         <SectionCard
           title="Needs attention"
           items={snapshot.needsAttention}
           emptyText="Risks, blockers, and stale signals will surface here."
+          loading={loadingAccount}
         />
         <SectionCard
           title="Top metrics"
           items={snapshot.topMetrics}
           emptyText="Upload a metrics file or founder update to surface the strongest KPI signals."
+          loading={loadingAccount}
         />
       </section>
+    </div>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 lg:col-span-2">
-        <SectionCard title="Strategy" items={sections.strategy.items} />
-        <SectionCard title="Finance" items={sections.finance.items} />
-        <SectionCard title="Customer" items={sections.customer.items} />
-        <SectionCard title="Fundraising" items={sections.fundraising.items} />
-        <SectionCard title="GTM" items={sections.gtm.items} />
-        <SectionCard title="Hiring" items={sections.hiring.items} />
+      <section id="cc-categories" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <SectionCard title="Strategy" items={sections.strategy.items} loading={loadingAccount} />
+        <SectionCard title="Finance" items={sections.finance.items} loading={loadingAccount} />
+        <SectionCard title="Customer" items={sections.customer.items} loading={loadingAccount} />
+        <SectionCard title="Fundraising" items={sections.fundraising.items} loading={loadingAccount} />
+        <SectionCard title="GTM" items={sections.gtm.items} loading={loadingAccount} />
+        <SectionCard title="Hiring" items={sections.hiring.items} loading={loadingAccount} />
         <SectionCard
           title="Documents and updates"
           items={sections.documents.items}
           emptyText="Important uploads and update narratives will appear here."
+          loading={loadingAccount}
         />
       </section>
 
-      <section className="rounded-[22px] border border-brand-black/10 bg-white p-5 lg:col-span-2">
+      <section id="cc-memory-health" className="rounded-[22px] border border-brand-black/10 bg-white p-5">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-[13px] font-black uppercase tracking-[0.12em] text-brand-black/50">
@@ -656,7 +687,7 @@ const FounderCommandCenterWorkspace = () => {
       </section>
 
       {result ? (
-        <section className="rounded-[22px] border border-brand-black/10 bg-white p-5 lg:col-span-2">
+        <section className="rounded-[22px] border border-brand-black/10 bg-white p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-[13px] font-black uppercase tracking-[0.12em] text-brand-black/50">
