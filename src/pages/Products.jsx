@@ -11,7 +11,7 @@ const CATALOG_SECTIONS = [
         id: 'live-workspaces',
         eyebrow: 'Start here',
         title: 'Founder workspaces',
-        subtitle: 'These are the tools to care about first: strategy, docs, updates, outreach, hiring, and company memory. Some are still private-preview gated for non-tester accounts.',
+        subtitle: 'These are the tools to care about first: strategy, docs, updates, outreach, hiring, and company memory. Each one gives users a free or low-friction first taste before paid usage.',
         productIds: [
             'founder-spec-generator',
             'founder-pdf-summarizer',
@@ -34,10 +34,16 @@ const CATALOG_SECTIONS = [
             'd2c-ecommerce-model',
         ],
     },
+    {
+        id: 'operators',
+        eyebrow: 'Operator layer',
+        title: 'AI operator passes',
+        subtitle: 'Paid 30-day operator passes for founders who want ongoing help with marketing, finance, and operations workflows.',
+        productIds: ['finance-agent', 'ops-agent', 'marketing-agent'],
+    },
 ];
 
 const LIVE_IDS = new Set(CATALOG_SECTIONS[0].productIds);
-const HIDDEN_CATALOG_PRODUCT_IDS = new Set(['finance-agent', 'ops-agent', 'marketing-agent']);
 
 const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
@@ -56,7 +62,7 @@ const Products = () => {
             .catch(() => setLoading(false));
     }, []);
 
-    const visibleProducts = products.filter((product) => !HIDDEN_CATALOG_PRODUCT_IDS.has(product.id));
+    const visibleProducts = products;
     const categories = buildCatalogCategories(visibleProducts);
     const productsWithLaunchState = visibleProducts.map((product) => ({
         ...product,
@@ -110,7 +116,7 @@ const Products = () => {
                     </div>
                     <div className="fs-panel-muted p-6 md:p-7">
                             <p className="text-lg font-bold leading-8 text-brand-black/72">
-                            Start with the founder workspaces if you want to see what the product is becoming. Use the models when you need financial structure. Gated operator passes stay out of the catalog until they are ready.
+                            Start with the founder workspaces if you want to see what the product is becoming. Use the models when you need financial structure. Add operator passes when you want a paid, ongoing workflow layer.
                         </p>
                         <div className="mt-5 grid grid-cols-3 gap-3 text-center">
                             <div className="rounded-2xl border border-brand-black/15 bg-white p-3">

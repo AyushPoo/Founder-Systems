@@ -52,7 +52,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Includes two free small beta summaries, then 2 credits for standard analysis and 5 credits for quality, SAFE, or multi-file synthesis.",
+  "footerSummaryDetails": "Start with one small-file summary for free. Use credits for multi-file analysis, financing docs, contradiction checks, XLSX/PPTX, and deeper workspace synthesis.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A concise founder-ready summary you can copy, export, and use as a decision brief.",
   "whatYouGet": [
@@ -89,9 +89,9 @@
   "images": [
     "/images/products/founder-pdf-summarizer/thumbnail.svg"
   ],
-  "priceInr": 399,
-  "priceUsd": 5,
   "creditPrice": 4,
+  "freeAllowanceLabel": "1 small file free",
+  "paidUsageLabel": "4 credits for deeper reads",
   "launchUrl": "/tools/founder-pdf-summarizer",
   "category": "Strategy"
 }

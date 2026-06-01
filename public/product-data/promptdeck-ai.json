@@ -5,6 +5,11 @@
   "descriptionBody": "Stop staring at a blank slide. PromptDeck AI is a conversational pitch deck builder - you describe your startup in plain English and the AI builds professional slides in real-time. Edit any text inline, regenerate individual slides, and export a PDF when you're done. No design skills needed.",
   "launchUrl": "https://promptdeck.foundersystems.in",
   "category": "Strategy",
+  "footerSummaryTitle": "Pricing",
+  "footerSummaryDetails": "Start with a free outline and the first slide previews. Full deck generation, regeneration, and export are paid.",
+  "pricingLabel": "Free preview",
+  "freeAllowanceLabel": "Outline + slide previews",
+  "paidUsageLabel": "Full deck export paid",
   "features": [
     { "name": "AI-powered conversation", "desc": "The AI asks smart questions across startup dimensions like problem, solution, market, traction, team, business model, and ask, then builds slides from your answers." },
     { "name": "Live three-panel UI", "desc": "Chat on the left, live slide preview in the center, and navigation around the artifact while you edit the deck in place." },

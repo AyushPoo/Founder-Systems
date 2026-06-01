@@ -78,6 +78,17 @@ test('getProductLaunchState keeps public products open and gates private apps', 
     {
       productId: 'founder-outreach-kit',
       isInternalTester: false,
+      isPubliclyAvailable: true,
+      isComingSoon: false,
+      canAccess: true,
+    }
+  );
+
+  assert.deepEqual(
+    getProductLaunchState({ id: 'future-tool' }),
+    {
+      productId: 'future-tool',
+      isInternalTester: false,
       isPubliclyAvailable: false,
       isComingSoon: true,
       canAccess: false,
@@ -111,7 +122,9 @@ test('internal tester email bypasses launch gate for non-financial tools', () =>
       launchUrl: '/tools/founder-outreach-kit',
     }),
     {
-      kind: 'coming-soon',
+      kind: 'launch',
+      href: '/tools/founder-outreach-kit',
+      isExternal: false,
     }
   );
 });
@@ -130,7 +143,8 @@ test('buildCatalogCategories keeps defaults and adds new product categories', ()
       { category: 'Marketing Tools' },
       { category: 'Finance' },
       { category: 'Marketing Tools' },
+      { category: 'AI Operators' },
     ]),
-    ['All', 'Finance', 'Operations', 'Strategy', 'Marketing Tools']
+    ['All', 'Finance', 'Operations', 'Strategy', 'Marketing Tools', 'AI Operators']
   );
 });

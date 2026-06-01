@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Read-only workspace view stays free in beta. Persistent memory refreshes and deeper workspace sync use credits as the product matures.",
+  "footerSummaryDetails": "The basic workspace snapshot is free. Persistent memory, uploads, deeper synthesis, and cross-tool sync use credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "One founder-facing company snapshot that grows more useful as Founder Systems learns from your uploads and activity.",
   "whatYouGet": [
@@ -80,9 +80,9 @@
   "images": [
     "/images/products/founder-command-center/thumbnail.svg"
   ],
-  "priceInr": 299,
-  "priceUsd": 4,
   "creditPrice": 2,
+  "freeAllowanceLabel": "Basic snapshot free",
+  "paidUsageLabel": "2 credits for sync",
   "launchUrl": "/tools/founder-command-center",
   "category": "Strategy"
 }

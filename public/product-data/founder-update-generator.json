@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Includes one free beta update, then 2 credits per polished founder update or a one-time unlock.",
+  "footerSummaryDetails": "Notes-only update drafts are free. File-backed updates, evidence synthesis, and polished export-ready updates use credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "One polished founder update you can share, adapt, or use as the base for board and investor variants later.",
   "whatYouGet": [
@@ -81,9 +81,9 @@
   "images": [
     "/images/products/founder-update-generator/thumbnail.svg"
   ],
-  "priceInr": 299,
-  "priceUsd": 4,
   "creditPrice": 2,
+  "freeAllowanceLabel": "Notes draft free",
+  "paidUsageLabel": "2 credits with files",
   "launchUrl": "/tools/founder-update-generator",
   "category": "Strategy"
 }
