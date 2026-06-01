@@ -465,6 +465,7 @@ export function buildFounderCopilotRequest({ session, message, selection = null,
       /generate|verdict|spec|plan|business plan|plan review|score|market brief|research|final/i.test(
         cleanedMessage,
       ),
+    premium: normalizedSelection?.premium === true,
     maxQuestionCount: getAnswerLimit(session),
     strategyLenses,
     founderContextHints: inferFounderContext(session, cleanedMessage),

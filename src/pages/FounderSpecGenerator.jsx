@@ -486,11 +486,14 @@ const FounderSpecGenerator = () => {
     });
   }
 
-  async function handleGenerateSpec() {
+  async function handleGenerateSpec(tier) {
     if (!canGenerateSpec || loading) return;
+    const isPremium = tier === 'premium';
     await submitPayload({
-      message: 'Generate the founder verdict and spec now.',
-      selection: { id: 'generate_founder_spec', title: 'Generate founder spec' },
+      message: isPremium
+        ? 'Generate a detailed premium founder strategy brief now.'
+        : 'Generate the founder verdict and spec now.',
+      selection: { id: 'generate_founder_spec', title: 'Generate founder spec', premium: isPremium },
       nextSession: session,
       documents: sessionAttachments,
       apiUrl: FINAL_API_URL,

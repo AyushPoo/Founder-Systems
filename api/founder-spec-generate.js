@@ -13,6 +13,16 @@ const SYSTEM_PROMPT = [
   'Return valid JSON only. The markdown field must be a complete, export-ready brief.',
 ].join('\n');
 
+const PREMIUM_SYSTEM_PROMPT = [
+  'You are Founder Strategy Copilot producing a premium, detailed strategy brief.',
+  'Read all attached documents thoroughly. Extract every relevant detail.',
+  'Name real comparable companies, cite market dynamics, identify the sharpest risks.',
+  'Produce a comprehensive 30-day action plan with specific milestones.',
+  'The markdown field must be a long-form, export-ready strategy document with sections.',
+  'Be specific to the founder\'s actual product, market, and stage. No generic advice.',
+  'Return valid JSON only.',
+].join('\n');
+
 const RESPONSE_SHAPE = {
   mode: 'show_recommendation',
   stage: 'final_verdict',
@@ -384,18 +394,25 @@ export default async function handler(req, res) {
         fileData: att.fileData,
       }));
 
+    // Determine tier: free uses Nova Lite (bullet points), paid uses Nova Pro (detailed plan)
+    const isPremium = body.premium === true;
+    const modelTier = isPremium ? 'premium' : 'quality';
+    const maxTokens = isPremium ? 4000 : 2400;
+    const systemPrompt = isPremium ? PREMIUM_SYSTEM_PROMPT : SYSTEM_PROMPT;
+
     let modelResult;
     try {
       modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'founder-spec-generator',
-        systemPrompt: SYSTEM_PROMPT,
+        systemPrompt,
         userPrompt: buildPrompt(body),
         files,
-        maxOutputTokens: 3000,
-        modelTier: 'premium',
+        maxOutputTokens: maxTokens,
+        modelTier,
         usage: {
-          skipGuard: true,
+          skipGuard: isPremium ? false : true,
+          credits: isPremium ? 5 : 0,
         },
       });
     } catch (error) {

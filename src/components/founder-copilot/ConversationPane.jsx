@@ -72,21 +72,33 @@ const ConversationPane = ({
           <ThinkingStatus loading={loading} />
 
           {canGenerateSpec ? (
-            <div className="mb-3 flex flex-col gap-2 rounded-[18px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_10px_24px_rgba(27,28,26,0.06)] sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-black text-brand-black">Enough signal for a provisional plan.</p>
-                <p className="mt-1 text-xs font-bold text-brand-black/50">
-                  Keep refining, or generate the current verdict and plan now.
-                </p>
+            <div className="mb-3 rounded-[18px] border border-brand-black/10 bg-white px-4 py-3 shadow-[0_10px_24px_rgba(27,28,26,0.06)]">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-black text-brand-black">Enough signal for a provisional plan.</p>
+                  <p className="mt-1 text-xs font-bold text-brand-black/50">
+                    Keep refining, or generate now.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onGenerateSpec?.()}
+                    disabled={loading}
+                    className="rounded-full bg-brand-black px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
+                  >
+                    Free plan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onGenerateSpec?.('premium')}
+                    disabled={loading}
+                    className="rounded-full border border-brand-black bg-brand-orange px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
+                  >
+                    Detailed plan · ₹100
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => onGenerateSpec?.()}
-                disabled={loading}
-                className="rounded-full bg-brand-black px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
-              >
-                Generate plan
-              </button>
             </div>
           ) : null}
 
