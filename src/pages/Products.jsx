@@ -6,12 +6,6 @@ import ProductCard from '../components/ProductCard';
 import { useFounderWorkspace } from '../context/FounderWorkspaceContext';
 import { buildCatalogCategories, getProductLaunchState } from '../utils/productExperience';
 
-const COMING_SOON_PRODUCTS = [
-    { id: 'cs-1', name: 'Investor CRM', description: 'A calmer place to track fundraising conversations and follow-ups.' },
-    { id: 'cs-3', name: 'Startup Budget Planner', description: 'A simple way to map spend before the runway math gets tense.' },
-    { id: 'cs-4', name: 'LinkedIn Summarizer', description: 'Profile summaries for quick research, separate from candidate screening.' },
-];
-
 const CATALOG_SECTIONS = [
     {
         id: 'live-workspaces',
@@ -40,16 +34,10 @@ const CATALOG_SECTIONS = [
             'd2c-ecommerce-model',
         ],
     },
-    {
-        id: 'operators',
-        eyebrow: 'Operator layer',
-        title: 'AI operator passes',
-        subtitle: 'Telegram-based operators are still gated. Keep them visible, but do not let them distract from the live workspaces.',
-        productIds: ['finance-agent', 'ops-agent', 'marketing-agent'],
-    },
 ];
 
 const LIVE_IDS = new Set(CATALOG_SECTIONS[0].productIds);
+const HIDDEN_CATALOG_PRODUCT_IDS = new Set(['finance-agent', 'ops-agent', 'marketing-agent']);
 
 const Products = () => {
     const [activeTab, setActiveTab] = useState('All');
@@ -68,8 +56,9 @@ const Products = () => {
             .catch(() => setLoading(false));
     }, []);
 
-    const categories = buildCatalogCategories(products);
-    const productsWithLaunchState = products.map((product) => ({
+    const visibleProducts = products.filter((product) => !HIDDEN_CATALOG_PRODUCT_IDS.has(product.id));
+    const categories = buildCatalogCategories(visibleProducts);
+    const productsWithLaunchState = visibleProducts.map((product) => ({
         ...product,
         isComingSoon: getProductLaunchState(product, user?.email).isComingSoon,
     }));
@@ -90,6 +79,9 @@ const Products = () => {
                     priceInr={product.priceInr}
                     priceUsd={product.priceUsd}
                     creditPrice={product.creditPrice}
+                    pricingLabel={product.pricingLabel}
+                    freeAllowanceLabel={product.freeAllowanceLabel}
+                    paidUsageLabel={product.paidUsageLabel}
                     isBundle={product.isBundle}
                     isComingSoon={product.isComingSoon}
                     launchUrl={product.launchUrl}
@@ -118,7 +110,7 @@ const Products = () => {
                     </div>
                     <div className="fs-panel-muted p-6 md:p-7">
                             <p className="text-lg font-bold leading-8 text-brand-black/72">
-                            Start with the founder workspaces if you want to see what the product is becoming. Use the models when you need financial structure. Treat operators as a gated layer until they are fully open.
+                            Start with the founder workspaces if you want to see what the product is becoming. Use the models when you need financial structure. Gated operator passes stay out of the catalog until they are ready.
                         </p>
                         <div className="mt-5 grid grid-cols-3 gap-3 text-center">
                             <div className="rounded-2xl border border-brand-black/15 bg-white p-3">
@@ -202,23 +194,6 @@ const Products = () => {
                     )}
                 </div>
 
-                <section>
-                    <div className="mb-8 flex items-end justify-between gap-4 border-b-2 border-brand-black pb-5">
-                        <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/35">Backlog</p>
-                            <h2 className="mt-2 text-2xl font-black tracking-tight-brand text-brand-black/60">Coming soon</h2>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                        {COMING_SOON_PRODUCTS.map(product => (
-                            <div key={product.id} className="relative flex flex-col overflow-hidden rounded-xl border-2 border-dashed border-brand-black bg-brand-cream p-6 opacity-80">
-                                <span className="absolute right-4 top-4 rounded-sm border-2 border-brand-black bg-white px-3 py-1 text-[10px] font-black uppercase tracking-widest text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]">Soon</span>
-                                <h3 className="mb-2 pr-16 text-lg font-black text-brand-black/80">{product.name}</h3>
-                                <p className="flex-grow text-sm font-bold text-brand-black/60">{product.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
             </main>
             <Footer />
         </div>

@@ -48,7 +48,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Includes one free beta strategy draft, then 4 credits per final plan or a low-friction one-time unlock.",
+  "footerSummaryDetails": "Free beta access. Use it to pressure-test the idea, shape the market brief, and leave with a founder-ready execution spec.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A founder-ready execution spec you can refine, share, and build from.",
   "whatYouGet": [
@@ -92,9 +92,9 @@
     "/images/products/founder-spec-generator/preview-2.png",
     "/images/products/founder-spec-generator/preview-3.png"
   ],
-  "priceInr": 499,
-  "priceUsd": 6,
-  "creditPrice": 5,
+  "pricingLabel": "Free",
+  "freeAllowanceLabel": "Free",
+  "paidUsageLabel": "No card needed",
   "launchUrl": "/tools/founder-spec-generator",
   "category": "Strategy"
 }

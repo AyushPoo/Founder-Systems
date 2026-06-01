@@ -96,6 +96,9 @@ const ProductCard = ({
     priceUsd,
     priceInr,
     creditPrice,
+    pricingLabel,
+    freeAllowanceLabel,
+    paidUsageLabel,
     isBundle,
     isComingSoon,
     category,
@@ -315,9 +318,19 @@ const ProductCard = ({
                         >
                             {name}
                         </h3>
-                        {(priceUsd || creditPrice) && (
+                        {(pricingLabel || freeAllowanceLabel || priceUsd || creditPrice) && (
                             <div className="shrink-0 translate-y-1 flex flex-col items-end gap-1">
-                                {priceUsd ? (
+                                {pricingLabel || freeAllowanceLabel ? (
+                                    <div
+                                        className={`rounded-md px-2 py-1 text-sm font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
+                                            isTerminal
+                                                ? 'border border-[#10b981] bg-black font-mono text-[#10b981] shadow-[2px_2px_0px_0px_rgba(16,185,129,0.3)]'
+                                                : 'border-2 border-brand-black bg-white text-brand-black'
+                                        }`}
+                                    >
+                                        {pricingLabel || freeAllowanceLabel}
+                                    </div>
+                                ) : priceUsd ? (
                                     <div
                                         className={`rounded-md px-2 py-1 text-sm font-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] ${
                                             isTerminal
@@ -328,7 +341,7 @@ const ProductCard = ({
                                         Rs {priceInr} / ${priceUsd}
                                     </div>
                                 ) : null}
-                                {creditPrice ? (
+                                {paidUsageLabel || creditPrice ? (
                                     <div
                                         className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
                                             isTerminal
@@ -336,7 +349,7 @@ const ProductCard = ({
                                                 : 'border border-brand-black/15 bg-brand-cream text-brand-black/65'
                                         }`}
                                     >
-                                        {creditPrice} credits
+                                        {paidUsageLabel || `${creditPrice} credits`}
                                     </div>
                                 ) : null}
                             </div>

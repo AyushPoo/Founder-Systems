@@ -4,7 +4,6 @@ import {
   createHttpError,
   invokeFounderJsonModel,
 } from './_lib/founderAiRuntime.js';
-import { resolveBackendSession } from './_lib/founderBackendGuard.js';
 
 const SYSTEM_PROMPT = [
   'You are Founder Strategy Copilot, producing the final decision-grade strategy brief.',
@@ -374,8 +373,6 @@ export default async function handler(req, res) {
       });
     }
 
-    await resolveBackendSession({ req });
-
     let modelResult;
     try {
       modelResult = await invokeFounderJsonModel({
@@ -385,6 +382,9 @@ export default async function handler(req, res) {
         userPrompt: buildPrompt(body),
         maxOutputTokens: 2400,
         modelTier: 'quality',
+        usage: {
+          skipGuard: true,
+        },
       });
     } catch (error) {
       if (Number.isInteger(error?.statusCode) && error.statusCode >= 500) {

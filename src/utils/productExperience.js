@@ -5,6 +5,8 @@ const PUBLIC_PRODUCT_IDS = new Set([
   'advanced-saas-model',
   'marketplace-financial-model',
   'd2c-ecommerce-model',
+  'founder-spec-generator',
+  'linkedin-candidate-screener',
 ]);
 
 function cleanText(value) {

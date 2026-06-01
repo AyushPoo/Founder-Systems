@@ -99,9 +99,9 @@
     "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
-    "priceInr": 499,
-    "priceUsd": 6,
-    "creditPrice": 5,
+    "pricingLabel": "Free",
+    "freeAllowanceLabel": "Free",
+    "paidUsageLabel": "No card needed",
     "thumbnail": "/images/products/founder-spec-generator/thumbnail.svg",
     "launchUrl": "/tools/founder-spec-generator"
   },
@@ -159,9 +159,9 @@
     "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
     "category": "Hiring Tools",
     "productId": "FS015",
-    "priceInr": 199,
-    "priceUsd": 3,
     "creditPrice": 1,
+    "freeAllowanceLabel": "3 free screens",
+    "paidUsageLabel": "Bundles after that",
     "thumbnail": "/images/products/linkedin-candidate-screener/thumbnail.svg",
     "launchUrl": "/tools/linkedin-candidate-screener"
   }

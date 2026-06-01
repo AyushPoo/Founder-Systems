@@ -454,6 +454,9 @@ const GuideDetail = () => {
                                             priceInr={relatedProduct.priceInr}
                                             priceUsd={relatedProduct.priceUsd}
                                             creditPrice={relatedProduct.creditPrice}
+                                            pricingLabel={relatedProduct.pricingLabel}
+                                            freeAllowanceLabel={relatedProduct.freeAllowanceLabel}
+                                            paidUsageLabel={relatedProduct.paidUsageLabel}
                                         />
                                     </div>
                                 </div>

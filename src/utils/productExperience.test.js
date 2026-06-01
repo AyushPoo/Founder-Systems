@@ -50,7 +50,7 @@ test('getProductPrimaryAction falls back to checkout for priced products', () =>
   );
 });
 
-test('getProductLaunchState keeps financial models public and gates internal apps', () => {
+test('getProductLaunchState keeps public products open and gates private apps', () => {
   assert.deepEqual(
     getProductLaunchState({ id: 'advanced-saas-model' }),
     {
@@ -66,6 +66,17 @@ test('getProductLaunchState keeps financial models public and gates internal app
     getProductLaunchState({ id: 'founder-spec-generator' }),
     {
       productId: 'founder-spec-generator',
+      isInternalTester: false,
+      isPubliclyAvailable: true,
+      isComingSoon: false,
+      canAccess: true,
+    }
+  );
+
+  assert.deepEqual(
+    getProductLaunchState({ id: 'founder-outreach-kit' }),
+    {
+      productId: 'founder-outreach-kit',
       isInternalTester: false,
       isPubliclyAvailable: false,
       isComingSoon: true,

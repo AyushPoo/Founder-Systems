@@ -146,24 +146,39 @@ assert.match(parseJsonBody(longContextFallbackRes).brief.problem, /- Initial con
 assert.match(parseJsonBody(longContextFallbackRes).brief.problem, /\n- Second signal:/);
 process.env.AWS_BEARER_TOKEN_BEDROCK = 'test-key';
 
-globalThis.fetch = async (url) => {
-  if (String(url).endsWith('/auth/session')) {
+globalThis.fetch = async () => ({
+  ok: true,
+  status: 200,
+  async json() {
     return {
-      ok: false,
-      status: 401,
-      async json() {
-        return { authenticated: false };
+      output: {
+        message: {
+          content: [{
+            text: JSON.stringify({
+              mode: 'show_recommendation',
+              stage: 'final_verdict',
+              activePanel: 'action_plan',
+              confidence: 'medium',
+              recommendation: {
+                title: 'Free strategy draft',
+                summary: 'StrategyForge can now produce the final plan without a credit reservation.',
+              },
+              verdict: { standing: 'Proceed with validation' },
+              actionPlan: { firstWeek: ['Run the manual proof test'] },
+              brief: { problem: 'Founders need a free first strategy spec.' },
+              markdown: '# Founder Strategy Brief\n\n## Free beta access\nGenerate the plan.',
+            }),
+          }],
+        },
       },
     };
-  }
+  },
+});
 
-  throw new Error(`Unexpected request after unauthorized session: ${url}`);
-};
-
-const unauthorizedRes = createResponse();
-await handler(request, unauthorizedRes);
-assert.equal(unauthorizedRes.statusCode, 401);
-assert.match(parseJsonBody(unauthorizedRes).error, /authentication required/i);
+const freeAccessRes = createResponse();
+await handler(request, freeAccessRes);
+assert.equal(freeAccessRes.statusCode, 200, freeAccessRes.body);
+assert.match(parseJsonBody(freeAccessRes).markdown, /Free beta access/i);
 
 globalThis.fetch = originalFetch;
 if (typeof originalApiKey === 'undefined') {
