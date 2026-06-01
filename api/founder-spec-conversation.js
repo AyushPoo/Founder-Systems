@@ -40,8 +40,9 @@ function getUserMessages(body = {}) {
 
 function getAttachmentFiles(body = {}) {
   const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+  const MAX_FILE_DATA_LENGTH = 500000; // Cap to avoid input_too_large
   return attachments
-    .filter((att) => att?.fileData && att?.parsed)
+    .filter((att) => att?.fileData && att?.parsed && att.fileData.length <= MAX_FILE_DATA_LENGTH)
     .map((att) => ({
       filename: att.name || 'document.pdf',
       mimeType: att.type || 'application/pdf',

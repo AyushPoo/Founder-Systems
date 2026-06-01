@@ -95,7 +95,7 @@ const ConversationPane = ({
                     disabled={loading}
                     className="rounded-full border border-brand-black bg-brand-orange px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
                   >
-                    Detailed plan · ₹100
+                    Detailed plan · 1 credit
                   </button>
                 </div>
               </div>

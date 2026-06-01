@@ -384,18 +384,22 @@ export default async function handler(req, res) {
       });
     }
 
-    // Extract file attachments if present
+    // Extract file attachments if present — cap size to avoid input_too_large
+    const isPremium = body.premium === true;
     const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
-    const files = attachments
-      .filter((att) => att?.fileData && att?.parsed)
-      .map((att) => ({
-        filename: att.name || 'document.pdf',
-        mimeType: att.type || 'application/pdf',
-        fileData: att.fileData,
-      }));
+    const MAX_FILE_DATA_LENGTH = 500000; // ~375KB base64 ≈ ~280KB raw file
+    const files = isPremium
+      ? attachments
+          .filter((att) => att?.fileData && att?.parsed)
+          .map((att) => ({
+            filename: att.name || 'document.pdf',
+            mimeType: att.type || 'application/pdf',
+            fileData: att.fileData.length <= MAX_FILE_DATA_LENGTH ? att.fileData : '',
+          }))
+          .filter((f) => f.fileData)
+      : []; // Free plan: no files sent to model (avoids input_too_large)
 
     // Determine tier: free uses Nova Lite (bullet points), paid uses Nova Pro (detailed plan)
-    const isPremium = body.premium === true;
     const modelTier = isPremium ? 'premium' : 'quality';
     const maxTokens = isPremium ? 4000 : 2400;
     const systemPrompt = isPremium ? PREMIUM_SYSTEM_PROMPT : SYSTEM_PROMPT;
@@ -411,8 +415,8 @@ export default async function handler(req, res) {
         maxOutputTokens: maxTokens,
         modelTier,
         usage: {
-          skipGuard: isPremium ? false : true,
-          credits: isPremium ? 5 : 0,
+          skipGuard: !isPremium,
+          credits: isPremium ? 1 : 0,
         },
       });
     } catch (error) {
