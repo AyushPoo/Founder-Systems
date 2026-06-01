@@ -96,11 +96,11 @@ function SignalStripGraphic() {
     <div className="space-y-4">
       <div className="rounded-[24px] border-2 border-brand-black p-5">
         <p className="text-sm font-black uppercase tracking-[0.16em] text-brand-black/42">Delete this</p>
-        <p className="mt-3 text-[1.1rem] font-bold text-brand-black/52">“We are building an AI-powered platform for…”</p>
+        <p className="mt-3 text-[1.1rem] font-bold text-brand-black/52">"We are building an AI-powered platform for..."</p>
       </div>
       <div className="rounded-[24px] border-2 border-brand-black bg-[#fff2e8] p-5">
         <p className="text-sm font-black uppercase tracking-[0.16em] text-brand-black/42">Keep this</p>
-        <p className="mt-3 text-[1.1rem] font-black text-brand-black">“Recruiters still screen noisy profiles manually before interviews.”</p>
+        <p className="mt-3 text-[1.1rem] font-black text-brand-black">"Recruiters still screen noisy profiles manually before interviews."</p>
       </div>
     </div>
   );

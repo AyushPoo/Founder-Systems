@@ -6,7 +6,7 @@ import Footer from '../components/Footer';
 import GuideGridCard from '../components/guides/GuideGridCard';
 import { guidesData } from '../data/guidesData';
 
-const CATEGORIES = ['All', 'Strategy', 'Finance', 'Marketing', 'Operations', 'Fundraising'];
+const CATEGORIES = ['All', 'Strategy', 'Finance', 'Marketing', 'Sales', 'Documents', 'Operations', 'Hiring', 'Fundraising'];
 
 const Guides = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
