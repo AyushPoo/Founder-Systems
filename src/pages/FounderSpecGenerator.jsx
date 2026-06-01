@@ -219,12 +219,25 @@ const FounderSpecGenerator = () => {
       return '';
     }
 
-    const lines = ['Workspace context to use in this strategy session:'];
+    // Deduplicate by type — only use the most recent item per type
+    const seenTypes = new Map();
     relevantWorkspaceMemory.slice(0, 8).forEach((item) => {
-      const summary = String(item?.value_json?.text || item?.summary_text || '').trim();
-      if (summary) {
-        lines.push(`- ${String(item.label || item.type).replace(/_/g, ' ')}: ${summary}`);
+      const type = item.type || 'general';
+      if (!seenTypes.has(type)) {
+        const summary = String(item?.value_json?.text || item?.summary_text || '').trim();
+        if (summary) {
+          seenTypes.set(type, { label: String(item.label || item.type).replace(/_/g, ' '), summary });
+        }
       }
+    });
+
+    if (seenTypes.size === 0) return '';
+
+    const lines = ['[Workspace context loaded — the copilot will use this as background knowledge.]'];
+    seenTypes.forEach(({ label, summary }) => {
+      // Truncate long entries to keep the chat clean
+      const truncated = summary.length > 200 ? summary.slice(0, 200) + '...' : summary;
+      lines.push(`• ${label}: ${truncated}`);
     });
     return lines.join('\n');
   }, [relevantWorkspaceMemory]);
@@ -252,7 +265,10 @@ const FounderSpecGenerator = () => {
     if (!authenticated || !relevantWorkspaceMemory.length || hasAppliedWorkspaceImport) {
       return;
     }
-    if (preference?.import_mode === 'always_allow' && !preference?.start_fresh_by_default) {
+    // Even with always_allow, don't auto-inject — just show the banner.
+    // The user can click "Use once" to inject. This prevents unwanted context dumps.
+    // Only auto-apply if the user explicitly set always_allow AND there's an active mode already.
+    if (preference?.import_mode === 'always_allow' && !preference?.start_fresh_by_default && hasActiveMode) {
       applyWorkspaceContextOnce();
     }
   }, [applyWorkspaceContextOnce, authenticated, hasAppliedWorkspaceImport, preference, relevantWorkspaceMemory, hasActiveMode]);

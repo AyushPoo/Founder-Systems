@@ -6,7 +6,6 @@ const WorkspaceImportPrompt = ({
   onAlwaysAllow,
   onStartFresh,
   disabled = false,
-  dismissable = true,
 }) => {
   if (!memoryItems.length) {
     return null;
@@ -21,31 +20,60 @@ const WorkspaceImportPrompt = ({
   const uniqueChips = [...typeCounts.entries()].slice(0, 5);
 
   return (
-    <section className="rounded-[18px] border border-brand-black/10 bg-white px-4 py-3.5 shadow-[0_8px_18px_rgba(27,28,26,0.045)]">
-      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-brand-black/42">Workspace memory</p>
-      <h2 className="mt-1.5 text-[15px] font-black tracking-tight-brand">{title}</h2>
-      <p className="mt-1 text-[13px] font-medium leading-relaxed text-brand-black/55">
-        {description || 'Pull relevant context from your Founder Workspace so you do not have to restate the same company facts.'}
-      </p>
-      <div className="mt-2.5 flex flex-wrap gap-1.5">
+    <section className="relative rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 shadow-[0_4px_12px_rgba(27,28,26,0.03)]">
+      {/* Dismiss button */}
+      <button
+        type="button"
+        onClick={onStartFresh}
+        disabled={disabled}
+        className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border border-brand-black/10 bg-brand-cream/50 text-[11px] font-black text-brand-black/40 transition hover:bg-brand-black/5 hover:text-brand-black/70"
+        aria-label="Dismiss workspace memory"
+      >
+        ✕
+      </button>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-brand-cream px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.12em] text-brand-black/45">
+          Workspace memory
+        </span>
         {uniqueChips.map(([label, count]) => (
           <span
             key={label}
-            className="rounded-full border border-brand-black/10 bg-brand-cream px-2.5 py-0.5 text-[9.5px] font-black uppercase tracking-[0.12em] text-brand-black/58"
+            className="text-[10px] font-medium text-brand-black/40"
           >
-            {label}{count > 1 ? ` (${count})` : ''}
+            {label}{count > 1 ? ` ×${count}` : ''}
           </span>
         ))}
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button disabled={disabled} onClick={onUseOnce} className="rounded-full border border-brand-black bg-brand-orange px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-white disabled:opacity-60">
-          Use once
+
+      <p className="mt-1.5 text-[13px] font-semibold text-brand-black/70">
+        {title}
+      </p>
+      <p className="mt-0.5 text-[11.5px] font-medium leading-relaxed text-brand-black/45">
+        {description || 'Your saved company context can pre-fill this tool so you don\'t repeat yourself.'}
+      </p>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <button
+          disabled={disabled}
+          onClick={onUseOnce}
+          className="rounded-full border border-brand-black bg-brand-black px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-white transition hover:bg-brand-black/85 disabled:opacity-60"
+        >
+          Use context
         </button>
-        <button disabled={disabled} onClick={onAlwaysAllow} className="rounded-full border border-brand-black bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black shadow-[2px_2px_0px_0px_rgba(27,28,26,1)] disabled:opacity-60">
-          Remember for this product
+        <button
+          disabled={disabled}
+          onClick={onStartFresh}
+          className="rounded-full border border-brand-black/12 bg-white px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-brand-black/55 transition hover:border-brand-black/20 disabled:opacity-60"
+        >
+          Skip
         </button>
-        <button disabled={disabled} onClick={onStartFresh} className="rounded-full border border-brand-black/12 bg-brand-cream px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/65 disabled:opacity-60">
-          Start fresh
+        <button
+          disabled={disabled}
+          onClick={onAlwaysAllow}
+          className="text-[10px] font-medium text-brand-black/35 underline decoration-brand-black/15 transition hover:text-brand-black/55 disabled:opacity-60"
+        >
+          Always use for this tool
         </button>
       </div>
     </section>
