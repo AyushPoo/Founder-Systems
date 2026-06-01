@@ -200,26 +200,25 @@ function buildRecommendation({ mode, userMessages, joined }) {
 }
 
 const AI_CONVERSATION_SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot, a sharp strategy advisor for startup founders.',
-  'The founder has attached a document. Read it carefully and use its content to inform your response.',
-  'Ask one focused follow-up question that pressure-tests the weakest assumption in what you read.',
-  'Keep your response concise and founder-specific. Do not summarize the entire document.',
-  'Return valid JSON only with this shape:',
-  '{"ok":true,"mode":"ask_question","stage":"exploring","activePanel":"map","confidence":"low",',
-  '"question":{"id":"string","prompt":"string","helperText":"string"},',
-  '"advisory":{"whatIHeard":"string","currentRead":"string"},',
-  '"evidence":[{"title":"string","summary":"string"}],',
-  '"inference":["string"],',
-  '"recommendation":{"title":"string","summary":"string"}}',
+  'You are Founder Strategy Copilot. The founder attached a document. Read it and respond.',
+  'Return ONLY valid JSON. Keep it short. No markdown, no explanation outside JSON.',
+  'Shape: {"ok":true,"mode":"ask_question","stage":"exploring","activePanel":"map","confidence":"low",',
+  '"question":{"id":"doc_followup","prompt":"YOUR ONE QUESTION","helperText":"SHORT HELPER"},',
+  '"advisory":{"whatIHeard":"2-SENTENCE SUMMARY OF WHAT THE DOCUMENT SAYS","currentRead":"YOUR READ ON VIABILITY"},',
+  '"evidence":[{"title":"From the document","summary":"KEY FACTS YOU EXTRACTED"}],',
+  '"inference":["ONE INSIGHT"],"recommendation":{"title":"SHORT TITLE","summary":"ONE SENTENCE"}}',
 ].join('\n');
 
 const AI_RECOMMEND_SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot producing a strategy recommendation.',
-  'The founder has shared context including attached documents. Use all available signal.',
-  'Return valid JSON with: ok, mode:"show_recommendation", stage:"planning", activePanel:"action_plan",',
-  'confidence, recommendation:{title,summary}, evidence:[{title,summary}], inference:[string],',
-  'challenge:{summary}, founderFit:{fitSummary}, actionPlan:{firstWeek:[],next30Days:[]},',
-  'verdict:{standing,rationale}, brief:{problem,icp,wedge,mvpScope,excludedFeatures,pricingHypothesis,gtmPlan,next30Days,risks}',
+  'You are Founder Strategy Copilot. Produce a strategy recommendation based on the attached document and conversation.',
+  'Return ONLY valid JSON. Be concise. No markdown outside JSON.',
+  'Shape: {"ok":true,"mode":"show_recommendation","stage":"planning","activePanel":"action_plan",',
+  '"confidence":"medium","recommendation":{"title":"string","summary":"string"},',
+  '"evidence":[{"title":"string","summary":"string"}],"inference":["string"],',
+  '"challenge":{"summary":"string"},"founderFit":{"fitSummary":"string"},',
+  '"actionPlan":{"firstWeek":["string"],"next30Days":["string"]},',
+  '"verdict":{"standing":"string","rationale":"string"},',
+  '"brief":{"problem":"string","icp":"string","wedge":"string","mvpScope":"string","excludedFeatures":"string","pricingHypothesis":"string","gtmPlan":"string","next30Days":"string","risks":"string"}}',
 ].join('\n');
 
 export default async function handler(req, res) {
@@ -256,7 +255,7 @@ export default async function handler(req, res) {
           systemPrompt: shouldRecommend ? AI_RECOMMEND_SYSTEM_PROMPT : AI_CONVERSATION_SYSTEM_PROMPT,
           userPrompt,
           files,
-          maxOutputTokens: shouldRecommend ? 2000 : 800,
+          maxOutputTokens: shouldRecommend ? 2400 : 1400,
           modelTier: 'quality',
           usage: { skipGuard: true },
         });
@@ -273,8 +272,35 @@ export default async function handler(req, res) {
 
         return json(res, 200, result);
       } catch (aiError) {
-        // Fall through to rule-based handler if AI fails
+        // AI failed — fall through to rule-based handler silently
+        // Do NOT propagate the raw error to the user
         applyRateLimitHeaders(res, aiError?.rateLimit);
+        // Return a helpful response that acknowledges the document
+        if (!shouldRecommend) {
+          return json(res, 200, {
+            ok: true,
+            mode: 'ask_question',
+            stage: 'exploring',
+            activePanel: 'map',
+            confidence: 'low',
+            session: {
+              mode,
+              answers: userMessages.map((value, index) => ({ questionId: `answer_${index + 1}`, value })),
+            },
+            runtime: { turnType: 'fast', fallbackUsed: true, fallbackReason: 'Document analysis took too long. Using lightweight mode.' },
+            question: {
+              id: 'doc_context',
+              prompt: 'I received your document but could not fully analyze it this time. Can you tell me in one sentence what the core product does and who the first buyer is?',
+              helperText: 'A short plain-language summary helps me give you a sharper strategy read.',
+            },
+            advisory: {
+              whatIHeard: `You attached ${files[0]?.filename || 'a document'}.`,
+              currentRead: 'The document was received but the deeper analysis hit a limit. A text summary from you will let me continue.',
+            },
+            evidence: [],
+            inference: [],
+          });
+        }
       }
     }
 
