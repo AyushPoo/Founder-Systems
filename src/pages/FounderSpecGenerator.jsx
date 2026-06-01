@@ -357,11 +357,13 @@ const FounderSpecGenerator = () => {
         })),
       });
 
-      const payload = await response.json().catch(() => null);
-
-      // Handle malformed JSON or truncated responses
-      if (payload === null && response.ok) {
-        throw new Error('The copilot returned an incomplete response. Try sending a shorter message or fewer attachments.');
+      let payload = null;
+      try {
+        const responseText = await response.text();
+        payload = JSON.parse(responseText);
+      } catch (parseError) {
+        // If JSON parsing fails, provide a clear error instead of showing the raw parse error
+        throw new Error('The copilot returned an incomplete response. Try a shorter message or continue the conversation.');
       }
 
       const normalized = normalizeFounderSpecResponse(payload);

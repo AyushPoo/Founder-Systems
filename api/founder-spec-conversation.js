@@ -27,10 +27,43 @@ async function readJsonBody(req) {
 
 function getUserMessages(body = {}) {
   const sessionMessages = Array.isArray(body?.session?.messages) ? body.session.messages : [];
-  return [
+  const textMessages = [
     ...sessionMessages.filter((entry) => entry?.role === 'user').map((entry) => cleanText(entry.content)),
     cleanText(body.message),
   ].filter(Boolean);
+
+  // Extract text content from attachments (text excerpts and document summaries)
+  const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+  const attachmentContext = attachments
+    .filter((att) => att?.parsed && (att.excerpt || att.fileData))
+    .map((att) => {
+      if (att.excerpt && !att.fileData) {
+        return `[From ${att.name}]: ${cleanText(att.excerpt).slice(0, 1200)}`;
+      }
+      if (att.fileData) {
+        // For binary documents, try to extract readable text from base64
+        try {
+          const base64Part = att.fileData.split(',')[1] || att.fileData;
+          const decoded = Buffer.from(base64Part, 'base64').toString('utf8');
+          // Extract readable ASCII text from the decoded content (works for text-based PDFs)
+          const readable = decoded
+            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+            .replace(/\s{3,}/g, ' ')
+            .trim()
+            .slice(0, 2000);
+          if (readable.length > 50) {
+            return `[From ${att.name}]: ${readable}`;
+          }
+        } catch {
+          // Ignore extraction errors
+        }
+        return `[Document attached: ${att.name} — binary content could not be fully extracted client-side]`;
+      }
+      return '';
+    })
+    .filter(Boolean);
+
+  return [...textMessages, ...attachmentContext].filter(Boolean);
 }
 
 function includesAny(text, terms) {
