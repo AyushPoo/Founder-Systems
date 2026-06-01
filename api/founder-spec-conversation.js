@@ -1,4 +1,9 @@
 import { Buffer } from 'node:buffer';
+import {
+  applyRateLimitHeaders,
+  createHttpError,
+  invokeFounderJsonModel,
+} from './_lib/founderAiRuntime.js';
 
 function cleanText(value) {
   return String(value ?? '').trim();
@@ -27,43 +32,26 @@ async function readJsonBody(req) {
 
 function getUserMessages(body = {}) {
   const sessionMessages = Array.isArray(body?.session?.messages) ? body.session.messages : [];
-  const textMessages = [
+  return [
     ...sessionMessages.filter((entry) => entry?.role === 'user').map((entry) => cleanText(entry.content)),
     cleanText(body.message),
   ].filter(Boolean);
+}
 
-  // Extract text content from attachments (text excerpts and document summaries)
+function getAttachmentFiles(body = {}) {
   const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
-  const attachmentContext = attachments
-    .filter((att) => att?.parsed && (att.excerpt || att.fileData))
-    .map((att) => {
-      if (att.excerpt && !att.fileData) {
-        return `[From ${att.name}]: ${cleanText(att.excerpt).slice(0, 1200)}`;
-      }
-      if (att.fileData) {
-        // For binary documents, try to extract readable text from base64
-        try {
-          const base64Part = att.fileData.split(',')[1] || att.fileData;
-          const decoded = Buffer.from(base64Part, 'base64').toString('utf8');
-          // Extract readable ASCII text from the decoded content (works for text-based PDFs)
-          const readable = decoded
-            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-            .replace(/\s{3,}/g, ' ')
-            .trim()
-            .slice(0, 2000);
-          if (readable.length > 50) {
-            return `[From ${att.name}]: ${readable}`;
-          }
-        } catch {
-          // Ignore extraction errors
-        }
-        return `[Document attached: ${att.name} — binary content could not be fully extracted client-side]`;
-      }
-      return '';
-    })
-    .filter(Boolean);
+  return attachments
+    .filter((att) => att?.fileData && att?.parsed)
+    .map((att) => ({
+      filename: att.name || 'document.pdf',
+      mimeType: att.type || 'application/pdf',
+      fileData: att.fileData,
+    }));
+}
 
-  return [...textMessages, ...attachmentContext].filter(Boolean);
+function hasDocumentAttachments(body = {}) {
+  const attachments = Array.isArray(body?.attachments) ? body.attachments : [];
+  return attachments.some((att) => att?.fileData && att?.parsed);
 }
 
 function includesAny(text, terms) {
@@ -211,6 +199,29 @@ function buildRecommendation({ mode, userMessages, joined }) {
   };
 }
 
+const AI_CONVERSATION_SYSTEM_PROMPT = [
+  'You are Founder Strategy Copilot, a sharp strategy advisor for startup founders.',
+  'The founder has attached a document. Read it carefully and use its content to inform your response.',
+  'Ask one focused follow-up question that pressure-tests the weakest assumption in what you read.',
+  'Keep your response concise and founder-specific. Do not summarize the entire document.',
+  'Return valid JSON only with this shape:',
+  '{"ok":true,"mode":"ask_question","stage":"exploring","activePanel":"map","confidence":"low",',
+  '"question":{"id":"string","prompt":"string","helperText":"string"},',
+  '"advisory":{"whatIHeard":"string","currentRead":"string"},',
+  '"evidence":[{"title":"string","summary":"string"}],',
+  '"inference":["string"],',
+  '"recommendation":{"title":"string","summary":"string"}}',
+].join('\n');
+
+const AI_RECOMMEND_SYSTEM_PROMPT = [
+  'You are Founder Strategy Copilot producing a strategy recommendation.',
+  'The founder has shared context including attached documents. Use all available signal.',
+  'Return valid JSON with: ok, mode:"show_recommendation", stage:"planning", activePanel:"action_plan",',
+  'confidence, recommendation:{title,summary}, evidence:[{title,summary}], inference:[string],',
+  'challenge:{summary}, founderFit:{fitSummary}, actionPlan:{firstWeek:[],next30Days:[]},',
+  'verdict:{standing,rationale}, brief:{problem,icp,wedge,mvpScope,excludedFeatures,pricingHypothesis,gtmPlan,next30Days,risks}',
+].join('\n');
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -222,11 +233,52 @@ export default async function handler(req, res) {
     const mode = cleanText(body.mode || body?.session?.mode) || 'known_idea';
     const userMessages = getUserMessages(body);
     const joined = userMessages.join(' ');
+    const hasDocuments = hasDocumentAttachments(body);
     const shouldRecommend =
       userMessages.length >= 2 ||
       body.requestFinal === true ||
       /generate|verdict|plan|spec|final/i.test(cleanText(body.message));
 
+    // If documents are attached, use the AI model (Bedrock can read PDFs natively)
+    if (hasDocuments) {
+      const files = getAttachmentFiles(body);
+      const userPrompt = [
+        `Mode: ${mode}`,
+        `Founder message: ${cleanText(body.message) || 'Attached a document for review.'}`,
+        userMessages.length > 1 ? `Previous context: ${userMessages.slice(0, -1).join(' | ')}` : '',
+        shouldRecommend ? 'The founder has enough signal. Produce a recommendation now.' : 'Ask one sharp follow-up question based on what you read in the document.',
+      ].filter(Boolean).join('\n');
+
+      try {
+        const modelResult = await invokeFounderJsonModel({
+          req,
+          productKey: 'founder-spec-generator',
+          systemPrompt: shouldRecommend ? AI_RECOMMEND_SYSTEM_PROMPT : AI_CONVERSATION_SYSTEM_PROMPT,
+          userPrompt,
+          files,
+          maxOutputTokens: shouldRecommend ? 2000 : 800,
+          modelTier: 'quality',
+          usage: { skipGuard: true },
+        });
+
+        applyRateLimitHeaders(res, modelResult.rateLimit);
+        const result = modelResult.parsed;
+
+        // Ensure session data is included
+        result.session = {
+          mode,
+          answers: userMessages.map((value, index) => ({ questionId: `answer_${index + 1}`, value })),
+        };
+        result.runtime = { turnType: 'ai', fallbackUsed: false, fallbackReason: '' };
+
+        return json(res, 200, result);
+      } catch (aiError) {
+        // Fall through to rule-based handler if AI fails
+        applyRateLimitHeaders(res, aiError?.rateLimit);
+      }
+    }
+
+    // Rule-based fallback (no documents or AI failed)
     if (shouldRecommend) {
       return json(res, 200, buildRecommendation({ mode, userMessages, joined }));
     }
