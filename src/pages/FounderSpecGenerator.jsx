@@ -24,8 +24,10 @@ import { buildSpecMemoryCandidates } from '../utils/workspaceMemory';
 const CONVERSATION_API_URL = '/api/founder-spec-conversation';
 const FINAL_API_URL = '/api/founder-spec-generate';
 const TEXT_ATTACHMENT_EXTENSIONS = ['txt', 'md', 'csv', 'tsv', 'json'];
+const BINARY_DOCUMENT_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'rtf', 'odt'];
 const MAX_ATTACHMENT_CHARS = 1800;
 const MAX_ATTACHMENTS = 4;
+const MAX_BINARY_ATTACHMENT_BYTES = 3 * 1024 * 1024; // 3MB
 const LOCAL_STORAGE_KEY = 'founder-spec-generator:v1';
 const RELEVANT_MEMORY_TYPES = new Set([
   'venture_summary',
@@ -57,6 +59,20 @@ function isTextAttachment(file) {
   return file?.type?.startsWith('text/') || TEXT_ATTACHMENT_EXTENSIONS.includes(extension);
 }
 
+function isBinaryDocument(file) {
+  const extension = getExtension(file?.name);
+  return BINARY_DOCUMENT_EXTENSIONS.includes(extension) || file?.type === 'application/pdf';
+}
+
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(new Error('Could not read the file.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function fileToAttachment(file) {
   const base = {
     id: `${file.name}-${file.size}-${file.lastModified}`,
@@ -65,22 +81,39 @@ async function fileToAttachment(file) {
     type: file.type || 'application/octet-stream',
     parsed: false,
     excerpt: '',
+    fileData: '',
   };
 
-  if (!isTextAttachment(file)) {
-    return base;
+  // Text files — read as text and include excerpt
+  if (isTextAttachment(file)) {
+    try {
+      const text = await file.text();
+      return {
+        ...base,
+        parsed: true,
+        excerpt: String(text || '').trim().slice(0, MAX_ATTACHMENT_CHARS),
+      };
+    } catch {
+      return base;
+    }
   }
 
-  try {
-    const text = await file.text();
-    return {
-      ...base,
-      parsed: true,
-      excerpt: String(text || '').trim().slice(0, MAX_ATTACHMENT_CHARS),
-    };
-  } catch {
-    return base;
+  // Binary documents (PDF, DOCX, etc.) — read as base64 for server-side extraction
+  if (isBinaryDocument(file) && file.size <= MAX_BINARY_ATTACHMENT_BYTES) {
+    try {
+      const dataUrl = await readFileAsBase64(file);
+      return {
+        ...base,
+        parsed: true,
+        fileData: dataUrl,
+        excerpt: `[Document attached: ${file.name} — will be extracted server-side]`,
+      };
+    } catch {
+      return base;
+    }
   }
+
+  return base;
 }
 
 function buildAttachmentContext(attachments) {
@@ -90,10 +123,12 @@ function buildAttachmentContext(attachments) {
 
   attachments.forEach((file) => {
     lines.push(`- ${file.name}`);
-    if (file.parsed && file.excerpt) {
+    if (file.parsed && file.excerpt && !file.fileData) {
       lines.push(file.excerpt);
+    } else if (file.fileData) {
+      lines.push(`[Document: ${file.name} — included as file data for extraction]`);
     } else {
-      lines.push('[Attachment added. Text extraction not available for this file type yet.]');
+      lines.push('[File attached but could not be read. Try a smaller file or a supported format.]');
     }
   });
 
@@ -323,6 +358,12 @@ const FounderSpecGenerator = () => {
       });
 
       const payload = await response.json().catch(() => null);
+
+      // Handle malformed JSON or truncated responses
+      if (payload === null && response.ok) {
+        throw new Error('The copilot returned an incomplete response. Try sending a shorter message or fewer attachments.');
+      }
+
       const normalized = normalizeFounderSpecResponse(payload);
 
       if (!response.ok || !normalized.ok) {
@@ -503,7 +544,7 @@ const FounderSpecGenerator = () => {
       />
       <Navbar />
 
-      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] flex flex-col">
+      <main className="flex-grow pb-4 pt-14 sm:pt-16 lg:pt-[74px] flex flex-col lg:h-[calc(100vh-0px)] lg:max-h-screen">
         {authenticated && relevantWorkspaceMemory.length > 0 && !hasAppliedWorkspaceImport ? (
           <div className="mx-auto w-full max-w-[1480px] px-4 sm:px-5 lg:px-8 mb-3 shrink-0">
             <WorkspaceImportPrompt
