@@ -720,6 +720,10 @@ const FounderSpecGenerator = () => {
                       attachments={attachments}
                       onPickFiles={handlePickFiles}
                       onRemoveAttachment={handleRemoveAttachment}
+                      markdown={session.markdown}
+                      copied={copied}
+                      onCopy={handleCopy}
+                      onDownload={handleDownload}
                     />
                   }
                   rightPane={

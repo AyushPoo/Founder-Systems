@@ -15,11 +15,16 @@ const ConversationPane = ({
   attachments = [],
   onPickFiles,
   onRemoveAttachment,
+  markdown,
+  copied,
+  onCopy,
+  onDownload,
 }) => {
   const messages = Array.isArray(session.messages) ? session.messages : [];
   const hasMessages = messages.length > 0;
   const selectedModeLabel = String(session?.selectedMode || 'conversation').replace(/_/g, ' ');
   const showRecoveryNote = Boolean(session?.runtime?.fallbackUsed && error);
+  const hasPlan = Boolean(markdown);
 
   return (
     <section className="flex h-full min-h-0 flex-col overflow-hidden bg-transparent xl:rounded-[28px] xl:border xl:border-brand-black/12 xl:bg-white xl:shadow-[0_24px_60px_rgba(27,28,26,0.08)]">
@@ -57,6 +62,38 @@ const ConversationPane = ({
         </div>
 
         <div className="border-t border-brand-black/10 bg-brand-cream/35 px-0 py-3 sm:px-4 sm:py-4 md:px-5 xl:px-6">
+          {hasPlan ? (
+            <div className="mb-3 rounded-[18px] border-2 border-brand-black bg-white px-5 py-4 shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/45">Your strategy plan is ready</p>
+                  <p className="mt-1 text-[14px] font-black tracking-tight-brand">
+                    {session?.verdict?.standing || session?.recommendation?.title || 'Founder Strategy Brief'}
+                  </p>
+                  <p className="mt-1 text-[12px] font-medium leading-relaxed text-brand-black/55">
+                    {session?.verdict?.rationale || session?.recommendation?.summary || 'Download or copy the full strategy brief below.'}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={onDownload}
+                  className="rounded-full border border-brand-black bg-brand-orange px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]"
+                >
+                  Download .md
+                </button>
+                <button
+                  type="button"
+                  onClick={onCopy}
+                  className="rounded-full border border-brand-black bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-brand-black"
+                >
+                  {copied ? 'Copied!' : 'Copy to clipboard'}
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           {error ? (
             <div className="mb-3 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
               {error}
