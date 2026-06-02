@@ -6,20 +6,32 @@ import {
 } from './_lib/founderAiRuntime.js';
 
 const SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot. Produce a decision-grade strategy brief.',
-  'Read any attached documents carefully. Use specific details from them.',
-  'Be brutally honest about what is weak. Name real comparable companies from the same market.',
-  'Do not invent facts. If something is unknown, say so as a validation risk.',
-  'Return valid JSON only. The markdown field must be a complete, export-ready brief.',
+  'You are Founder Strategy Copilot. Produce a concise strategy brief in bullet-point form.',
+  'Use the conversation context. Be specific to what the founder said.',
+  'Do not ask questions. Return valid JSON only.',
 ].join('\n');
 
 const PREMIUM_SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot producing a premium, detailed strategy brief.',
-  'Read all attached documents thoroughly. Extract every relevant detail.',
-  'Name real comparable companies, cite market dynamics, identify the sharpest risks.',
-  'Produce a comprehensive 30-day action plan with specific milestones.',
-  'The markdown field must be a long-form, export-ready strategy document with sections.',
-  'Be specific to the founder\'s actual product, market, and stage. No generic advice.',
+  'You are Founder Strategy Copilot producing a premium deep-research strategy brief.',
+  '',
+  'DEPTH REQUIREMENTS (this is what makes this worth paying for):',
+  '- Name 3-5 REAL comparable companies in the same market with what they did right/wrong',
+  '- Cite specific market size numbers, growth rates, or adoption stats where known',
+  '- Identify the EXACT buyer persona (job title, daily pain, budget authority)',
+  '- Give a concrete pricing recommendation with reasoning (not just "subscription model")',
+  '- The GTM plan must name specific channels, tactics, and week-by-week milestones',
+  '- Risks must be specific and actionable (not generic "competition from established players")',
+  '- The 30-day plan must have daily/weekly specifics, not vague bullets',
+  '',
+  'ANTI-PATTERNS (do NOT do these):',
+  '- Do not write generic advice that could apply to any startup',
+  '- Do not say "educational institutions" without specifying which type, size, geography',
+  '- Do not say "partnerships" without saying with whom and how to get the first one',
+  '- Do not say "targeted marketing" without specifying the exact channel and message',
+  '- Every sentence must reference something specific the founder said or a real market fact',
+  '',
+  'Read attached documents carefully. Extract specific details: product name, features, traction, team, market claims.',
+  'The markdown field must be a comprehensive 1500+ word strategy document.',
   'Return valid JSON only.',
 ].join('\n');
 
@@ -99,17 +111,40 @@ function recentConversation(body) {
 }
 
 function buildPrompt(body) {
+  const isPremium = body.premium === true;
+  const conversation = recentConversation(body);
+  
+  if (isPremium) {
+    return [
+      'Create a DETAILED, RESEARCH-GRADE founder strategy brief.',
+      'This is a PAID generation. The founder expects depth, specificity, and real market intelligence.',
+      '',
+      `Selected mode: ${cleanText(body.mode || body?.session?.mode) || 'messy_idea'}`,
+      '',
+      'Full conversation context:',
+      ...conversation,
+      '',
+      `Final request: ${cleanText(body.message) || 'Generate the premium founder strategy brief.'}`,
+      '',
+      'IMPORTANT: The brief section in your JSON must have paragraphs, not single sentences.',
+      'The markdown field must be 1500+ words with real depth, examples, and specific recommendations.',
+      'Name real companies (not hypothetical ones). Give specific numbers where you know them.',
+      '',
+      'Return a complete JSON object matching this shape:',
+      JSON.stringify(RESPONSE_SHAPE),
+    ].join('\n');
+  }
+
   return [
-    'Create the final founder strategy brief now.',
+    'Create a concise founder strategy brief in bullet-point form.',
     `Selected mode: ${cleanText(body.mode || body?.session?.mode) || 'messy_idea'}`,
     'Conversation:',
-    ...recentConversation(body),
-    `Final request: ${cleanText(body.message) || 'Generate the final founder strategy brief.'}`,
+    ...conversation,
+    `Final request: ${cleanText(body.message) || 'Generate the founder strategy brief.'}`,
     '',
     'Return a complete JSON object matching this shape:',
     JSON.stringify(RESPONSE_SHAPE),
-    'Keep the brief specific, concise, honest about evidence gaps, and usable for a 30-day decision.',
-    'The markdown field must contain a readable export-ready brief with headings.',
+    'Keep it brief and actionable. The markdown field should be a short summary with headings.',
   ].join('\n');
 }
 
@@ -416,7 +451,8 @@ export default async function handler(req, res) {
         modelTier,
         usage: {
           skipGuard: !isPremium,
-          credits: isPremium ? 1 : 0,
+          credits: isPremium ? 1 : 1,
+          action: isPremium ? 'generate_premium' : 'generate',
         },
       });
     } catch (error) {
