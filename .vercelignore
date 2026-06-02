@@ -1,0 +1,33 @@
+# Dependencies and Local Builds
+node_modules
+dist
+dist-ssr
+.vercel
+.env
+.env.local
+.env.*.local
+.gitignore
+
+# Editor/OS files
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.log
+
+# Sub-projects and Backend directories (not needed for Vite build)
+promptdeck
+founder_systems_api
+founder-agents-runtime
+hermes-agent-upstream
+
+# Cache and local tooling directories
+.claude
+.github
+.venv
+__pycache__
+.pytest_cache
