@@ -134,7 +134,16 @@ def ensure_default_ai_model_policies(db: Session, settings: Settings) -> None:
                 metadata_json={"source": "default_seed"},
             )
         )
+    
+    # Auto-upgrade all other existing model policies in the database
+    existing_policies = db.scalars(select(AiModelPolicy)).all()
+    for policy in existing_policies:
+        if policy.max_input_chars < 25000000:
+            policy.max_input_chars = 25000000
+            db.flush()
+
     db.commit()
+
 
 
 def _resolve_policy(db: Session, settings: Settings, *, provider: str, model_id: str) -> AiModelPolicy:
