@@ -22,7 +22,7 @@ function listFrom(root, selectors, limit = 6) {
   return items;
 }
 
-export function extractLinkedinProfile(document, options = {}) {
+function extractLinkedinProfile(document, options = {}) {
   return {
     fullName: textFrom(document, ['h1', '.text-heading-xlarge']),
     headline: textFrom(document, [
