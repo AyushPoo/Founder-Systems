@@ -270,18 +270,17 @@ async function requestJsonModel(req, { productKey, userPrompt, files = [], model
 }
 
 async function summarizeWithModel(req, input) {
-  const modelTier =
-    input.mode === 'annual-report' || input.mode === 'financial-statement' ? 'quality' : 'cheap';
+  const isQualityMode = input.mode === 'annual-report' || input.mode === 'financial-statement';
+  const modelTier = 'quality'; // Always use 'quality' (amazon.nova-lite-v1:0) because 'cheap' (amazon.nova-micro-v1:0) does not support document uploads.
 
   return requestJsonModel(req, {
-    productKey:
-      modelTier === 'quality'
+    productKey: isQualityMode
         ? 'founder-document-intelligence-quality'
         : 'founder-document-intelligence',
     userPrompt: buildUserPrompt(input),
     files: [input],
     modelTier,
-    maxOutputTokens: modelTier === 'quality' ? 1800 : 1400,
+    maxOutputTokens: isQualityMode ? 1800 : 1400,
   });
 }
 
