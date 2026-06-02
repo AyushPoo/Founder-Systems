@@ -1,16 +1,4 @@
-import { useState } from 'react';
-
 const CHROME_STORE_URL = 'https://chromewebstore.google.com/detail/linkedin-candidate-screener';
-
-const EMPTY_FORM = {
-  fullName: '',
-  headline: '',
-  currentCompany: '',
-  profileNotes: '',
-  skills: '',
-  jobDescription: '',
-  resumeText: '',
-};
 
 function MetaPill({ children }) {
   return (
@@ -37,51 +25,9 @@ function ListBlock({ title, items }) {
   );
 }
 
-function formatLabel(value) {
-  return String(value || '')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-function splitLines(value) {
-  return String(value || '')
-    .split(/\n|,/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function ResultBlock({ result }) {
-  if (!result) {
-    return null;
-  }
-
-  return (
-    <section className="rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
-      <div className="border-b border-brand-black/7 px-4 py-3">
-        <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-          Live screen result
-        </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <MetaPill>{formatLabel(result.verdict)}</MetaPill>
-          <MetaPill>{formatLabel(result.confidence)} confidence</MetaPill>
-        </div>
-      </div>
-      <div className="space-y-3 px-4 py-4">
-        <p className="rounded-[14px] border border-brand-black/8 bg-brand-cream/16 px-3.5 py-3 text-[13px] font-medium leading-6 text-brand-black/74">
-          {result.candidateSummary}
-        </p>
-        <ListBlock title="Fit signals" items={result.fitSignals || []} />
-        <ListBlock title="Gaps or risks" items={result.gapsOrRisks || []} />
-        <ListBlock title="Interview checks" items={result.interviewChecks || []} />
-        <ListBlock title="Recruiter notes" items={result.recruiterNotes || []} />
-      </div>
-    </section>
-  );
-}
-
 const sampleResult = {
   verdict: 'Potential fit',
-  confidence: 'Medium confidence',
+  confidence: 'Medium',
   summary:
     'Strong B2B SaaS product marketing operator with visible launch and messaging experience, but pricing and enterprise depth still need verification.',
   fitSignals: [
@@ -100,316 +46,129 @@ const sampleResult = {
 };
 
 const LinkedInCandidateScreenerPage = () => {
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showAdvancedFields, setShowAdvancedFields] = useState(false);
-
-  function updateField(field, value) {
-    setForm((current) => ({ ...current, [field]: value }));
-    setError('');
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (loading) {
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setResult(null);
-
-    try {
-      const response = await fetch('/api/linkedin-candidate-screener', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobDescription: form.jobDescription,
-          resumeText: form.resumeText,
-          includeActivity: Boolean(form.profileNotes),
-          includeExternalLinks: false,
-          profile: {
-            fullName: form.fullName,
-            headline: form.headline,
-            currentCompany: form.currentCompany,
-            about: form.profileNotes,
-            experience: splitLines(form.profileNotes),
-            skills: splitLines(form.skills),
-          },
-        }),
-      });
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok || payload.error) {
-        throw new Error(payload.error || 'Candidate screen failed. Please retry with profile and role details.');
-      }
-
-      setResult(payload);
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
-          : 'Candidate screen failed. Please retry with profile and role details.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col gap-4 rounded-[20px] border border-brand-black/10 bg-white px-4 py-4 shadow-[0_14px_30px_rgba(27,28,26,0.05)] lg:flex-row lg:items-end lg:justify-between">
-        <div className="min-w-0 max-w-[820px]">
+    <section className="space-y-6">
+      {/* Hero */}
+      <div className="rounded-[24px] border border-brand-black/10 bg-white px-6 py-8 shadow-[0_14px_30px_rgba(27,28,26,0.05)] sm:px-8 sm:py-10">
+        <div className="mx-auto max-w-3xl text-center">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">
-            Hiring tool
+            Chrome Extension
           </p>
-          <h1 className="mt-1 text-[1.15rem] font-black tracking-tight-brand text-brand-black sm:text-[1.35rem]">
-            Screen LinkedIn profiles against a role and get recruiter-ready notes.
+          <h1 className="mt-3 text-[1.6rem] font-black tracking-tight-brand text-brand-black sm:text-[2.2rem]">
+            Screen LinkedIn profiles against a role in seconds.
           </h1>
-          <p className="mt-1 text-[13px] font-medium leading-relaxed text-brand-black/56">
-            Open a LinkedIn profile, paste the JD, add a resume if you have it, and get a fast verdict,
-            gaps, interview checks, and clean internal notes your team can actually use.
+          <p className="mx-auto mt-3 max-w-xl text-[14px] font-medium leading-relaxed text-brand-black/55">
+            Open any LinkedIn profile, click the extension, paste the JD — get a verdict, gaps, interview checks, and recruiter-ready notes without leaving LinkedIn.
           </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <MetaPill>Chrome extension</MetaPill>
-          <MetaPill>3 free screens</MetaPill>
-          <MetaPill>Recruiter notes</MetaPill>
-          <a
-            href={CHROME_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full bg-brand-black px-4 py-2 text-[10.5px] font-black uppercase tracking-[0.12em] text-white shadow-[0_8px_16px_rgba(27,28,26,0.09)]"
-          >
-            Add to Chrome
-          </a>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a
+              href={CHROME_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-full border border-brand-black bg-brand-orange px-6 py-3 text-[12px] font-black uppercase tracking-[0.12em] text-white shadow-[3px_3px_0px_0px_rgba(27,28,26,1)] transition hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_rgba(27,28,26,1)]"
+            >
+              Add to Chrome — Free
+            </a>
+            <MetaPill>3 free screens</MetaPill>
+            <MetaPill>1 credit per screen after</MetaPill>
+          </div>
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(620px,1fr)_430px] xl:gap-5">
+      {/* How it works */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-[18px] border border-brand-black/8 bg-white px-5 py-5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-black text-[11px] font-black text-white">1</span>
+          <h3 className="mt-3 text-[14px] font-black">Open a LinkedIn profile</h3>
+          <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-brand-black/55">
+            Navigate to any candidate's LinkedIn profile page.
+          </p>
+        </div>
+        <div className="rounded-[18px] border border-brand-black/8 bg-white px-5 py-5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-black text-[11px] font-black text-white">2</span>
+          <h3 className="mt-3 text-[14px] font-black">Click + paste the role</h3>
+          <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-brand-black/55">
+            Click the extension icon, paste your job description or role requirements.
+          </p>
+        </div>
+        <div className="rounded-[18px] border border-brand-black/8 bg-white px-5 py-5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-black text-[11px] font-black text-white">3</span>
+          <h3 className="mt-3 text-[14px] font-black">Get recruiter-ready notes</h3>
+          <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-brand-black/55">
+            Verdict, fit signals, gaps, and interview questions — all in under 30 seconds.
+          </p>
+        </div>
+      </div>
+
+      {/* Sample result */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
         <div className="space-y-4">
-          <form
-            onSubmit={handleSubmit}
-            className="rounded-[20px] border border-brand-black/7 bg-white px-4 py-4 shadow-[0_10px_28px_rgba(27,28,26,0.035)]"
-          >
-            <div className="flex flex-col gap-2 border-b border-brand-black/7 pb-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                  Screen a candidate
-                </p>
-                <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                  Paste the role and profile details to get a fast verdict with recruiter-ready notes.
-                </p>
-              </div>
-              <MetaPill>1 credit after free screens</MetaPill>
+          <div className="rounded-[20px] border border-brand-black/8 bg-white px-5 py-5">
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/38">
+              Sample screen result
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <MetaPill>{sampleResult.verdict}</MetaPill>
+              <MetaPill>{sampleResult.confidence} confidence</MetaPill>
             </div>
-
-            <div className="mt-4 space-y-3">
-              <textarea
-                value={form.jobDescription}
-                onChange={(event) => updateField('jobDescription', event.target.value)}
-                rows={4}
-                placeholder="Role or JD. Example: Founding product marketer for B2B SaaS, owns positioning, launches, customer research, and pricing narrative."
-                className="w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
-              />
-              <textarea
-                value={form.profileNotes}
-                onChange={(event) => updateField('profileNotes', event.target.value)}
-                rows={4}
-                placeholder="Visible profile notes, experience bullets, or recent activity."
-                className="w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
-              />
-
-              {showAdvancedFields ? (
-                <>
-                  <div className="grid gap-3 md:grid-cols-2">
-                    <input
-                      value={form.fullName}
-                      onChange={(event) => updateField('fullName', event.target.value)}
-                      placeholder="Candidate name"
-                      className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
-                    />
-                    <input
-                      value={form.headline}
-                      onChange={(event) => updateField('headline', event.target.value)}
-                      placeholder="LinkedIn headline"
-                      className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
-                    />
-                    <input
-                      value={form.currentCompany}
-                      onChange={(event) => updateField('currentCompany', event.target.value)}
-                      placeholder="Current company"
-                      className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
-                    />
-                    <input
-                      value={form.skills}
-                      onChange={(event) => updateField('skills', event.target.value)}
-                      placeholder="Skills, comma-separated"
-                      className="rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold outline-none focus:border-brand-black/30"
-                    />
-                  </div>
-                  <textarea
-                    value={form.resumeText}
-                    onChange={(event) => updateField('resumeText', event.target.value)}
-                    rows={3}
-                    placeholder="Optional resume text for higher-confidence screening."
-                    className="w-full rounded-[14px] border border-brand-black/10 bg-brand-cream/40 px-3.5 py-3 text-[13px] font-semibold leading-6 outline-none focus:border-brand-black/30"
-                  />
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancedFields(true)}
-                  className="rounded-full border border-brand-black/10 bg-brand-cream/50 px-3.5 py-2 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/55 transition hover:border-brand-black/18"
-                >
-                  + Add name, company, skills, resume
-                </button>
-              )}
-            </div>
-
-            {error ? (
-              <p className="mt-3 rounded-[14px] border border-[#d9485f]/20 bg-[#fff1f3] px-3.5 py-2 text-[12.5px] font-semibold text-[#b42318]">
-                {error}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-3 rounded-full border border-brand-black bg-brand-orange px-4 py-2 text-[12px] font-black uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? 'Screening...' : 'Screen candidate'}
-            </button>
-          </form>
-
-          <ResultBlock result={result} />
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <ListBlock
-              title="How it works"
-              items={[
-                'Open a LinkedIn profile.',
-                'Paste the role or JD, with optional resume text.',
-                'Get a verdict, gaps, interview checks, and notes.',
-              ]}
-            />
-            <ListBlock
-              title="What it reads"
-              items={[
-                'Visible LinkedIn profile details.',
-                'Optional recent activity when you include it.',
-                'Optional external links and pasted resume context.',
-              ]}
-            />
-            <ListBlock
-              title="Who it is for"
-              items={[
-                'Recruiters screening active candidates.',
-                'HR teams doing fast first-pass reviews.',
-                'Founders hiring directly for early roles.',
-              ]}
-            />
+            <p className="mt-3 text-[13.5px] font-medium leading-relaxed text-brand-black/70">
+              {sampleResult.summary}
+            </p>
           </div>
-
-          <div className="rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
-            <div className="border-b border-brand-black/7 px-4 py-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                Why it is better than a generic AI summary
-              </p>
-              <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                The point is not just summarization. The point is role-fit judgment inside the hiring workflow.
-              </p>
-            </div>
-            <div className="grid gap-3 px-4 py-4 md:grid-cols-2">
-              <ListBlock
-                title="What it adds"
-                items={[
-                  'Role-fit screening instead of loose recap.',
-                  'Structured recruiter notes instead of AI blobs.',
-                  'Gap and mismatch detection when evidence is weak.',
-                ]}
-              />
-              <ListBlock
-                title="What it avoids"
-                items={[
-                  'No silent crawling across many profiles.',
-                  'No hidden bulk scraping workflow in v1.',
-                  'No ATS-heavy setup just to test the tool.',
-                ]}
-              />
-            </div>
-          </div>
+          <ListBlock title="Fit signals" items={sampleResult.fitSignals} />
+          <ListBlock title="Gaps to verify" items={sampleResult.gaps} />
+          <ListBlock title="Interview checks" items={sampleResult.checks} />
         </div>
 
-        {!result ? (
-        <aside className="rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
-          <div className="border-b border-brand-black/7 px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-              Sample result
+        <aside className="space-y-4">
+          {/* Pricing */}
+          <div className="rounded-[20px] border-2 border-brand-black bg-brand-black px-5 py-5 text-white shadow-[4px_4px_0px_0px_rgba(27,28,26,0.3)]">
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/55">
+              Pricing
             </p>
-            <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-              This is the kind of output a recruiter should be able to scan in under a minute.
+            <h3 className="mt-2 text-[18px] font-black">3 free screens</h3>
+            <p className="mt-2 text-[13px] font-medium leading-relaxed text-white/70">
+              Install the extension and screen 3 candidates completely free. After that, each screen costs 1 credit from your Founder Systems wallet.
             </p>
-          </div>
-
-          <div className="space-y-3 px-4 py-4">
-            <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/16 px-3.5 py-3">
-              <div className="flex flex-wrap gap-2">
-                <MetaPill>{sampleResult.verdict}</MetaPill>
-                <MetaPill>{sampleResult.confidence}</MetaPill>
+            <div className="mt-4 space-y-2 border-t border-white/10 pt-4">
+              <div className="flex justify-between text-[12px]">
+                <span className="font-medium text-white/60">First 3 screens</span>
+                <span className="font-black">Free</span>
               </div>
-              <p className="mt-3 text-[13px] font-medium leading-6 text-brand-black/74">
-                {sampleResult.summary}
-              </p>
+              <div className="flex justify-between text-[12px]">
+                <span className="font-medium text-white/60">Each screen after</span>
+                <span className="font-black">1 credit</span>
+              </div>
+              <div className="flex justify-between text-[12px]">
+                <span className="font-medium text-white/60">Bulk (10 screens)</span>
+                <span className="font-black">8 credits</span>
+              </div>
             </div>
+          </div>
 
-            <ListBlock title="Fit signals" items={sampleResult.fitSignals} />
-            <ListBlock title="Gaps or risks" items={sampleResult.gaps} />
-            <ListBlock title="Interview checks" items={sampleResult.checks} />
+          {/* Who it's for */}
+          <ListBlock
+            title="Built for"
+            items={[
+              'Founders hiring for early roles directly.',
+              'Recruiters doing fast first-pass reviews.',
+              'HR teams screening active candidates at scale.',
+            ]}
+          />
 
-            <div className="rounded-[16px] border border-brand-black/8 bg-brand-black px-4 py-4 text-white">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/60">
-                Pricing
-              </p>
-              <p className="mt-2 text-[13px] font-medium leading-6 text-white/84">
-                Start with 3 free screens. Keep the paid tier low-friction so founders, recruiters, and lean HR teams can test it without overthinking the spend.
-              </p>
-            </div>
+          {/* CTA */}
+          <div className="rounded-[18px] border border-brand-black/8 bg-brand-cream px-5 py-5 text-center">
+            <p className="text-[13px] font-black text-brand-black">Ready to try?</p>
+            <a
+              href={CHROME_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center justify-center rounded-full border border-brand-black bg-brand-orange px-5 py-2.5 text-[11px] font-black uppercase tracking-[0.12em] text-white shadow-[2px_2px_0px_0px_rgba(27,28,26,1)]"
+            >
+              Install Chrome Extension
+            </a>
           </div>
         </aside>
-        ) : (
-        <aside className="rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
-          <div className="border-b border-brand-black/7 px-4 py-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-              Screen another
-            </p>
-            <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-              Your result is on the left. Paste a new profile and JD to screen another candidate.
-            </p>
-          </div>
-          <div className="space-y-3 px-4 py-4">
-            <div className="rounded-[16px] border border-brand-black/8 bg-brand-black px-4 py-4 text-white">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-white/60">
-                Pricing
-              </p>
-              <p className="mt-2 text-[13px] font-medium leading-6 text-white/84">
-                Start with 3 free screens. Keep the paid tier low-friction so founders, recruiters, and lean HR teams can test it without overthinking the spend.
-              </p>
-            </div>
-            <ListBlock
-              title="Tips for better results"
-              items={[
-                'Include specific experience bullets, not just a headline.',
-                'Add the full JD with must-haves and nice-to-haves.',
-                'Paste resume text for higher-confidence verdicts.',
-              ]}
-            />
-          </div>
-        </aside>
-        )}
       </div>
     </section>
   );
