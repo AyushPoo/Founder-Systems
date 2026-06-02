@@ -1,11 +1,14 @@
 const BRIEF_SECTIONS = [
   ['problem', 'Problem'],
   ['icp', 'ICP'],
+  ['wedge', 'Wedge'],
   ['mvpScope', 'MVP Scope'],
   ['excludedFeatures', 'What Not to Build'],
   ['pricingHypothesis', 'Pricing Hypothesis'],
   ['gtmPlan', 'GTM Plan'],
   ['next30Days', '30-Day Next Steps'],
+  ['risks', 'Risks'],
+  ['pivotOptions', 'Pivot Options (if primary thesis fails)'],
 ];
 
 const FounderBriefPane = ({ brief, markdown, copied, onCopy, onDownload, compact = false }) => {

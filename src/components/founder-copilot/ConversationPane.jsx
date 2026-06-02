@@ -91,6 +91,14 @@ const ConversationPane = ({
                   {copied ? 'Copied!' : 'Copy to clipboard'}
                 </button>
               </div>
+              <div className="mt-3 rounded-[12px] border border-brand-black/8 bg-brand-cream/40 px-3.5 py-2.5">
+                <p className="text-[11px] font-black text-brand-black/60">
+                  📅 Follow-up available in 2 weeks
+                </p>
+                <p className="mt-0.5 text-[10.5px] font-medium text-brand-black/45">
+                  Come back after you've tested this plan. Share what worked and what didn't — get an updated strategy with new pivot recommendations for 1 credit.
+                </p>
+              </div>
             </div>
           ) : null}
 
