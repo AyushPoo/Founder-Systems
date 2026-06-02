@@ -30,7 +30,7 @@ assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'auto'), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'pitch-deck'), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'annual-report'), true);
 assert.equal(PDF_SUMMARY_MODES.some((mode) => mode.id === 'financial-statement'), true);
-assert.equal(MAX_PDF_SIZE_BYTES, Math.round(3.25 * 1024 * 1024));
+assert.equal(MAX_PDF_SIZE_BYTES, 15 * 1024 * 1024);
 assert.equal(getFounderPdfSummaryModeLabel('pitch-deck'), 'Pitch deck');
 assert.equal(ACCEPTED_DOCUMENT_EXTENSIONS.includes('.xlsx'), true);
 assert.equal(

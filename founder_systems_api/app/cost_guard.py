@@ -44,7 +44,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "bedrock",
         "model_id": "amazon.nova-lite-v1:0",
         "status": "enabled",
-        "max_input_chars": 12000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 500,
         "daily_global_limit": 1000,
     },
@@ -52,7 +52,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "google",
         "model_id": "gemini-2.5-flash",
         "status": "enabled",
-        "max_input_chars": 12000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 500,
         "daily_global_limit": 1000,
     },
@@ -60,7 +60,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "openai",
         "model_id": "gpt-4.1-mini",
         "status": "enabled",
-        "max_input_chars": 12000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 1200,
         "daily_global_limit": 500,
     },
@@ -68,7 +68,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "litellm",
         "model_id": "action",
         "status": "enabled",
-        "max_input_chars": 12000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 1200,
         "daily_global_limit": 500,
     },
@@ -76,7 +76,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "bedrock",
         "model_id": "deepseek.v3.1",
         "status": "disabled",
-        "max_input_chars": 4000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 400,
         "daily_global_limit": 0,
     },
@@ -84,7 +84,7 @@ DEFAULT_MODEL_POLICIES: tuple[dict[str, Any], ...] = (
         "provider": "bedrock",
         "model_id": "deepseek-v3.1",
         "status": "disabled",
-        "max_input_chars": 4000,
+        "max_input_chars": 25000000,
         "max_output_tokens": 400,
         "daily_global_limit": 0,
     },
@@ -115,6 +115,10 @@ def ensure_default_ai_model_policies(db: Session, settings: Settings) -> None:
             )
         )
         if existing is not None:
+            default_max = int(row.get("max_input_chars") or 25000000)
+            if existing.max_input_chars < default_max:
+                existing.max_input_chars = default_max
+                db.flush()
             continue
         status = str(row.get("status") or "enabled")
         if _is_deepseek_v31(provider, model_id) and settings.ai_guard_deepseek_enabled:
@@ -150,7 +154,7 @@ def _resolve_policy(db: Session, settings: Settings, *, provider: str, model_id:
         provider=normalized_provider,
         model_id=normalized_model,
         status=status,
-        max_input_chars=12000,
+        max_input_chars=25000000,
         max_output_tokens=800,
         daily_global_limit=settings.ai_guard_global_daily_limit,
         metadata_json={"source": "auto_created"},

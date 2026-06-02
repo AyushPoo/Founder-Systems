@@ -1,4 +1,4 @@
-export const MAX_PDF_SIZE_BYTES = Math.round(3.25 * 1024 * 1024);
+export const MAX_PDF_SIZE_BYTES = 15 * 1024 * 1024;
 export const DEFAULT_PDF_SUMMARY_MODE = 'auto';
 export const ACCEPTED_DOCUMENT_EXTENSIONS = [
   '.pdf',
@@ -268,6 +268,18 @@ export function normalizeFounderPdfSummaryRequest(input = {}) {
   };
 }
 
+export function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    return '0 KB';
+  }
+
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
 export function validateFounderPdfSummaryRequest(input = {}) {
   const normalized = normalizeFounderPdfSummaryRequest(input);
   const missing = [];
@@ -309,7 +321,7 @@ export function validateFounderPdfSummaryRequest(input = {}) {
       normalized,
       missing: [],
       isValid: false,
-      error: 'Please upload a PDF smaller than 3.3 MB for the current direct-upload beta.',
+      error: `Please upload a file smaller than ${formatFileSize(MAX_PDF_SIZE_BYTES)} in the current direct-upload beta.`,
     };
   }
 
