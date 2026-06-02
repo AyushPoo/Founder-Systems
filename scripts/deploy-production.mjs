@@ -58,7 +58,7 @@ try {
     fail(`Refusing to deploy from branch "${branch}". Switch to "main" first.`);
   }
 
-  const status = read(['status', '--porcelain']);
+  const status = read(['status', '--porcelain', '-uno']);
   if (status) {
     fail('Working tree is not clean. Commit, stash, or remove local changes before deploying.');
   }
