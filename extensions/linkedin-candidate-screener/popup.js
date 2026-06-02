@@ -80,25 +80,32 @@ function renderResult(payload) {
 async function extractProfile() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
-  if (!tab?.id || !tab.url || !tab.url.includes('linkedin.com/in/')) {
+  if (!tab?.id || !tab.url || !tab.url.includes('linkedin.com/in')) {
     throw new Error('Navigate to a LinkedIn profile page first.');
   }
 
-  const response = await chrome.tabs.sendMessage(tab.id, {
-    type: 'extract-linkedin-profile',
-    includeActivity: true,
-    includeExternalLinks: false,
-  });
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, {
+      type: 'extract-linkedin-profile',
+      includeActivity: true,
+      includeExternalLinks: false,
+    });
 
-  if (response?.error) {
-    throw new Error(response.error);
+    if (response?.error) {
+      throw new Error(response.error);
+    }
+
+    if (!response?.fullName) {
+      throw new Error('Could not read profile data. Try refreshing the LinkedIn page.');
+    }
+
+    return response;
+  } catch (err) {
+    if (err?.message?.includes('Receiving end does not exist') || err?.message?.includes('Could not establish connection')) {
+      throw new Error('Please refresh this LinkedIn page (F5) and try again. The extension needs a fresh page load.');
+    }
+    throw err;
   }
-
-  if (!response?.fullName) {
-    throw new Error('Could not read profile data. Try refreshing the LinkedIn page.');
-  }
-
-  return response;
 }
 
 async function runScreen() {
