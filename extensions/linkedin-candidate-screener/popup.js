@@ -84,66 +84,102 @@ async function extractProfile() {
     throw new Error('Navigate to a LinkedIn profile page first.');
   }
 
-  // Inject and execute the profile extraction directly — more reliable than content scripts
   const results = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: () => {
-      function textFrom(root, selectors) {
-        for (const selector of selectors) {
-          try {
-            const node = root.querySelector(selector);
-            const value = node?.textContent?.trim();
-            if (value) return value;
-          } catch {}
+      // Grab ALL h1 text on the page to find the name
+      const allH1s = Array.from(document.querySelectorAll('h1')).map(el => el.textContent.trim()).filter(Boolean);
+      
+      // The profile name is typically the first non-empty h1
+      const fullName = allH1s[0] || '';
+
+      // Headline: usually a div right after the name with medium text
+      let headline = '';
+      const headlineSelectors = [
+        '.text-body-medium.break-words',
+        'div.text-body-medium',
+        '.pv-text-details__left-panel div.text-body-medium',
+      ];
+      for (const sel of headlineSelectors) {
+        try {
+          const el = document.querySelector(sel);
+          if (el?.textContent?.trim()) { headline = el.textContent.trim(); break; }
+        } catch {}
+      }
+
+      // Location
+      let location = '';
+      const locSelectors = [
+        '.text-body-small.inline.t-black--light.break-words',
+        'span.text-body-small.inline.t-black--light',
+      ];
+      for (const sel of locSelectors) {
+        try {
+          const el = document.querySelector(sel);
+          if (el?.textContent?.trim()) { location = el.textContent.trim(); break; }
+        } catch {}
+      }
+
+      // About section
+      let about = '';
+      const aboutSection = document.querySelector('#about');
+      if (aboutSection) {
+        const container = aboutSection.closest('section');
+        if (container) {
+          const spans = container.querySelectorAll('span[aria-hidden="true"]');
+          for (const span of spans) {
+            const text = span.textContent.trim();
+            if (text.length > 30) { about = text; break; }
+          }
         }
-        return '';
       }
 
-      function listFrom(root, selectors, limit = 6) {
-        const items = [];
-        selectors.forEach((selector) => {
-          try {
-            root.querySelectorAll(selector).forEach((node) => {
-              const value = node.textContent?.trim();
-              if (value && !items.includes(value) && items.length < limit) {
-                items.push(value);
-              }
-            });
-          } catch {}
-        });
-        return items;
+      // Experience
+      const experience = [];
+      const expSection = document.querySelector('#experience');
+      if (expSection) {
+        const container = expSection.closest('section');
+        if (container) {
+          container.querySelectorAll('span[aria-hidden="true"]').forEach((span) => {
+            const text = span.textContent.trim();
+            if (text && text.length > 3 && experience.length < 6 && !experience.includes(text)) {
+              experience.push(text);
+            }
+          });
+        }
       }
 
-      const fullName = textFrom(document, ['h1.text-heading-xlarge', 'h1[class*="text-heading"]', '.pv-top-card h1', 'h1']);
-      const headline = textFrom(document, ['.text-body-medium.break-words', 'div.text-body-medium', '.pv-text-details__left-panel div.text-body-medium']);
-      const location = textFrom(document, ['.text-body-small.inline.t-black--light.break-words', 'span.text-body-small.inline.t-black--light']);
-      const about = textFrom(document, ['#about ~ div .display-flex.ph5.pv3', '#about ~ div span[aria-hidden="true"]', 'section[data-section="summary"] span[aria-hidden="true"]']);
-      const currentCompany = textFrom(document, ['#experience ~ div li:first-child .t-bold span[aria-hidden="true"]', '.pv-top-card--experience-list-item']);
-      const experience = listFrom(document, ['#experience ~ div li span[aria-hidden="true"]']);
-      const skills = listFrom(document, ['#skills ~ div li span[aria-hidden="true"]']);
+      // Skills
+      const skills = [];
+      const skillsSection = document.querySelector('#skills');
+      if (skillsSection) {
+        const container = skillsSection.closest('section');
+        if (container) {
+          container.querySelectorAll('span[aria-hidden="true"]').forEach((span) => {
+            const text = span.textContent.trim();
+            if (text && text.length > 1 && skills.length < 8 && !skills.includes(text)) {
+              skills.push(text);
+            }
+          });
+        }
+      }
 
-      // Fallback: get headline from meta description
-      let finalHeadline = headline;
-      if (!finalHeadline) {
+      // Fallback headline from meta
+      if (!headline) {
         const meta = document.querySelector('meta[name="description"]');
         if (meta) {
           const parts = (meta.getAttribute('content') || '').split(' - ');
-          if (parts.length >= 2) finalHeadline = parts[1].trim();
+          if (parts.length >= 2) headline = parts[1].trim();
         }
       }
 
-      return {
-        fullName: fullName || document.querySelector('h1')?.textContent?.trim() || '',
-        headline: finalHeadline,
-        location,
-        currentCompany,
-        about,
-        experience,
-        skills,
-        education: listFrom(document, ['#education ~ div li span[aria-hidden="true"]']),
-        recentActivity: listFrom(document, ['section.artdeco-card a[href*="/posts/"] span[aria-hidden="true"]'], 4),
-        externalLinks: [],
-      };
+      // Current company from experience or from the profile card
+      let currentCompany = '';
+      const companyEl = document.querySelector('button[aria-label*="Current company"] span') 
+        || document.querySelector('a[data-field="experience_company_logo"] + div span');
+      if (companyEl) currentCompany = companyEl.textContent.trim();
+
+      return { fullName, headline, location, about, currentCompany, experience, skills, education: [], recentActivity: [], externalLinks: [] };
     },
   });
 
@@ -212,6 +248,8 @@ async function init() {
     hide(loadingState);
     show(errorState);
     errorMessage.textContent = error?.message || 'Could not read the profile.';
+    // Also show in console for debugging
+    console.error('LinkedIn Screener extraction error:', error);
   }
 }
 
