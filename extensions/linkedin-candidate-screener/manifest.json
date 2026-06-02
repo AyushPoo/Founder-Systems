@@ -3,7 +3,7 @@
   "name": "LinkedIn Candidate Screener — Founder Systems",
   "version": "1.0.0",
   "description": "Screen LinkedIn profiles against a role and get recruiter-ready notes in seconds. Verdict, fit signals, gaps, and interview checks.",
-  "permissions": ["storage", "tabs"],
+  "permissions": ["storage", "tabs", "scripting", "activeTab"],
   "host_permissions": [
     "https://*.linkedin.com/*",
     "https://foundersystems.in/*"

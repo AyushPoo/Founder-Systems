@@ -84,28 +84,75 @@ async function extractProfile() {
     throw new Error('Navigate to a LinkedIn profile page first.');
   }
 
-  try {
-    const response = await chrome.tabs.sendMessage(tab.id, {
-      type: 'extract-linkedin-profile',
-      includeActivity: true,
-      includeExternalLinks: false,
-    });
+  // Inject and execute the profile extraction directly — more reliable than content scripts
+  const results = await chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => {
+      function textFrom(root, selectors) {
+        for (const selector of selectors) {
+          try {
+            const node = root.querySelector(selector);
+            const value = node?.textContent?.trim();
+            if (value) return value;
+          } catch {}
+        }
+        return '';
+      }
 
-    if (response?.error) {
-      throw new Error(response.error);
-    }
+      function listFrom(root, selectors, limit = 6) {
+        const items = [];
+        selectors.forEach((selector) => {
+          try {
+            root.querySelectorAll(selector).forEach((node) => {
+              const value = node.textContent?.trim();
+              if (value && !items.includes(value) && items.length < limit) {
+                items.push(value);
+              }
+            });
+          } catch {}
+        });
+        return items;
+      }
 
-    if (!response?.fullName) {
-      throw new Error('Could not read profile data. Try refreshing the LinkedIn page.');
-    }
+      const fullName = textFrom(document, ['h1.text-heading-xlarge', 'h1[class*="text-heading"]', '.pv-top-card h1', 'h1']);
+      const headline = textFrom(document, ['.text-body-medium.break-words', 'div.text-body-medium', '.pv-text-details__left-panel div.text-body-medium']);
+      const location = textFrom(document, ['.text-body-small.inline.t-black--light.break-words', 'span.text-body-small.inline.t-black--light']);
+      const about = textFrom(document, ['#about ~ div .display-flex.ph5.pv3', '#about ~ div span[aria-hidden="true"]', 'section[data-section="summary"] span[aria-hidden="true"]']);
+      const currentCompany = textFrom(document, ['#experience ~ div li:first-child .t-bold span[aria-hidden="true"]', '.pv-top-card--experience-list-item']);
+      const experience = listFrom(document, ['#experience ~ div li span[aria-hidden="true"]']);
+      const skills = listFrom(document, ['#skills ~ div li span[aria-hidden="true"]']);
 
-    return response;
-  } catch (err) {
-    if (err?.message?.includes('Receiving end does not exist') || err?.message?.includes('Could not establish connection')) {
-      throw new Error('Please refresh this LinkedIn page (F5) and try again. The extension needs a fresh page load.');
-    }
-    throw err;
+      // Fallback: get headline from meta description
+      let finalHeadline = headline;
+      if (!finalHeadline) {
+        const meta = document.querySelector('meta[name="description"]');
+        if (meta) {
+          const parts = (meta.getAttribute('content') || '').split(' - ');
+          if (parts.length >= 2) finalHeadline = parts[1].trim();
+        }
+      }
+
+      return {
+        fullName: fullName || document.querySelector('h1')?.textContent?.trim() || '',
+        headline: finalHeadline,
+        location,
+        currentCompany,
+        about,
+        experience,
+        skills,
+        education: listFrom(document, ['#education ~ div li span[aria-hidden="true"]']),
+        recentActivity: listFrom(document, ['section.artdeco-card a[href*="/posts/"] span[aria-hidden="true"]'], 4),
+        externalLinks: [],
+      };
+    },
+  });
+
+  const profile = results?.[0]?.result;
+  if (!profile || !profile.fullName) {
+    throw new Error('Could not read profile data. Make sure the profile page is fully loaded.');
   }
+
+  return profile;
 }
 
 async function runScreen() {
