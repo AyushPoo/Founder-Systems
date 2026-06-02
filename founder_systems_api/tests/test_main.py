@@ -21,8 +21,13 @@ def _bootstrap_app(monkeypatch, tmp_path: Path):
     monkeypatch.setenv("FS_SITE_APP_URL", "https://foundersystems.in")
     monkeypatch.setenv("FS_ACCOUNT_APP_URL", "https://account.foundersystems.in")
     monkeypatch.setenv("FS_PROMPTDECK_APP_URL", "https://promptdeck.foundersystems.in")
+    monkeypatch.setenv("FS_PUBLIC_API_URL", "http://localhost:8000")
     monkeypatch.setenv("FS_GOOGLE_CLIENT_ID", "google-client-id")
     monkeypatch.setenv("FS_GOOGLE_CLIENT_SECRET", "google-client-secret")
+    monkeypatch.setenv("FS_PROMPTDECK_PRICE_INR_MINOR", "50000")
+    monkeypatch.setenv("FS_PROMPTDECK_PRICE_USD_MINOR", "600")
+    monkeypatch.setenv("FS_RESEND_API_KEY", "")
+    monkeypatch.setenv("FS_RESEND_FROM_EMAIL", "")
 
     for module_name in list(sys.modules):
         if module_name.startswith("founder_systems_api.app"):

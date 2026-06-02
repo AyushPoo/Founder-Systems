@@ -115,10 +115,10 @@ def derive_credit_price(inr_price: int) -> int:
 def _catalog_index_path() -> Path:
     current = Path(__file__).resolve()
     for parent in current.parents:
-        candidate = parent / "public" / "products" / "index.json"
+        candidate = parent / "public" / "product-data" / "index.json"
         if candidate.exists():
             return candidate
-    return current.parents[2] / "public" / "products" / "index.json"
+    return current.parents[2] / "public" / "product-data" / "index.json"
 
 
 def _embedded_catalog_path() -> Path:
@@ -568,20 +568,24 @@ def get_product_credit_price(product: Product | None) -> int:
 
 
 USAGE_CREDIT_COSTS: dict[tuple[str, str], int] = {
-    ("founder-update-generator", "generate"): 2,
-    ("founder-outreach-kit", "generate"): 2,
-    ("linkedin-candidate-screener", "screen"): 1,
-    ("founder-pdf-summarizer", "generate"): 3,
-    ("founder-pdf-summarizer", "analyze_document"): 3,
-    ("founder-pdf-summarizer", "analyze_workspace"): 4,
-    ("founder-pdf-summarizer", "safe_explain"): 4,
+    ("founder-update-generator", "generate"): 0,
+    ("founder-outreach-kit", "generate"): 0,
+    ("linkedin-candidate-screener", "screen"): 0,
+    ("founder-pdf-summarizer", "generate"): 0,
+    ("founder-pdf-summarizer", "analyze_document"): 0,
+    ("founder-pdf-summarizer", "analyze_workspace"): 0,
+    ("founder-pdf-summarizer", "safe_explain"): 0,
+    ("founder-spec-generator", "generate"): 0,
+    ("founder-command-center", "generate"): 2,
 }
 
 PRODUCT_DEFAULT_USAGE_CREDIT_COSTS: dict[str, int] = {
-    "founder-update-generator": 2,
-    "founder-outreach-kit": 2,
-    "linkedin-candidate-screener": 1,
-    "founder-pdf-summarizer": 3,
+    "founder-update-generator": 0,
+    "founder-outreach-kit": 0,
+    "linkedin-candidate-screener": 0,
+    "founder-pdf-summarizer": 0,
+    "founder-spec-generator": 0,
+    "founder-command-center": 2,
 }
 
 
@@ -590,11 +594,11 @@ def resolve_usage_credit_cost(product_slug: str, action: str) -> int:
     normalized_action = str(action or "generate").strip().lower() or "generate"
 
     exact = USAGE_CREDIT_COSTS.get((normalized_product_slug, normalized_action))
-    if exact is not None and exact > 0:
+    if exact is not None:
         return exact
 
     fallback = PRODUCT_DEFAULT_USAGE_CREDIT_COSTS.get(normalized_product_slug)
-    if fallback is not None and fallback > 0:
+    if fallback is not None:
         return fallback
 
     raise ValueError("Product usage policy is not configured")

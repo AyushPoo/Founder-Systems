@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Offer and audience diagnosis are free. Full sequence generation, objection replies, follow-ups, exports, and local saves use credits.",
+  "footerSummaryDetails": "OutreachEngine is free. You can generate outbound campaigns, email sequences, and objection replies without using any credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A structured outbound campaign with strategist notes, sendable messages, objection replies, exports, and local saves.",
   "whatYouGet": [
@@ -55,7 +55,7 @@
     "Copy actions for individual assets",
     "CSV export for operational use",
     "Local campaign saves on your device",
-    "Credit-based campaign generation"
+    "Free campaign generation"
   ],
   "whoThisIsFor": [
     "Founders shaping outbound before hiring a growth team.",
@@ -66,7 +66,7 @@
   "faq": [
     {
       "q": "Is this free to use right now?",
-      "a": "The beta includes a free campaign preview. Full generation and repeated usage are credit-based so output quality and model spend stay controlled."
+      "a": "Yes. OutreachEngine is fully free to use in beta. No credits or payment are required."
     },
     {
       "q": "Does it save my campaigns?",
@@ -84,9 +84,9 @@
     "/images/products/founder-outreach-kit/preview-3.png",
     "/images/products/founder-outreach-kit/preview-4.png"
   ],
-  "creditPrice": 3,
-  "freeAllowanceLabel": "Offer diagnosis free",
-  "paidUsageLabel": "3 credits for campaign",
+  "creditPrice": 0,
+  "freeAllowanceLabel": "Free",
+  "paidUsageLabel": "Free",
   "launchUrl": "/tools/founder-outreach-kit",
   "category": "Marketing Tools"
 }

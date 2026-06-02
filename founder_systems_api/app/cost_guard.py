@@ -415,8 +415,18 @@ def reserve_ai_usage(
     if payload.estimated_output_tokens > policy.max_output_tokens:
         return _deny(db, payload=payload, reason="output_too_large", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
 
+    is_free_product = False
+    if product is not None:
+        metadata = product.metadata_json or {}
+        explicit = int(metadata.get("credit_price") or 0)
+        if explicit <= 0:
+            is_free_product = True
+
+    if is_free_product:
+        credits = 0
+
     admin_bypass = is_admin_email(settings, user.email)
-    if not admin_bypass and not _has_active_entitlement(db, user_id=user.id, product_slug=payload.product_slug):
+    if not admin_bypass and not is_free_product and not _has_active_entitlement(db, user_id=user.id, product_slug=payload.product_slug):
         return _deny(db, payload=payload, reason="product_access_required", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
     if not admin_bypass and get_wallet_available_usage_units(db, wallet=wallet, usage_units_per_credit=usage_units_per_credit) < credits:
         return _deny(db, payload=payload, reason="wallet_empty", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)

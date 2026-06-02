@@ -18,7 +18,7 @@ const PRODUCT_POLICIES = {
   'founder-spec-generator': {
     productSlug: 'founder-spec-generator',
     usageAction: 'generate',
-    reserveCredits: 4,
+    reserveCredits: 0,
     modelTier: 'quality',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
@@ -28,7 +28,7 @@ const PRODUCT_POLICIES = {
   'founder-update-generator': {
     productSlug: 'founder-update-generator',
     usageAction: 'generate',
-    reserveCredits: 2,
+    reserveCredits: 0,
     modelTier: 'cheap',
     maxRequestsPerWindow: 6,
     windowMs: ONE_HOUR_MS,
@@ -38,7 +38,7 @@ const PRODUCT_POLICIES = {
   'founder-document-intelligence': {
     productSlug: 'founder-pdf-summarizer',
     usageAction: 'analyze_document',
-    reserveCredits: 2,
+    reserveCredits: 0,
     modelTier: 'cheap',
     maxRequestsPerWindow: 4,
     windowMs: ONE_HOUR_MS,
@@ -48,7 +48,7 @@ const PRODUCT_POLICIES = {
   'founder-document-intelligence-quality': {
     productSlug: 'founder-pdf-summarizer',
     usageAction: 'analyze_document',
-    reserveCredits: 5,
+    reserveCredits: 0,
     modelTier: 'quality',
     maxRequestsPerWindow: 3,
     windowMs: ONE_HOUR_MS,
@@ -58,7 +58,7 @@ const PRODUCT_POLICIES = {
   'founder-safe-explainer': {
     productSlug: 'founder-pdf-summarizer',
     usageAction: 'safe_explain',
-    reserveCredits: 5,
+    reserveCredits: 0,
     modelTier: 'quality',
     maxRequestsPerWindow: 4,
     windowMs: ONE_HOUR_MS,
@@ -68,7 +68,7 @@ const PRODUCT_POLICIES = {
   'linkedin-candidate-screener': {
     productSlug: 'linkedin-candidate-screener',
     usageAction: 'screen',
-    reserveCredits: 1,
+    reserveCredits: 0,
     modelTier: 'cheap',
     maxRequestsPerWindow: 12,
     windowMs: ONE_HOUR_MS,
@@ -78,7 +78,7 @@ const PRODUCT_POLICIES = {
   'founder-outreach-kit': {
     productSlug: 'founder-outreach-kit',
     usageAction: 'generate',
-    reserveCredits: 3,
+    reserveCredits: 0,
     modelTier: 'quality',
     maxRequestsPerWindow: 5,
     windowMs: ONE_HOUR_MS,
@@ -458,7 +458,7 @@ export async function invokeFounderJsonModel({
   const usageConfig = {
     productSlug: cleanText(usage.productSlug) || policy.productSlug || productKey,
     action: cleanText(usage.action) || policy.usageAction || 'generate',
-    credits: clampNumber(usage.credits, 1, 20, policy.reserveCredits || 1),
+    credits: clampNumber(usage.credits, 0, 20, policy.reserveCredits !== undefined ? policy.reserveCredits : 1),
     referenceId: cleanText(usage.referenceId) || `${productKey}-${randomUUID()}`,
     skipGuard: usage.skipGuard === true,
   };

@@ -52,7 +52,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Start with one small-file summary for free. Use credits for multi-file analysis, financing docs, contradiction checks, XLSX/PPTX, and deeper workspace synthesis.",
+  "footerSummaryDetails": "Founder Document Intelligence is free. You can summarize, explain, and synthesize documents without using any credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A concise founder-ready summary you can copy, export, and use as a decision brief.",
   "whatYouGet": [
@@ -89,9 +89,9 @@
   "images": [
     "/images/products/founder-pdf-summarizer/thumbnail.svg"
   ],
-  "creditPrice": 4,
-  "freeAllowanceLabel": "1 small file free",
-  "paidUsageLabel": "4 credits for deeper reads",
+  "creditPrice": 0,
+  "freeAllowanceLabel": "Free",
+  "paidUsageLabel": "Free",
   "launchUrl": "/tools/founder-pdf-summarizer",
   "category": "Strategy"
 }

@@ -31,6 +31,10 @@ def _bootstrap_app(monkeypatch, tmp_path: Path, *, env: str = "development", sec
     monkeypatch.setenv("FS_GOOGLE_CLIENT_SECRET", "google-client-secret")
     monkeypatch.setenv("FS_INTEGRATION_TOKEN_SECRET", "integration-secret")
     monkeypatch.setenv("FS_API_KEY_INTERNAL", "internal-secret")
+    monkeypatch.setenv("FS_PROMPTDECK_PRICE_INR_MINOR", "50000")
+    monkeypatch.setenv("FS_PROMPTDECK_PRICE_USD_MINOR", "600")
+    monkeypatch.setenv("FS_RESEND_API_KEY", "")
+    monkeypatch.setenv("FS_RESEND_FROM_EMAIL", "")
 
     _clear_app_modules()
     main = importlib.import_module("founder_systems_api.app.main")
@@ -119,7 +123,7 @@ def test_integration_crypto_does_not_fall_back_to_session_secret(monkeypatch, tm
     monkeypatch.setenv("FS_SESSION_COOKIE_SECURE", "true")
     monkeypatch.setenv("FS_ALLOW_MOCK_PAYMENTS", "false")
     monkeypatch.setenv("FS_API_KEY_INTERNAL", "internal-secret")
-    monkeypatch.delenv("FS_INTEGRATION_TOKEN_SECRET", raising=False)
+    monkeypatch.setenv("FS_INTEGRATION_TOKEN_SECRET", "")
 
     _clear_app_modules()
 
@@ -163,7 +167,7 @@ def test_product_usage_spend_ignores_client_credit_override(monkeypatch, tmp_pat
         wallet_before_balance = wallet_before.json()["wallet"]["balance"]
 
         spend = await client.post(
-            "/products/founder-update-generator/usage-spend",
+            "/products/founder-command-center/usage-spend",
             json={"action": "generate", "credits": 1, "metadata": {"attempt": "client-override"}},
         )
         assert spend.status_code == 200, spend.text
@@ -173,7 +177,7 @@ def test_product_usage_spend_ignores_client_credit_override(monkeypatch, tmp_pat
         ledger = await client.get("/wallet/usage-events")
         assert ledger.status_code == 200, ledger.text
         latest_event = ledger.json()[0]
-        assert latest_event["product_slug"] == "founder-update-generator"
+        assert latest_event["product_slug"] == "founder-command-center"
         assert latest_event["credits_spent"] == 2
 
     asyncio.run(_run_with_client(main, scenario))

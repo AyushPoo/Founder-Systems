@@ -49,6 +49,7 @@
     "description": "Build a market brief, review a messy plan, and turn the strongest next move into a founder-ready execution plan.",
     "category": "Strategy",
     "productId": "FS011",
+    "creditPrice": 0,
     "thumbnail": "/images/products/founder-spec-generator/preview-1.png"
   },
   {
@@ -57,6 +58,7 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
+    "creditPrice": 0,
     "thumbnail": "/images/strategy.png"
   },
   {
@@ -65,6 +67,7 @@
     "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
     "category": "Strategy",
     "productId": "FS013",
+    "creditPrice": 0,
     "thumbnail": "/images/strategy.png"
   },
   {
@@ -73,6 +76,7 @@
     "description": "Upload messy founder materials and get one polished update with wins, challenges, metrics, next focus, and caveats.",
     "category": "Strategy",
     "productId": "FS014",
+    "creditPrice": 0,
     "thumbnail": "/images/strategy.png"
   },
   {
@@ -81,6 +85,7 @@
     "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
     "category": "Hiring Tools",
     "productId": "FS015",
+    "creditPrice": 0,
     "thumbnail": "/images/strategy.png"
   },
   {
@@ -89,6 +94,7 @@
     "description": "One place to see what is happening across your company, what changed, and what needs attention next.",
     "category": "Strategy",
     "productId": "FS016",
+    "creditPrice": 2,
     "thumbnail": "/images/strategy.png"
   },
   {

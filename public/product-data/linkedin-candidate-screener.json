@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Chrome Extension",
-  "footerSummaryDetails": "Start with 3 free candidate screens. After that, use small screening bundles so recruiters and founders can keep testing without a subscription.",
+  "footerSummaryDetails": "LinkedIn Candidate Screener is free. You can screen candidates and generate recruiter-ready notes without using any credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A fast first-pass candidate screen with recruiter notes your team can scan, discuss, and reuse.",
   "whatYouGet": [
@@ -55,10 +55,10 @@
     "Interview checks",
     "Recruiter notes",
     "Optional resume and activity enrichment",
-    "3 free screens to start"
+    "Fully free candidate screens"
   ],
   "whoThisIsFor": [
-    "Recruiters screening candidates quickly against active roles.",
+    "Founders screening candidates quickly against active roles.",
     "HR teams who want cleaner first-pass notes before a manager review.",
     "Founders hiring directly without a full recruiting stack yet.",
     "Lean teams who want to test better screening without heavy process overhead."
@@ -80,9 +80,9 @@
   "images": [
     "/images/products/linkedin-candidate-screener/thumbnail.svg"
   ],
-  "creditPrice": 1,
-  "freeAllowanceLabel": "3 free screens",
-  "paidUsageLabel": "Bundles after that",
+  "creditPrice": 0,
+  "freeAllowanceLabel": "Free",
+  "paidUsageLabel": "Free",
   "launchUrl": "/tools/linkedin-candidate-screener",
   "category": "Hiring Tools"
 }
