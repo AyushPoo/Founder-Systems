@@ -24,7 +24,7 @@
 
         <label class="field">
           <span>Optional resume text</span>
-          <textarea name="resumeText" rows="4" placeholder="Paste resume text if you have it."></textarea>
+          <textarea name="resumeText" rows="4" placeholder="Paste resume text if you have it for higher confidence."></textarea>
         </label>
 
         <div class="toggles">
@@ -32,19 +32,8 @@
           <label><input type="checkbox" name="includeExternalLinks" /> Include visible external links</label>
         </div>
 
-        <label class="field">
-          <span>API base override</span>
-          <input
-            name="apiBase"
-            type="text"
-            placeholder="https://foundersystems.in"
-            autocomplete="off"
-          />
-        </label>
-
         <div class="actions">
-          <button id="runScreen" type="button">Run screen</button>
-          <button id="saveApiBase" type="button" class="ghost">Save API base</button>
+          <button id="runScreen" type="button">Screen candidate</button>
         </div>
 
         <p id="status" class="status"></p>

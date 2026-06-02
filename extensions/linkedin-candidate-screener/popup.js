@@ -1,12 +1,10 @@
 /* global chrome */
 
-const DEFAULT_API_BASE = 'https://foundersystems.in';
+const API_BASE = 'https://foundersystems.in';
 
 const statusNode = document.getElementById('status');
 const resultNode = document.getElementById('result');
 const runButton = document.getElementById('runScreen');
-const saveApiBaseButton = document.getElementById('saveApiBase');
-const apiBaseInput = document.querySelector('[name="apiBase"]');
 
 function setStatus(message, isError = false) {
   statusNode.textContent = message;
@@ -42,27 +40,14 @@ function renderResult(payload) {
   renderList('recruiterNotes', payload.recruiterNotes);
 }
 
-async function resolveApiBase() {
-  const { fsApiBase = '' } = await chrome.storage.local.get('fsApiBase');
-  return fsApiBase || DEFAULT_API_BASE;
-}
-
-async function persistApiBase() {
-  const value = apiBaseInput.value.trim();
-  await chrome.storage.local.set({
-    fsApiBase: value || DEFAULT_API_BASE,
-  });
-  setStatus('Saved API base override.');
-}
-
-async function loadApiBase() {
-  apiBaseInput.value = await resolveApiBase();
-}
-
 async function getActiveProfile(includeActivity, includeExternalLinks) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) {
     throw new Error('Open a LinkedIn profile in the current tab first.');
+  }
+
+  if (!tab.url || !tab.url.includes('linkedin.com/in/')) {
+    throw new Error('Navigate to a LinkedIn profile page (linkedin.com/in/...) first.');
   }
 
   const response = await chrome.tabs.sendMessage(tab.id, {
@@ -90,13 +75,12 @@ async function runScreen() {
   }
 
   resultNode.classList.add('hidden');
-  setStatus('Reading the profile and running the screen...');
+  setStatus('Reading the profile and screening...');
   runButton.disabled = true;
 
   try {
-    const apiBase = await resolveApiBase();
     const profile = await getActiveProfile(includeActivity, includeExternalLinks);
-    const response = await fetch(`${apiBase}/api/linkedin-candidate-screener`, {
+    const response = await fetch(`${API_BASE}/api/linkedin-candidate-screener`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,7 +96,7 @@ async function runScreen() {
 
     const payload = await response.json();
     if (!response.ok || !payload?.ok) {
-      throw new Error(payload?.error || 'Candidate screening failed.');
+      throw new Error(payload?.error || 'Candidate screening failed. Try again.');
     }
 
     renderResult(payload);
@@ -125,5 +109,3 @@ async function runScreen() {
 }
 
 runButton.addEventListener('click', runScreen);
-saveApiBaseButton.addEventListener('click', persistApiBase);
-loadApiBase();
