@@ -8,37 +8,66 @@
   </head>
   <body>
     <main class="shell">
-      <section class="hero">
-        <p class="eyebrow">Founder Systems</p>
-        <h1>LinkedIn Candidate Screener</h1>
-        <p class="subcopy">
-          Add the role, include resume context if you have it, and get recruiter-ready notes.
-        </p>
+      <!-- Loading state -->
+      <section id="loadingState" class="panel">
+        <p class="status">Reading profile...</p>
       </section>
 
-      <section class="panel">
-        <label class="field">
-          <span>Job description</span>
-          <textarea name="jobDescription" rows="5" placeholder="Paste the role, JD, or hiring brief."></textarea>
-        </label>
-
-        <label class="field">
-          <span>Optional resume text</span>
-          <textarea name="resumeText" rows="4" placeholder="Paste resume text if you have it for higher confidence."></textarea>
-        </label>
-
-        <div class="toggles">
-          <label><input type="checkbox" name="includeActivity" checked /> Include visible recent activity</label>
-          <label><input type="checkbox" name="includeExternalLinks" /> Include visible external links</label>
-        </div>
-
-        <div class="actions">
-          <button id="runScreen" type="button">Screen candidate</button>
-        </div>
-
-        <p id="status" class="status"></p>
+      <!-- Error state -->
+      <section id="errorState" class="panel hidden">
+        <p class="eyebrow">Could not read profile</p>
+        <p id="errorMessage" class="status error"></p>
+        <p class="hint">Make sure you're on a LinkedIn profile page (linkedin.com/in/...)</p>
       </section>
 
+      <!-- Profile summary (shown immediately) -->
+      <section id="profileState" class="hidden">
+        <div class="hero">
+          <p class="eyebrow">Founder Systems</p>
+          <h1 id="profileName">Candidate</h1>
+          <p id="profileHeadline" class="subcopy"></p>
+          <p id="profileLocation" class="meta"></p>
+        </div>
+
+        <div class="panel">
+          <div id="profileExperience" class="profile-section hidden">
+            <p class="section-label">Experience</p>
+            <ul id="experienceList"></ul>
+          </div>
+          <div id="profileSkills" class="profile-section hidden">
+            <p class="section-label">Skills</p>
+            <p id="skillsText" class="skills-text"></p>
+          </div>
+          <div id="profileAbout" class="profile-section hidden">
+            <p class="section-label">About</p>
+            <p id="aboutText" class="about-text"></p>
+          </div>
+        </div>
+
+        <!-- Screen against a role -->
+        <div class="panel">
+          <p class="section-label">Screen against a role</p>
+          <label class="field">
+            <textarea name="jobDescription" rows="4" placeholder="Paste the JD or role requirements to get a fit verdict."></textarea>
+          </label>
+
+          <label class="field">
+            <textarea name="resumeText" rows="3" placeholder="Optional: paste resume for higher confidence."></textarea>
+          </label>
+
+          <div class="toggles">
+            <label><input type="checkbox" name="includeActivity" checked /> Use recent activity</label>
+          </div>
+
+          <div class="actions">
+            <button id="runScreen" type="button">Screen candidate</button>
+          </div>
+
+          <p id="status" class="status"></p>
+        </div>
+      </section>
+
+      <!-- Screen result -->
       <section id="result" class="result hidden">
         <div class="result-head">
           <span id="verdict" class="verdict"></span>
