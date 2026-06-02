@@ -87,105 +87,68 @@ async function extractProfile() {
   const results = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: () => {
-      // Grab ALL h1 text on the page to find the name
-      const allH1s = Array.from(document.querySelectorAll('h1')).map(el => el.textContent.trim()).filter(Boolean);
-      
-      // The profile name is typically the first non-empty h1
-      const fullName = allH1s[0] || '';
+      // LinkedIn page title format: "Name - Headline | LinkedIn"
+      const title = document.title || '';
+      const titleParts = title.split(' | ')[0].split(' - ');
+      const nameFromTitle = titleParts[0]?.trim() || '';
+      const headlineFromTitle = titleParts.slice(1).join(' - ').trim() || '';
 
-      // Headline: usually a div right after the name with medium text
+      // Try to get h1 text
+      const h1s = document.querySelectorAll('h1');
+      let fullName = '';
+      for (const h1 of h1s) {
+        const text = h1.textContent.trim();
+        if (text && text.length > 1 && text.length < 60) {
+          fullName = text;
+          break;
+        }
+      }
+
+      // Headline from page
       let headline = '';
-      const headlineSelectors = [
-        '.text-body-medium.break-words',
-        'div.text-body-medium',
-        '.pv-text-details__left-panel div.text-body-medium',
-      ];
-      for (const sel of headlineSelectors) {
-        try {
-          const el = document.querySelector(sel);
-          if (el?.textContent?.trim()) { headline = el.textContent.trim(); break; }
-        } catch {}
+      const allDivs = document.querySelectorAll('div');
+      for (const div of allDivs) {
+        if (div.classList.contains('text-body-medium') && div.textContent.trim().length > 5) {
+          headline = div.textContent.trim();
+          break;
+        }
       }
 
       // Location
       let location = '';
-      const locSelectors = [
-        '.text-body-small.inline.t-black--light.break-words',
-        'span.text-body-small.inline.t-black--light',
-      ];
-      for (const sel of locSelectors) {
-        try {
-          const el = document.querySelector(sel);
-          if (el?.textContent?.trim()) { location = el.textContent.trim(); break; }
-        } catch {}
-      }
-
-      // About section
-      let about = '';
-      const aboutSection = document.querySelector('#about');
-      if (aboutSection) {
-        const container = aboutSection.closest('section');
-        if (container) {
-          const spans = container.querySelectorAll('span[aria-hidden="true"]');
-          for (const span of spans) {
-            const text = span.textContent.trim();
-            if (text.length > 30) { about = text; break; }
-          }
+      const smallTexts = document.querySelectorAll('span.text-body-small');
+      for (const span of smallTexts) {
+        const text = span.textContent.trim();
+        if (text && (text.includes(',') || text.includes('India') || text.includes('United'))) {
+          location = text;
+          break;
         }
       }
 
-      // Experience
-      const experience = [];
-      const expSection = document.querySelector('#experience');
-      if (expSection) {
-        const container = expSection.closest('section');
-        if (container) {
-          container.querySelectorAll('span[aria-hidden="true"]').forEach((span) => {
-            const text = span.textContent.trim();
-            if (text && text.length > 3 && experience.length < 6 && !experience.includes(text)) {
-              experience.push(text);
-            }
-          });
-        }
-      }
-
-      // Skills
-      const skills = [];
-      const skillsSection = document.querySelector('#skills');
-      if (skillsSection) {
-        const container = skillsSection.closest('section');
-        if (container) {
-          container.querySelectorAll('span[aria-hidden="true"]').forEach((span) => {
-            const text = span.textContent.trim();
-            if (text && text.length > 1 && skills.length < 8 && !skills.includes(text)) {
-              skills.push(text);
-            }
-          });
-        }
-      }
-
-      // Fallback headline from meta
-      if (!headline) {
-        const meta = document.querySelector('meta[name="description"]');
-        if (meta) {
-          const parts = (meta.getAttribute('content') || '').split(' - ');
-          if (parts.length >= 2) headline = parts[1].trim();
-        }
-      }
-
-      // Current company from experience or from the profile card
-      let currentCompany = '';
-      const companyEl = document.querySelector('button[aria-label*="Current company"] span') 
-        || document.querySelector('a[data-field="experience_company_logo"] + div span');
-      if (companyEl) currentCompany = companyEl.textContent.trim();
-
-      return { fullName, headline, location, about, currentCompany, experience, skills, education: [], recentActivity: [], externalLinks: [] };
+      return {
+        fullName: fullName || nameFromTitle || 'Unknown',
+        headline: headline || headlineFromTitle || '',
+        location: location || '',
+        currentCompany: '',
+        about: '',
+        experience: [],
+        skills: [],
+        education: [],
+        recentActivity: [],
+        externalLinks: [],
+        _debug: { title, h1Count: h1s.length, nameFromTitle, fullName }
+      };
     },
   });
 
   const profile = results?.[0]?.result;
-  if (!profile || !profile.fullName) {
-    throw new Error('Could not read profile data. Make sure the profile page is fully loaded.');
+  
+  if (!profile) {
+    throw new Error('Script execution failed. Chrome may be blocking access to this page.');
+  }
+  
+  if (!profile.fullName || profile.fullName === 'Unknown') {
+    throw new Error(`Could not read profile data. Debug: title="${profile._debug?.title}", h1s=${profile._debug?.h1Count}`);
   }
 
   return profile;
