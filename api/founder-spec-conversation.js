@@ -201,12 +201,14 @@ function buildRecommendation({ mode, userMessages, joined }) {
 }
 
 const AI_CONVERSATION_SYSTEM_PROMPT = [
-  'You are Founder Strategy Copilot. The founder attached a document. Read it and respond.',
-  'Return ONLY valid JSON. Keep it short. No markdown, no explanation outside JSON.',
+  'You are Founder Strategy Copilot. A sharp, context-aware strategy advisor.',
+  'Read any attached documents AND the full conversation history carefully.',
+  'If the founder says they have an update or new learnings, ask what specifically changed.',
+  'Return ONLY valid JSON. Keep it concise. No markdown outside JSON.',
   'Shape: {"ok":true,"mode":"ask_question","stage":"exploring","activePanel":"map","confidence":"low",',
-  '"question":{"id":"doc_followup","prompt":"YOUR ONE QUESTION","helperText":"SHORT HELPER"},',
-  '"advisory":{"whatIHeard":"2-SENTENCE SUMMARY OF WHAT THE DOCUMENT SAYS","currentRead":"YOUR READ ON VIABILITY"},',
-  '"evidence":[{"title":"From the document","summary":"KEY FACTS YOU EXTRACTED"}],',
+  '"question":{"id":"followup","prompt":"YOUR SPECIFIC QUESTION","helperText":"SHORT HELPER"},',
+  '"advisory":{"whatIHeard":"WHAT YOU UNDERSTOOD FROM THEIR MESSAGE","currentRead":"YOUR STRATEGIC READ"},',
+  '"evidence":[{"title":"Key signal","summary":"WHAT MATTERS MOST"}],',
   '"inference":["ONE INSIGHT"],"recommendation":{"title":"SHORT TITLE","summary":"ONE SENTENCE"}}',
 ].join('\n');
 
@@ -235,18 +237,38 @@ export default async function handler(req, res) {
     const joined = userMessages.join(' ');
     const hasDocuments = hasDocumentAttachments(body);
     const shouldRecommend =
-      userMessages.length >= 2 ||
+      (userMessages.length >= 4 && !hasExistingPlan) ||
       body.requestFinal === true ||
       /generate|verdict|plan|spec|final/i.test(cleanText(body.message));
 
-    // If documents are attached, use the AI model (Bedrock can read PDFs natively)
-    if (hasDocuments) {
-      const files = getAttachmentFiles(body);
+    // Determine if this is a follow-up/update after a plan was generated
+    const hasExistingPlan = userMessages.length >= 3 || 
+      /update|changed|pivot|didn.t work|worked|failed|progress|tried|learned|feedback/i.test(cleanText(body.message));
+    const shouldUseAI = hasDocuments || hasExistingPlan;
+
+    // If documents are attached OR user is providing an update, use the AI model
+    if (shouldUseAI) {
+      const files = hasDocuments ? getAttachmentFiles(body) : [];
+      const isFollowUp = !hasDocuments && hasExistingPlan;
+      
+      const followUpPrompt = isFollowUp
+        ? [
+            'The founder is coming back with an UPDATE to a previous strategy session.',
+            'They have new information, learnings, or a pivot direction.',
+            'Ask 1-2 specific questions about what changed, what they learned, and what they want to do differently.',
+            'Then be ready to restructure the plan based on their answers.',
+            'Do NOT give generic advice. Reference their previous context.',
+          ].join('\n')
+        : '';
+
       const userPrompt = [
         `Mode: ${mode}`,
-        `Founder message: ${cleanText(body.message) || 'Attached a document for review.'}`,
+        `Founder message: ${cleanText(body.message) || 'Continuing the strategy session.'}`,
         userMessages.length > 1 ? `Previous context: ${userMessages.slice(0, -1).join(' | ')}` : '',
-        shouldRecommend ? 'The founder has enough signal. Produce a recommendation now.' : 'Ask one sharp follow-up question based on what you read in the document.',
+        followUpPrompt,
+        shouldRecommend && !isFollowUp ? 'The founder has enough signal. Produce a recommendation now.' : '',
+        !shouldRecommend && !isFollowUp ? 'Ask one sharp follow-up question based on what you read.' : '',
+        isFollowUp ? 'Ask what specifically changed and what the new signal is before restructuring the plan.' : '',
       ].filter(Boolean).join('\n');
 
       try {
