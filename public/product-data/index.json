@@ -133,18 +133,6 @@
     "launchUrl": "/tools/founder-update-generator"
   },
   {
-    "id": "founder-command-center",
-    "name": "Founder Command Center (Workspace Sync)",
-    "description": "One place to see what is happening across your company, what changed, and what needs attention next.",
-    "category": "Strategy",
-    "productId": "FS016",
-    "creditPrice": 2,
-    "freeAllowanceLabel": "Basic snapshot free",
-    "paidUsageLabel": "2 credits for sync",
-    "thumbnail": "/images/products/founder-command-center/thumbnail.svg",
-    "launchUrl": "/tools/founder-command-center"
-  },
-  {
     "id": "founder-outreach-kit",
     "name": "OutreachEngine (Outbound Campaigner)",
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",

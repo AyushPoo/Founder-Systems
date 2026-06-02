@@ -15,7 +15,6 @@ import FounderOutreachKit from './pages/FounderOutreachKit';
 import FounderUpdateGenerator from './pages/FounderUpdateGenerator';
 import FounderPdfSummarizer from './pages/FounderPdfSummarizer';
 import LinkedInCandidateScreener from './pages/LinkedInCandidateScreener';
-import FounderCommandCenter from './pages/FounderCommandCenter';
 import Account from './pages/Account';
 import SignIn from './pages/SignIn';
 import AuthVerify from './pages/AuthVerify';
@@ -72,14 +71,6 @@ function App() {
               element={(
                 <InternalProductRoute productId="linkedin-candidate-screener">
                   <LinkedInCandidateScreener />
-                </InternalProductRoute>
-              )}
-            />
-            <Route
-              path="/tools/founder-command-center"
-              element={(
-                <InternalProductRoute productId="founder-command-center">
-                  <FounderCommandCenter />
                 </InternalProductRoute>
               )}
             />

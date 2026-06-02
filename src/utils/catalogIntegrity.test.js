@@ -8,7 +8,6 @@ test('public product catalog is valid JSON and includes current product surfaces
   const productIds = new Set(products.map((product) => product.id));
 
   assert.equal(Array.isArray(products), true);
-  assert.equal(productIds.has('founder-command-center'), true);
   assert.equal(productIds.has('founder-pdf-summarizer'), true);
   assert.equal(productIds.has('linkedin-candidate-screener'), true);
   assert.equal(productIds.has('marketing-agent'), true);
