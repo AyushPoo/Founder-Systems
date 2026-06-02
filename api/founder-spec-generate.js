@@ -4,6 +4,7 @@ import {
   createHttpError,
   invokeFounderJsonModel,
 } from './_lib/founderAiRuntime.js';
+import { runMarketResearch } from './_lib/founderWebResearch.js';
 
 const SYSTEM_PROMPT = [
   'You are Founder Strategy Copilot. Produce a concise strategy brief in bullet-point form.',
@@ -23,14 +24,14 @@ const PREMIUM_SYSTEM_PROMPT = [
   '- Risks must be specific and actionable (not generic "competition from established players")',
   '- The 30-day plan must have daily/weekly specifics, not vague bullets',
   '',
-  'INDIA-SPECIFIC INTELLIGENCE (apply when the startup is India-based):',
-  '- Teachers in India rarely control budgets. Decision makers are management/trust/society boards.',
-  '- School principals often cannot approve purchases without board/trust approval.',
-  '- Government schools have procurement cycles tied to state education departments.',
-  '- Private school chains (CBSE/ICSE) have centralized tech decisions at the chain HQ level.',
-  '- Pricing must account for Indian school economics: most schools pay ₹200-500/student/year for ALL tech.',
-  '- Distribution in Indian education goes through: EdTech resellers, state board relationships, CBSE/ICSE workshops, school chain partnerships.',
-  '- Do NOT assume Western SaaS motions (self-serve, credit card, per-seat) work in Indian schools.',
+  'GEOGRAPHY & MARKET INTELLIGENCE (detect from context, do NOT assume any country):',
+  '- Identify the founder\'s country/region from their conversation or document',
+  '- Apply LOCAL market realities: pricing norms, buyer behavior, distribution channels',
+  '- If India: teachers don\'t control budgets, boards/trusts decide, schools pay ₹200-500/student/year for all tech',
+  '- If US/EU: SaaS self-serve works, per-seat pricing is normal, teachers may have classroom budgets',
+  '- If Southeast Asia/Africa: mobile-first, WhatsApp distribution, price sensitivity similar to India',
+  '- Name LOCAL competitors and distribution channels specific to that geography',
+  '- Do NOT apply Western SaaS assumptions to emerging markets or vice versa',
   '',
   'PIVOT SUGGESTIONS (always include):',
   '- Include a "Pivot options" section with 2-3 alternative directions if the primary thesis fails',
@@ -128,7 +129,7 @@ function recentConversation(body) {
     : [];
 }
 
-function buildPrompt(body) {
+function buildPrompt(body, webResearch = '') {
   const isPremium = body.premium === true;
   const conversation = recentConversation(body);
   
@@ -142,15 +143,18 @@ function buildPrompt(body) {
       'Full conversation context:',
       ...conversation,
       '',
+      webResearch ? webResearch : '',
+      '',
       `Final request: ${cleanText(body.message) || 'Generate the premium founder strategy brief.'}`,
       '',
       'IMPORTANT: The brief section in your JSON must have paragraphs, not single sentences.',
       'The markdown field must be 1500+ words with real depth, examples, and specific recommendations.',
       'Name real companies (not hypothetical ones). Give specific numbers where you know them.',
+      'If web research findings are provided above, USE THEM to cite real market signals, competitor moves, and community sentiment.',
       '',
       'Return a complete JSON object matching this shape:',
       JSON.stringify(RESPONSE_SHAPE),
-    ].join('\n');
+    ].filter(Boolean).join('\n');
   }
 
   return [
@@ -459,11 +463,25 @@ export default async function handler(req, res) {
 
     let modelResult;
     try {
+      // For premium, run web research first to ground the strategy in real market signals
+      let webResearch = '';
+      if (isPremium) {
+        const conversationText = recentConversation(body).join(' ');
+        // Try to extract product name from conversation
+        const productNameMatch = conversationText.match(/(?:called|named|building|product[:\s]+)([A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?)/);
+        const productName = productNameMatch?.[1] || '';
+        try {
+          webResearch = await runMarketResearch({ conversationText, productName });
+        } catch {
+          // If research fails, continue without it — the plan will still generate
+        }
+      }
+
       modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'founder-spec-generator',
         systemPrompt,
-        userPrompt: buildPrompt(body),
+        userPrompt: buildPrompt(body, webResearch),
         files,
         maxOutputTokens: maxTokens,
         modelTier,
