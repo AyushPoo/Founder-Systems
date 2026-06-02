@@ -87,11 +87,16 @@ async function extractProfile() {
   const results = await chrome.scripting.executeScript({
     target: { tabId: tab.id },
     func: () => {
-      // Get name from title (most reliable)
+      // Most reliable sources: document.title and meta tags (never change with DOM updates)
       const title = document.title || '';
-      const titleParts = title.split(' | ')[0].split(' - ');
+      const titleParts = title.replace(' | LinkedIn', '').split(' - ');
       const nameFromTitle = titleParts[0]?.trim() || '';
       const headlineFromTitle = titleParts.slice(1).join(' - ').trim() || '';
+
+      // Meta description: "Name – Headline. Location. Company info..."
+      const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+      const metaOg = document.querySelector('meta[property="og:description"]')?.getAttribute('content') || '';
+      const descText = metaDesc || metaOg;
 
       // Try h1 for name
       let fullName = '';
@@ -103,88 +108,47 @@ async function extractProfile() {
         }
       }
 
-      // Get headline - look for the text right below the name
-      // LinkedIn puts it in a div with class containing "text-body-medium"
-      let headline = '';
-      const mainSection = document.querySelector('main');
-      if (mainSection) {
-        const mediumTexts = mainSection.querySelectorAll('[class*="text-body-medium"]');
-        for (const el of mediumTexts) {
-          const text = el.textContent.trim();
-          if (text && text.length > 5 && text.length < 200) {
-            headline = text;
-            break;
-          }
+      // Get ALL visible text from the top profile area to extract info
+      let profileText = '';
+      const main = document.querySelector('main');
+      if (main) {
+        // Get first section (profile card) text
+        const firstSection = main.querySelector('section');
+        if (firstSection) {
+          profileText = firstSection.innerText || firstSection.textContent || '';
         }
       }
 
-      // Location - usually small text with a location pattern
+      // Parse location from profile text (usually "City, State, Country" format)
       let location = '';
-      if (mainSection) {
-        const smallTexts = mainSection.querySelectorAll('[class*="text-body-small"]');
-        for (const el of smallTexts) {
-          const text = el.textContent.trim();
-          if (text && text.length > 3 && text.length < 80 && !text.includes('connection')) {
-            location = text;
+      const locationMatch = profileText.match(/([A-Z][a-z]+(?:[\s,]+[A-Z][a-z]+)+(?:,\s*[A-Z][a-z]+)*)/);
+      if (locationMatch) {
+        const candidate = locationMatch[0];
+        if (candidate.includes(',') && candidate.length < 60) {
+          location = candidate;
+        }
+      }
+      // Fallback: try to find "City, State, Country" pattern in the description
+      if (!location && descText) {
+        const descParts = descText.split('·');
+        for (const part of descParts) {
+          const trimmed = part.trim();
+          if (trimmed.includes(',') && trimmed.length < 50 && !trimmed.includes('http')) {
+            location = trimmed;
             break;
           }
         }
       }
 
-      // About - find the about section by looking for the anchor #about
-      let about = '';
-      const aboutAnchor = document.getElementById('about');
-      if (aboutAnchor) {
-        const section = aboutAnchor.closest('section');
-        if (section) {
-          const spans = section.querySelectorAll('span[aria-hidden="true"], span.visually-hidden + span');
-          for (const span of spans) {
-            const text = span.textContent.trim();
-            if (text.length > 40) { about = text.slice(0, 300); break; }
-          }
-        }
-      }
-
-      // Experience section
-      const experience = [];
-      const expAnchor = document.getElementById('experience');
-      if (expAnchor) {
-        const section = expAnchor.closest('section');
-        if (section) {
-          const boldSpans = section.querySelectorAll('.t-bold span, [class*="t-bold"] span');
-          for (const span of boldSpans) {
-            const text = span.textContent.trim();
-            if (text && text.length > 2 && text.length < 100 && experience.length < 5 && !experience.includes(text)) {
-              experience.push(text);
-            }
-          }
-        }
-      }
-
-      // Skills section
-      const skills = [];
-      const skillsAnchor = document.getElementById('skills');
-      if (skillsAnchor) {
-        const section = skillsAnchor.closest('section');
-        if (section) {
-          const spans = section.querySelectorAll('span[aria-hidden="true"]');
-          for (const span of spans) {
-            const text = span.textContent.trim();
-            if (text && text.length > 1 && text.length < 50 && skills.length < 10 && !skills.includes(text)) {
-              skills.push(text);
-            }
-          }
-        }
-      }
-
-      // Current company from the profile card area
-      let currentCompany = '';
-      if (mainSection) {
-        const companyLinks = mainSection.querySelectorAll('a[href*="/company/"]');
-        for (const link of companyLinks) {
-          const text = link.textContent.trim();
-          if (text && text.length > 1 && text.length < 60) {
-            currentCompany = text;
+      // Get headline from the profile section text
+      let headline = headlineFromTitle;
+      if (!headline && profileText) {
+        // The headline is usually right after the name in the profile text
+        const lines = profileText.split('\n').map(l => l.trim()).filter(l => l.length > 5);
+        // Find the line that looks like a headline (after the name, before location)
+        for (const line of lines) {
+          if (line !== fullName && line !== nameFromTitle && line.length > 10 && line.length < 200 && !line.includes('connection') && !line.includes('Message')) {
+            headline = line;
             break;
           }
         }
@@ -193,11 +157,11 @@ async function extractProfile() {
       return {
         fullName: fullName || nameFromTitle || 'Unknown',
         headline: headline || headlineFromTitle || '',
-        location,
-        currentCompany,
-        about,
-        experience,
-        skills,
+        location: location || '',
+        currentCompany: '',
+        about: descText.slice(0, 300) || '',
+        experience: [],
+        skills: [],
         education: [],
         recentActivity: [],
         externalLinks: [],
