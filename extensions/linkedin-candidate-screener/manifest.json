@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "LinkedIn Candidate Screener — Founder Systems",
   "version": "1.0.0",
-  "description": "Screen LinkedIn profiles against a role and get recruiter-ready notes in seconds. Verdict, fit signals, gaps, and interview checks.",
-  "permissions": ["storage", "tabs", "scripting", "activeTab"],
+  "description": "Auto-summarizes LinkedIn profiles with structured work experience, skills, education, and domain tags. Screen candidates against roles instantly.",
+  "permissions": ["storage", "scripting", "activeTab"],
   "host_permissions": [
     "https://*.linkedin.com/*",
     "https://foundersystems.in/*"
@@ -11,12 +11,13 @@
   "content_scripts": [
     {
       "matches": ["https://*.linkedin.com/in/*", "https://linkedin.com/in/*"],
-      "js": ["profileExtractor.js", "content.js"],
+      "js": ["profileExtractor.js", "overlay.js"],
+      "css": ["overlay.css"],
       "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_title": "Screen this candidate",
+    "default_title": "LinkedIn Candidate Screener",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon-16.png",
