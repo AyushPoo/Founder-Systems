@@ -1,6 +1,5 @@
 /* global chrome */
 
-const API_BASE = 'https://foundersystems.in';
 const OVERLAY_ID = 'fs-candidate-overlay';
 const BUTTON_ID = 'fs-summarize-btn';
 
@@ -53,22 +52,11 @@ async function handleClick() {
   }
 
   try {
-    const resp = await fetch(`${API_BASE}/api/linkedin-candidate-screener`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobDescription: '__summarize_only__',
-        profile: {
-          fullName: name,
-          headline: '',
-          about: rawText,
-          experience: [],
-          skills: [],
-        },
-      }),
+    const data = await chrome.runtime.sendMessage({
+      type: 'summarize-profile',
+      name: name,
+      text: rawText,
     });
-
-    const data = await resp.json();
 
     if (data?.ok) {
       const d = data;

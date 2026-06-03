@@ -8,10 +8,13 @@
     "https://*.linkedin.com/*",
     "https://foundersystems.in/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://*.linkedin.com/in/*", "https://linkedin.com/in/*"],
-      "js": ["profileExtractor.js", "overlay.js"],
+      "js": ["overlay.js"],
       "css": ["overlay.css"],
       "run_at": "document_idle"
     }
