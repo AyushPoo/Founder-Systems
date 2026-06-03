@@ -177,6 +177,46 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Special mode: summarize profile without screening against a role
+  if (request.jobDescription === '__summarize_only__') {
+    const profileText = [
+      request.profile.fullName,
+      request.profile.headline,
+      request.profile.about,
+      ...(request.profile.experience || []),
+      ...(request.profile.skills || []),
+    ].filter(Boolean).join('\n');
+
+    if (!process.env.AWS_BEARER_TOKEN_BEDROCK && !process.env.BEDROCK_API_KEY && !process.env.FOUNDER_SYSTEMS_BEDROCK_API_KEY) {
+      // Fallback: return basic info from headline
+      const headlineLower = (request.profile.headline || '').toLowerCase();
+      let domain = 'General';
+      const domainMap = { 'Finance': ['finance','ca ','cpa','audit','tax'], 'Engineering': ['engineer','developer','software'], 'Marketing': ['marketing','growth'], 'Sales': ['sales','bd'], 'Product': ['product manager'], 'Design': ['design','ux'], 'Data': ['data','analytics','ml','ai'], 'HR': ['hr','recruiter','talent'] };
+      for (const [d, kws] of Object.entries(domainMap)) { if (kws.some(k => headlineLower.includes(k))) { domain = d; break; } }
+      writeJson(res, 200, { ok: true, domain, seniority: '', candidateSummary: request.profile.headline || '', experience: [], education: [], skills: [], fitSignals: [] });
+      return;
+    }
+
+    try {
+      const modelResult = await invokeFounderJsonModel({
+        req,
+        productKey: 'linkedin-candidate-screener',
+        systemPrompt: 'Summarize this LinkedIn profile. Return JSON: {"ok":true,"domain":"sector","seniority":"level","candidateSummary":"1 sentence","experience":["role at company"],"education":["degree at school"],"skills":["skill1"],"fitSignals":["key signal"]}',
+        userPrompt: profileText.slice(0, 3000),
+        maxOutputTokens: 400,
+        modelTier: 'cheap',
+        usage: { skipGuard: true },
+      });
+      applyRateLimitHeaders(res, modelResult.rateLimit);
+      writeJson(res, 200, { ok: true, ...modelResult.parsed });
+    } catch (err) {
+      applyRateLimitHeaders(res, err?.rateLimit);
+      // Fallback
+      writeJson(res, 200, { ok: true, domain: 'General', candidateSummary: request.profile.headline || '', experience: [], education: [], skills: [], fitSignals: [] });
+    }
+    return;
+  }
+
   if (
     !process.env.AWS_BEARER_TOKEN_BEDROCK &&
     !process.env.BEDROCK_API_KEY &&
