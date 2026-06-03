@@ -109,14 +109,14 @@ function showResultOverlay(profile, summary) {
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
 
-  const s = summary || {};
+  const s = summary || { domain: 'General', candidateSummary: profile.headline, experience: [], education: [], skills: [], fitSignals: [] };
   overlay.innerHTML = `
     <div class="fs-header">
       <div class="fs-brand">FS</div>
       <strong>${profile.name}</strong>
       <button class="fs-close" id="fs-close">×</button>
     </div>
-    ${s.domain ? `<div class="fs-tags"><span class="fs-tag-domain">${s.domain}</span>${s.seniority ? `<span class="fs-tag-level">${s.seniority}</span>` : ''}</div>` : ''}
+    <div class="fs-tags"><span class="fs-tag-domain">${s.domain || 'General'}</span>${s.seniority ? `<span class="fs-tag-level">${s.seniority}</span>` : ''}</div>
     <p class="fs-summary">${s.candidateSummary || profile.headline}</p>
     ${s.experience?.length ? `<div class="fs-section"><label>Experience</label><ul>${s.experience.map(e => `<li>${e}</li>`).join('')}</ul></div>` : ''}
     ${s.education?.length ? `<div class="fs-section"><label>Education</label><ul>${s.education.map(e => `<li>${e}</li>`).join('')}</ul></div>` : ''}
@@ -177,15 +177,43 @@ function removeOverlay() {
 }
 
 async function summarizeWithAI(profile) {
+  // First: do a quick local summary from headline (always works, no API needed)
+  const headlineLower = (profile.headline || '').toLowerCase();
+  let domain = 'General';
+  const domainMap = { 'Finance': ['finance','ca ','cpa','cfa','audit','tax','banking','chartered'], 'Engineering': ['engineer','developer','software','backend','frontend','devops','sde'], 'Marketing': ['marketing','growth','seo','content','brand','digital'], 'Sales': ['sales','business development','bd','account executive'], 'Product': ['product manager','product lead','pm '], 'Design': ['design','ux','ui','creative','graphic'], 'Data': ['data','analytics','machine learning','ai ','ml '], 'Operations': ['operations','ops','supply chain','logistics'], 'HR': ['hr','human resources','talent','recruiter','people'], 'Legal': ['legal','lawyer','advocate','compliance'], 'Education': ['teacher','professor','educator','lecturer'] };
+  for (const [d, kws] of Object.entries(domainMap)) { if (kws.some(k => headlineLower.includes(k))) { domain = d; break; } }
+
+  const localSummary = {
+    domain,
+    seniority: '',
+    candidateSummary: profile.headline,
+    experience: [],
+    education: [],
+    skills: [],
+    fitSignals: [],
+  };
+
+  // Then try to enrich with AI (but don't block on it)
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
     const resp = await fetch(`${API_BASE}/api/linkedin-candidate-screener`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ jobDescription: '__summarize_only__', profile: { fullName: profile.name, headline: profile.headline, about: profile.visibleText.slice(0, 3000), experience: [], skills: [] } }),
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
+
     const data = await resp.json();
-    if (data?.ok) return data;
+    if (data?.ok && (data.candidateSummary || data.domain)) {
+      return { ...localSummary, ...data };
+    }
   } catch {}
-  return null;
+
+  // Return local summary even if API fails
+  return localSummary;
 }
 
 // Show the button when on a profile page
