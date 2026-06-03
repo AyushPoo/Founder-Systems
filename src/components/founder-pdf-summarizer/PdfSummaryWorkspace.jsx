@@ -280,180 +280,189 @@ export default function PdfSummaryWorkspace() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-1 sm:px-4 py-6">
+    <div className="w-full max-w-4xl mx-auto px-1 sm:px-4 py-4 lg:py-6 lg:h-full flex flex-col">
       
       {/* Title & Badge */}
-      <div className="text-center mb-8">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-black uppercase tracking-widest mb-3 border border-brand-orange/20 animate-pulse-soft">
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+      <div className="text-center mb-4 sm:mb-6 flex-shrink-0">
+        <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-brand-orange/10 text-brand-orange text-[10px] font-black uppercase tracking-widest mb-1.5 border border-brand-orange/20 animate-pulse-soft">
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.982-11.795m-8.982 6.102L18 10l-8.982 5.904Z" />
           </svg>
           Cognitive Engine
         </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight-brand text-brand-black bg-clip-text">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight-brand text-brand-black bg-clip-text">
           Document Intelligence
         </h1>
-        <p className="mt-2 text-sm sm:text-base text-brand-black/60 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-1 text-xs sm:text-sm text-brand-black/60 max-w-2xl mx-auto leading-relaxed hidden sm:block">
           Upload decks, financial sheets, or financing agreements. Detect contradictions, extract key metrics, audit risky clauses, and generate founder readouts.
         </p>
       </div>
 
       {/* Main Container Flow */}
-      <div className="space-y-6">
+      <div className="flex-grow lg:min-h-0 lg:overflow-y-auto lg:pr-2 space-y-6">
 
         {/* 1. SETUP / UPLOAD VIEW (Visible when not loading and no result) */}
         {!loading && !result && (
           <form
             onSubmit={handleAnalyze}
-            className="bg-white border border-brand-black/8 rounded-3xl p-5 sm:p-7 shadow-soft space-y-6 transition duration-300 hover:shadow-ambient"
+            className="bg-white border border-brand-black/8 rounded-3xl p-4 sm:p-5 shadow-soft transition duration-300 hover:shadow-ambient grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-x-6 lg:gap-y-4"
           >
             {/* Header section */}
-            <div className="border-b border-brand-black/5 pb-4 flex items-center justify-between">
+            <div className="lg:col-span-2 border-b border-brand-black/5 pb-3 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-brand-black">Workspace Setup</h2>
-                <p className="text-xs text-brand-black/50 mt-0.5">Prepare files for cross-analysis and synthesis.</p>
+                <h2 className="text-base sm:text-lg font-black text-brand-black">Workspace Setup</h2>
+                <p className="text-[11px] text-brand-black/50 mt-0.5">Prepare files for cross-analysis and synthesis.</p>
               </div>
               {files.length > 0 && (
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="px-3 py-1.5 rounded-full border border-brand-black/10 text-xs font-black uppercase tracking-wider text-brand-black/60 hover:bg-brand-cream/50 transition duration-150"
+                  className="px-2.5 py-1 rounded-full border border-brand-black/10 text-[10px] font-black uppercase tracking-wider text-brand-black/60 hover:bg-brand-cream/50 transition duration-150"
                 >
                   Reset
                 </button>
               )}
             </div>
 
-            {/* Premium Upload Dropzone */}
-            <div 
-              onClick={() => fileInputRef.current?.click()}
-              className="relative group border-2 border-dashed border-brand-black/15 hover:border-brand-orange bg-brand-cream/10 hover:bg-brand-orange/5 rounded-2xl p-8 text-center cursor-pointer transition-all duration-300"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept={ACCEPTED_DOCUMENT_INPUT_ACCEPT}
-                onChange={handleFileChange}
-                className="hidden"
-              />
+            {/* Upload Zone & Selected Files List (Right Column on Desktop) */}
+            <div className="lg:col-start-2 lg:row-start-2 lg:row-span-2 flex flex-col space-y-3">
+              {/* Premium Upload Dropzone */}
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="relative group border-2 border-dashed border-brand-black/15 hover:border-brand-orange bg-brand-cream/10 hover:bg-brand-orange/5 rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition-all duration-300 flex-grow flex flex-col justify-center min-h-[140px]"
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept={ACCEPTED_DOCUMENT_INPUT_ACCEPT}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
 
-              <div className="flex flex-col items-center justify-center space-y-3">
-                {/* Upload Icon */}
-                <div className="w-12 h-12 rounded-2xl bg-brand-black/5 group-hover:bg-brand-orange/10 flex items-center justify-center text-brand-black/40 group-hover:text-brand-orange transition-all duration-300 transform group-hover:scale-110">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5h10.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0016.5 4.5H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
+                <div className="flex flex-col items-center justify-center space-y-2">
+                  {/* Upload Icon */}
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-brand-black/5 group-hover:bg-brand-orange/10 flex items-center justify-center text-brand-black/40 group-hover:text-brand-orange transition-all duration-300 transform group-hover:scale-105">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5h10.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0016.5 4.5H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm font-bold text-brand-black">Drag & drop files or <span className="text-brand-orange underline">browse</span></p>
+                    <p className="text-[10px] sm:text-xs text-brand-black/40 mt-0.5">Files are analyzed privately. Max {formatFileSize(MAX_PDF_SIZE_BYTES)} per file.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-brand-black">Drag & drop files or <span className="text-brand-orange underline">browse</span></p>
-                  <p className="text-xs text-brand-black/40 mt-1">Files are analyzed privately. Max {formatFileSize(MAX_PDF_SIZE_BYTES)} per file.</p>
-                </div>
-              </div>
 
-              {/* Supported format badges */}
-              <div className="mt-5 flex flex-wrap justify-center gap-1.5">
-                {FILE_FORMATS.map((fmt) => (
-                  <span key={fmt.ext} className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${fmt.color}`}>
-                    {fmt.ext}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* List of uploaded files */}
-            {files.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-black uppercase tracking-wider text-brand-black/40">Selected Files ({files.length})</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {files.map((file, index) => (
-                    <div
-                      key={buildFileSignature(file)}
-                      className="flex items-center justify-between gap-3 p-3 rounded-xl border border-brand-black/6 bg-brand-cream/20 hover:border-brand-black/15 transition duration-150 animate-fade-up"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {/* File icon based on format */}
-                        <div className="w-8 h-8 rounded-lg bg-brand-black/5 flex items-center justify-center flex-shrink-0 text-brand-black/60 text-xs font-black">
-                          {file.name.split('.').pop().toUpperCase().slice(0, 3)}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-brand-black truncate">{file.name}</p>
-                          <p className="text-[10px] text-brand-black/40">{formatFileSize(file.size)}</p>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(index)}
-                        className="p-1 hover:bg-red-50 rounded-lg text-red-500 hover:text-red-700 transition"
-                        title="Remove file"
-                      >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
+                {/* Supported format badges */}
+                <div className="mt-3 flex flex-wrap justify-center gap-1">
+                  {FILE_FORMATS.map((fmt) => (
+                    <span key={fmt.ext} className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border ${fmt.color}`}>
+                      {fmt.ext}
+                    </span>
                   ))}
                 </div>
               </div>
-            )}
 
-            {/* Pressure Test Focus Textarea & Helper tags */}
-            <div className="space-y-3">
-              <div>
-                <label className="text-xs font-black uppercase tracking-wider text-brand-black/45 block">
-                  Pressure-Test Angle
-                </label>
-                <p className="text-xs text-brand-black/40 mt-0.5">Customize what specific risks or claims the engine should target.</p>
-              </div>
-
-              {/* Helper Quick-Select Tags */}
-              <div className="flex flex-wrap gap-1.5">
-                {FOCUS_HELPERS.map((helper) => (
-                  <button
-                    key={helper.label}
-                    type="button"
-                    onClick={() => setFocus(helper.text)}
-                    className="text-xs bg-brand-cream hover:bg-brand-orange/10 hover:text-brand-orange text-brand-black/75 px-3 py-1.5 rounded-full border border-brand-black/8 hover:border-brand-orange/20 transition-all duration-150"
-                  >
-                    {helper.label}
-                  </button>
-                ))}
-              </div>
-
-              <textarea
-                value={focus}
-                onChange={(event) => setFocus(event.target.value)}
-                rows={3}
-                placeholder="Find contradictions, flag risky financing clauses, pressure-test fundraising claims, or surface what a founder should inspect next..."
-                className="w-full resize-none rounded-xl border border-brand-black/10 bg-brand-cream/5 hover:border-brand-black/20 p-3 text-xs sm:text-sm text-brand-black outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/40 focus:ring-4 focus:ring-brand-black/5"
-              />
+              {/* List of uploaded files */}
+              {files.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-brand-black/40">Selected Files ({files.length})</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[110px] overflow-y-auto pr-1">
+                    {files.map((file, index) => (
+                      <div
+                        key={buildFileSignature(file)}
+                        className="flex items-center justify-between gap-2 p-2 rounded-xl border border-brand-black/6 bg-brand-cream/20 hover:border-brand-black/15 transition duration-150 animate-fade-up"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          {/* File icon based on format */}
+                          <div className="w-7 h-7 rounded-lg bg-brand-black/5 flex items-center justify-center flex-shrink-0 text-brand-black/60 text-[9px] font-black">
+                            {file.name.split('.').pop().toUpperCase().slice(0, 3)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-bold text-brand-black truncate">{file.name}</p>
+                            <p className="text-[9px] text-brand-black/40">{formatFileSize(file.size)}</p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="p-1 hover:bg-red-50 rounded-lg text-red-500 hover:text-red-700 transition"
+                          title="Remove file"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Dev or Submission Errors */}
-            {apiConfig.localDevMessage && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-900">
-                ⚠️ {apiConfig.localDevMessage}
-              </div>
-            )}
+            {/* Pressure Test Focus Textarea & Helper tags (Left Column on Desktop) */}
+            <div className="lg:col-start-1 lg:row-start-2 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2.5">
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-brand-black/45 block">
+                    Pressure-Test Angle
+                  </label>
+                  <p className="text-[10px] text-brand-black/40 mt-0.5">Customize what specific risks or claims the engine should target.</p>
+                </div>
 
-            {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700 animate-pulse-soft">
-                ❌ {error}
-              </div>
-            )}
+                {/* Helper Quick-Select Tags */}
+                <div className="flex flex-wrap gap-1">
+                  {FOCUS_HELPERS.map((helper) => (
+                    <button
+                      key={helper.label}
+                      type="button"
+                      onClick={() => setFocus(helper.text)}
+                      className="text-[10px] sm:text-xs bg-brand-cream hover:bg-brand-orange/10 hover:text-brand-orange text-brand-black/75 px-2.5 py-1 rounded-full border border-brand-black/8 hover:border-brand-orange/20 transition-all duration-150"
+                    >
+                      {helper.label}
+                    </button>
+                  ))}
+                </div>
 
-            {/* Submission Action Bar */}
-            <div className="pt-2 border-t border-brand-black/5 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <p className="text-[11px] text-brand-black/40 text-center sm:text-left leading-normal max-w-sm">
-                Runs full document type-aware logic and produces a detailed multi-file executive summary.
+                <textarea
+                  value={focus}
+                  onChange={(event) => setFocus(event.target.value)}
+                  rows={2}
+                  placeholder="Find contradictions, flag risky financing clauses, pressure-test fundraising claims, or surface what a founder should inspect next..."
+                  className="w-full resize-none rounded-xl border border-brand-black/10 bg-brand-cream/5 hover:border-brand-black/20 p-2.5 text-xs sm:text-sm text-brand-black outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/40 focus:ring-4 focus:ring-brand-black/5"
+                />
+              </div>
+
+              {/* Dev or Submission Errors - nested in Left Column to keep alignment */}
+              {(apiConfig.localDevMessage || error) && (
+                <div className="space-y-1.5 mt-2">
+                  {apiConfig.localDevMessage && (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] font-semibold leading-relaxed text-amber-900">
+                      ⚠️ {apiConfig.localDevMessage}
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-2.5 text-[11px] font-semibold text-red-700 animate-pulse-soft">
+                      ❌ {error}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Submission Action Bar (Left Column Row 3 on Desktop) */}
+            <div className="lg:col-start-1 lg:row-start-3 pt-3 border-t lg:border-t-0 border-brand-black/5 flex flex-col sm:flex-row items-center justify-between gap-3 self-end w-full">
+              <p className="text-[10px] text-brand-black/40 text-center sm:text-left leading-normal max-w-sm">
+                Runs full document type-aware logic and produces a detailed workspace brief.
               </p>
               <button
                 type="submit"
                 disabled={files.length === 0 || loading}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-brand-black hover:bg-brand-orange text-white text-xs font-extrabold uppercase tracking-widest shadow-soft hover:shadow-ambient hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:pointer-events-none disabled:opacity-40"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full bg-brand-black hover:bg-brand-orange text-white text-xs font-extrabold uppercase tracking-widest shadow-soft hover:shadow-ambient hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:pointer-events-none disabled:opacity-40"
               >
                 <span>Analyze Workspace</span>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
                 </svg>
               </button>
@@ -463,32 +472,32 @@ export default function PdfSummaryWorkspace() {
 
         {/* 2. LOADING CONSOLE ANIMATION (Visible when loading) */}
         {loading && (
-          <div className="bg-white border border-brand-black/8 rounded-3xl p-6 sm:p-10 shadow-soft max-w-xl mx-auto text-center space-y-6 animate-pulse-soft">
+          <div className="bg-white border border-brand-black/8 rounded-3xl p-5 sm:p-7 shadow-soft max-w-md mx-auto text-center space-y-5 animate-pulse-soft">
             
             {/* Spinning document visual */}
-            <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+            <div className="relative w-20 h-20 mx-auto flex items-center justify-center">
               {/* Spinning/pulsing radar glow */}
               <div className="absolute inset-0 rounded-full bg-brand-orange/10 animate-ping" />
-              <div className="absolute inset-2 rounded-full bg-brand-black/5 animate-pulse" />
+              <div className="absolute inset-1.5 rounded-full bg-brand-black/5 animate-pulse" />
               
               {/* Document Icon */}
-              <div className="relative w-12 h-12 text-brand-black/70 flex items-center justify-center">
-                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <div className="relative w-10 h-10 text-brand-black/70 flex items-center justify-center">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
               </div>
 
               {/* Scanning Laser Line */}
-              <div className="absolute top-2 left-2 right-2 h-1 bg-brand-orange rounded-full shadow-[0_0_8px_#FF5F15] animate-bounce" />
+              <div className="absolute top-1.5 left-1.5 right-1.5 h-0.5 bg-brand-orange rounded-full shadow-[0_0_8px_#FF5F15] animate-bounce" />
             </div>
 
-            <div className="space-y-2">
-              <h3 className="text-lg font-black text-brand-black">Processing Workspace</h3>
-              <p className="text-xs text-brand-black/45 tracking-widest uppercase font-bold">Step {loadingStepIndex + 1} of {LOADING_STEPS.length}</p>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-black text-brand-black">Processing Workspace</h3>
+              <p className="text-[10px] text-brand-black/45 tracking-widest uppercase font-bold">Step {loadingStepIndex + 1} of {LOADING_STEPS.length}</p>
               
               {/* Display Current Processing Message */}
-              <div className="h-6 overflow-hidden mt-3">
-                <p className="text-sm font-bold text-brand-orange transition-all duration-300 transform translate-y-0">
+              <div className="h-5 overflow-hidden mt-2">
+                <p className="text-xs font-bold text-brand-orange transition-all duration-300 transform translate-y-0">
                   {LOADING_STEPS[loadingStepIndex]}
                 </p>
               </div>
@@ -502,7 +511,7 @@ export default function PdfSummaryWorkspace() {
               />
             </div>
             
-            <p className="text-[10px] text-brand-black/30 leading-normal">
+            <p className="text-[9px] text-brand-black/30 leading-normal">
               This process may take 15-30 seconds depending on file count and structure.
             </p>
           </div>
