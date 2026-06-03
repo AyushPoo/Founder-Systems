@@ -68,8 +68,38 @@ async function handleClick() {
         ${d.education?.length ? `<div class="fs-sec"><label>Education</label><ul>${d.education.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : ''}
         ${d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : ''}
         ${d.fitSignals?.length ? `<div class="fs-sec"><label>Signals</label><ul>${d.fitSignals.map(s=>`<li>${s}</li>`).join('')}</ul></div>` : ''}
+        <div class="fs-screen-section">
+          <label>Screen against a role <span class="fs-paid">1 credit</span></label>
+          <textarea id="fs-jd" class="fs-input" rows="2" placeholder="Paste JD or role requirements..."></textarea>
+          <textarea id="fs-resume" class="fs-input" rows="2" placeholder="Optional: paste resume text for higher accuracy..."></textarea>
+          <button id="fs-run-screen" class="fs-screen-btn">Screen candidate</button>
+          <div id="fs-screen-result"></div>
+        </div>
         <div class="fs-actions"><button id="fs-close" class="fs-close-btn">Close</button></div>
       `);
+
+      // Screen button handler
+      document.getElementById('fs-run-screen')?.addEventListener('click', async () => {
+        const jd = document.getElementById('fs-jd')?.value?.trim();
+        if (!jd) return;
+        const resume = document.getElementById('fs-resume')?.value?.trim() || '';
+        const btn = document.getElementById('fs-run-screen');
+        btn.disabled = true; btn.textContent = 'Screening...';
+        const screenData = await chrome.runtime.sendMessage({
+          type: 'screen-candidate',
+          name, jd, text: rawText + (resume ? '\n\nRESUME:\n' + resume : ''),
+          headline: d.candidateSummary || '',
+          experience: d.experience || [],
+          skills: d.skills || [],
+        });
+        const el = document.getElementById('fs-screen-result');
+        if (screenData?.ok) {
+          el.innerHTML = `<div class="fs-tags" style="margin-top:8px"><span class="fs-tag">${screenData.verdict}</span><span class="fs-tag-light">${screenData.confidence}</span></div><p class="fs-text">${screenData.candidateSummary||''}</p>${screenData.fitSignals?.length?'<ul>'+screenData.fitSignals.map(s=>`<li>${s}</li>`).join('')+'</ul>':''}${screenData.gapsOrRisks?.length?'<label style="margin-top:6px;display:block">Gaps</label><ul>'+screenData.gapsOrRisks.map(s=>`<li>${s}</li>`).join('')+'</ul>':''}`;
+        } else {
+          el.innerHTML = `<p class="fs-error">${screenData?.error || 'Screening failed'}</p>`;
+        }
+        btn.disabled = false; btn.textContent = 'Screen candidate';
+      });
     } else {
       showOverlay(`
         <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>

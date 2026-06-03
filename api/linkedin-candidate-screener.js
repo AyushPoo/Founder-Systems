@@ -198,7 +198,7 @@ export default async function handler(req, res) {
       const modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'linkedin-candidate-screener',
-        systemPrompt: 'You are a profile summarizer. Read the LinkedIn profile text and return a structured JSON summary. Return ONLY JSON: {"ok":true,"domain":"sector like Finance/Engineering/Marketing","seniority":"Junior/Mid/Senior/Lead","candidateSummary":"1-2 sentence professional summary","experience":["Role at Company (duration)"],"education":["Degree at School"],"skills":["skill1","skill2"],"fitSignals":["notable signal about this person"]}',
+        systemPrompt: 'You are a profile summarizer. Read the LinkedIn profile text and return a structured JSON summary. Separate work experience from education clearly. Professional qualifications like CA, CPA, CFA are education, not experience. Current/recent company should be listed first in experience. Return ONLY JSON: {"ok":true,"domain":"sector like Finance/Engineering/Marketing","seniority":"Junior/Mid/Senior/Lead","candidateSummary":"1-2 sentence summary focusing on what makes this person notable","experience":["Current Role at Company (duration)","Previous Role at Company (duration)"],"education":["Qualification/Degree - Institution"],"skills":["skill1","skill2"],"fitSignals":["what stands out about this candidate"]}',
         userPrompt: 'Summarize this LinkedIn profile:\n\n' + profileText.slice(0, 3500),
         maxOutputTokens: 500,
         modelTier: 'cheap',
