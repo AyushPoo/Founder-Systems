@@ -39,6 +39,20 @@ async function safeJson(response) {
   }
 }
 
+function formatDetail(detail) {
+  if (!detail) return '';
+  if (typeof detail === 'string') return detail;
+  if (Array.isArray(detail)) {
+    return detail.map((d) => {
+      if (typeof d === 'string') return d;
+      const locStr = Array.isArray(d.loc) ? d.loc.filter(x => x !== 'body').join('.') : '';
+      return `${locStr ? `[${locStr}] ` : ''}${d.msg || JSON.stringify(d)}`;
+    }).join(', ');
+  }
+  if (typeof detail === 'object') return JSON.stringify(detail);
+  return String(detail);
+}
+
 async function postInternalAction({ path, req, payload }) {
   const apiBaseUrl = resolveApiBaseUrl();
   const apiKey = resolveInternalApiKey();
@@ -58,7 +72,8 @@ async function postInternalAction({ path, req, payload }) {
 
   const body = await safeJson(response);
   if (!response.ok) {
-    throw createHttpError(response.status, cleanText(body?.detail || body?.reason) || 'Internal usage guard request failed.');
+    const errorMsg = formatDetail(body?.detail) || cleanText(body?.reason) || 'Internal usage guard request failed.';
+    throw createHttpError(response.status, errorMsg);
   }
 
   return body;

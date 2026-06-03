@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import {
   ACCEPTED_DOCUMENT_INPUT_ACCEPT,
   MAX_PDF_SIZE_BYTES,
@@ -52,169 +52,34 @@ function readFileAsDataUrl(file) {
   });
 }
 
-function MetaPill({ children }) {
-  return (
-    <span className="rounded-full border border-brand-black/8 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-brand-black/46">
-      {children}
-    </span>
-  );
-}
+const FOCUS_HELPERS = [
+  { label: '🔍 Contradictions', text: 'Analyze all files to find any contradictions, discrepancies, or conflicting facts between them.' },
+  { label: '⚖️ Financing Clauses', text: 'Identify all financing clauses, investment details, valuation metrics, and flag any risky or non-standard terms.' },
+  { label: '🎯 Fundraising Claims', text: 'Verify and pressure-test any fundraising claims, market sizing numbers, and look for missing proof or documentation.' },
+  { label: '📈 Financial Health', text: 'Extract key financial metrics, revenues, margins, growth rates, and highlight the biggest balance sheet or income statement concerns.' },
+];
 
-function SummarySection({ title, items = [], emptyText = '' }) {
-  return (
-    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-        {title}
-      </p>
-      {items.length > 0 ? (
-        <ul className="mt-2 space-y-1.5">
-          {items.map((item, index) => (
-            <li
-              key={`${title}-${index}`}
-              className="text-[13px] font-medium leading-6 text-brand-black/72"
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/46">
-          {emptyText}
-        </p>
-      )}
-    </section>
-  );
-}
+const LOADING_STEPS = [
+  'Initializing cognitive engine...',
+  'Classifying upload set...',
+  'Ingesting document content...',
+  'Running OCR and parsing tables...',
+  'Analyzing cross-file contradictions...',
+  'Extracting key financial metrics...',
+  'Auditing legal clauses...',
+  'Compiling executive workspace brief...'
+];
 
-function MetricCard({ metric }) {
-  return (
-    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-        {metric.label}
-      </p>
-      <p className="mt-2 text-[15px] font-black tracking-tight-brand text-brand-black">
-        {metric.value}
-      </p>
-      {metric.note ? (
-        <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
-          {metric.note}
-        </p>
-      ) : null}
-    </section>
-  );
-}
+// File Type Badges Helper
+const FILE_FORMATS = [
+  { ext: 'PDF', color: 'bg-red-50 text-red-600 border-red-200' },
+  { ext: 'DOCX', color: 'bg-blue-50 text-blue-600 border-blue-200' },
+  { ext: 'XLSX', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' },
+  { ext: 'PPTX', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  { ext: 'CSV/TSV', color: 'bg-slate-50 text-slate-600 border-slate-200' }
+];
 
-function ClauseCard({ clause }) {
-  return (
-    <section className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-        {clause.clause}
-      </p>
-      {clause.value ? (
-        <p className="mt-1 text-[13px] font-black tracking-tight-brand text-brand-black">
-          {clause.value}
-        </p>
-      ) : null}
-      <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/72">
-        {clause.explanation}
-      </p>
-      {clause.founderImpact ? (
-        <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/58">
-          {clause.founderImpact}
-        </p>
-      ) : null}
-    </section>
-  );
-}
-
-function WorkspaceFileCard({ fileAnalysis }) {
-  return (
-    <section className="rounded-[16px] border border-brand-black/8 bg-white px-3.5 py-3">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            {fileAnalysis.filename}
-          </p>
-          <p className="mt-1 text-[12.5px] font-medium text-brand-black/52">
-            {fileAnalysis.detectedType}
-          </p>
-        </div>
-        <MetaPill>{fileAnalysis.extractionQuality.label} extraction</MetaPill>
-      </div>
-
-      <p className="mt-3 text-[13px] font-medium leading-6 text-brand-black/74">
-        {fileAnalysis.summary}
-      </p>
-
-      <div className="mt-3 grid gap-3 lg:grid-cols-2">
-        <SummarySection
-          title="Strongest signals"
-          items={fileAnalysis.strongestSignals}
-          emptyText="No strongest signals were returned for this file."
-        />
-        <SummarySection
-          title="Biggest concerns"
-          items={fileAnalysis.concerns}
-          emptyText="No explicit concerns were returned for this file."
-        />
-      </div>
-
-      <div className="mt-3">
-        <SummarySection
-          title="What to inspect next"
-          items={fileAnalysis.focusAreas}
-          emptyText="No next inspection areas were returned for this file."
-        />
-      </div>
-
-      {fileAnalysis.keyMetrics?.length ? (
-        <section className="mt-3 space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            Key metrics
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {fileAnalysis.keyMetrics.map((metric, index) => (
-              <MetricCard key={`${fileAnalysis.fileId}-metric-${index}`} metric={metric} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {fileAnalysis.clauseHighlights?.length ? (
-        <section className="mt-3 space-y-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            Clause highlights
-          </p>
-          <div className="space-y-3">
-            {fileAnalysis.clauseHighlights.map((clause, index) => (
-              <ClauseCard key={`${fileAnalysis.fileId}-clause-${index}`} clause={clause} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {fileAnalysis.extractionQuality?.notes?.length ? (
-        <div className="mt-3 rounded-[12px] border border-brand-black/7 bg-brand-cream/18 px-3 py-2.5">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-            Extraction notes
-          </p>
-          <ul className="mt-2 space-y-1.5">
-            {fileAnalysis.extractionQuality.notes.map((item, index) => (
-              <li
-                key={`${fileAnalysis.fileId}-note-${index}`}
-                className="text-[12.5px] font-medium leading-6 text-brand-black/58"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
-const PdfSummaryWorkspace = () => {
+export default function PdfSummaryWorkspace() {
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [focus, setFocus] = useState('');
@@ -222,6 +87,17 @@ const PdfSummaryWorkspace = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [loadingStepIndex, setLoadingStepIndex] = useState(0);
+
+  // Cycle loading messages when active
+  useEffect(() => {
+    if (!loading) return;
+    setLoadingStepIndex(0);
+    const interval = setInterval(() => {
+      setLoadingStepIndex((prev) => (prev + 1) % LOADING_STEPS.length);
+    }, 2800);
+    return () => clearInterval(interval);
+  }, [loading]);
 
   const apiConfig = useMemo(
     () =>
@@ -271,14 +147,14 @@ const PdfSummaryWorkspace = () => {
 
       if (!isSupportedFounderDocumentFile({ filename: file.name, mimeType: file.type })) {
         rejectedMessages.push(
-          `${file.name}: choose a supported document, deck, or spreadsheet such as PDF, DOCX, PPTX, XLSX, CSV, or TSV.`
+          `${file.name}: Choose a supported format like PDF, DOCX, PPTX, XLSX, CSV, TSV, HTML, or TXT.`
         );
         return;
       }
 
       if (file.size > MAX_PDF_SIZE_BYTES) {
         rejectedMessages.push(
-          `${file.name}: keep each file under ${formatFileSize(MAX_PDF_SIZE_BYTES)} in the current direct-upload beta.`
+          `${file.name}: Keep each file under ${formatFileSize(MAX_PDF_SIZE_BYTES)}.`
         );
         return;
       }
@@ -404,298 +280,591 @@ const PdfSummaryWorkspace = () => {
   }
 
   return (
-    <section className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="mb-3 hidden items-center justify-between gap-6 lg:flex">
-        <div className="min-w-0">
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/28">
-            Founder document intelligence
-          </p>
-          <p className="mt-1 text-[12.5px] font-medium text-brand-black/42">
-            Upload a founder file set, detect each document type, and get one founder-ready brief.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <MetaPill>Multi-file</MetaPill>
-          <MetaPill>Docs + sheets</MetaPill>
-          <MetaPill>{formatFileSize(MAX_PDF_SIZE_BYTES)} max each</MetaPill>
-        </div>
+    <div className="w-full max-w-4xl mx-auto px-1 sm:px-4 py-6">
+      
+      {/* Title & Badge */}
+      <div className="text-center mb-8">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange text-xs font-black uppercase tracking-widest mb-3 border border-brand-orange/20 animate-pulse-soft">
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21l8.982-11.795m-8.982 6.102L18 10l-8.982 5.904Z" />
+          </svg>
+          Cognitive Engine
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight-brand text-brand-black bg-clip-text">
+          Document Intelligence
+        </h1>
+        <p className="mt-2 text-sm sm:text-base text-brand-black/60 max-w-2xl mx-auto leading-relaxed">
+          Upload decks, financial sheets, or financing agreements. Detect contradictions, extract key metrics, audit risky clauses, and generate founder readouts.
+        </p>
       </div>
 
-      <div className="mb-3 flex items-center justify-between gap-3 rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 shadow-[0_8px_18px_rgba(27,28,26,0.045)] lg:hidden">
-        <div className="min-w-0">
-          <h1 className="text-[1rem] font-black tracking-tight-brand">Founder Document Intelligence</h1>
-          <p className="mt-1 text-[10.5px] font-medium text-brand-black/48">
-            Multi-file founder brief · {formatFileSize(MAX_PDF_SIZE_BYTES)} max each
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleClear}
-          disabled={loading}
-          className="rounded-full border border-brand-black/10 bg-brand-cream/55 px-3 py-2 text-[11px] font-black text-brand-black/60"
-        >
-          Clear
-        </button>
-      </div>
+      {/* Main Container Flow */}
+      <div className="space-y-6">
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(640px,1fr)_400px] xl:gap-5">
-        <form
-          onSubmit={handleAnalyze}
-          className="flex min-h-0 flex-col rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]"
-        >
-          <div className="flex items-start justify-between gap-4 border-b border-brand-black/7 px-4 py-3">
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                Input set
-              </p>
-              <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                Upload one or more founder files, then add any specific pressure-test angle.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleClear}
-              disabled={loading}
-              className="rounded-full border border-brand-black/10 bg-white px-3.5 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 transition hover:border-brand-black/18"
-            >
-              Clear
-            </button>
-          </div>
-
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4">
-            <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/18 px-3.5 py-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                  Founder file set
-                </span>
-                <span className="text-[11px] font-medium text-brand-black/38">
-                  Add docs, decks, sheets, memos, financials, or financing files to one workspace.
-                </span>
+        {/* 1. SETUP / UPLOAD VIEW (Visible when not loading and no result) */}
+        {!loading && !result && (
+          <form
+            onSubmit={handleAnalyze}
+            className="bg-white border border-brand-black/8 rounded-3xl p-5 sm:p-7 shadow-soft space-y-6 transition duration-300 hover:shadow-ambient"
+          >
+            {/* Header section */}
+            <div className="border-b border-brand-black/5 pb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-black text-brand-black">Workspace Setup</h2>
+                <p className="text-xs text-brand-black/50 mt-0.5">Prepare files for cross-analysis and synthesis.</p>
               </div>
+              {files.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="px-3 py-1.5 rounded-full border border-brand-black/10 text-xs font-black uppercase tracking-wider text-brand-black/60 hover:bg-brand-cream/50 transition duration-150"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            {/* Premium Upload Dropzone */}
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="relative group border-2 border-dashed border-brand-black/15 hover:border-brand-orange bg-brand-cream/10 hover:bg-brand-orange/5 rounded-2xl p-8 text-center cursor-pointer transition-all duration-300"
+            >
               <input
                 ref={fileInputRef}
                 type="file"
                 multiple
                 accept={ACCEPTED_DOCUMENT_INPUT_ACCEPT}
                 onChange={handleFileChange}
-                disabled={loading}
-                className="mt-3 block w-full cursor-pointer text-[13px] font-medium text-brand-black file:mr-3 file:rounded-full file:border-0 file:bg-brand-black file:px-3.5 file:py-2 file:text-[10.5px] file:font-black file:uppercase file:tracking-[0.12em] file:text-white"
+                className="hidden"
               />
-              {files.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-2">
+
+              <div className="flex flex-col items-center justify-center space-y-3">
+                {/* Upload Icon */}
+                <div className="w-12 h-12 rounded-2xl bg-brand-black/5 group-hover:bg-brand-orange/10 flex items-center justify-center text-brand-black/40 group-hover:text-brand-orange transition-all duration-300 transform group-hover:scale-110">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5h10.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0016.5 4.5H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-brand-black">Drag & drop files or <span className="text-brand-orange underline">browse</span></p>
+                  <p className="text-xs text-brand-black/40 mt-1">Files are analyzed privately. Max {formatFileSize(MAX_PDF_SIZE_BYTES)} per file.</p>
+                </div>
+              </div>
+
+              {/* Supported format badges */}
+              <div className="mt-5 flex flex-wrap justify-center gap-1.5">
+                {FILE_FORMATS.map((fmt) => (
+                  <span key={fmt.ext} className={`text-[10px] font-extrabold px-2 py-0.5 rounded border ${fmt.color}`}>
+                    {fmt.ext}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* List of uploaded files */}
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-black uppercase tracking-wider text-brand-black/40">Selected Files ({files.length})</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {files.map((file, index) => (
                     <div
                       key={buildFileSignature(file)}
-                      className="inline-flex items-center gap-2 rounded-full border border-brand-black/10 bg-white px-3 py-1.5"
+                      className="flex items-center justify-between gap-3 p-3 rounded-xl border border-brand-black/6 bg-brand-cream/20 hover:border-brand-black/15 transition duration-150 animate-fade-up"
                     >
-                      <span className="max-w-[190px] truncate text-[11px] font-semibold text-brand-black/72">
-                        {file.name}
-                      </span>
-                      <span className="text-[10px] font-medium text-brand-black/40">
-                        {formatFileSize(file.size)}
-                      </span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* File icon based on format */}
+                        <div className="w-8 h-8 rounded-lg bg-brand-black/5 flex items-center justify-center flex-shrink-0 text-brand-black/60 text-xs font-black">
+                          {file.name.split('.').pop().toUpperCase().slice(0, 3)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-brand-black truncate">{file.name}</p>
+                          <p className="text-[10px] text-brand-black/40">{formatFileSize(file.size)}</p>
+                        </div>
+                      </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(index)}
-                        disabled={loading}
-                        className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/50"
+                        className="p-1 hover:bg-red-50 rounded-lg text-red-500 hover:text-red-700 transition"
+                        title="Remove file"
                       >
-                        Remove
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                       </button>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <p className="mt-3 text-[12px] font-medium text-brand-black/42">
-                  No files selected yet.
-                </p>
-              )}
-            </div>
+              </div>
+            )}
 
-            <div className="rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                What this run should pressure-test
-              </p>
-              <p className="mt-1 text-[12.5px] font-medium leading-6 text-brand-black/58">
-                The workspace auto-detects document types first, then looks for contradictions,
-                missing proof, financial pressure points, risky clauses, and the next questions.
-              </p>
-            </div>
+            {/* Pressure Test Focus Textarea & Helper tags */}
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-black uppercase tracking-wider text-brand-black/45 block">
+                  Pressure-Test Angle
+                </label>
+                <p className="text-xs text-brand-black/40 mt-0.5">Customize what specific risks or claims the engine should target.</p>
+              </div>
 
-            <label className="block rounded-[14px] border border-brand-black/8 bg-white px-3.5 py-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                Focus
-              </span>
+              {/* Helper Quick-Select Tags */}
+              <div className="flex flex-wrap gap-1.5">
+                {FOCUS_HELPERS.map((helper) => (
+                  <button
+                    key={helper.label}
+                    type="button"
+                    onClick={() => setFocus(helper.text)}
+                    className="text-xs bg-brand-cream hover:bg-brand-orange/10 hover:text-brand-orange text-brand-black/75 px-3 py-1.5 rounded-full border border-brand-black/8 hover:border-brand-orange/20 transition-all duration-150"
+                  >
+                    {helper.label}
+                  </button>
+                ))}
+              </div>
+
               <textarea
                 value={focus}
                 onChange={(event) => setFocus(event.target.value)}
                 rows={3}
-                disabled={loading}
-                placeholder="Optional: find contradictions, flag risky financing clauses, pressure-test fundraising claims, or surface what a founder should inspect next."
-                className="mt-2 min-h-[72px] w-full resize-none rounded-[14px] border border-brand-black/8 bg-brand-cream/12 px-3 py-2.5 text-[13px] font-medium leading-6 text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.35)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60"
+                placeholder="Find contradictions, flag risky financing clauses, pressure-test fundraising claims, or surface what a founder should inspect next..."
+                className="w-full resize-none rounded-xl border border-brand-black/10 bg-brand-cream/5 hover:border-brand-black/20 p-3 text-xs sm:text-sm text-brand-black outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/40 focus:ring-4 focus:ring-brand-black/5"
               />
-            </label>
+            </div>
 
-            {apiConfig.localDevMessage ? (
-              <div className="rounded-[14px] border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[12px] font-semibold leading-6 text-amber-900">
-                {apiConfig.localDevMessage}
+            {/* Dev or Submission Errors */}
+            {apiConfig.localDevMessage && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold leading-relaxed text-amber-900">
+                ⚠️ {apiConfig.localDevMessage}
               </div>
-            ) : null}
+            )}
 
-            {error ? (
-              <div className="rounded-[14px] border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] font-semibold text-red-700">
-                {error}
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-semibold text-red-700 animate-pulse-soft">
+                ❌ {error}
               </div>
-            ) : null}
-          </div>
+            )}
 
-          <div className="flex flex-col gap-3 border-t border-brand-black/7 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] font-medium leading-5 text-brand-black/42">
-              Returns a workspace brief with contradictions, missing proof, watch-outs, next
-              actions, and type-aware analysis for each file.
+            {/* Submission Action Bar */}
+            <div className="pt-2 border-t border-brand-black/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-[11px] text-brand-black/40 text-center sm:text-left leading-normal max-w-sm">
+                Runs full document type-aware logic and produces a detailed multi-file executive summary.
+              </p>
+              <button
+                type="submit"
+                disabled={files.length === 0 || loading}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-brand-black hover:bg-brand-orange text-white text-xs font-extrabold uppercase tracking-widest shadow-soft hover:shadow-ambient hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:pointer-events-none disabled:opacity-40"
+              >
+                <span>Analyze Workspace</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* 2. LOADING CONSOLE ANIMATION (Visible when loading) */}
+        {loading && (
+          <div className="bg-white border border-brand-black/8 rounded-3xl p-6 sm:p-10 shadow-soft max-w-xl mx-auto text-center space-y-6 animate-pulse-soft">
+            
+            {/* Spinning document visual */}
+            <div className="relative w-24 h-24 mx-auto flex items-center justify-center">
+              {/* Spinning/pulsing radar glow */}
+              <div className="absolute inset-0 rounded-full bg-brand-orange/10 animate-ping" />
+              <div className="absolute inset-2 rounded-full bg-brand-black/5 animate-pulse" />
+              
+              {/* Document Icon */}
+              <div className="relative w-12 h-12 text-brand-black/70 flex items-center justify-center">
+                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+              </div>
+
+              {/* Scanning Laser Line */}
+              <div className="absolute top-2 left-2 right-2 h-1 bg-brand-orange rounded-full shadow-[0_0_8px_#FF5F15] animate-bounce" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-lg font-black text-brand-black">Processing Workspace</h3>
+              <p className="text-xs text-brand-black/45 tracking-widest uppercase font-bold">Step {loadingStepIndex + 1} of {LOADING_STEPS.length}</p>
+              
+              {/* Display Current Processing Message */}
+              <div className="h-6 overflow-hidden mt-3">
+                <p className="text-sm font-bold text-brand-orange transition-all duration-300 transform translate-y-0">
+                  {LOADING_STEPS[loadingStepIndex]}
+                </p>
+              </div>
+            </div>
+
+            {/* Custom progress bars */}
+            <div className="w-full max-w-xs mx-auto bg-brand-black/5 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className="bg-brand-black h-full rounded-full transition-all duration-500 ease-out" 
+                style={{ width: `${((loadingStepIndex + 1) / LOADING_STEPS.length) * 100}%` }}
+              />
+            </div>
+            
+            <p className="text-[10px] text-brand-black/30 leading-normal">
+              This process may take 15-30 seconds depending on file count and structure.
             </p>
-            <button
-              type="submit"
-              disabled={files.length === 0 || loading}
-              className="inline-flex items-center justify-center rounded-full bg-brand-black px-4 py-2 text-[10.5px] font-black uppercase tracking-[0.12em] text-white shadow-[0_8px_16px_rgba(27,28,26,0.09)] transition disabled:pointer-events-none disabled:opacity-70"
-            >
-              {loading ? 'Analyzing workspace...' : 'Analyze files'}
-            </button>
           </div>
-        </form>
+        )}
 
-        <aside className="flex min-h-0 flex-col overflow-hidden rounded-[20px] border border-brand-black/7 bg-white shadow-[0_10px_28px_rgba(27,28,26,0.035)]">
-          <div className="flex flex-col gap-3 border-b border-brand-black/7 px-4 py-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/34">
-                  Workspace brief
-                </p>
-                <p className="mt-1 text-[13px] font-medium text-brand-black/52">
-                  Review, copy, or download the founder readout.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={!markdown}
-                  onClick={handleCopyMarkdown}
-                  className="rounded-full border border-brand-black/10 bg-white px-3 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 disabled:border-brand-black/8 disabled:text-brand-black/30"
-                >
-                  {copied ? 'Copied' : 'Copy'}
-                </button>
-                <button
-                  type="button"
-                  disabled={!markdown}
-                  onClick={handleDownloadMarkdown}
-                  className="rounded-full border border-brand-black/10 bg-white px-3 py-1.5 text-[10.5px] font-black uppercase tracking-[0.12em] text-brand-black/62 disabled:border-brand-black/8 disabled:text-brand-black/30"
-                >
-                  Download
-                </button>
-              </div>
-            </div>
+        {/* 3. REPORT / EXECUTIVE DASHBOARD (Visible when result is ready) */}
+        {!loading && result?.kind === 'workspace' && (
+          <div className="space-y-6 animate-fade-up">
 
-            <div className="flex flex-wrap gap-2">
-              <MetaPill>{result?.data?.workspaceTitle || 'Waiting for files'}</MetaPill>
-              <MetaPill>{`${files.length} file${files.length === 1 ? '' : 's'}`}</MetaPill>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-            {!loading && !result ? (
-              <div className="rounded-[14px] border border-dashed border-brand-black/10 bg-brand-cream/16 px-4 py-4">
-                <p className="text-[13px] font-semibold text-brand-black/68">
-                  Upload a founder file set to unlock the workspace brief.
-                </p>
-                <p className="mt-2 text-[12.5px] font-medium leading-6 text-brand-black/48">
-                  This view is designed to synthesize multiple files, not just summarize one
-                  document.
-                </p>
-              </div>
-            ) : null}
-
-            {loading ? (
-              <div className="rounded-[14px] border border-brand-black/8 bg-brand-cream/18 px-4 py-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                  In progress
-                </p>
-                <p className="mt-2 text-[13px] font-semibold text-brand-black">
-                  Reading the workspace, classifying each file, and building the founder brief now.
-                </p>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                  <div className="h-full w-2/3 animate-pulse rounded-full bg-brand-black" />
+            {/* Premium Sticky Actions Top Bar */}
+            <div className="sticky top-14 sm:top-16 lg:top-[74px] z-20 bg-brand-cream/80 backdrop-blur-md border border-brand-black/8 rounded-2xl p-3 shadow-ambient flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-brand-orange/10 flex items-center justify-center text-brand-orange flex-shrink-0">
+                  <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-brand-black truncate">{result.data.workspaceTitle || 'Workspace Brief'}</p>
+                  <p className="text-[10px] text-brand-black/40">{files.length} file{files.length === 1 ? '' : 's'} compiled</p>
                 </div>
               </div>
-            ) : null}
 
-            {result?.kind === 'workspace' ? (
-              <div className="space-y-3">
-                <section className="rounded-[14px] border border-brand-black/8 bg-brand-cream/14 px-3.5 py-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                    Overall read
-                  </p>
-                  <p className="mt-2 text-[13px] font-medium leading-6 text-brand-black/74">
-                    {result.data.overallRead}
-                  </p>
-                </section>
-
-                <SummarySection
-                  title="What matters most"
-                  items={result.data.whatMattersMost}
-                  emptyText="No priority themes were returned."
-                />
-                <SummarySection
-                  title="Cross-file contradictions"
-                  items={result.data.contradictions}
-                  emptyText="No contradictions were surfaced across the upload set."
-                />
-                <SummarySection
-                  title="Missing proof or missing documents"
-                  items={result.data.missingProof}
-                  emptyText="No missing proof or missing documents were called out."
-                />
-                <SummarySection
-                  title="Watch-outs"
-                  items={result.data.watchouts}
-                  emptyText="No specific watch-outs were returned."
-                />
-                <SummarySection
-                  title="Priority questions"
-                  items={result.data.priorityQuestions}
-                  emptyText="No follow-up questions were returned."
-                />
-                <SummarySection
-                  title="Suggested next actions"
-                  items={result.data.nextActions}
-                  emptyText="No next actions were returned."
-                />
-
-                <section className="space-y-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/40">
-                    File analyses
-                  </p>
-                  <div className="space-y-3">
-                    {result.data.fileAnalyses.map((fileAnalysis) => (
-                      <WorkspaceFileCard
-                        key={fileAnalysis.fileId}
-                        fileAnalysis={fileAnalysis}
-                      />
-                    ))}
-                  </div>
-                </section>
-
-                <SummarySection
-                  title="Workspace extraction notes"
-                  items={result.data.extractionNotes}
-                  emptyText="No workspace-level extraction caveats were returned."
-                />
+              {/* Action buttons */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleCopyMarkdown}
+                  className="px-3.5 py-1.5 rounded-full border border-brand-black/10 bg-white hover:bg-brand-cream/50 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-brand-black transition duration-150"
+                >
+                  {copied ? 'Copied ✅' : 'Copy markdown'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadMarkdown}
+                  className="px-3.5 py-1.5 rounded-full border border-brand-black/10 bg-white hover:bg-brand-cream/50 text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-brand-black transition duration-150 hidden sm:inline-block"
+                >
+                  Download md
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="px-3.5 py-1.5 rounded-full bg-brand-black hover:bg-brand-orange text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-white transition duration-150"
+                >
+                  Reset
+                </button>
               </div>
-            ) : null}
-          </div>
-        </aside>
-      </div>
-    </section>
-  );
-};
+            </div>
 
-export default PdfSummaryWorkspace;
+            {/* Glassmorphic Overall Read (Executive Takeaway) */}
+            <div className="relative overflow-hidden border border-brand-black/8 rounded-3xl bg-white p-6 shadow-soft space-y-3">
+              {/* Accent gradient shape behind text */}
+              <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-brand-orange/10 blur-2xl" />
+              
+              <div className="flex items-center gap-2 text-brand-orange">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                </svg>
+                <span className="text-[10px] font-black uppercase tracking-widest">Executive Takeaway</span>
+              </div>
+              <h3 className="text-xl font-extrabold text-brand-black tracking-tight-brand">Overall Analysis Read</h3>
+              <p className="text-sm text-brand-black/75 leading-relaxed font-medium">
+                {result.data.overallRead}
+              </p>
+            </div>
+
+            {/* Themed Dashboard Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* 1. What Matters Most - Indigo Theme */}
+              <DashboardSectionCard
+                title="What matters most"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499c-.107-.218-.337-.361-.58-.361s-.473.143-.58.361l-2.048 4.14c-.078.157-.229.26-.402.277l-4.57.494c-.244.026-.45.184-.51.419-.06.235.008.488.176.657l3.395 3.12c.125.115.181.285.15.45l-.95 4.458c-.05.239.043.488.24.63.196.14.457.147.662.019l3.96-2.478a.488.488 0 01.5 0l3.96 2.478c.205.128.466.121.662-.019.197-.142.29-.391.24-.63l-.95-4.458a.49.49 0 01.15-.45l3.395-3.12c.168-.169.236-.422.176-.657-.06-.235-.266-.393-.51-.419l-4.57-.494a.488.488 0 01-.402-.277l-2.048-4.14z" />
+                  </svg>
+                }
+                themeClass="border-indigo-100 bg-indigo-50/10 text-indigo-700"
+                items={result.data.whatMattersMost}
+                emptyText="No major priority themes returned."
+              />
+
+              {/* 2. Cross-File Contradictions - Crimson Theme */}
+              <DashboardSectionCard
+                title="Contradictions"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                }
+                themeClass="border-rose-100 bg-rose-50/10 text-rose-600"
+                items={result.data.contradictions}
+                emptyText="No contradictions emerged across files."
+              />
+
+              {/* 3. Missing Proof - Amber Theme */}
+              <DashboardSectionCard
+                title="Missing Proof & Documents"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                  </svg>
+                }
+                themeClass="border-amber-100 bg-amber-50/10 text-amber-700"
+                items={result.data.missingProof}
+                emptyText="No specific missing records identified."
+              />
+
+              {/* 4. Watch-outs - Purple Theme */}
+              <DashboardSectionCard
+                title="Watch-outs & Risks"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                  </svg>
+                }
+                themeClass="border-purple-100 bg-purple-50/10 text-purple-700"
+                items={result.data.watchouts}
+                emptyText="No specific watch-out points surfaced."
+              />
+
+              {/* 5. Priority Questions - Blue Theme */}
+              <DashboardSectionCard
+                title="Priority Questions"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 18.97a5.969 5.969 0 01-.774-2.202C3.21 15.356 2.25 13.785 2.25 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+                  </svg>
+                }
+                themeClass="border-blue-100 bg-blue-50/10 text-blue-700"
+                items={result.data.priorityQuestions}
+                emptyText="No priority questions were returned."
+              />
+
+              {/* 6. Suggested Next Actions - Emerald Theme */}
+              <DashboardSectionCard
+                title="Suggested Next Actions"
+                icon={
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                }
+                themeClass="border-emerald-100 bg-emerald-50/10 text-emerald-700"
+                items={result.data.nextActions}
+                emptyText="No next actions recommended."
+              />
+
+            </div>
+
+            {/* Stacked File Analyses Cards */}
+            <div className="space-y-4 pt-4 border-t border-brand-black/5">
+              <h4 className="text-sm font-black uppercase tracking-wider text-brand-black/45">Individual File Insights ({result.data.fileAnalyses.length})</h4>
+              <div className="space-y-4">
+                {result.data.fileAnalyses.map((fileAnalysis) => (
+                  <WorkspaceFileCard key={fileAnalysis.fileId} fileAnalysis={fileAnalysis} />
+                ))}
+              </div>
+            </div>
+
+            {/* Workspace Extraction Notes (Footer Info Card) */}
+            {result.data.extractionNotes?.length > 0 && (
+              <div className="border border-brand-black/8 rounded-2xl bg-brand-cream/20 p-4 space-y-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-black/40">Extraction Caveats & Notes</span>
+                <ul className="space-y-1">
+                  {result.data.extractionNotes.map((note, index) => (
+                    <li key={`ext-note-${index}`} className="text-xs text-brand-black/60 leading-normal">
+                      • {note}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Footer action buttons */}
+            <div className="pt-4 border-t border-brand-black/5 flex justify-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopyMarkdown}
+                className="px-5 py-2.5 rounded-full border border-brand-black/10 bg-white hover:bg-brand-cream/50 text-xs font-black uppercase tracking-wider text-brand-black transition duration-150"
+              >
+                {copied ? 'Copied Brief' : 'Copy Brief markdown'}
+              </button>
+              <button
+                type="button"
+                onClick={handleClear}
+                className="px-5 py-2.5 rounded-full bg-brand-black hover:bg-brand-orange text-xs font-black uppercase tracking-wider text-white transition duration-150"
+              >
+                Reset and Analyze New Files
+              </button>
+            </div>
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+// Reusable Dashboard Section Card Component
+function DashboardSectionCard({ title, icon, themeClass, items = [], emptyText = '' }) {
+  return (
+    <div className={`border rounded-2xl p-5 bg-white space-y-3 shadow-soft hover:shadow-ambient transition duration-200`}>
+      <div className={`flex items-center gap-2 ${themeClass}`}>
+        <div className="flex-shrink-0">{icon}</div>
+        <span className="text-xs font-extrabold uppercase tracking-wider">{title}</span>
+      </div>
+      {items.length > 0 ? (
+        <ul className="space-y-2 pt-1">
+          {items.map((item, index) => (
+            <li key={`${title}-${index}`} className="text-xs sm:text-sm text-brand-black/75 leading-relaxed flex items-start gap-2">
+              <span className="text-brand-orange font-bold mt-0.5">•</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-xs sm:text-sm text-brand-black/40 italic pt-1">{emptyText}</p>
+      )}
+    </div>
+  );
+}
+
+// Reusable Summary Item Component (for file insights)
+function SummarySection({ title, items = [], emptyText = '', isWarning = false }) {
+  return (
+    <div className="space-y-1.5 p-3.5 rounded-xl border border-brand-black/5 bg-brand-cream/10">
+      <span className={`text-[10px] font-black uppercase tracking-widest ${isWarning ? 'text-red-500' : 'text-brand-black/40'}`}>
+        {title}
+      </span>
+      {items.length > 0 ? (
+        <ul className="space-y-1.5 pt-1">
+          {items.map((item, index) => (
+            <li key={`${title}-${index}`} className="text-xs text-brand-black/70 leading-relaxed flex items-start gap-1.5">
+              <span className={isWarning ? 'text-red-400' : 'text-brand-black/30'}>-</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-xs text-brand-black/35 italic pt-0.5">{emptyText}</p>
+      )}
+    </div>
+  );
+}
+
+// File Analysis Sub-card Component
+function WorkspaceFileCard({ fileAnalysis }) {
+  return (
+    <div className="border border-brand-black/8 rounded-2xl p-5 bg-white space-y-4 shadow-soft hover:shadow-ambient transition duration-200 animate-fade-up">
+      
+      {/* File Header */}
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-brand-black/5 pb-3.5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-brand-black/5 flex items-center justify-center text-brand-black font-extrabold text-xs">
+            📄
+          </div>
+          <div className="min-w-0">
+            <h5 className="text-sm font-extrabold text-brand-black truncate">{fileAnalysis.filename}</h5>
+            <p className="text-[10px] font-bold text-brand-orange uppercase tracking-wider mt-0.5">{fileAnalysis.detectedType}</p>
+          </div>
+        </div>
+        
+        {/* Quality pill */}
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-extrabold uppercase bg-brand-cream border border-brand-black/8 px-2.5 py-1 rounded-full text-brand-black/60">
+            {fileAnalysis.extractionQuality.label} extraction
+          </span>
+        </div>
+      </div>
+
+      {/* Main summary */}
+      <p className="text-xs sm:text-sm text-brand-black/70 leading-relaxed italic">
+        "{fileAnalysis.summary}"
+      </p>
+
+      {/* Grid of signals/concerns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <SummarySection
+          title="💡 Strongest Signals"
+          items={fileAnalysis.strongestSignals}
+          emptyText="No key signals extracted."
+        />
+        <SummarySection
+          title="⚠️ Biggest Concerns"
+          items={fileAnalysis.concerns}
+          emptyText="No major concerns surfaced."
+          isWarning={fileAnalysis.concerns?.length > 0}
+        />
+      </div>
+
+      {/* Inspect areas */}
+      <SummarySection
+        title="🔍 What to inspect next"
+        items={fileAnalysis.focusAreas}
+        emptyText="No custom areas specified."
+      />
+
+      {/* Local key metrics */}
+      {fileAnalysis.keyMetrics?.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-brand-black/40">Key Metrics Found</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {fileAnalysis.keyMetrics.map((metric, index) => (
+              <div key={`${fileAnalysis.fileId}-metric-${index}`} className="border border-brand-black/5 bg-brand-cream/15 p-2.5 rounded-xl text-center space-y-1">
+                <p className="text-[9px] font-black uppercase tracking-wider text-brand-black/35 truncate" title={metric.label}>
+                  {metric.label}
+                </p>
+                <p className="text-xs font-black text-brand-orange truncate">
+                  {metric.value}
+                </p>
+                {metric.note && (
+                  <p className="text-[8px] font-bold text-brand-black/40 truncate" title={metric.note}>
+                    {metric.note}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Clause highlights */}
+      {fileAnalysis.clauseHighlights?.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-widest text-brand-black/40">Clause Highlights</span>
+          <div className="space-y-2">
+            {fileAnalysis.clauseHighlights.map((clause, index) => (
+              <div key={`${fileAnalysis.fileId}-clause-${index}`} className="border border-brand-black/5 bg-brand-cream/10 p-3 rounded-xl space-y-1.5">
+                <div className="flex items-center justify-between gap-2 border-b border-brand-black/5 pb-1">
+                  <p className="text-[10px] font-extrabold uppercase text-brand-black/60 truncate">{clause.clause}</p>
+                  {clause.value && (
+                    <span className="text-[9px] font-black bg-brand-orange/10 text-brand-orange px-2 py-0.5 rounded border border-brand-orange/20">
+                      {clause.value}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-brand-black/70 leading-relaxed">{clause.explanation}</p>
+                {clause.founderImpact && (
+                  <p className="text-[10px] font-semibold text-brand-black/50 leading-relaxed bg-brand-cream/40 p-2 rounded-lg border border-brand-black/5">
+                    💡 <span className="italic">Founder Impact:</span> {clause.founderImpact}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Extraction Quality Notes */}
+      {fileAnalysis.extractionQuality?.notes?.length > 0 && (
+        <div className="bg-amber-50/10 border border-amber-200/40 p-3 rounded-xl space-y-1">
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-amber-700 block">Extraction Details</span>
+          <ul className="space-y-0.5">
+            {fileAnalysis.extractionQuality.notes.map((note, index) => (
+              <li key={`quality-note-${index}`} className="text-[11px] text-brand-black/55 leading-relaxed">
+                • {note}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
