@@ -280,7 +280,7 @@ export default function PdfSummaryWorkspace() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-1 sm:px-4 py-4 lg:py-6 lg:h-full flex flex-col">
+    <div className="w-full max-w-5xl mx-auto px-1 sm:px-4 py-4 lg:py-6 lg:h-full flex flex-col">
       
       {/* Title & Badge */}
       <div className="text-center mb-4 sm:mb-6 flex-shrink-0">
@@ -522,7 +522,7 @@ export default function PdfSummaryWorkspace() {
           <div className="space-y-6 animate-fade-up">
 
             {/* Premium Sticky Actions Top Bar */}
-            <div className="sticky top-14 sm:top-16 lg:top-[74px] z-20 bg-brand-cream/80 backdrop-blur-md border border-brand-black/8 rounded-2xl p-3 shadow-ambient flex items-center justify-between gap-3">
+            <div className="sticky top-0 z-20 bg-brand-cream/80 backdrop-blur-md border border-brand-black/8 rounded-2xl p-3 shadow-ambient flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="w-8 h-8 rounded-lg bg-brand-orange/10 flex items-center justify-center text-brand-orange flex-shrink-0">
                   <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
