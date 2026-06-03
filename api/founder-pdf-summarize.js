@@ -334,6 +334,7 @@ async function summarizeWorkspaceWithModel(req, { focus = '', fileAnalyses = [],
     maxOutputTokens: 2400,
     usage: {
       action: 'analyze_workspace',
+      credits: 1,
     },
   });
 }

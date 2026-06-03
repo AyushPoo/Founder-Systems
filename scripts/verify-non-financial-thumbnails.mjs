@@ -20,7 +20,6 @@ const targetIds = new Set([
   'founder-spec-generator',
   'founder-outreach-kit',
   'founder-pdf-summarizer',
-  'founder-update-generator',
   'linkedin-candidate-screener',
   'founder-command-center',
   'marketing-agent',

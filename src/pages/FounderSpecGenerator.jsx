@@ -188,6 +188,7 @@ const FounderSpecGenerator = () => {
     memoryItems,
     saveMemoryItem,
     savePreference,
+    wallet,
   } = useFounderWorkspace();
 
   const recommendationTitle = useMemo(
@@ -489,6 +490,16 @@ const FounderSpecGenerator = () => {
   async function handleGenerateSpec(tier) {
     if (!canGenerateSpec || loading) return;
     const isPremium = tier === 'premium';
+    if (isPremium) {
+      if (!authenticated) {
+        setError('Please sign in or create an account to generate a detailed premium plan.');
+        return;
+      }
+      if ((wallet?.balance ?? 0) < 1) {
+        setError('You need at least 1 credit to generate a detailed premium plan. Please add credits in your Account.');
+        return;
+      }
+    }
     await submitPayload({
       message: isPremium
         ? 'Generate a detailed premium founder strategy brief now.'

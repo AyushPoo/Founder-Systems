@@ -15,7 +15,6 @@ const CATALOG_SECTIONS = [
         productIds: [
             'founder-spec-generator',
             'founder-pdf-summarizer',
-            'founder-update-generator',
             'founder-command-center',
             'founder-outreach-kit',
             'linkedin-candidate-screener',

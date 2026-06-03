@@ -19,13 +19,13 @@ test('consumeProductRateLimit throws after the configured window budget is exhau
     },
   };
 
-  for (let index = 0; index < 6; index += 1) {
-    const state = consumeProductRateLimit('founder-update-generator', req);
-    assert.equal(state.limit, 6);
+  for (let index = 0; index < 5; index += 1) {
+    const state = consumeProductRateLimit('founder-spec-generator', req);
+    assert.equal(state.limit, 5);
   }
 
   assert.throws(
-    () => consumeProductRateLimit('founder-update-generator', req),
+    () => consumeProductRateLimit('founder-spec-generator', req),
     /temporarily rate-limited/i
   );
 });
@@ -45,12 +45,12 @@ test('consumeProductRateLimit ignores spoofable email headers when deriving iden
     },
   };
 
-  for (let index = 0; index < 6; index += 1) {
-    consumeProductRateLimit('founder-update-generator', firstReq);
+  for (let index = 0; index < 5; index += 1) {
+    consumeProductRateLimit('founder-spec-generator', firstReq);
   }
 
   assert.throws(
-    () => consumeProductRateLimit('founder-update-generator', secondReq),
+    () => consumeProductRateLimit('founder-spec-generator', secondReq),
     /temporarily rate-limited/i
   );
 });

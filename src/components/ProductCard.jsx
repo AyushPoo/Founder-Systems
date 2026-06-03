@@ -41,11 +41,7 @@ const PRODUCT_ART_DIRECTION = {
         chips: ['Docs', 'Sheets', 'Clauses'],
         badge: 'Documents',
     },
-    'founder-update-generator': {
-        hook: 'Turn a messy founder packet into one sharp update.',
-        chips: ['Wins', 'Risks', 'Metrics'],
-        badge: 'Updates',
-    },
+
     'linkedin-candidate-screener': {
         hook: 'Screen role fit without leaving the LinkedIn workflow.',
         chips: ['Fit', 'Gaps', 'Notes'],
@@ -83,7 +79,6 @@ const LIVE_WORKSPACE_IDS = new Set([
     'founder-spec-generator',
     'founder-outreach-kit',
     'founder-pdf-summarizer',
-    'founder-update-generator',
     'linkedin-candidate-screener',
     'founder-command-center',
 ]);

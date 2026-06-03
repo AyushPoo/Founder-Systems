@@ -248,12 +248,12 @@ export const guidesData = [
     coverSubtitle: 'A structure for telling the truth, keeping confidence, and asking for useful help.',
     coverTags: ['Updates', 'Investors', 'Narrative'],
     readTime: '7 min read',
-    relatedProductId: 'founder-update-generator',
+    relatedProductId: 'founder-command-center',
     category: 'Fundraising',
     lastUpdated: '2026-06-01',
     pullQuote: 'A good investor update does not pretend the month was clean. It shows the founder knows what changed and what happens next.',
     heroNote: 'The hardest updates are usually the most useful ones. They force you to turn scattered evidence into judgment instead of hiding behind activity.',
-    relatedProductTeaser: 'Use Founder Update Generator to turn notes, files, and rough metrics into a concise update that stays honest about weak evidence.',
+    relatedProductTeaser: 'Use Founder Command Center to centralize company memory, metrics, and progress in one clean dashboard.',
     articleVisuals: [
       {
         type: 'deck-arc',

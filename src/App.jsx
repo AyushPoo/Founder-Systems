@@ -12,7 +12,6 @@ import Guides from './pages/Guides';
 import GuideDetail from './pages/GuideDetail';
 import FounderSpecGenerator from './pages/FounderSpecGenerator';
 import FounderOutreachKit from './pages/FounderOutreachKit';
-import FounderUpdateGenerator from './pages/FounderUpdateGenerator';
 import FounderPdfSummarizer from './pages/FounderPdfSummarizer';
 import LinkedInCandidateScreener from './pages/LinkedInCandidateScreener';
 import Account from './pages/Account';
@@ -58,14 +57,7 @@ function App() {
                 </InternalProductRoute>
               )}
             />
-            <Route
-              path="/tools/founder-update-generator"
-              element={(
-                <InternalProductRoute productId="founder-update-generator">
-                  <FounderUpdateGenerator />
-                </InternalProductRoute>
-              )}
-            />
+
             <Route
               path="/tools/linkedin-candidate-screener"
               element={(

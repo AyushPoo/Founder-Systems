@@ -180,7 +180,6 @@ function SectionCard({ title, items = [], emptyText = 'No signals yet.', loading
 
 const DEEP_LINKS = [
   { to: '/tools/founder-pdf-summarizer', label: 'Go deeper: documents' },
-  { to: '/tools/founder-update-generator', label: 'Go deeper: updates' },
   { to: '/tools/founder-spec-generator', label: 'Go deeper: strategy' },
   { to: '/tools/founder-outreach-kit', label: 'Go deeper: GTM' },
 ];
@@ -727,9 +726,9 @@ const FounderCommandCenterWorkspace = () => {
                 },
                 {
                   id: 'next-2',
-                  label: 'Tighten the narrative',
-                  text: 'Use Founder Update Generator when this refresh reveals a weak or stale company storyline.',
-                  source: '/tools/founder-update-generator',
+                  label: 'Tighten the outbound',
+                  text: 'Use Outreach Kit to build a structured outbound campaign if the fresh findings indicate client acquisition drag.',
+                  source: '/tools/founder-outreach-kit',
                   confidence: 'recommended',
                   ageDays: 0,
                 },

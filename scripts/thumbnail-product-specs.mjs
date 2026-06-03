@@ -38,19 +38,7 @@ export const NON_FINANCIAL_THUMBNAIL_SPECS = [
     tint: '#f9ecd1',
     accentDark: '#b37a1b',
   },
-  {
-    id: 'founder-update-generator',
-    label: 'Reporting',
-    badge: 'Update Frame',
-    composition: 'panel',
-    headline: ['Turn', 'noise into', 'story'],
-    titleMarker: 'Turn signals into story',
-    chips: ['Wins', 'Risks', 'Metrics'],
-    motif: 'summary-panels',
-    accent: '#ff6a1a',
-    tint: '#fde5d5',
-    accentDark: '#b84b18',
-  },
+
   {
     id: 'linkedin-candidate-screener',
     label: 'Hiring',

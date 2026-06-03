@@ -120,18 +120,7 @@
     "thumbnail": "/images/products/founder-pdf-summarizer/thumbnail.svg",
     "launchUrl": "/tools/founder-pdf-summarizer"
   },
-  {
-    "id": "founder-update-generator",
-    "name": "Founder Update Generator",
-    "description": "Upload messy founder materials and get a concise update with wins, risks, metrics, next focus, and caveats.",
-    "category": "Strategy",
-    "productId": "FS014",
-    "creditPrice": 0,
-    "freeAllowanceLabel": "Free",
-    "paidUsageLabel": "Free",
-    "thumbnail": "/images/products/founder-update-generator/thumbnail.svg",
-    "launchUrl": "/tools/founder-update-generator"
-  },
+
   {
     "id": "founder-outreach-kit",
     "name": "OutreachEngine (Outbound Campaigner)",

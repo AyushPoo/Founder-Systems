@@ -7,7 +7,6 @@ const PUBLIC_PRODUCT_IDS = new Set([
   'd2c-ecommerce-model',
   'founder-spec-generator',
   'founder-pdf-summarizer',
-  'founder-update-generator',
   'founder-command-center',
   'founder-outreach-kit',
   'linkedin-candidate-screener',

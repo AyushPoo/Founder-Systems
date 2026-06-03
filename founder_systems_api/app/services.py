@@ -568,19 +568,18 @@ def get_product_credit_price(product: Product | None) -> int:
 
 
 USAGE_CREDIT_COSTS: dict[tuple[str, str], int] = {
-    ("founder-update-generator", "generate"): 0,
     ("founder-outreach-kit", "generate"): 0,
     ("linkedin-candidate-screener", "screen"): 0,
     ("founder-pdf-summarizer", "generate"): 0,
     ("founder-pdf-summarizer", "analyze_document"): 0,
-    ("founder-pdf-summarizer", "analyze_workspace"): 0,
+    ("founder-pdf-summarizer", "analyze_workspace"): 1,
     ("founder-pdf-summarizer", "safe_explain"): 0,
     ("founder-spec-generator", "generate"): 0,
+    ("founder-spec-generator", "generate_premium"): 1,
     ("founder-command-center", "generate"): 2,
 }
 
 PRODUCT_DEFAULT_USAGE_CREDIT_COSTS: dict[str, int] = {
-    "founder-update-generator": 0,
     "founder-outreach-kit": 0,
     "linkedin-candidate-screener": 0,
     "founder-pdf-summarizer": 0,

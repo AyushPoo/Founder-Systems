@@ -10,6 +10,7 @@ import {
 } from '../../utils/founderDocumentWorkspace';
 import { getDocumentIntelligenceApiConfig } from '../../utils/founderDocumentIntelligence';
 import { copyText, downloadMarkdown } from '../../utils/founderSpec';
+import { useFounderWorkspace } from '../../context/FounderWorkspaceContext';
 
 function formatFileSize(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
@@ -80,6 +81,7 @@ const FILE_FORMATS = [
 ];
 
 export default function PdfSummaryWorkspace() {
+  const { authenticated, wallet } = useFounderWorkspace();
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
   const [focus, setFocus] = useState('');
@@ -88,6 +90,56 @@ export default function PdfSummaryWorkspace() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [loadingStepIndex, setLoadingStepIndex] = useState(0);
+
+  const LOCAL_STORAGE_KEY = 'founder-pdf-summarizer:v1';
+  const [storageReady, setStorageReady] = useState(false);
+
+  // Restore state on mount
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.files)) {
+            setFiles(parsed.files);
+          }
+          if (typeof parsed.focus === 'string') {
+            setFocus(parsed.focus);
+          }
+          if (parsed.result) {
+            setResult(parsed.result);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to restore document intelligence state:', e);
+    }
+    setStorageReady(true);
+  }, []);
+
+  // Save state on change
+  useEffect(() => {
+    if (!storageReady) return;
+    try {
+      const serializableFiles = files.map((file) => ({
+        name: file.name || file.filename,
+        size: file.size || file.fileSize,
+        type: file.type || file.mimeType,
+        lastModified: file.lastModified || 0,
+      }));
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY,
+        JSON.stringify({
+          files: serializableFiles,
+          focus,
+          result,
+        })
+      );
+    } catch (e) {
+      console.error('Failed to save document intelligence state:', e);
+    }
+  }, [files, focus, result, storageReady]);
 
   // Cycle loading messages when active
   useEffect(() => {
@@ -190,6 +242,11 @@ export default function PdfSummaryWorkspace() {
     setResult(null);
     setError('');
     setCopied(false);
+    try {
+      window.localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch (e) {
+      console.error('Failed to clear document intelligence state:', e);
+    }
   }
 
   async function handleAnalyze(event) {
@@ -203,6 +260,26 @@ export default function PdfSummaryWorkspace() {
     if (apiConfig.localDevMessage) {
       setError(apiConfig.localDevMessage);
       return;
+    }
+
+    const needsReupload = files.some(
+      (file) => !(file instanceof File) && !file.fileData
+    );
+
+    if (needsReupload) {
+      setError('Restored session files must be re-uploaded to run a new analysis.');
+      return;
+    }
+
+    if (files.length > 1) {
+      if (!authenticated) {
+        setError('Please sign in or create an account to run multi-file cross-analysis (1 credit).');
+        return;
+      }
+      if ((wallet?.balance ?? 0) < 1) {
+        setError('You need at least 1 credit to run multi-file cross-analysis. Please add credits in your Account.');
+        return;
+      }
     }
 
     setLoading(true);
@@ -380,7 +457,11 @@ export default function PdfSummaryWorkspace() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-[11px] font-bold text-brand-black truncate">{file.name}</p>
-                            <p className="text-[9px] text-brand-black/40">{formatFileSize(file.size)}</p>
+                            {!(file instanceof File) ? (
+                              <p className="text-[9px] font-bold text-brand-orange">⚠️ Re-upload needed</p>
+                            ) : (
+                              <p className="text-[9px] text-brand-black/40">{formatFileSize(file.size)}</p>
+                            )}
                           </div>
                         </div>
                         <button

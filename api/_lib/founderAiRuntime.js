@@ -25,16 +25,6 @@ const PRODUCT_POLICIES = {
     maxOutputTokens: 3000,
     temperature: 0.1,
   },
-  'founder-update-generator': {
-    productSlug: 'founder-update-generator',
-    usageAction: 'generate',
-    reserveCredits: 0,
-    modelTier: 'cheap',
-    maxRequestsPerWindow: 6,
-    windowMs: ONE_HOUR_MS,
-    maxOutputTokens: 700,
-    temperature: 0.1,
-  },
   'founder-document-intelligence': {
     productSlug: 'founder-pdf-summarizer',
     usageAction: 'analyze_document',
@@ -156,7 +146,7 @@ export function getBedrockModelId(modelTier = 'cheap') {
 }
 
 function getProductPolicy(productKey) {
-  return PRODUCT_POLICIES[productKey] || PRODUCT_POLICIES['founder-update-generator'];
+  return PRODUCT_POLICIES[productKey] || PRODUCT_POLICIES['founder-spec-generator'];
 }
 
 function parseDataUrl(value) {
