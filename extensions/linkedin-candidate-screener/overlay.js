@@ -2,6 +2,20 @@
 
 const API_BASE = 'https://foundersystems.in';
 const OVERLAY_ID = 'fs-candidate-overlay';
+const FREE_LIMIT = 3;
+const STORAGE_KEY = 'fs-profile-views';
+
+function getViewCount() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '0');
+  } catch { return 0; }
+}
+
+function incrementViewCount() {
+  const count = getViewCount() + 1;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(count));
+  return count;
+}
 
 function waitForProfile(maxWait = 8000) {
   return new Promise((resolve) => {
@@ -19,6 +33,26 @@ function waitForProfile(maxWait = 8000) {
       setTimeout(check, 500);
     }
     check();
+  });
+}
+
+// Scroll down to trigger lazy-loading of experience/education/skills sections
+function triggerLazyLoad() {
+  return new Promise((resolve) => {
+    const scrollPositions = [300, 800, 1400, 2000, 2600];
+    let i = 0;
+    function scrollNext() {
+      if (i >= scrollPositions.length) {
+        // Scroll back to top
+        window.scrollTo(0, 0);
+        setTimeout(resolve, 300);
+        return;
+      }
+      window.scrollTo(0, scrollPositions[i]);
+      i++;
+      setTimeout(scrollNext, 200);
+    }
+    scrollNext();
   });
 }
 
@@ -143,6 +177,13 @@ function createOverlay(profile) {
   const existing = document.getElementById(OVERLAY_ID);
   if (existing) existing.remove();
 
+  const viewCount = getViewCount();
+  const isFree = viewCount < FREE_LIMIT;
+  const remaining = Math.max(0, FREE_LIMIT - viewCount);
+
+  // Increment view count
+  incrementViewCount();
+
   const overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
 
@@ -154,13 +195,46 @@ function createOverlay(profile) {
     `<span class="fs-chip fs-chip--skill">${s}</span>`
   ).join('');
 
-  const expItems = profile.experience.slice(0, 5).map(e =>
+  const expItems = profile.experience.slice(0, 6).map(e =>
     `<li>${e}</li>`
   ).join('');
 
-  const eduItems = profile.education.slice(0, 3).map(e =>
+  const eduItems = profile.education.slice(0, 4).map(e =>
     `<li>${e}</li>`
   ).join('');
+
+  // Build content based on free/paid
+  const profileContent = isFree ? `
+    <div class="fs-overlay-headline">${profile.headline || ''}</div>
+    <div class="fs-overlay-domains">${domainChips}</div>
+    ${expItems ? `<div class="fs-overlay-section"><p class="fs-section-label">Work Experience</p><ul>${expItems}</ul></div>` : '<div class="fs-overlay-section"><p class="fs-section-label">Work Experience</p><p class="fs-empty">Scroll down on the profile to load experience data</p></div>'}
+    ${eduItems ? `<div class="fs-overlay-section"><p class="fs-section-label">Education</p><ul>${eduItems}</ul></div>` : ''}
+    ${skillChips ? `<div class="fs-overlay-section"><p class="fs-section-label">Skills</p><div class="fs-chips-wrap">${skillChips}</div></div>` : ''}
+    <div class="fs-overlay-actions">
+      <button class="fs-btn fs-btn--save" id="fs-save-profile">Save profile</button>
+    </div>
+    <div class="fs-overlay-footer">
+      <span class="fs-footer-text">${remaining} free views left · <a href="https://foundersystems.in/tools/linkedin-candidate-screener" target="_blank">Get more</a></span>
+    </div>
+  ` : `
+    <div class="fs-overlay-headline">${profile.headline || ''}</div>
+    <div class="fs-overlay-domains">${domainChips}</div>
+    <div class="fs-overlay-locked">
+      <p class="fs-locked-title">Free views used</p>
+      <p class="fs-locked-text">You've used your 3 free profile summaries. Get credits to continue screening.</p>
+      <a href="https://foundersystems.in/account?tab=billing" target="_blank" class="fs-btn fs-btn--screen">Get credits</a>
+    </div>
+  `;
+
+  // Paid screening section (only for free users who haven't exhausted views)
+  const screenSection = isFree ? `
+    <div class="fs-overlay-section fs-screen-section" id="fs-screen-section">
+      <p class="fs-section-label">Screen against a role · <span class="fs-paid-badge">1 credit</span></p>
+      <textarea class="fs-jd-input" id="fs-jd-input" rows="3" placeholder="Paste JD to rate this candidate against a role..."></textarea>
+      <button class="fs-btn fs-btn--screen" id="fs-screen-btn">Screen · 1 credit</button>
+      <div class="fs-screen-result hidden" id="fs-screen-result"></div>
+    </div>
+  ` : '';
 
   overlay.innerHTML = `
     <div class="fs-overlay-header">
@@ -171,21 +245,14 @@ function createOverlay(profile) {
       </div>
       <button class="fs-overlay-close" id="fs-close-overlay">×</button>
     </div>
-    <div class="fs-overlay-headline">${profile.headline || ''}</div>
-    <div class="fs-overlay-domains">${domainChips}</div>
-    ${expItems ? `<div class="fs-overlay-section"><p class="fs-section-label">Experience</p><ul>${expItems}</ul></div>` : ''}
-    ${eduItems ? `<div class="fs-overlay-section"><p class="fs-section-label">Education</p><ul>${eduItems}</ul></div>` : ''}
-    ${skillChips ? `<div class="fs-overlay-section"><p class="fs-section-label">Skills</p><div class="fs-chips-wrap">${skillChips}</div></div>` : ''}
-    <div class="fs-overlay-actions">
-      <button class="fs-btn fs-btn--save" id="fs-save-profile">Save profile</button>
-      <button class="fs-btn fs-btn--screen" id="fs-screen-profile">Screen against role</button>
-    </div>
+    ${profileContent}
+    ${screenSection}
     <div class="fs-overlay-saved hidden" id="fs-saved-msg">✓ Profile saved</div>
   `;
 
   document.body.appendChild(overlay);
 
-  // Event listeners
+  // Close button
   document.getElementById('fs-close-overlay').addEventListener('click', () => {
     overlay.classList.add('fs-overlay--collapsed');
   });
@@ -196,25 +263,74 @@ function createOverlay(profile) {
     }
   });
 
-  document.getElementById('fs-save-profile').addEventListener('click', async () => {
-    const saved = JSON.parse(localStorage.getItem('fs-saved-profiles') || '[]');
-    const entry = { ...profile, url: window.location.href, savedAt: new Date().toISOString() };
-    saved.unshift(entry);
-    localStorage.setItem('fs-saved-profiles', JSON.stringify(saved.slice(0, 50)));
-    document.getElementById('fs-saved-msg').classList.remove('hidden');
-    setTimeout(() => document.getElementById('fs-saved-msg').classList.add('hidden'), 2000);
-  });
+  // Save button
+  const saveBtn = document.getElementById('fs-save-profile');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const saved = JSON.parse(localStorage.getItem('fs-saved-profiles') || '[]');
+      const entry = { ...profile, url: window.location.href, savedAt: new Date().toISOString() };
+      saved.unshift(entry);
+      localStorage.setItem('fs-saved-profiles', JSON.stringify(saved.slice(0, 50)));
+      document.getElementById('fs-saved-msg').classList.remove('hidden');
+      setTimeout(() => document.getElementById('fs-saved-msg').classList.add('hidden'), 2000);
+    });
+  }
 
-  document.getElementById('fs-screen-profile').addEventListener('click', () => {
-    // Open the popup for screening
-    const url = chrome.runtime.getURL('popup.html');
-    window.open(url, 'fs-screener', 'width=400,height=600');
-  });
+  // Screen button
+  const screenBtn = document.getElementById('fs-screen-btn');
+  if (screenBtn) {
+    screenBtn.addEventListener('click', async () => {
+      const jd = document.getElementById('fs-jd-input').value.trim();
+      if (!jd) return;
+      screenBtn.disabled = true;
+      screenBtn.textContent = 'Screening...';
+      try {
+        const response = await fetch(`${API_BASE}/api/linkedin-candidate-screener`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jobDescription: jd,
+            resumeText: '',
+            includeActivity: true,
+            includeExternalLinks: false,
+            profile: {
+              fullName: profile.fullName,
+              headline: profile.headline,
+              currentCompany: '',
+              about: profile.headline,
+              experience: profile.experience,
+              skills: profile.skills,
+            },
+          }),
+        });
+        const payload = await response.json();
+        if (payload?.ok) {
+          const resultDiv = document.getElementById('fs-screen-result');
+          resultDiv.classList.remove('hidden');
+          resultDiv.innerHTML = `
+            <div class="fs-result-verdict"><span class="fs-chip fs-chip--domain">${payload.verdict || 'Unknown'}</span> <span class="fs-chip fs-chip--skill">${payload.confidence || ''}</span></div>
+            <p class="fs-result-summary">${payload.candidateSummary || ''}</p>
+            ${payload.fitSignals?.length ? '<p class="fs-section-label">Fit</p><ul>' + payload.fitSignals.map(s => `<li>${s}</li>`).join('') + '</ul>' : ''}
+            ${payload.gapsOrRisks?.length ? '<p class="fs-section-label">Gaps</p><ul>' + payload.gapsOrRisks.map(s => `<li>${s}</li>`).join('') + '</ul>' : ''}
+          `;
+        } else {
+          throw new Error(payload?.error || 'Screening failed');
+        }
+      } catch (err) {
+        document.getElementById('fs-screen-result').classList.remove('hidden');
+        document.getElementById('fs-screen-result').innerHTML = `<p class="fs-error">${err.message}</p>`;
+      } finally {
+        screenBtn.disabled = false;
+        screenBtn.textContent = 'Screen · 1 credit';
+      }
+    });
+  }
 }
 
-// Main: wait for profile to load, then show overlay
+// Main: wait for profile to load, trigger lazy-load, then show overlay
 async function init() {
   await waitForProfile();
+  await triggerLazyLoad(); // Scroll to load experience/skills/education sections
   const profile = extractProfileData();
   if (profile.fullName && profile.fullName !== 'Unknown') {
     createOverlay(profile);
