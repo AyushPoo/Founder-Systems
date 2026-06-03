@@ -17,13 +17,35 @@ function incrementViewCount() {
 }
 
 function getBasicProfile() {
-  const title = document.title.replace(' | LinkedIn', '');
+  // Most reliable: meta description always has the full profile summary
+  const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+  
+  // Title: "Name - Headline | LinkedIn" or "(3) Name - Headline | LinkedIn"
+  let title = document.title.replace(' | LinkedIn', '').replace(/^\(\d+\)\s*/, '');
   const parts = title.split(' - ');
-  const name = parts[0]?.trim() || '';
-  const headline = parts.slice(1).join(' - ').trim() || '';
+  const nameFromTitle = parts[0]?.trim() || '';
+  const headlineFromTitle = parts.slice(1).join(' - ').trim() || '';
+
+  // h1 is always the name
+  let fullName = '';
+  for (const h1 of document.querySelectorAll('h1')) {
+    const text = h1.textContent.trim();
+    if (text && text.length > 1 && text.length < 60) { fullName = text; break; }
+  }
+
+  // Visible text from main for the AI
   const main = document.querySelector('main');
   const visibleText = (main?.innerText || '').slice(0, 5000);
-  return { name, headline, visibleText };
+
+  // Headline: try title first, then meta description
+  let headline = headlineFromTitle;
+  if (!headline && metaDesc) {
+    // Meta format: "Name · Headline · Location · ..."
+    const metaParts = metaDesc.split(' · ');
+    if (metaParts.length >= 2) headline = metaParts[1]?.trim() || '';
+  }
+
+  return { name: fullName || nameFromTitle, headline, visibleText, metaDesc };
 }
 
 function showButton() {
