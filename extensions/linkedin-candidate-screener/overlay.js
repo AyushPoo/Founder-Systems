@@ -3,7 +3,7 @@
 const API_BASE = 'https://foundersystems.in';
 const OVERLAY_ID = 'fs-candidate-overlay';
 const BUTTON_ID = 'fs-summarize-btn';
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 100; // Generous for now — connect to real credit system later
 const STORAGE_KEY = 'fs-profile-views';
 
 function getViewCount() {
