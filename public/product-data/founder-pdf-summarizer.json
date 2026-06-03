@@ -52,7 +52,7 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "Founder Document Intelligence is free. You can summarize, explain, and synthesize documents without using any credits.",
+  "footerSummaryDetails": "Founder Document Intelligence is freemium. Single document analysis is completely free, while cross-collaborative analysis of multiple documents requires credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A concise founder-ready summary you can copy, export, and use as a decision brief.",
   "whatYouGet": [
@@ -65,7 +65,8 @@
     "Annual report and financial statement modes",
     "Auto-detect lens with manual override",
     "Markdown export",
-    "Free beta access"
+    "Free single document screens",
+    "Multi-document cross analysis (paid)"
   ],
   "whoThisIsFor": [
     "Founders reviewing pitch decks, memos, annual reports, and operating documents quickly.",
@@ -89,9 +90,9 @@
   "images": [
     "/images/products/founder-pdf-summarizer/thumbnail.svg"
   ],
-  "creditPrice": 0,
-  "freeAllowanceLabel": "Free",
-  "paidUsageLabel": "Free",
+  "pricingLabel": "Freemium",
+  "freeAllowanceLabel": "Single file free",
+  "paidUsageLabel": "Multi-file workspace paid",
   "launchUrl": "/tools/founder-pdf-summarizer",
   "category": "Strategy"
 }

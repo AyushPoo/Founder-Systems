@@ -44,7 +44,7 @@
     }
   ],
   "footerSummaryTitle": "Chrome Extension",
-  "footerSummaryDetails": "LinkedIn Candidate Screener is free. You can screen candidates and generate recruiter-ready notes without using any credits.",
+  "footerSummaryDetails": "LinkedIn Candidate Screener is freemium. Get 3 free candidate screens per month, or upgrade to 25 screens per month (with additional options for more screenings).",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A fast first-pass candidate screen with recruiter notes your team can scan, discuss, and reuse.",
   "whatYouGet": [
@@ -55,7 +55,8 @@
     "Interview checks",
     "Recruiter notes",
     "Optional resume and activity enrichment",
-    "Fully free candidate screens"
+    "3 free screens per month",
+    "Paid tiers for 25+ screens"
   ],
   "whoThisIsFor": [
     "Founders screening candidates quickly against active roles.",
@@ -80,9 +81,9 @@
   "images": [
     "/images/products/linkedin-candidate-screener/thumbnail.svg"
   ],
-  "creditPrice": 0,
-  "freeAllowanceLabel": "Free",
-  "paidUsageLabel": "Free",
+  "pricingLabel": "Freemium",
+  "freeAllowanceLabel": "3 screens/mo free",
+  "paidUsageLabel": "25 screens/mo paid",
   "launchUrl": "/tools/linkedin-candidate-screener",
   "category": "Hiring Tools"
 }

@@ -44,18 +44,17 @@
     }
   ],
   "footerSummaryTitle": "Pricing",
-  "footerSummaryDetails": "OutreachEngine is free. You can generate outbound campaigns, email sequences, and objection replies without using any credits.",
+  "footerSummaryDetails": "OutreachEngine is freemium. Generating a standard 3-step sequence is free, while generating advanced follow-up sequences and LinkedIn alternatives requires credits.",
   "footerResultTitle": "The Result",
   "footerResultDetails": "A structured outbound campaign with strategist notes, sendable messages, objection replies, exports, and local saves.",
   "whatYouGet": [
     "Offer and customer strategy review",
-    "Founder-style email sequence",
-    "LinkedIn message flow",
-    "Common objection replies",
-    "Copy actions for individual assets",
+    "Founder-style 3-step email sequence",
+    "Objection replies and copy actions",
+    "Advanced follow-up sequences (paid)",
+    "LinkedIn message flows (paid)",
     "CSV export for operational use",
-    "Local campaign saves on your device",
-    "Free campaign generation"
+    "Local campaign saves on your device"
   ],
   "whoThisIsFor": [
     "Founders shaping outbound before hiring a growth team.",
@@ -66,7 +65,7 @@
   "faq": [
     {
       "q": "Is this free to use right now?",
-      "a": "Yes. OutreachEngine is fully free to use in beta. No credits or payment are required."
+      "a": "Yes. Generating your core 3-step sequence is fully free. Generating advanced follow-ups and LinkedIn alternatives requires wallet credits."
     },
     {
       "q": "Does it save my campaigns?",
@@ -84,9 +83,9 @@
     "/images/products/founder-outreach-kit/preview-3.png",
     "/images/products/founder-outreach-kit/preview-4.png"
   ],
-  "creditPrice": 0,
-  "freeAllowanceLabel": "Free",
-  "paidUsageLabel": "Free",
+  "pricingLabel": "Freemium",
+  "freeAllowanceLabel": "3-step email free",
+  "paidUsageLabel": "Follow-ups & LinkedIn paid",
   "launchUrl": "/tools/founder-outreach-kit",
   "category": "Marketing Tools"
 }

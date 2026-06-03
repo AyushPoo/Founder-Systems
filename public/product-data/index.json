@@ -114,9 +114,9 @@
     "description": "Upload a founder document, deck, or spreadsheet and get a concise summary, financial readout, or financing-doc explainer from one workflow.",
     "category": "Strategy",
     "productId": "FS013",
-    "creditPrice": 0,
-    "freeAllowanceLabel": "Free",
-    "paidUsageLabel": "Free",
+    "pricingLabel": "Freemium",
+    "freeAllowanceLabel": "Single file free",
+    "paidUsageLabel": "Multi-file workspace paid",
     "thumbnail": "/images/products/founder-pdf-summarizer/thumbnail.svg",
     "launchUrl": "/tools/founder-pdf-summarizer"
   },
@@ -138,9 +138,9 @@
     "description": "Turn a rough founder offer into a structured outreach campaign with strategist notes, email sequences, LinkedIn messages, objections, exports, and local saves.",
     "category": "Marketing Tools",
     "productId": "FS012",
-    "creditPrice": 0,
-    "freeAllowanceLabel": "Free",
-    "paidUsageLabel": "Free",
+    "pricingLabel": "Freemium",
+    "freeAllowanceLabel": "3-step email free",
+    "paidUsageLabel": "Follow-ups & LinkedIn paid",
     "thumbnail": "/images/products/founder-outreach-kit/thumbnail.svg",
     "launchUrl": "/tools/founder-outreach-kit"
   },
@@ -150,9 +150,9 @@
     "description": "Open a LinkedIn profile, add the role, and get recruiter-ready candidate notes in seconds.",
     "category": "Hiring Tools",
     "productId": "FS015",
-    "creditPrice": 0,
-    "freeAllowanceLabel": "Free",
-    "paidUsageLabel": "Free",
+    "pricingLabel": "Freemium",
+    "freeAllowanceLabel": "3 screens/mo free",
+    "paidUsageLabel": "25 screens/mo paid",
     "thumbnail": "/images/products/linkedin-candidate-screener/thumbnail.svg",
     "launchUrl": "/tools/linkedin-candidate-screener"
   }
