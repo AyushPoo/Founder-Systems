@@ -70,8 +70,13 @@ async function handleClick() {
         ${d.fitSignals?.length ? `<div class="fs-sec"><label>Signals</label><ul>${d.fitSignals.map(s=>`<li>${s}</li>`).join('')}</ul></div>` : ''}
         <div class="fs-screen-section">
           <label>Screen against a role <span class="fs-paid">1 credit</span></label>
-          <textarea id="fs-jd" class="fs-input" rows="2" placeholder="Paste JD or role requirements..."></textarea>
-          <textarea id="fs-resume" class="fs-input" rows="2" placeholder="Optional: paste resume text for higher accuracy..."></textarea>
+          <div class="fs-file-upload">
+            <input type="file" id="fs-jd-file" accept=".pdf,.doc,.docx,.txt,.md" style="display:none" />
+            <button id="fs-upload-btn" class="fs-upload-btn">📎 Upload JD (PDF/DOC)</button>
+            <span id="fs-file-name" class="fs-file-name"></span>
+          </div>
+          <textarea id="fs-jd" class="fs-input" rows="2" placeholder="Or paste JD / role requirements here..."></textarea>
+          <textarea id="fs-resume" class="fs-input" rows="2" placeholder="Optional: paste resume for higher accuracy..."></textarea>
           <button id="fs-run-screen" class="fs-screen-btn">Screen candidate</button>
           <div id="fs-screen-result"></div>
         </div>
@@ -81,13 +86,15 @@ async function handleClick() {
       // Screen button handler
       document.getElementById('fs-run-screen')?.addEventListener('click', async () => {
         const jd = document.getElementById('fs-jd')?.value?.trim();
-        if (!jd) return;
+        const fileContent = document.getElementById('fs-jd-file')?.dataset?.content || '';
+        const effectiveJd = jd || fileContent;
+        if (!effectiveJd) return;
         const resume = document.getElementById('fs-resume')?.value?.trim() || '';
         const btn = document.getElementById('fs-run-screen');
         btn.disabled = true; btn.textContent = 'Screening...';
         const screenData = await chrome.runtime.sendMessage({
           type: 'screen-candidate',
-          name, jd, text: rawText + (resume ? '\n\nRESUME:\n' + resume : ''),
+          name, jd: effectiveJd, text: rawText + (resume ? '\n\nRESUME:\n' + resume : ''),
           headline: d.candidateSummary || '',
           experience: d.experience || [],
           skills: d.skills || [],
@@ -99,6 +106,24 @@ async function handleClick() {
           el.innerHTML = `<p class="fs-error">${screenData?.error || 'Screening failed'}</p>`;
         }
         btn.disabled = false; btn.textContent = 'Screen candidate';
+      });
+
+      // File upload handler
+      document.getElementById('fs-upload-btn')?.addEventListener('click', () => {
+        document.getElementById('fs-jd-file')?.click();
+      });
+      document.getElementById('fs-jd-file')?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        document.getElementById('fs-file-name').textContent = file.name;
+        // Read as text for txt/md, or just store the name for PDF (will be sent as context)
+        try {
+          const text = await file.text();
+          document.getElementById('fs-jd-file').dataset.content = text.slice(0, 4000);
+          document.getElementById('fs-jd').value = text.slice(0, 2000);
+        } catch {
+          document.getElementById('fs-file-name').textContent = file.name + ' (could not read — paste text instead)';
+        }
       });
     } else {
       showOverlay(`

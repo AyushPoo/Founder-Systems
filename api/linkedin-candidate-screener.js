@@ -198,10 +198,10 @@ export default async function handler(req, res) {
       const modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'linkedin-candidate-screener',
-        systemPrompt: 'You are a profile summarizer. Read the LinkedIn profile text and return a structured JSON summary. Separate work experience from education clearly. Professional qualifications like CA, CPA, CFA are education, not experience. Current/recent company should be listed first in experience. Return ONLY JSON: {"ok":true,"domain":"sector like Finance/Engineering/Marketing","seniority":"Junior/Mid/Senior/Lead","candidateSummary":"1-2 sentence summary focusing on what makes this person notable","experience":["Current Role at Company (duration)","Previous Role at Company (duration)"],"education":["Qualification/Degree - Institution"],"skills":["skill1","skill2"],"fitSignals":["what stands out about this candidate"]}',
-        userPrompt: 'Summarize this LinkedIn profile:\n\n' + profileText.slice(0, 3500),
-        maxOutputTokens: 500,
-        modelTier: 'cheap',
+        systemPrompt: 'You are a senior recruiter creating a DETAILED candidate snapshot. Do NOT use generic phrases like "passionate about" or "keen eye for detail". Describe what they ACTUALLY did.\n\nRules:\n- candidateSummary: 3-4 sentences. Current role, what they do day-to-day, career trajectory, what stands out.\n- experience: Each role SEPARATELY. Include: title, company, what they did there, duration. E.g. "Audit Associate at KPMG — handled statutory audits for mid-cap companies (2023-present)"\n- education: Separate professional qualifications (CA Inter, CPA, CFA L2) from academic degrees. Include status. E.g. "CA Intermediate — Cleared both groups, pursuing articleship"\n- skills: Only technical/professional skills\n- fitSignals: Concrete signals — Big 4 exposure, specific certifications, leadership indicators\n\nReturn ONLY valid JSON: {"ok":true,"domain":"Finance","seniority":"Junior","candidateSummary":"...","experience":["..."],"education":["..."],"skills":["..."],"fitSignals":["..."]}',
+        userPrompt: 'Create a DETAILED recruiter snapshot. What does this person actually do? What is their trajectory? Be specific — no fluff.\n\n' + profileText.slice(0, 4000),
+        maxOutputTokens: 700,
+        modelTier: 'quality',
         usage: { skipGuard: true },
       });
       applyRateLimitHeaders(res, modelResult.rateLimit);
