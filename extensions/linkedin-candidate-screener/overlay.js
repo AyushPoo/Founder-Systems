@@ -17,35 +17,39 @@ function incrementViewCount() {
 }
 
 function getBasicProfile() {
-  // Most reliable: meta description always has the full profile summary
-  const metaDesc = document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
-  
-  // Title: "Name - Headline | LinkedIn" or "(3) Name - Headline | LinkedIn"
-  let title = document.title.replace(' | LinkedIn', '').replace(/^\(\d+\)\s*/, '');
-  const parts = title.split(' - ');
-  const nameFromTitle = parts[0]?.trim() || '';
-  const headlineFromTitle = parts.slice(1).join(' - ').trim() || '';
-
-  // h1 is always the name
-  let fullName = '';
-  for (const h1 of document.querySelectorAll('h1')) {
-    const text = h1.textContent.trim();
-    if (text && text.length > 1 && text.length < 60) { fullName = text; break; }
-  }
-
-  // Visible text from main for the AI
+  // Get all text from the main profile area
   const main = document.querySelector('main');
   const visibleText = (main?.innerText || '').slice(0, 5000);
-
-  // Headline: try title first, then meta description
-  let headline = headlineFromTitle;
-  if (!headline && metaDesc) {
-    // Meta format: "Name · Headline · Location · ..."
-    const metaParts = metaDesc.split(' · ');
-    if (metaParts.length >= 2) headline = metaParts[1]?.trim() || '';
+  const lines = visibleText.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+  
+  // h1 = name (always works)
+  let name = '';
+  for (const h1 of document.querySelectorAll('h1')) {
+    const t = h1.textContent.trim();
+    if (t && t.length > 1 && t.length < 60) { name = t; break; }
   }
 
-  return { name: fullName || nameFromTitle, headline, visibleText, metaDesc };
+  // Headline = first long line after the name that isn't a button/link text
+  let headline = '';
+  const skipWords = ['message', 'connect', 'follow', 'more', 'pending', 'connections'];
+  for (const line of lines) {
+    if (line === name) continue;
+    if (line.length < 8) continue;
+    if (skipWords.some(w => line.toLowerCase() === w)) continue;
+    if (line.includes('connection') && line.length < 20) continue;
+    headline = line;
+    break;
+  }
+
+  // Location = line with comma after headline
+  let location = '';
+  let foundHeadline = false;
+  for (const line of lines) {
+    if (line === headline) { foundHeadline = true; continue; }
+    if (foundHeadline && line.includes(',') && line.length < 50) { location = line; break; }
+  }
+
+  return { name, headline, location, visibleText };
 }
 
 function showButton() {
@@ -199,13 +203,13 @@ function removeOverlay() {
 }
 
 async function summarizeWithAI(profile) {
-  // First: do a quick local summary from headline (always works, no API needed)
-  const headlineLower = (profile.headline || '').toLowerCase();
+  // Local summary from headline (always works, no API)
+  const hl = (profile.headline || '').toLowerCase();
   let domain = 'General';
-  const domainMap = { 'Finance': ['finance','ca ','cpa','cfa','audit','tax','banking','chartered'], 'Engineering': ['engineer','developer','software','backend','frontend','devops','sde'], 'Marketing': ['marketing','growth','seo','content','brand','digital'], 'Sales': ['sales','business development','bd','account executive'], 'Product': ['product manager','product lead','pm '], 'Design': ['design','ux','ui','creative','graphic'], 'Data': ['data','analytics','machine learning','ai ','ml '], 'Operations': ['operations','ops','supply chain','logistics'], 'HR': ['hr','human resources','talent','recruiter','people'], 'Legal': ['legal','lawyer','advocate','compliance'], 'Education': ['teacher','professor','educator','lecturer'] };
-  for (const [d, kws] of Object.entries(domainMap)) { if (kws.some(k => headlineLower.includes(k))) { domain = d; break; } }
+  const dMap = { 'Finance': ['finance','ca inter','ca final','cpa','cfa','audit','tax','banking','chartered accountant','accounting'], 'Engineering': ['engineer','developer','software','backend','frontend','devops','sde','programmer'], 'Marketing': ['marketing','growth','seo','content','brand','digital marketing'], 'Sales': ['sales','business development','account executive'], 'Product': ['product manager','product lead','product owner'], 'Design': ['design','ux','ui','creative director','graphic'], 'Data': ['data scientist','data analyst','analytics','machine learning','ai '], 'Operations': ['operations','supply chain','logistics','ops'], 'HR': ['hr ','human resources','talent','recruiter','people ops'], 'Legal': ['legal','lawyer','advocate','compliance'], 'Education': ['teacher','professor','educator','lecturer','academic'] };
+  for (const [d, kws] of Object.entries(dMap)) { if (kws.some(k => hl.includes(k))) { domain = d; break; } }
 
-  const localSummary = {
+  return {
     domain,
     seniority: '',
     candidateSummary: profile.headline,
@@ -214,28 +218,6 @@ async function summarizeWithAI(profile) {
     skills: [],
     fitSignals: [],
   };
-
-  // Then try to enrich with AI (but don't block on it)
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
-
-    const resp = await fetch(`${API_BASE}/api/linkedin-candidate-screener`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ jobDescription: '__summarize_only__', profile: { fullName: profile.name, headline: profile.headline, about: profile.visibleText.slice(0, 3000), experience: [], skills: [] } }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    const data = await resp.json();
-    if (data?.ok && (data.candidateSummary || data.domain)) {
-      return { ...localSummary, ...data };
-    }
-  } catch {}
-
-  // Return local summary even if API fails
-  return localSummary;
 }
 
 // Show the button when on a profile page
