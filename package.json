@@ -22,6 +22,7 @@
     "test:founder-copilot": "node src/utils/founderSpec.test.js && node src/utils/founderCopilotSession.test.js && node src/pages/FounderSpecGenerator.test.js && node api/founder-spec-generate.test.js",
     "test:linkedin-candidate-screener": "node shared/linkedinCandidateScreener.test.js && node api/linkedin-candidate-screener.test.js && node extensions/linkedin-candidate-screener/profileExtractor.test.js && node extensions/linkedin-candidate-screener/release-docs.test.js && node src/components/linkedin-candidate-screener/catalog.test.js",
     "test:founder-command-center": "node src/utils/founderCommandCenterMemory.test.js && node src/utils/founderCommandCenterIngest.test.js && node api/founder-command-center-ingest.test.js && node src/components/founder-command-center/catalog.test.js && node src/utils/workspaceMemory.test.js",
+    "test:founder-outreach": "node src/utils/outreachCampaign.test.js && node src/utils/outreachCampaignExport.test.js && node src/utils/outreachCampaignStorage.test.js && node src/utils/outreachWorkspaceState.test.js && node api/founder-outreach-generate.test.js",
     "test:account-settings": "node src/utils/accountSections.test.js && node src/components/account/AccountSettingsShell.test.js && node src/components/account/ConnectionsPanel.test.js && node src/components/InternalProductRoute.test.js",
     "test:thumbnail-refresh": "node scripts/verify-non-financial-thumbnails.mjs",
     "test:route-seo-shells": "node scripts/route-seo-shells.test.mjs"

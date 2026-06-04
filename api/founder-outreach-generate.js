@@ -66,12 +66,6 @@ const RESPONSE_SHAPE = {
   csvRows: [],
 };
 
-const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1';
-const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
-const DEFAULT_LITELLM_MODEL = 'action';
-const DEFAULT_MAX_OUTPUT_TOKENS = 1100;
-const DEFAULT_TIMEOUT_MS = 18000;
-const DEFAULT_TEMPERATURE = 0.1;
 const MAX_PROMPT_FIELD_CHARS = 320;
 const MAX_PROMPT_LONG_FIELD_CHARS = 600;
 const MAX_PROMPT_LIST_ITEMS = 6;
@@ -452,51 +446,6 @@ function buildFallbackCampaign(input) {
   };
 }
 
-function getOpenAiRuntimeConfig() {
-  const apiKey = cleanText(
-    process.env.FOUNDER_OUTREACH_OPENAI_API_KEY ||
-    process.env.OPENAI_API_KEY
-  );
-  const configuredBaseUrl = cleanText(
-    process.env.FOUNDER_OUTREACH_OPENAI_BASE_URL ||
-    process.env.OPENAI_BASE_URL
-  );
-  const baseUrl = (configuredBaseUrl || DEFAULT_OPENAI_BASE_URL).replace(/\/+$/, '');
-  const configuredModel = cleanText(
-    process.env.FOUNDER_OUTREACH_OPENAI_MODEL ||
-    process.env.OPENAI_MODEL
-  );
-  const model =
-    configuredModel ||
-    (configuredBaseUrl && baseUrl !== DEFAULT_OPENAI_BASE_URL ? DEFAULT_LITELLM_MODEL : DEFAULT_OPENAI_MODEL);
-  const maxOutputTokens = clampNumber(
-    process.env.FOUNDER_OUTREACH_MAX_OUTPUT_TOKENS,
-    400,
-    1600,
-    DEFAULT_MAX_OUTPUT_TOKENS
-  );
-  const timeoutMs = clampNumber(
-    process.env.FOUNDER_OUTREACH_TIMEOUT_MS,
-    5000,
-    45000,
-    DEFAULT_TIMEOUT_MS
-  );
-  const temperature = clampNumber(
-    process.env.FOUNDER_OUTREACH_TEMPERATURE,
-    0,
-    1,
-    DEFAULT_TEMPERATURE
-  );
-
-  return {
-    apiKey,
-    baseUrl,
-    model,
-    maxOutputTokens,
-    timeoutMs,
-    temperature,
-  };
-}
 
 function withFallbackDiagnostic(fallbackCampaign, reason) {
   const message = cleanText(reason);
@@ -542,57 +491,7 @@ function extractResponseText(payload) {
   return textParts.join('\n').trim();
 }
 
-function parseModelJson(text) {
-  const raw = cleanText(text);
-  if (!raw) {
-    throw new Error('OpenAI response did not include JSON text.');
-  }
 
-  try {
-    return JSON.parse(raw);
-  } catch {
-    const fencedMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/i);
-    if (fencedMatch?.[1]) {
-      return JSON.parse(fencedMatch[1].trim());
-    }
-
-    const start = raw.indexOf('{');
-    const end = raw.lastIndexOf('}');
-    if (start >= 0 && end > start) {
-      return JSON.parse(raw.slice(start, end + 1));
-    }
-
-    throw new Error('OpenAI response was not valid JSON.');
-  }
-}
-
-function isResponsesApiUnsupported(message) {
-  return /does not support the ['"]?\/v1\/responses/i.test(cleanText(message));
-}
-
-function buildResponsesPayload({ systemPrompt, userPrompt, model, maxOutputTokens, temperature }) {
-  return {
-    model,
-    input: [
-      {
-        role: 'system',
-        content: [{ type: 'input_text', text: systemPrompt }],
-      },
-      {
-        role: 'user',
-        content: [{ type: 'input_text', text: userPrompt }],
-      },
-    ],
-    text: {
-      format: {
-        type: 'json_object',
-      },
-    },
-    max_output_tokens: maxOutputTokens,
-    temperature,
-    store: false,
-  };
-}
 
 function mergeCampaignWithFallback(rawCampaign, fallbackCampaign) {
   const source = rawCampaign && typeof rawCampaign === 'object' && !Array.isArray(rawCampaign)
@@ -750,67 +649,7 @@ function repairWeakCampaignOutput(campaign, fallbackCampaign, input) {
   };
 }
 
-function buildChatCompletionsPayload({ systemPrompt, userPrompt, model, maxOutputTokens, temperature }) {
-  return {
-    model,
-    messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt },
-    ],
-    response_format: {
-      type: 'json_object',
-    },
-    max_tokens: maxOutputTokens,
-    temperature,
-    stream: false,
-  };
-}
 
-async function postOpenAiJson({ url, apiKey, signal, body }) {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    signal,
-    body: JSON.stringify(body),
-  });
-
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    const message =
-      cleanText(payload?.error?.message) ||
-      cleanText(extractResponseText(payload)) ||
-      `OpenAI request failed with status ${response.status}.`;
-    const error = new Error(message);
-    error.statusCode = response.status;
-    error.payload = payload;
-    throw error;
-  }
-
-  return payload;
-}
-
-function extractChatCompletionText(payload) {
-  const choice = Array.isArray(payload?.choices) ? payload.choices[0] : null;
-  const content = choice?.message?.content;
-
-  if (typeof content === 'string' && content.trim()) {
-    return content.trim();
-  }
-
-  if (Array.isArray(content)) {
-    return content
-      .map((entry) => cleanText(entry?.text || entry?.content || ''))
-      .filter(Boolean)
-      .join('\n')
-      .trim();
-  }
-
-  return '';
-}
 
 async function generateWithModel({ systemPrompt, userPrompt, normalizedInput }) {
   if (

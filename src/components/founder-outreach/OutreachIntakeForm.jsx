@@ -228,10 +228,12 @@ const OutreachIntakeForm = ({
 
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
-          <ConversationBubble>
-            Start with whatever is easiest to say. I will turn it into a usable outreach brief
-            without forcing you through a rigid form.
-          </ConversationBubble>
+          {messages.length === 0 ? (
+            <ConversationBubble>
+              Start with whatever is easiest to say. I will turn it into a usable outreach brief
+              without forcing you through a rigid form.
+            </ConversationBubble>
+          ) : null}
 
           {messages.map((message) => (
             <ConversationBubble key={message.id} role={message.role} title={message.title}>
@@ -337,6 +339,14 @@ const OutreachIntakeForm = ({
                   Keep the answer rough if you want. The approval draft will stay editable.
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onStageChange('review')}
+                    disabled={loading}
+                    className="inline-flex items-center justify-center rounded-full border border-brand-black/12 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-brand-black/60 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Edit brief directly
+                  </button>
                   <button
                     type="button"
                     onClick={() =>

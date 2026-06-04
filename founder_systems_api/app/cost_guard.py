@@ -36,6 +36,7 @@ from .services import (
     get_or_create_workspace,
     get_wallet_available_usage_units,
     is_admin_email,
+    resolve_usage_credit_cost,
 )
 
 
@@ -380,8 +381,18 @@ def reserve_ai_usage(
     provider = normalize_provider(payload.provider)
     model_id = normalize_model_id(payload.model_id)
     policy = _resolve_policy(db, settings, provider=provider, model_id=model_id)
-    credits = int(payload.credits or payload.amount or settings.ai_guard_default_credit_cost)
     usage_units_per_credit = max(1, int(settings.wallet_usage_units_per_credit or 1))
+
+    # Distinguish raw usage units from credit-based costs.
+    if payload.credits is not None:
+        credits_cost = int(payload.credits)
+        usage_units = credits_cost * usage_units_per_credit
+    elif payload.amount is not None:
+        usage_units = int(payload.amount)
+        credits_cost = (usage_units + usage_units_per_credit - 1) // usage_units_per_credit
+    else:
+        credits_cost = int(settings.ai_guard_default_credit_cost or 1)
+        usage_units = credits_cost * usage_units_per_credit
 
     existing = db.scalar(
         select(AiUsageReservation).where(AiUsageReservation.reference_id == payload.reference_id)
@@ -417,18 +428,24 @@ def reserve_ai_usage(
 
     is_free_product = False
     if product is not None:
-        metadata = product.metadata_json or {}
-        explicit = int(metadata.get("credit_price") or 0)
-        if explicit <= 0:
-            is_free_product = True
+        action_cost = resolve_usage_credit_cost(payload.product_slug, payload.action)
+        if action_cost > 0:
+            credits_cost = action_cost
+            usage_units = credits_cost * usage_units_per_credit
+        else:
+            metadata = product.metadata_json or {}
+            explicit = int(metadata.get("credit_price") or 0)
+            if explicit <= 0:
+                is_free_product = True
 
     if is_free_product:
-        credits = 0
+        credits_cost = 0
+        usage_units = 0
 
     admin_bypass = is_admin_email(settings, user.email)
     if not admin_bypass and not is_free_product and not _has_active_entitlement(db, user_id=user.id, product_slug=payload.product_slug):
         return _deny(db, payload=payload, reason="product_access_required", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
-    if not admin_bypass and get_wallet_available_usage_units(db, wallet=wallet, usage_units_per_credit=usage_units_per_credit) < credits:
+    if not admin_bypass and get_wallet_available_usage_units(db, wallet=wallet, usage_units_per_credit=usage_units_per_credit) < usage_units:
         return _deny(db, payload=payload, reason="wallet_empty", provider=provider, model_id=model_id, user_id=user.id, workspace_id=workspace.id, policy=policy, wallet=wallet)
 
     since = utc_now() - timedelta(days=1)
@@ -448,11 +465,11 @@ def reserve_ai_usage(
         provider=provider,
         model_id=model_id,
         status="reserved",
-        credits_reserved=credits,
+        credits_reserved=credits_cost,
         estimated_input_chars=payload.estimated_input_chars,
         estimated_output_tokens=payload.estimated_output_tokens,
         metadata_json={
-            "usage_units": credits,
+            "usage_units": usage_units,
             "usage_units_per_credit": usage_units_per_credit,
             **(payload.metadata or {}),
         },
@@ -472,11 +489,11 @@ def reserve_ai_usage(
         phase="reserve",
         decision="allowed",
         reason="reserved",
-        credits=credits,
+        credits=credits_cost,
         estimated_input_chars=payload.estimated_input_chars,
         estimated_output_tokens=payload.estimated_output_tokens,
         metadata={
-            "usage_units": credits,
+            "usage_units": usage_units,
             "usage_units_per_credit": usage_units_per_credit,
             **(payload.metadata or {}),
         },
@@ -527,29 +544,39 @@ def finalize_ai_usage(
     if reservation.status != "reserved":
         return _response(ok=False, state=reservation.status, reference_id=payload.reference_id, reason=f"reservation_{reservation.status}", reservation=reservation, wallet=wallet)
 
-    credits = int(payload.credits if payload.credits is not None else reservation.credits_reserved)
     active_settings = get_settings()
     usage_units_per_credit = max(1, int(active_settings.wallet_usage_units_per_credit or 1))
+
+    res_metadata = reservation.metadata_json or {}
+    reserved_units = int(res_metadata.get("usage_units") or (reservation.credits_reserved * usage_units_per_credit))
+
+    if payload.credits is not None:
+        credits_finalized = int(payload.credits)
+        usage_units = credits_finalized * usage_units_per_credit
+    else:
+        credits_finalized = reservation.credits_reserved
+        usage_units = reserved_units
+
     wallet, _usage_event = consume_wallet_usage_units(
         db,
         workspace_id=reservation.workspace_id,
         user_id=reservation.user_id,
         product_slug=reservation.product_slug,
         action=reservation.action,
-        usage_units=credits,
+        usage_units=usage_units,
         usage_units_per_credit=usage_units_per_credit,
         metadata={
             "ai_reference_id": reservation.reference_id,
             "provider": reservation.provider,
             "model_id": reservation.model_id,
-            "usage_units": credits,
+            "usage_units": usage_units,
             "usage_units_per_credit": usage_units_per_credit,
             **(reservation.metadata_json or {}),
             **payload.metadata,
         },
     )
     reservation.status = "finalized"
-    reservation.credits_finalized = credits
+    reservation.credits_finalized = credits_finalized
     reservation.actual_input_tokens = payload.actual_input_tokens
     reservation.actual_output_tokens = payload.actual_output_tokens
     reservation.metadata_json = {**(reservation.metadata_json or {}), **payload.metadata}

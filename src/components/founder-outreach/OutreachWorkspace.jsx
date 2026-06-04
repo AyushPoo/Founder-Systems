@@ -125,7 +125,11 @@ const OutreachWorkspace = () => {
   );
 
   const activeStep = useMemo(() => {
-    if (loading || result) {
+    if (loading) {
+      return 2;
+    }
+
+    if (result && isResultCurrent && intakeStage === 'review' && isDraftApproved) {
       return 2;
     }
 
@@ -134,7 +138,7 @@ const OutreachWorkspace = () => {
     }
 
     return 0;
-  }, [intakeStage, isDraftApproved, loading, result]);
+  }, [intakeStage, isDraftApproved, loading, result, isResultCurrent]);
 
   const updateDraft = useCallback((updater) => {
     setDraft((current) => {
@@ -149,17 +153,18 @@ const OutreachWorkspace = () => {
     const importedDraft = mapMemoryItemsToOutreachDraft(relevantWorkspaceMemory);
     updateDraft((current) => ({
       ...current,
-      productName: current.productName || importedDraft.productName,
-      offer: current.offer || importedDraft.offer,
-      targetCustomer: current.targetCustomer || importedDraft.targetCustomer,
-      buyerRole: current.buyerRole || importedDraft.buyerRole,
-      painPoint: current.painPoint || importedDraft.painPoint,
-      proof: current.proof || importedDraft.proof,
-      pricing: current.pricing || importedDraft.pricing,
-      tone: current.tone || importedDraft.tone,
+      productName: current.productName?.trim() ? current.productName : importedDraft.productName,
+      offer: current.offer?.trim() ? current.offer : importedDraft.offer,
+      targetCustomer: current.targetCustomer?.trim() ? current.targetCustomer : importedDraft.targetCustomer,
+      buyerRole: current.buyerRole?.trim() ? current.buyerRole : importedDraft.buyerRole,
+      painPoint: current.painPoint?.trim() ? current.painPoint : importedDraft.painPoint,
+      proof: current.proof?.trim() ? current.proof : importedDraft.proof,
+      pricing: current.pricing?.trim() ? current.pricing : importedDraft.pricing,
+      tone: current.tone && current.tone !== 'founder-led' ? current.tone : importedDraft.tone,
     }));
     setHasAppliedWorkspaceImport(true);
-    setWorkspaceNotice('Workspace memory imported into the outreach draft. You can edit every field before approval.');
+    setIntakeStage('review');
+    setWorkspaceNotice('Workspace memory imported. Review and approve the structured brief below.');
   }, [relevantWorkspaceMemory, updateDraft]);
 
   useEffect(() => {
@@ -456,11 +461,27 @@ const OutreachWorkspace = () => {
           {INTAKE_STEPS.map((step, index) => {
             const isActive = index === activeStep;
             const isComplete = index < activeStep;
+            const isClickable = index < 2 && !loading;
+
+            const handleClick = () => {
+              if (!isClickable) return;
+              if (index === 0) {
+                setIntakeStage('chat');
+              } else if (index === 1) {
+                setIntakeStage('review');
+              }
+            };
+
+            const Tag = isClickable ? 'button' : 'div';
 
             return (
-              <div
+              <Tag
                 key={step.id}
-                className={`rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] ${
+                type={isClickable ? 'button' : undefined}
+                onClick={isClickable ? handleClick : undefined}
+                className={`rounded-full border px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] transition ${
+                  isClickable ? 'cursor-pointer hover:border-brand-black/24' : ''
+                } ${
                   isActive
                     ? 'border-brand-black bg-brand-black text-white'
                     : isComplete
@@ -470,7 +491,7 @@ const OutreachWorkspace = () => {
                 title={step.description}
               >
                 {index + 1}. {step.label}
-              </div>
+              </Tag>
             );
           })}
         </div>
@@ -503,15 +524,17 @@ const OutreachWorkspace = () => {
       </div>
 
       <aside className="min-w-0 space-y-3 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-112px)] xl:overflow-y-auto xl:pr-1">
-        <OutreachCoachPanel
-          draft={draft}
-          feedback={feedback}
-          result={result}
-          onSave={handleSave}
-          isResultCurrent={isResultCurrent}
-          saveState={saveState}
-          savedCount={savedCampaigns.length}
-        />
+        {(intakeStage === 'review' || result) && (
+          <OutreachCoachPanel
+            draft={draft}
+            feedback={feedback}
+            result={result}
+            onSave={handleSave}
+            isResultCurrent={isResultCurrent}
+            saveState={saveState}
+            savedCount={savedCampaigns.length}
+          />
+        )}
         <SavedCampaignsDrawer
           campaigns={savedCampaigns}
           currentSavedCampaignId={currentSavedCampaignId}
@@ -522,20 +545,26 @@ const OutreachWorkspace = () => {
           onDelete={handleDeleteSavedCampaign}
           onToggle={() => setIsSavedDrawerOpen((current) => !current)}
         />
-        <ResultsTrackerPanel
-          campaign={currentSavedCampaign}
-          onChange={handleUpdateResults}
-        />
-        <OutreachMemoryPanel summary={memorySummary} />
-        <WorkspaceOutcomePanel
-          productSlug="founder-outreach-kit"
-          canSave={Boolean(result)}
-          saveLabel={`Save ${workspaceCandidates.length || 0} memory items to workspace`}
-          onSave={handleSaveToWorkspace}
-          saveBusy={workspaceSaveBusy}
-          recommendations={workspaceRecommendations}
-          notice={workspaceNotice}
-        />
+        {result && currentSavedCampaignId && (
+          <ResultsTrackerPanel
+            campaign={currentSavedCampaign}
+            onChange={handleUpdateResults}
+          />
+        )}
+        {(intakeStage === 'review' || result) && (
+          <OutreachMemoryPanel summary={memorySummary} />
+        )}
+        {result && (
+          <WorkspaceOutcomePanel
+            productSlug="founder-outreach-kit"
+            canSave={Boolean(result)}
+            saveLabel={`Save ${workspaceCandidates.length || 0} memory items to workspace`}
+            onSave={handleSaveToWorkspace}
+            saveBusy={workspaceSaveBusy}
+            recommendations={workspaceRecommendations}
+            notice={workspaceNotice}
+          />
+        )}
       </aside>
       </section>
     </section>

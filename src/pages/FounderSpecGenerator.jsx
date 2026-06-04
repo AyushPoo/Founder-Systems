@@ -189,6 +189,7 @@ const FounderSpecGenerator = () => {
     saveMemoryItem,
     savePreference,
     wallet,
+    refreshAccount,
   } = useFounderWorkspace();
 
   const recommendationTitle = useMemo(
@@ -381,6 +382,9 @@ const FounderSpecGenerator = () => {
           submittedValue: message || (selection ? selection.title : ''),
         })
       );
+      if (selection?.premium === true) {
+        refreshAccount().catch(() => {});
+      }
       return true;
     } catch (submitError) {
       setSession((current) => ({
