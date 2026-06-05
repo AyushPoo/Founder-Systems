@@ -65,9 +65,10 @@ async function handleClick() {
         ${d.domain ? `<div class="fs-tags"><span class="fs-tag">${d.domain}</span>${d.seniority ? `<span class="fs-tag-light">${d.seniority}</span>` : ''}</div>` : ''}
         ${d.tagline ? `<p class="fs-tagline">${d.tagline}</p>` : ''}
         ${d.background ? `<p class="fs-text">${d.background}</p>` : (d.candidateSummary ? `<p class="fs-text">${d.candidateSummary}</p>` : '')}
+        ${d.career?.length ? `<div class="fs-sec"><label>Career</label><div class="fs-career">${d.career.map(c=>`<div class="fs-career-item"><strong>${c.role}</strong> at ${c.company} <span class="fs-period">${c.period||''}</span>${c.note?`<br><span class="fs-note">${c.note}</span>`:''}</div>`).join('')}</div></div>` : ''}
         ${d.goodFor ? `<div class="fs-sec"><label>Good fit for</label><p class="fs-goodfor">${d.goodFor}</p></div>` : ''}
-        ${d.education ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${typeof d.education === 'string' ? d.education : d.education.join(', ')}</p></div>` : ''}
-        ${d.topSkills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.topSkills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : (d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.slice(0,5).map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : '')}
+        ${d.credentials ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${d.credentials}</p></div>` : (d.education ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${typeof d.education === 'string' ? d.education : d.education.join(', ')}</p></div>` : '')}
+        ${d.topSkills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.topSkills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : (d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.slice(0,6).map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : '')}
         <div class="fs-screen-section">
           <label>Screen against a role <span class="fs-paid">1 credit</span></label>
           <div class="fs-file-upload">

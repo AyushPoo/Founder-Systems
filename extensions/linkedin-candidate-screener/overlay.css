@@ -64,3 +64,10 @@
 .fs-tagline { margin: 6px 0 0; font-size: 12px; font-weight: 800; color: #1b1c1a; line-height: 1.4; }
 .fs-goodfor { margin: 0; font-size: 11px; line-height: 1.5; color: #444; font-style: italic; }
 .fs-edu { margin: 0; font-size: 11px; color: #555; }
+
+
+.fs-career { display: flex; flex-direction: column; gap: 6px; }
+.fs-career-item { font-size: 11px; line-height: 1.5; color: #333; }
+.fs-career-item strong { font-weight: 700; }
+.fs-period { font-size: 10px; color: #888; margin-left: 4px; }
+.fs-note { font-size: 10px; color: #666; }
