@@ -172,8 +172,7 @@ const OutreachWorkspace = () => {
       };
     });
     setHasAppliedWorkspaceImport(true);
-    setIntakeStage('review');
-    setWorkspaceNotice('Workspace memory imported. Review and approve the structured brief below.');
+    setWorkspaceNotice('Workspace memory imported. Answer the remaining details in the chat.');
   }, [relevantWorkspaceMemory, updateDraft]);
 
   useEffect(() => {
