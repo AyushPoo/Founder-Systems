@@ -60,6 +60,18 @@ async function handleClick() {
 
     if (data?.ok) {
       const d = data;
+      // Ensure we have SOMETHING to show
+      const hasContent = d.domain || d.tagline || d.background || d.candidateSummary || d.career?.length;
+      if (!hasContent) {
+        // API returned ok but empty — show raw response for debugging
+        showOverlay(`
+          <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>
+          <p class="fs-text">Summary generated but content was empty. The AI may have hit a token limit.</p>
+          <p class="fs-text" style="font-size:10px;color:#888">${JSON.stringify(d).slice(0, 300)}</p>
+          <div class="fs-actions"><button id="fs-close" class="fs-close-btn">Close</button></div>
+        `);
+        return;
+      }
       showOverlay(`
         <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>
         ${d.domain ? `<div class="fs-tags"><span class="fs-tag">${d.domain}</span>${d.seniority ? `<span class="fs-tag-light">${d.seniority}</span>` : ''}</div>` : ''}
