@@ -18,7 +18,8 @@ const SYSTEM_PROMPT = [
   'Avoid generic SaaS filler, fake familiarity, placeholders, greetings, signatures, and spammy claims.',
   'Keep outputs compact and practical.',
   'Limit the campaign to 4 emails, 6 subject lines, 3 LinkedIn messages, and 4 objection replies.',
-  'Keep each email under 60 words, each LinkedIn message under 180 characters, each objection reply under 35 words, and each subject line under 7 words.',
+  'Keep each email under 90 words, each subject line under 7 words, each objection reply under 35 words.',
+  'LinkedIn rules: connection request must NOT pitch the product — write one short observational sentence about their world or a shared context (under 200 characters). The Day 2 message opens with curiosity, not a follow-up. The Day 5 message asks one direct question only.',
   'Always return valid JSON only.',
 ].join('\n');
 
@@ -177,7 +178,7 @@ function collectAttachmentContext(attachments = []) {
   return lines.join('\n\n');
 }
 
-function buildUserPrompt(input, attachments = []) {
+function buildUserPrompt(input, attachments = [], previousOutcomes = '') {
   const attachmentContext = collectAttachmentContext(attachments);
   const objections = limitPromptList(input.objections, 120);
   const channels = limitPromptList(input.channels, 40);
@@ -232,6 +233,10 @@ function buildUserPrompt(input, attachments = []) {
 
   if (attachmentContext) {
     promptLines.push(`Attachment context:\n${attachmentContext}`);
+  }
+
+  if (previousOutcomes) {
+    promptLines.push(limitPromptText(previousOutcomes, 1200));
   }
 
   promptLines.push(
@@ -709,7 +714,7 @@ export default async function handler(req, res) {
 
     const rawOutput = await generateWithModel({
       systemPrompt: SYSTEM_PROMPT,
-      userPrompt: buildUserPrompt(normalized, normalized.attachments),
+      userPrompt: buildUserPrompt(normalized, normalized.attachments, cleanText(requestBody.previousOutcomes)),
       normalizedInput: {
         ...normalized,
         __request: req,

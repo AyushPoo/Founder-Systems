@@ -29,18 +29,50 @@ function normalizeCount(value) {
   return Math.round(parsed);
 }
 
+const VALID_VERDICTS = ['yes', 'modified', 'no', ''];
+
+function normalizeEmailMetric(value = {}) {
+  const source = value && typeof value === 'object' ? value : {};
+  return {
+    step: normalizeCount(source.step),
+    sent: normalizeCount(source.sent),
+    replies: normalizeCount(source.replies),
+  };
+}
+
+function normalizeLinkedinMetric(value = {}) {
+  const source = value && typeof value === 'object' ? value : {};
+  return {
+    connectionsSent: normalizeCount(source.connectionsSent),
+    accepted: normalizeCount(source.accepted),
+    replied: normalizeCount(source.replied),
+  };
+}
+
 function normalizeResults(value = {}) {
   const source = value && typeof value === 'object' ? value : {};
   const status = cleanText(source.status).toLowerCase();
+  const verdict = cleanText(source.verdict).toLowerCase();
+
+  const emailMetrics = Array.isArray(source.emailMetrics)
+    ? source.emailMetrics.map(normalizeEmailMetric)
+    : [];
 
   return {
     status: VALID_STATUSES.includes(status) ? status : 'draft',
+    // legacy flat counts kept for back-compat
     sentCount: normalizeCount(source.sentCount),
     replyCount: normalizeCount(source.replyCount),
     positiveReplyCount: normalizeCount(source.positiveReplyCount),
     callsBooked: normalizeCount(source.callsBooked),
     winningAsset: cleanText(source.winningAsset),
     notes: cleanText(source.notes),
+    // new per-asset fields
+    emailMetrics,
+    linkedinMetrics: normalizeLinkedinMetric(source.linkedinMetrics),
+    topObjection: cleanText(source.topObjection),
+    whatWouldYouChange: cleanText(source.whatWouldYouChange),
+    verdict: VALID_VERDICTS.includes(verdict) ? verdict : '',
   };
 }
 

@@ -35,6 +35,7 @@ import {
 import { buildOutreachMemorySummary } from '../../utils/outreachMemory';
 import { useFounderWorkspace } from '../../context/FounderWorkspaceContext';
 import { buildOutreachMemoryCandidates, mapMemoryItemsToOutreachDraft } from '../../utils/workspaceMemory';
+import { buildPreviousOutcomesSummary } from '../../utils/outreachPreviousOutcomes';
 
 const INTAKE_STEPS = [
   {
@@ -276,7 +277,10 @@ const OutreachWorkspace = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(normalized),
+        body: JSON.stringify({
+          ...normalized,
+          previousOutcomes: buildPreviousOutcomesSummary(savedCampaigns, normalized),
+        }),
         signal: controller?.signal,
       });
 
