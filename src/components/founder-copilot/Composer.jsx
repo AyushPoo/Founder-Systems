@@ -13,6 +13,7 @@ const Composer = ({
   const buttonLabel = loading ? 'Working' : 'Send';
 
   function handleKeyDown(event) {
+    event.stopPropagation();
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       if (!disabled && !loading) {
@@ -28,6 +29,8 @@ const Composer = ({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={handleKeyDown}
+        onKeyUp={(event) => event.stopPropagation()}
+        onKeyPress={(event) => event.stopPropagation()}
         disabled={disabled}
         placeholder={placeholder}
         className="min-h-[68px] w-full resize-none rounded-[16px] border border-brand-black/8 bg-white px-4 py-3 text-[14px] font-medium leading-6 shadow-[0_6px_16px_rgba(27,28,26,0.025)] outline-none transition placeholder:text-brand-black/28 focus:border-brand-black/14 focus:ring-2 focus:ring-brand-black/3 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-[74px] lg:min-h-[82px]"

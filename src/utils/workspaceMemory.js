@@ -54,7 +54,7 @@ export function mapMemoryItemsToOutreachDraft(items = []) {
     byType.set(type, readMemoryText(item));
   });
 
-  return {
+  const draft = {
     productName: byType.get('venture_summary') || '',
     offer: byType.get('offer') || '',
     targetCustomer: byType.get('target_customer') || '',
@@ -63,7 +63,22 @@ export function mapMemoryItemsToOutreachDraft(items = []) {
     proof: byType.get('proof_point') || '',
     pricing: byType.get('pricing_hypothesis') || '',
     tone: byType.get('brand_tone') || 'founder-led',
+    attachments: [],
   };
+
+  const executionBriefText = byType.get('execution_brief');
+  if (executionBriefText) {
+    draft.attachments.push({
+      id: 'execution-brief-imported',
+      name: 'Strategy Plan Brief.md',
+      size: executionBriefText.length,
+      type: 'text/markdown',
+      parsed: true,
+      excerpt: executionBriefText,
+    });
+  }
+
+  return draft;
 }
 
 export function buildSpecMemoryCandidates(session = {}) {
@@ -71,7 +86,7 @@ export function buildSpecMemoryCandidates(session = {}) {
   const recommendation = session?.recommendation || {};
   const actionPlan = session?.actionPlan || {};
 
-  return compactCandidates([
+  const candidates = [
     createCandidate({
       memory_scope: 'canonical',
       type: 'venture_summary',
@@ -128,7 +143,22 @@ export function buildSpecMemoryCandidates(session = {}) {
       summary: session?.verdict?.standing,
       source_product: 'founder-spec-generator',
     }),
-  ]);
+  ];
+
+  if (session?.markdown) {
+    candidates.push(
+      createCandidate({
+        memory_scope: 'product_native',
+        type: 'execution_brief',
+        label: 'Execution brief',
+        text: session.markdown,
+        summary: recommendation.summary || session.markdown.slice(0, 100),
+        source_product: 'founder-spec-generator',
+      })
+    );
+  }
+
+  return compactCandidates(candidates);
 }
 
 export function buildOutreachMemoryCandidates({ draft = {}, result = null } = {}) {

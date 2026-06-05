@@ -7,6 +7,7 @@ import {
   getOutreachApprovalSections,
   getOutreachQuestionState,
   shouldShowCompanySize,
+  getOutreachSuggestions,
 } from './outreachIntake.js';
 
 assert.equal(
@@ -104,5 +105,18 @@ const helpResponse = getOutreachHelpResponse(
 
 assert.match(helpResponse.message, /try one of these/i);
 assert.equal(helpResponse.suggestions.length > 0, true);
+
+// Test dynamic suggestions profile matching
+const eduSuggestions = getOutreachSuggestions({
+  productName: 'GradeSense',
+  offer: 'AI teaching assistant that evaluates handwritten papers',
+}, 'targetCustomer');
+assert.deepEqual(eduSuggestions.map(s => s.label), ['Coaching institutes', 'Private schools', 'Edtech platforms']);
+
+const saasSuggestions = getOutreachSuggestions({
+  productName: 'SaaS Engine',
+  offer: 'AI workflow automation for growth teams',
+}, 'targetCustomer');
+assert.deepEqual(saasSuggestions.map(s => s.label), ['B2B SaaS founders', 'Product managers', 'Operations leads']);
 
 console.log('outreachIntake tests passed');

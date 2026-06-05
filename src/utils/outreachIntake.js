@@ -315,6 +315,84 @@ export function applyOutreachAnswer(input = {}, key, answer) {
   };
 }
 
+export function getOutreachSuggestions(draft = {}, key) {
+  const normalized = normalizeOutreachInput(draft);
+  const textToAnalyze = `${normalized.productName} ${normalized.offer} ${normalized.targetCustomer}`.toLowerCase();
+
+  // 1. Define vertical profiles
+  let profile = 'general';
+  if (includesAny(textToAnalyze, ['grade', 'grading', 'evaluation', 'teacher', 'student', 'education', 'classroom', 'handwritten', 'homework', 'exam', 'test', 'school', 'college', 'teaching', 'tutor', 'academic'])) {
+    profile = 'education';
+  } else if (includesAny(textToAnalyze, ['saas', 'software', 'ai tool', 'platform', 'workflow', 'automate', 'automation', 'integrat', 'analytics', 'data', 'dashboard', 'cloud', 'developer', 'b2b software'])) {
+    profile = 'saas';
+  } else if (includesAny(textToAnalyze, ['agency', 'service', 'consulting', 'marketing', 'outreach', 'sales', 'leads', 'client', 'design', 'development agency', 'copywriting'])) {
+    profile = 'agency';
+  } else if (includesAny(textToAnalyze, ['d2c', 'ecommerce', 'brand', 'retail', 'shop', 'store', 'product', 'shopify', 'inventory'])) {
+    profile = 'ecommerce';
+  }
+
+  // 2. Map profiles to fields
+  const suggestionsMap = {
+    education: {
+      targetCustomer: ['Coaching institutes', 'Private schools', 'Edtech platforms'],
+      buyerRole: ['Institute Director', 'Academic Head', 'School Principal'],
+      painPoint: ['Grading papers is too slow & costly', 'Teachers waste hours grading', 'Students get feedback too late'],
+      desiredOutcome: ['Cut grading TAT to 1 hour', 'Reduce evaluation costs by 60%', 'Provide instant feedback'],
+      proof: ['Tested with 10k+ papers', 'Accurate handwriting vision AI', 'Saves 6 hours per week'],
+      cta: ['Get a free sample graded?', 'Want a quick demo video?', 'Open to a 5-min chat?'],
+      productName: ['GradeSense', 'EvalAI', 'TeacherPet'],
+      offer: ['AI teaching assistant that evaluates handwritten papers', 'Automatic grading infrastructure', 'Instant feedback tool for coaching classes'],
+    },
+    saas: {
+      targetCustomer: ['B2B SaaS founders', 'Product managers', 'Operations leads'],
+      buyerRole: ['Founder / CEO', 'VP of Product', 'VP of Operations'],
+      painPoint: ['Manual workflow wasting hours daily', 'Losing customer leads to churn', 'Slow speed to market'],
+      desiredOutcome: ['Automate the entire workflow', 'Boost product adoption', 'Double team productivity'],
+      proof: ['Already used by 100+ startups', 'Setup takes under 5 minutes', '99.9% reliable uptime'],
+      cta: ['Open to a quick teardown?', 'Want a free custom template?', 'Free 14-day trial?'],
+      productName: ['SaaS Engine', 'WorkflowAI', 'FoundersHub'],
+      offer: ['AI workflow automation for growth teams', 'No-code integration platform', 'Developer productivity toolkit'],
+    },
+    agency: {
+      targetCustomer: ['B2B service agencies', 'E-commerce brands', 'High-growth startups'],
+      buyerRole: ['Agency Owner / CEO', 'Head of Sales', 'Marketing Director'],
+      painPoint: ['Leads are dry and unpredictable', 'Generic outreach gets marked spam', 'Struggling to stand out'],
+      desiredOutcome: ['Book 10+ qualified sales calls', 'Personalize outreach at scale', 'Build a predictable pipeline'],
+      proof: ['Generated $100k+ for clients', 'Helped 12 agencies scale outbound', 'Bespoke, non-generic copy'],
+      cta: ['Open to a free strategy draft?', 'Get a free outreach teardown?', 'Want our active playbook?'],
+      productName: ['OutreachEngine', 'LeadFlow', 'B2B Growth Kit'],
+      offer: ['Founder outreach and positioning service', 'Predictable client acquisition pipeline', 'Cold outbound campaigns that book meetings'],
+    },
+    ecommerce: {
+      targetCustomer: ['D2C brand founders', 'Shopify store owners', 'E-commerce marketers'],
+      buyerRole: ['Founder / CEO', 'Marketing Lead', 'E-commerce Manager'],
+      painPoint: ['ROAS is dropping on paid ads', 'Inventory cash flow is tight', 'Low repeat purchase rates'],
+      desiredOutcome: ['Increase ROAS by 20%+', 'Optimize inventory stock cycles', 'Improve customer retention'],
+      proof: ['Optimized $1M+ in ad spend', 'Boosted repeat sales by 15%', 'Used by top Shopify brands'],
+      cta: ['Want a free ad account audit?', 'Open to a quick metrics check?', 'Try our free runway tool?'],
+      productName: ['ROAS-Scale', 'D2C Engine', 'CartOptimizer'],
+      offer: ['Inventory and cash flow modeling planner', 'Automated cohort retention tracking', 'Ad spend optimization tool'],
+    },
+    general: {
+      targetCustomer: ['Solo founders', 'Small teams', 'Agency owners'],
+      buyerRole: ['Founder / CEO', 'Operations lead', 'Team lead'],
+      painPoint: ['They are wasting time on manuals', 'Their current approach is slow', 'They do not know how to scale'],
+      desiredOutcome: ['More replies & customer calls', 'Launch products faster', 'Increase monthly revenue'],
+      proof: ['Proven template and workflow', 'Helped dozens of founders', 'Ready to run in 5 minutes'],
+      cta: ['Open to a quick check?', 'Want a free resource doc?', 'Try a quick demo?'],
+      productName: ['Founder Systems', 'GrowthForge', 'MyProduct'],
+      offer: ['A tool to automate operations and growth', 'A framework to build fast', 'A structured campaign tool'],
+    }
+  };
+
+  const selectedSuggestions = suggestionsMap[profile]?.[key] || suggestionsMap['general']?.[key] || [];
+  const mapped = selectedSuggestions.map(label => buildSuggestion(label));
+  if (key === 'proof') {
+    mapped.push(buildSuggestion('Skip for now', ''));
+  }
+  return mapped;
+}
+
 export function getOutreachQuestionState(input = {}, key, mode = 'beginner') {
   const normalized = normalizeOutreachInput(input);
   const base = getQuestionCopy(mode)[key];
@@ -335,91 +413,8 @@ export function getOutreachQuestionState(input = {}, key, mode = 'beginner') {
     return { key, ...base, suggestions: getChannelSuggestions(normalized) };
   }
 
-  if (key === 'proof') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('Client result'),
-        buildSuggestion('Relevant founder background'),
-        buildSuggestion('Skip for now', ''),
-      ],
-    };
-  }
-
-  if (key === 'cta') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('Quick reply'),
-        buildSuggestion('Short call'),
-        buildSuggestion('Quick teardown'),
-      ],
-    };
-  }
-
-  if (key === 'productName') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('Use my brand name'),
-        buildSuggestion('Use a clear working name'),
-        buildSuggestion('Keep it simple for now'),
-      ],
-    };
-  }
-
-  if (key === 'offer') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('Done-for-you service'),
-        buildSuggestion('Software tool'),
-        buildSuggestion('Coaching or consulting'),
-      ],
-    };
-  }
-
-  if (key === 'targetCustomer') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('Solo founders'),
-        buildSuggestion('Small teams'),
-        buildSuggestion('Agency owners'),
-      ],
-    };
-  }
-
-  if (key === 'painPoint') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('They are wasting time'),
-        buildSuggestion('Their current approach is not working'),
-        buildSuggestion('They do not know how to start'),
-      ],
-    };
-  }
-
-  if (key === 'desiredOutcome') {
-    return {
-      key,
-      ...base,
-      suggestions: [
-        buildSuggestion('More replies'),
-        buildSuggestion('More calls booked'),
-        buildSuggestion('Launch faster'),
-      ],
-    };
-  }
-
-  return { key, ...base, suggestions: [] };
+  const dynamicSuggestions = getOutreachSuggestions(normalized, key);
+  return { key, ...base, suggestions: dynamicSuggestions };
 }
 
 export function getNextOutreachQuestion(input = {}, mode = 'beginner') {

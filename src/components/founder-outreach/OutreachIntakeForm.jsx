@@ -290,18 +290,38 @@ const OutreachIntakeForm = ({
           ) : null}
 
           {isReadyForReview ? (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium leading-relaxed text-brand-black/62">
-                The required inputs are covered. Open the approval draft to make final edits.
-              </p>
-              <button
-                type="button"
-                onClick={() => onStageChange('review')}
-                disabled={loading}
-                className="inline-flex items-center justify-center rounded-full border border-brand-black bg-brand-black px-5 py-2 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Review draft
-              </button>
+            <div className="rounded-[18px] border border-brand-black/10 bg-white p-5 shadow-[0_8px_24px_rgba(27,28,26,0.04)] space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-[13.5px] font-black text-brand-black">Campaign Profile Complete</h4>
+                  <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-brand-black/58">
+                    I've collected the target customer, pain point, buyer role, channels, tone, and offer details. Ready to build the campaign!
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => onStageChange('review')}
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-full border border-brand-black/12 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-brand-black/60 transition hover:border-brand-black/24 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Review brief
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onGenerate?.(true)}
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded-full border border-brand-orange bg-brand-orange px-5 py-2.5 text-xs font-black uppercase tracking-[0.14em] text-white shadow-[0_8px_20px_rgba(235,108,61,0.22)] transition hover:bg-brand-orange/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {loading ? 'Building Campaign...' : 'Build Outreach Campaign'}
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3">
@@ -312,10 +332,10 @@ const OutreachIntakeForm = ({
                       key={`${currentQuestion.key}-${suggestion.label}`}
                       label={suggestion.label}
                       onClick={() =>
-                        submitAnswer({
-                          value: suggestion.value,
-                          displayText: suggestion.label,
-                        })
+                         submitAnswer({
+                           value: suggestion.value,
+                           displayText: suggestion.label,
+                         })
                       }
                     />
                   ))}
@@ -329,6 +349,9 @@ const OutreachIntakeForm = ({
                 onChange={(event) => setComposerValue(event.target.value)}
                 placeholder={currentQuestion?.placeholder || 'Reply naturally'}
                 disabled={loading || !currentQuestion}
+                onKeyDown={(event) => event.stopPropagation()}
+                onKeyUp={(event) => event.stopPropagation()}
+                onKeyPress={(event) => event.stopPropagation()}
                 className="min-h-[84px] w-full resize-none rounded-[18px] border border-brand-black/12 bg-white px-4 py-3 text-[13.5px] font-medium leading-relaxed text-brand-black shadow-[0_6px_14px_rgba(27,28,26,0.04)] outline-none transition placeholder:text-brand-black/30 focus:border-brand-black/24 focus:ring-2 focus:ring-brand-black/5 disabled:cursor-not-allowed disabled:opacity-60"
               />
 

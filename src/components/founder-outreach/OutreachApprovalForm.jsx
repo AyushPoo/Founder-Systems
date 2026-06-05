@@ -41,6 +41,9 @@ function ApprovalField({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder={placeholder}
+        onKeyDown={(event) => event.stopPropagation()}
+        onKeyUp={(event) => event.stopPropagation()}
+        onKeyPress={(event) => event.stopPropagation()}
         className={`w-full rounded-[18px] border bg-white px-4 py-3 text-sm font-medium leading-relaxed text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition focus:outline-none focus:ring-2 focus:ring-brand-black/5 ${
           error
             ? 'border-red-400/80 focus:border-red-500'

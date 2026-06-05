@@ -457,6 +457,7 @@ const GuideDetail = () => {
                                             pricingLabel={relatedProduct.pricingLabel}
                                             freeAllowanceLabel={relatedProduct.freeAllowanceLabel}
                                             paidUsageLabel={relatedProduct.paidUsageLabel}
+                                            launchUrl={relatedProduct.launchUrl}
                                         />
                                     </div>
                                 </div>

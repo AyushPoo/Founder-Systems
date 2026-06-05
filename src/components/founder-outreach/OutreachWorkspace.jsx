@@ -61,6 +61,7 @@ const RELEVANT_MEMORY_TYPES = new Set([
   'proof_point',
   'pricing_hypothesis',
   'brand_tone',
+  'execution_brief',
 ]);
 
 function formatFieldName(field) {
@@ -151,17 +152,25 @@ const OutreachWorkspace = () => {
 
   const applyWorkspaceMemory = useCallback(() => {
     const importedDraft = mapMemoryItemsToOutreachDraft(relevantWorkspaceMemory);
-    updateDraft((current) => ({
-      ...current,
-      productName: current.productName?.trim() ? current.productName : importedDraft.productName,
-      offer: current.offer?.trim() ? current.offer : importedDraft.offer,
-      targetCustomer: current.targetCustomer?.trim() ? current.targetCustomer : importedDraft.targetCustomer,
-      buyerRole: current.buyerRole?.trim() ? current.buyerRole : importedDraft.buyerRole,
-      painPoint: current.painPoint?.trim() ? current.painPoint : importedDraft.painPoint,
-      proof: current.proof?.trim() ? current.proof : importedDraft.proof,
-      pricing: current.pricing?.trim() ? current.pricing : importedDraft.pricing,
-      tone: current.tone && current.tone !== 'founder-led' ? current.tone : importedDraft.tone,
-    }));
+    updateDraft((current) => {
+      const mergedAttachments = [
+        ...(current.attachments || []),
+        ...(importedDraft.attachments || []),
+      ].filter((file, index, self) => self.findIndex((f) => f.id === file.id) === index);
+
+      return {
+        ...current,
+        productName: current.productName?.trim() ? current.productName : importedDraft.productName,
+        offer: current.offer?.trim() ? current.offer : importedDraft.offer,
+        targetCustomer: current.targetCustomer?.trim() ? current.targetCustomer : importedDraft.targetCustomer,
+        buyerRole: current.buyerRole?.trim() ? current.buyerRole : importedDraft.buyerRole,
+        painPoint: current.painPoint?.trim() ? current.painPoint : importedDraft.painPoint,
+        proof: current.proof?.trim() ? current.proof : importedDraft.proof,
+        pricing: current.pricing?.trim() ? current.pricing : importedDraft.pricing,
+        tone: current.tone && current.tone !== 'founder-led' ? current.tone : importedDraft.tone,
+        attachments: mergedAttachments,
+      };
+    });
     setHasAppliedWorkspaceImport(true);
     setIntakeStage('review');
     setWorkspaceNotice('Workspace memory imported. Review and approve the structured brief below.');
@@ -223,7 +232,7 @@ const OutreachWorkspace = () => {
     setError('');
   }
 
-  async function handleGenerate() {
+  async function handleGenerate(autoApprove = false) {
     const { normalized, missing, isValid } = validateOutreachInput(draft);
 
     if (!isValid) {
@@ -232,7 +241,9 @@ const OutreachWorkspace = () => {
       return;
     }
 
-    if (!isDraftApproved) {
+    if (autoApprove) {
+      setApprovedSignature(createOutreachInputSignature(draft));
+    } else if (!isDraftApproved) {
       setIntakeStage('review');
       setError('Approve the structured draft before generation.');
       return;
