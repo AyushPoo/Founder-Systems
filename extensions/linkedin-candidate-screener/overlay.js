@@ -59,28 +59,26 @@ async function handleClick() {
     });
 
     if (data?.ok) {
-      const d = data;
-      // Ensure we have SOMETHING to show
-      const hasContent = d.domain || d.tagline || d.background || d.candidateSummary || d.career?.length;
-      if (!hasContent) {
-        // API returned ok but empty — show raw response for debugging
-        showOverlay(`
-          <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>
-          <p class="fs-text">Summary generated but content was empty. The AI may have hit a token limit.</p>
-          <p class="fs-text" style="font-size:10px;color:#888">${JSON.stringify(d).slice(0, 300)}</p>
-          <div class="fs-actions"><button id="fs-close" class="fs-close-btn">Close</button></div>
-        `);
-        return;
-      }
+      // Handle various response shapes the model might return
+      const d = data.candidate || data.profile || data;
+      const domain = d.domain || data.domain || '';
+      const seniority = d.seniority || data.seniority || '';
+      const tagline = d.tagline || data.tagline || d.headline || '';
+      const background = d.background || data.background || d.candidateSummary || data.candidateSummary || d.summary || '';
+      const career = d.career || data.career || d.experience || data.experience || [];
+      const goodFor = d.goodFor || data.goodFor || d.fitFor || '';
+      const credentials = d.credentials || data.credentials || d.education || data.education || '';
+      const skills = d.topSkills || data.topSkills || d.skills || data.skills || [];
+
       showOverlay(`
         <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>
-        ${d.domain ? `<div class="fs-tags"><span class="fs-tag">${d.domain}</span>${d.seniority ? `<span class="fs-tag-light">${d.seniority}</span>` : ''}</div>` : ''}
-        ${d.tagline ? `<p class="fs-tagline">${d.tagline}</p>` : ''}
-        ${d.background ? `<p class="fs-text">${d.background}</p>` : (d.candidateSummary ? `<p class="fs-text">${d.candidateSummary}</p>` : '')}
-        ${d.career?.length ? `<div class="fs-sec"><label>Career</label><div class="fs-career">${d.career.map(c=>`<div class="fs-career-item"><strong>${c.role}</strong> at ${c.company} <span class="fs-period">${c.period||''}</span>${c.note?`<br><span class="fs-note">${c.note}</span>`:''}</div>`).join('')}</div></div>` : ''}
-        ${d.goodFor ? `<div class="fs-sec"><label>Good fit for</label><p class="fs-goodfor">${d.goodFor}</p></div>` : ''}
-        ${d.credentials ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${d.credentials}</p></div>` : (d.education ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${typeof d.education === 'string' ? d.education : d.education.join(', ')}</p></div>` : '')}
-        ${d.topSkills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.topSkills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : (d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.slice(0,6).map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : '')}
+        ${domain ? `<div class="fs-tags"><span class="fs-tag">${domain}</span>${seniority ? `<span class="fs-tag-light">${seniority}</span>` : ''}</div>` : ''}
+        ${tagline ? `<p class="fs-tagline">${tagline}</p>` : ''}
+        ${background ? `<p class="fs-text">${typeof background === 'string' ? background : ''}</p>` : ''}
+        ${Array.isArray(career) && career.length ? `<div class="fs-sec"><label>Career</label><div class="fs-career">${career.map(c => typeof c === 'string' ? `<div class="fs-career-item">${c}</div>` : `<div class="fs-career-item"><strong>${c.role||c.title||''}</strong> at ${c.company||''} <span class="fs-period">${c.period||c.dates||''}</span>${c.note?`<br><span class="fs-note">${c.note}</span>`:''}</div>`).join('')}</div></div>` : ''}
+        ${goodFor ? `<div class="fs-sec"><label>Good fit for</label><p class="fs-goodfor">${typeof goodFor === 'string' ? goodFor : Array.isArray(goodFor) ? goodFor.join(', ') : ''}</p></div>` : ''}
+        ${credentials ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${typeof credentials === 'string' ? credentials : Array.isArray(credentials) ? credentials.join(', ') : ''}</p></div>` : ''}
+        ${Array.isArray(skills) && skills.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${skills.slice(0,6).map(s=>`<span class="fs-chip">${typeof s === 'string' ? s : s.name || ''}</span>`).join('')}</div></div>` : ''}
         <div class="fs-screen-section">
           <label>Screen against a role <span class="fs-paid">1 credit</span></label>
           <div class="fs-file-upload">
