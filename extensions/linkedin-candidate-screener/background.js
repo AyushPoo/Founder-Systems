@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then(data => sendResponse(data))
       .catch(err => sendResponse({ ok: false, error: err.message }));
 
-    return true; // Keep the message channel open for async response
+    return true;
   }
 
   if (message?.type === 'screen-candidate') {

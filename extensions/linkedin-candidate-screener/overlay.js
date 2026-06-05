@@ -34,17 +34,23 @@ function showOverlay(html) {
 async function handleClick() {
   removeButton();
 
-  // Show loading
   showOverlay(`
     <div class="fs-row"><div class="fs-brand">FS</div><strong>Summarizing...</strong><button id="fs-close" class="fs-close">×</button></div>
     <div class="fs-loading"><div class="fs-bar"></div></div>
   `);
 
-  // Grab ALL text from the page
-  const main = document.querySelector('main');
-  const rawText = (main?.innerText || document.body.innerText || '').slice(0, 6000);
+  // Grab the FULL page text - document.body.innerText gets ALL text in DOM, 
+  // not just what's visible in viewport. This includes lazy-loaded sections 
+  // that are in the DOM but below the fold.
+  const rawText = (document.body.innerText || '').slice(0, 8000);
+  
+  // Also grab text from all sections explicitly (catches hidden/collapsed content)
+  const sections = document.querySelectorAll('section');
+  let sectionText = '';
+  sections.forEach(s => { sectionText += s.innerText + '\n'; });
+  
+  const fullText = (sectionText || rawText).slice(0, 8000);
 
-  // Get name from h1
   let name = '';
   for (const h1 of document.querySelectorAll('h1')) {
     const t = h1.textContent.trim();

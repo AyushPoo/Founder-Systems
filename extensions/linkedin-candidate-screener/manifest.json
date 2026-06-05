@@ -3,7 +3,7 @@
   "name": "LinkedIn Candidate Screener — Founder Systems",
   "version": "1.0.0",
   "description": "Auto-summarizes LinkedIn profiles with structured work experience, skills, education, and domain tags. Screen candidates against roles instantly.",
-  "permissions": ["storage", "scripting", "activeTab"],
+  "permissions": ["storage", "activeTab"],
   "host_permissions": [
     "https://*.linkedin.com/*",
     "https://foundersystems.in/*"
