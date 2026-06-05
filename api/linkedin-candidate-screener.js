@@ -198,9 +198,10 @@ export default async function handler(req, res) {
       const modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'linkedin-candidate-screener',
-        systemPrompt: 'Summarize this LinkedIn profile into a candidate card. Return ONLY valid JSON.\n\n{"ok":true,"domain":"sector","seniority":"level","tagline":"one line: Role | Company | Credential","background":"2 short sentences only. What they do now + where they came from.","goodFor":"3 roles comma separated","career":[{"company":"company","role":"actual job title","period":"dates if visible","note":"10 words max"}],"credentials":"MBA, CA, CFA etc comma separated","topSkills":["skill"]}\n\nDo: Use exact job titles from the text. Include all companies. Keep background to 2 sentences. Include dates when shown.\nDont: Invent facts. Use "passionate/eager/driven". Write more than 2 sentences in background. Skip any role mentioned.',
-        userPrompt: 'Profile:\n' + profileText.slice(0, 4500),
-        maxOutputTokens: 500,
+        systemPrompt: 'Extract profile info from LinkedIn text. Return ONLY valid JSON matching this EXACT format. Do NOT add fields. Do NOT invent information not in the text.\n\nExample output:\n{"ok":true,"domain":"Finance","seniority":"Mid","tagline":"Co-Founder GradeSense | Ex-Grant Thornton | CFA L1","background":"Co-founded GradeSense (edtech). Previously audit at Grant Thornton and PE at Vincere Partners.","career":[{"role":"Co-Founder","company":"GradeSense","period":"2024-present","note":"AI grading platform"},{"role":"Audit Associate","company":"Grant Thornton","period":"2021-2023","note":"Statutory audits"}],"goodFor":"Fintech startups, IB analyst, edtech founder roles","credentials":"MBA Scaler, CA Inter, CFA L1","topSkills":["Financial Analysis","M&A","Audit","Excel","Valuation"]}\n\nRules: Use ONLY info from the text. Never say "passionate" or "eager". List the CURRENT role first. Include ALL companies mentioned.',
+        userPrompt: 'Extract from this LinkedIn profile. Only use facts in the text:\n\n' + profileText.slice(0, 4500),
+        maxOutputTokens: 450,
+        modelTier: 'quality',
         modelTier: 'quality',
         usage: { skipGuard: true },
       });
