@@ -524,12 +524,14 @@ const OutreachWorkspace = () => {
           error={error}
         />
 
-        <OutreachOutputTabs
-          loading={loading}
-          result={result}
-          isResultCurrent={isResultCurrent}
-          actionGuard={actionGuard}
-        />
+        {(result || loading) && (
+          <OutreachOutputTabs
+            loading={loading}
+            result={result}
+            isResultCurrent={isResultCurrent}
+            actionGuard={actionGuard}
+          />
+        )}
       </div>
 
       <aside className="min-w-0 space-y-3 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-112px)] xl:overflow-y-auto xl:pr-1">

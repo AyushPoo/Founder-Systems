@@ -199,7 +199,7 @@ const OutreachIntakeForm = ({
 
   return (
     <section className="flex h-[680px] max-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-brand-black/10 bg-white shadow-[0_18px_40px_rgba(27,28,26,0.06)]">
-      <div className="border-b border-brand-black/8 px-5 py-4">
+      <div className="border-b border-brand-black/8 px-5 py-4 flex-shrink-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/45">
@@ -265,7 +265,7 @@ const OutreachIntakeForm = ({
         </div>
 
         {assumptionSignals.length > 0 ? (
-          <div className="border-t border-brand-black/8 px-5 py-4">
+          <div className="border-t border-brand-black/8 px-5 py-4 flex-shrink-0">
             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/45">
               What I am already inferring
             </p>
@@ -277,7 +277,7 @@ const OutreachIntakeForm = ({
           </div>
         ) : null}
 
-        <div className="border-t border-brand-black/8 px-5 py-4">
+        <div className="border-t border-brand-black/8 px-5 py-4 flex-shrink-0">
           <AttachmentPicker
             attachments={draft.attachments || []}
             onChange={(attachments) =>
@@ -292,7 +292,7 @@ const OutreachIntakeForm = ({
           />
         </div>
 
-        <div className="border-t border-brand-black/8 bg-brand-cream/35 px-5 py-4">
+        <div className="border-t border-brand-black/8 bg-brand-cream/35 px-5 py-4 flex-shrink-0">
           {error ? (
             <div className="mb-3 rounded-[16px] bg-[#fff1eb] px-4 py-3 text-[13px] font-bold text-[#9f3c19]">
               {error}
