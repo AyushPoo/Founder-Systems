@@ -102,7 +102,7 @@ const OutreachIntakeForm = ({
   const [messages, setMessages] = useState([]);
   const messageIdRef = useRef(0);
   const composerRef = useRef(null);
-  const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
   const currentQuestion = useMemo(() => getNextOutreachQuestion(draft, mode), [draft, mode]);
   const assumptionSignals = useMemo(() => getOutreachAssumptionSignals(draft), [draft]);
@@ -115,7 +115,12 @@ const OutreachIntakeForm = ({
   }, [stage, currentQuestion?.key]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages, currentQuestion]);
   function pushMessage(role, content, title) {
     setMessages((current) => [
@@ -231,7 +236,7 @@ const OutreachIntakeForm = ({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
+        <div ref={scrollContainerRef} className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
           {messages.length === 0 ? (
             <ConversationBubble>
               Answer the guided questions, or click "Edit brief directly" to write it yourself.
@@ -257,7 +262,6 @@ const OutreachIntakeForm = ({
               </p>
             </ConversationBubble>
           ) : null}
-          <div ref={messagesEndRef} />
         </div>
 
         {assumptionSignals.length > 0 ? (
