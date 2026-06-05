@@ -80,6 +80,15 @@ async function handleClick() {
 
   const rawText = fullText.slice(0, 8000);
 
+  // Check if extension context is still valid
+  if (!chrome?.runtime?.sendMessage) {
+    showOverlay(`
+      <div class="fs-row"><div class="fs-brand">FS</div><strong>Refresh needed</strong><button id="fs-close" class="fs-close">×</button></div>
+      <p class="fs-error">Extension was updated. Please refresh this page (F5) and try again.</p>
+    `);
+    return;
+  }
+
   try {
     const data = await chrome.runtime.sendMessage({
       type: 'summarize-profile',
