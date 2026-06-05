@@ -201,7 +201,7 @@ export default async function handler(req, res) {
         systemPrompt: 'Extract profile info from LinkedIn text. Return ONLY valid JSON matching this EXACT format. Do NOT add fields. Do NOT invent information not in the text.\n\nExample output:\n{"ok":true,"domain":"Finance","seniority":"Mid","tagline":"Co-Founder GradeSense | Ex-Grant Thornton | CFA L1","background":"Co-founded GradeSense (edtech). Previously audit at Grant Thornton and PE at Vincere Partners.","career":[{"role":"Co-Founder","company":"GradeSense","period":"2024-present","note":"AI grading platform"},{"role":"Audit Associate","company":"Grant Thornton","period":"2021-2023","note":"Statutory audits"}],"goodFor":"Fintech startups, IB analyst, edtech founder roles","credentials":"MBA Scaler, CA Inter, CFA L1","topSkills":["Financial Analysis","M&A","Audit","Excel","Valuation"]}\n\nRules: Use ONLY info from the text. Never say "passionate" or "eager". List the CURRENT role first. Include ALL companies mentioned.',
         userPrompt: 'Extract from this LinkedIn profile. Only use facts in the text:\n\n' + profileText.slice(0, 4500),
         maxOutputTokens: 450,
-        modelTier: 'quality',
+        modelTier: 'premium',
         modelTier: 'quality',
         usage: { skipGuard: true },
       });
