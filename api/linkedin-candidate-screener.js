@@ -198,9 +198,9 @@ export default async function handler(req, res) {
       const modelResult = await invokeFounderJsonModel({
         req,
         productKey: 'linkedin-candidate-screener',
-        systemPrompt: 'Create a candidate card from LinkedIn profile text.\n\nReturn ONLY JSON:\n{"ok":true,"domain":"sector","seniority":"Entry/Mid/Senior/Founder","tagline":"Current Role | Key Background | Credential","background":"3-4 sentences. What they do now and career arc.","goodFor":"2-3 roles they suit","career":[{"company":"Name","role":"Title","period":"ONLY use dates if visible in text, otherwise leave empty","note":"what they did in 1 line"}],"credentials":"degrees + certs comma separated","topSkills":["max 6"]}\n\nCRITICAL RULES:\n- NEVER invent or guess dates. Only use periods explicitly stated in the text. If not visible, set period to "".\n- List EVERY role/company mentioned in the text. Do not skip any.\n- If they are a founder/co-founder of something, list that FIRST.\n- Do NOT use "aspiring", "passionate", "committed to", "showcasing".\n- background should state facts, not aspirations.\n- goodFor should be actionable roles, not generic titles.',
-        userPrompt: 'Extract ALL roles and companies mentioned. Do NOT guess dates — only use dates explicitly in the text. List every position.\n\n' + profileText.slice(0, 4500),
-        maxOutputTokens: 600,
+        systemPrompt: 'Summarize this LinkedIn profile into a candidate card. Return ONLY valid JSON.\n\n{"ok":true,"domain":"sector","seniority":"level","tagline":"one line: Role | Company | Credential","background":"2 short sentences only. What they do now + where they came from.","goodFor":"3 roles comma separated","career":[{"company":"company","role":"actual job title","period":"dates if visible","note":"10 words max"}],"credentials":"MBA, CA, CFA etc comma separated","topSkills":["skill"]}\n\nDo: Use exact job titles from the text. Include all companies. Keep background to 2 sentences. Include dates when shown.\nDont: Invent facts. Use "passionate/eager/driven". Write more than 2 sentences in background. Skip any role mentioned.',
+        userPrompt: 'Profile:\n' + profileText.slice(0, 4500),
+        maxOutputTokens: 500,
         modelTier: 'quality',
         usage: { skipGuard: true },
       });
