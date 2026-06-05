@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import AttachmentPicker from './AttachmentPicker';
 import OutreachApprovalForm from './OutreachApprovalForm';
 import {
   applyOutreachAnswer,
   detectOutreachUncertainty,
   getOutreachHelpResponse,
   getNextOutreachQuestion,
-  getOutreachAssumptionSignals,
 } from '../../utils/outreachIntake';
 
 const bubbleStyles = {
@@ -44,16 +42,7 @@ function SuggestionChip({ label, onClick }) {
   );
 }
 
-function SignalCard({ label, value }) {
-  return (
-    <div className="rounded-[16px] border border-brand-black/10 bg-brand-cream/55 px-4 py-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/45">
-        {label}
-      </p>
-      <p className="mt-1 text-[13px] font-medium leading-relaxed text-brand-black/72">{value}</p>
-    </div>
-  );
-}
+
 
 function buildAssistantReflection(question, nextDraft) {
   switch (question.key) {
@@ -91,6 +80,7 @@ const OutreachIntakeForm = ({
   stage,
   loading,
   error,
+  notice,
   isApproved,
   onModeChange,
   onChange,
@@ -105,7 +95,6 @@ const OutreachIntakeForm = ({
   const scrollContainerRef = useRef(null);
 
   const currentQuestion = useMemo(() => getNextOutreachQuestion(draft, mode), [draft, mode]);
-  const assumptionSignals = useMemo(() => getOutreachAssumptionSignals(draft), [draft]);
   const isReadyForReview = missingFields.size === 0;
 
   useEffect(() => {
@@ -198,7 +187,7 @@ const OutreachIntakeForm = ({
   }
 
   return (
-    <section className="flex h-[680px] max-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-brand-black/10 bg-white shadow-[0_18px_40px_rgba(27,28,26,0.06)]">
+    <section className="flex h-[560px] max-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-brand-black/10 bg-white shadow-[0_18px_40px_rgba(27,28,26,0.06)]">
       <div className="border-b border-brand-black/8 px-5 py-4 flex-shrink-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -264,38 +253,16 @@ const OutreachIntakeForm = ({
           ) : null}
         </div>
 
-        {assumptionSignals.length > 0 ? (
-          <div className="border-t border-brand-black/8 px-5 py-4 flex-shrink-0">
-            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/45">
-              What I am already inferring
-            </p>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              {assumptionSignals.map((signal) => (
-                <SignalCard key={signal.id} label={signal.label} value={signal.value} />
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        <div className="border-t border-brand-black/8 px-5 py-4 flex-shrink-0">
-          <AttachmentPicker
-            attachments={draft.attachments || []}
-            onChange={(attachments) =>
-              onChange((current) => ({
-                ...current,
-                attachments:
-                  typeof attachments === 'function'
-                    ? attachments(current.attachments || [])
-                    : attachments,
-              }))
-            }
-          />
-        </div>
-
         <div className="border-t border-brand-black/8 bg-brand-cream/35 px-5 py-4 flex-shrink-0">
           {error ? (
             <div className="mb-3 rounded-[16px] bg-[#fff1eb] px-4 py-3 text-[13px] font-bold text-[#9f3c19]">
               {error}
+            </div>
+          ) : null}
+
+          {notice ? (
+            <div className="mb-3 rounded-[16px] bg-[#eaf7ef] px-4 py-3 text-[13px] font-bold text-[#23613a]">
+              {notice}
             </div>
           ) : null}
 

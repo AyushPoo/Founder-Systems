@@ -3,6 +3,8 @@ import OutreachIntakeForm from './OutreachIntakeForm';
 import OutreachCoachPanel from './OutreachCoachPanel';
 import OutreachOutputTabs from './OutreachOutputTabs';
 import SavedCampaignsDrawer from './SavedCampaignsDrawer';
+import AttachmentPicker from './AttachmentPicker';
+import { getOutreachAssumptionSignals } from '../../utils/outreachIntake';
 import ResultsTrackerPanel from './ResultsTrackerPanel';
 import OutreachMemoryPanel from './OutreachMemoryPanel';
 import WorkspaceImportPrompt from '../workspace/WorkspaceImportPrompt';
@@ -124,6 +126,10 @@ const OutreachWorkspace = () => {
     () => buildOutreachMemoryCandidates({ draft, result }),
     [draft, result]
   );
+  const assumptionSignals = useMemo(
+    () => getOutreachAssumptionSignals(draft),
+    [draft]
+  );
 
   const activeStep = useMemo(() => {
     if (loading) {
@@ -147,6 +153,7 @@ const OutreachWorkspace = () => {
       return normalizeOutreachInput(next);
     });
     setError('');
+    setWorkspaceNotice('');
     setSaveState((current) => (current.message ? { status: 'idle', message: '' } : current));
   }, []);
 
@@ -522,6 +529,7 @@ const OutreachWorkspace = () => {
           onGenerate={handleGenerate}
           loading={loading}
           error={error}
+          notice={workspaceNotice}
         />
 
         {(result || loading) && (
@@ -535,6 +543,43 @@ const OutreachWorkspace = () => {
       </div>
 
       <aside className="min-w-0 space-y-3 xl:sticky xl:top-[88px] xl:max-h-[calc(100vh-112px)] xl:overflow-y-auto xl:pr-1">
+        {intakeStage === 'chat' && assumptionSignals.length > 0 && (
+          <div className="rounded-[24px] border border-brand-black/10 bg-white p-5 shadow-[0_8px_24px_rgba(27,28,26,0.04)] space-y-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand-black/45">
+              What I am already inferring
+            </p>
+            <div className="space-y-3">
+              {assumptionSignals.map((signal) => (
+                <div key={signal.id} className="rounded-[16px] border border-brand-black/10 bg-brand-cream/55 px-4 py-3">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/45">
+                    {signal.label}
+                  </p>
+                  <p className="mt-1 text-[13px] font-medium leading-relaxed text-brand-black/72">
+                    {signal.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {intakeStage === 'chat' && (
+          <div className="rounded-[24px] border border-brand-black/10 bg-white p-5 shadow-[0_8px_24px_rgba(27,28,26,0.04)]">
+            <AttachmentPicker
+              attachments={draft.attachments || []}
+              onChange={(attachments) =>
+                updateDraft((current) => ({
+                  ...current,
+                  attachments:
+                    typeof attachments === 'function'
+                      ? attachments(current.attachments || [])
+                      : attachments,
+                }))
+              }
+            />
+          </div>
+        )}
+
         {(intakeStage === 'review' || result) && (
           <OutreachCoachPanel
             draft={draft}
