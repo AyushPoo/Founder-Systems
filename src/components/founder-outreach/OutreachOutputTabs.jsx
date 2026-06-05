@@ -32,7 +32,31 @@ function TabButton({ active, label, onClick }) {
 const OutreachOutputTabs = ({ loading, result, isResultCurrent, actionGuard }) => {
   const [activeTab, setActiveTab] = useState('strategy');
 
-  const tabs = useMemo(() => TABS, []);
+  const tabs = useMemo(() => {
+    const activeChannels = result?.normalizedInput?.channels || [];
+    
+    let socialLabel = 'LinkedIn';
+    if (activeChannels.includes('twitter')) {
+      socialLabel = 'Twitter/X';
+    } else if (activeChannels.includes('linkedin')) {
+      socialLabel = 'LinkedIn';
+    } else if (activeChannels.length > 0 && !activeChannels.includes('linkedin') && !activeChannels.includes('email')) {
+      socialLabel = 'Social DMs';
+    }
+
+    let emailLabel = 'Emails';
+    if (activeChannels.includes('direct mail')) {
+      emailLabel = 'Direct Mail';
+    }
+
+    return [
+      { id: 'strategy', label: 'Strategy' },
+      { id: 'emails', label: emailLabel },
+      { id: 'linkedin', label: socialLabel },
+      { id: 'objections', label: 'Objections' },
+      { id: 'export', label: 'Export' },
+    ];
+  }, [result]);
 
   const activeContent = (() => {
     switch (activeTab) {

@@ -10,7 +10,7 @@ const REQUIRED_FIELDS = [
 ];
 
 const VALID_TONES = ['direct', 'warm', 'founder-led', 'bold', 'consultative'];
-const VALID_CHANNELS = ['email', 'linkedin'];
+const VALID_CHANNELS = ['email', 'linkedin', 'twitter', 'cold call', 'direct mail'];
 
 function cleanText(value) {
   return String(value || '').trim();

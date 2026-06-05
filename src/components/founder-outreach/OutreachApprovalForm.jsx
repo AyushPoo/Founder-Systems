@@ -3,7 +3,15 @@ import AttachmentPicker from './AttachmentPicker';
 import { getOutreachApprovalSections } from '../../utils/outreachIntake';
 
 const TONES = ['direct', 'warm', 'founder-led', 'bold', 'consultative'];
-const CHANNELS = ['email', 'linkedin'];
+const CHANNELS = ['email', 'linkedin', 'twitter', 'cold call', 'direct mail'];
+
+function formatChannelName(channel) {
+  if (channel === 'linkedin') return 'LinkedIn';
+  if (channel === 'twitter') return 'Twitter/X';
+  if (channel === 'cold call') return 'Cold Call';
+  if (channel === 'direct mail') return 'Direct Mail';
+  return channel.charAt(0).toUpperCase() + channel.slice(1);
+}
 
 function parseCommaSeparatedList(value) {
   return String(value || '')
@@ -244,7 +252,7 @@ const OutreachApprovalForm = ({
                     active={(draft.channels || []).includes(channel)}
                     onClick={() => toggleChannel(channel)}
                   >
-                    {channel}
+                    {formatChannelName(channel)}
                   </ChipButton>
                 ))}
               </div>

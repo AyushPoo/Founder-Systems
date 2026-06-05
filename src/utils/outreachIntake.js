@@ -1,7 +1,7 @@
 import { normalizeOutreachInput } from './outreachCampaign.js';
 
 const VALID_TONES = ['direct', 'warm', 'founder-led', 'bold', 'consultative'];
-const VALID_CHANNELS = ['email', 'linkedin'];
+const VALID_CHANNELS = ['email', 'linkedin', 'twitter', 'cold call', 'direct mail'];
 const VALID_MODES = ['beginner', 'advanced'];
 
 const QUESTION_SEQUENCE = [
@@ -224,6 +224,9 @@ function parseChannels(answer) {
   const next = [];
   if (value.includes('email')) next.push('email');
   if (value.includes('linkedin') || value.includes('linked in')) next.push('linkedin');
+  if (value.includes('twitter') || value.includes('x.com') || value.includes(' x ')) next.push('twitter');
+  if (value.includes('call') || value.includes('phone')) next.push('cold call');
+  if (value.includes('direct') || value.includes('mail') || value.includes('post')) next.push('direct mail');
   return [...new Set(next)];
 }
 
@@ -267,10 +270,18 @@ function getChannelSuggestions(input = {}) {
   const audience = `${normalized.targetCustomer} ${normalized.buyerRole}`.toLowerCase();
 
   if (audience.includes('founder') || shouldShowCompanySize(normalized)) {
-    return [buildSuggestion('Email + LinkedIn', ['email', 'linkedin']), buildSuggestion('Email only', ['email'])];
+    return [
+      buildSuggestion('Email + LinkedIn', ['email', 'linkedin']),
+      buildSuggestion('Cold Call + Email', ['cold call', 'email']),
+      buildSuggestion('Twitter/X DM', ['twitter']),
+    ];
   }
 
-  return [buildSuggestion('Email only', ['email']), buildSuggestion('Email + LinkedIn', ['email', 'linkedin'])];
+  return [
+    buildSuggestion('Email only', ['email']),
+    buildSuggestion('Cold Call + Email', ['cold call', 'email']),
+    buildSuggestion('Direct Mail', ['direct mail']),
+  ];
 }
 
 export function shouldShowCompanySize(input = {}) {

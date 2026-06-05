@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'founder-outreach-kit:candidates';
-const VALID_CHANNELS = ['email', 'linkedin'];
+const VALID_CHANNELS = ['email', 'linkedin', 'twitter', 'cold call', 'direct mail'];
 const VALID_STATUSES = ['draft', 'sending', 'active', 'paused', 'completed'];
 
 function cleanText(value) {
