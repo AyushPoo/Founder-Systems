@@ -63,21 +63,21 @@ async function handleClick() {
       showOverlay(`
         <div class="fs-row"><div class="fs-brand">FS</div><strong>${name}</strong><button id="fs-close" class="fs-close">×</button></div>
         ${d.domain ? `<div class="fs-tags"><span class="fs-tag">${d.domain}</span>${d.seniority ? `<span class="fs-tag-light">${d.seniority}</span>` : ''}</div>` : ''}
-        ${d.candidateSummary ? `<p class="fs-text">${d.candidateSummary}</p>` : ''}
-        ${d.experience?.length ? `<div class="fs-sec"><label>Experience</label><ul>${d.experience.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : ''}
-        ${d.education?.length ? `<div class="fs-sec"><label>Education</label><ul>${d.education.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : ''}
-        ${d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : ''}
-        ${d.fitSignals?.length ? `<div class="fs-sec"><label>Signals</label><ul>${d.fitSignals.map(s=>`<li>${s}</li>`).join('')}</ul></div>` : ''}
+        ${d.tagline ? `<p class="fs-tagline">${d.tagline}</p>` : ''}
+        ${d.background ? `<p class="fs-text">${d.background}</p>` : (d.candidateSummary ? `<p class="fs-text">${d.candidateSummary}</p>` : '')}
+        ${d.goodFor ? `<div class="fs-sec"><label>Good fit for</label><p class="fs-goodfor">${d.goodFor}</p></div>` : ''}
+        ${d.education ? `<div class="fs-sec"><label>Credentials</label><p class="fs-edu">${typeof d.education === 'string' ? d.education : d.education.join(', ')}</p></div>` : ''}
+        ${d.topSkills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.topSkills.map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : (d.skills?.length ? `<div class="fs-sec"><label>Skills</label><div class="fs-chips">${d.skills.slice(0,5).map(s=>`<span class="fs-chip">${s}</span>`).join('')}</div></div>` : '')}
         <div class="fs-screen-section">
           <label>Screen against a role <span class="fs-paid">1 credit</span></label>
           <div class="fs-file-upload">
             <input type="file" id="fs-jd-file" accept=".pdf,.doc,.docx,.txt,.md" style="display:none" />
-            <button id="fs-upload-btn" class="fs-upload-btn">📎 Upload JD (PDF/DOC)</button>
+            <button id="fs-upload-btn" class="fs-upload-btn">📎 Upload JD</button>
             <span id="fs-file-name" class="fs-file-name"></span>
           </div>
-          <textarea id="fs-jd" class="fs-input" rows="2" placeholder="Or paste JD / role requirements here..."></textarea>
-          <textarea id="fs-resume" class="fs-input" rows="2" placeholder="Optional: paste resume for higher accuracy..."></textarea>
-          <button id="fs-run-screen" class="fs-screen-btn">Screen candidate</button>
+          <textarea id="fs-jd" class="fs-input" rows="2" placeholder="Or paste JD here..."></textarea>
+          <textarea id="fs-resume" class="fs-input" rows="2" placeholder="Optional: paste resume for a fit score..."></textarea>
+          <button id="fs-run-screen" class="fs-screen-btn">Screen · get fit score</button>
           <div id="fs-screen-result"></div>
         </div>
         <div class="fs-actions"><button id="fs-close" class="fs-close-btn">Close</button></div>

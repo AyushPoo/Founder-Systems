@@ -59,3 +59,8 @@
 .fs-upload-btn { padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; background: #fff; font-size: 11px; font-weight: 700; cursor: pointer; }
 .fs-upload-btn:hover { background: #f9f9f9; }
 .fs-file-name { font-size: 10px; color: #666; }
+
+
+.fs-tagline { margin: 6px 0 0; font-size: 12px; font-weight: 800; color: #1b1c1a; line-height: 1.4; }
+.fs-goodfor { margin: 0; font-size: 11px; line-height: 1.5; color: #444; font-style: italic; }
+.fs-edu { margin: 0; font-size: 11px; color: #555; }
