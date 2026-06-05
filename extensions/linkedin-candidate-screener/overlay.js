@@ -12,6 +12,35 @@ function showButton() {
   document.body.appendChild(btn);
 }
 
+// Fast-scroll the page to trigger LinkedIn's lazy loading, then return full text
+function loadFullProfile() {
+  return new Promise((resolve) => {
+    const originalPosition = window.scrollY;
+    const totalHeight = document.body.scrollHeight;
+    let currentPos = 0;
+    const step = 600;
+    
+    function scrollStep() {
+      if (currentPos >= totalHeight) {
+        // Done scrolling — wait for DOM to settle, then grab text and scroll back
+        setTimeout(() => {
+          window.scrollTo(0, originalPosition);
+          // Grab text from ALL sections now that they're loaded
+          const main = document.querySelector('main');
+          const text = main?.innerText || document.body.innerText || '';
+          resolve(text);
+        }, 600);
+        return;
+      }
+      window.scrollTo(0, currentPos);
+      currentPos += step;
+      setTimeout(scrollStep, 80);
+    }
+    
+    scrollStep();
+  });
+}
+
 function removeButton() {
   const el = document.getElementById(BUTTON_ID);
   if (el) el.remove();
@@ -35,27 +64,21 @@ async function handleClick() {
   removeButton();
 
   showOverlay(`
-    <div class="fs-row"><div class="fs-brand">FS</div><strong>Summarizing...</strong><button id="fs-close" class="fs-close">×</button></div>
+    <div class="fs-row"><div class="fs-brand">FS</div><strong>Reading full profile...</strong><button id="fs-close" class="fs-close">×</button></div>
     <div class="fs-loading"><div class="fs-bar"></div></div>
   `);
 
-  // Grab the FULL page text - document.body.innerText gets ALL text in DOM, 
-  // not just what's visible in viewport. This includes lazy-loaded sections 
-  // that are in the DOM but below the fold.
-  const rawText = (document.body.innerText || '').slice(0, 8000);
+  // Step 1: Fast-scroll the page to force LinkedIn to load ALL sections
+  // Then grab complete text. User won't notice — it takes <2 seconds.
+  const fullText = await loadFullProfile();
   
-  // Also grab text from all sections explicitly (catches hidden/collapsed content)
-  const sections = document.querySelectorAll('section');
-  let sectionText = '';
-  sections.forEach(s => { sectionText += s.innerText + '\n'; });
-  
-  const fullText = (sectionText || rawText).slice(0, 8000);
-
   let name = '';
   for (const h1 of document.querySelectorAll('h1')) {
     const t = h1.textContent.trim();
     if (t.length > 1 && t.length < 60) { name = t; break; }
   }
+
+  const rawText = fullText.slice(0, 8000);
 
   try {
     const data = await chrome.runtime.sendMessage({
