@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import AttachmentPicker from './AttachmentPicker';
 import { getOutreachApprovalSections } from '../../utils/outreachIntake';
 
@@ -26,6 +27,7 @@ function ApprovalField({
   rows = 3,
 }) {
   const Tag = textarea ? 'textarea' : 'input';
+  const [focused, setFocused] = useState(false);
 
   return (
     <label className="block">
@@ -36,6 +38,8 @@ function ApprovalField({
         value={value}
         rows={textarea ? rows : undefined}
         onChange={(event) => onChange(event.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         placeholder={placeholder}
         className={`w-full rounded-[18px] border bg-white px-4 py-3 text-sm font-medium leading-relaxed text-brand-black shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] transition focus:outline-none focus:ring-2 focus:ring-brand-black/5 ${
           error
@@ -43,7 +47,7 @@ function ApprovalField({
             : 'border-brand-black/12 focus:border-brand-black/28'
         }`}
       />
-      {helper ? (
+      {focused && helper ? (
         <p className="mt-2 text-xs font-medium leading-relaxed text-brand-black/46">{helper}</p>
       ) : null}
       {error ? <p className="mt-2 text-xs font-bold text-red-600">{error}</p> : null}
@@ -113,14 +117,13 @@ const OutreachApprovalForm = ({
       <div className="flex flex-col gap-3 border-b border-brand-black/8 pb-4 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/45">
-            Approval draft
+            Approval Brief
           </p>
           <h2 className="mt-1 text-lg font-black tracking-tight-brand text-brand-black">
-            Edit the structured brief, then approve it before generation.
+            Approval Brief
           </h2>
           <p className="mt-1 max-w-[720px] text-sm font-medium leading-relaxed text-brand-black/56">
-            This is the handoff from conversation to campaign. Tighten anything that feels off,
-            then lock the draft and generate from that version.
+            Refine your campaign details. Approve the draft when ready to generate the copy.
           </p>
         </div>
 

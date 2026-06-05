@@ -67,24 +67,30 @@ const OutreachCoachPanel = ({
       ) : null}
 
       <div className="mt-3 grid gap-2">
-        {Object.entries(feedback).map(([field, notes]) => (
-          <div key={field} className="rounded-[14px] border border-brand-black/10 bg-brand-cream/55 px-3 py-2.5">
-            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-brand-black/45">
-              {formatFieldName(field)}
-            </p>
-            {notes.length > 0 ? (
-              notes.map((note) => (
+        {Object.entries(feedback)
+          .filter(([_, notes]) => notes.length > 0)
+          .map(([field, notes]) => (
+            <div key={field} className="rounded-[14px] border border-red-200/80 bg-red-50/10 px-3 py-2.5">
+              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-red-800/60">
+                {formatFieldName(field)}
+              </p>
+              {notes.map((note) => (
                 <p key={note} className="mt-1 text-[12px] font-medium leading-relaxed text-brand-black/72">
                   {note}
                 </p>
-              ))
-            ) : (
-              <p className="mt-1 text-[12px] font-medium leading-relaxed text-brand-black/48">
-                Specific enough to move forward.
-              </p>
-            )}
+              ))}
+            </div>
+          ))}
+        {Object.values(feedback).every((notes) => notes.length === 0) && (
+          <div className="rounded-[14px] border border-green-200/80 bg-green-50/10 px-3 py-2.5">
+            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-green-800/60">
+              Outreach Advisor
+            </p>
+            <p className="mt-1 text-[12px] font-medium leading-relaxed text-brand-black/72">
+              Positioning looks strong and specific. Ready to generate.
+            </p>
           </div>
-        ))}
+        )}
       </div>
 
       {result?.diagnosticNotes?.length ? (

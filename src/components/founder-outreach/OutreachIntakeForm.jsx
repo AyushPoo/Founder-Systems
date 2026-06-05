@@ -193,14 +193,13 @@ const OutreachIntakeForm = ({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.16em] text-brand-black/45">
-              Conversational intake
+              Intake Guide
             </p>
             <h2 className="mt-1 text-[1.05rem] font-black tracking-tight-brand text-brand-black">
-              Gather the signal in plain language first.
+              Answer a few quick questions
             </h2>
             <p className="mt-1 max-w-[760px] text-[13px] font-medium leading-relaxed text-brand-black/54">
-              One question at a time, a little guidance when the wording gets fuzzy, then a clean
-              approval draft before generation.
+              Share a few details about your product and target customer, or edit the form directly.
             </p>
           </div>
 
@@ -230,8 +229,7 @@ const OutreachIntakeForm = ({
         <div className="flex-1 space-y-3 overflow-y-auto px-5 py-5">
           {messages.length === 0 ? (
             <ConversationBubble>
-              Start with whatever is easiest to say. I will turn it into a usable outreach brief
-              without forcing you through a rigid form.
+              Answer the guided questions, or click "Edit brief directly" to write it yourself.
             </ConversationBubble>
           ) : null}
 
@@ -335,9 +333,9 @@ const OutreachIntakeForm = ({
               />
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[11px] font-medium leading-relaxed text-brand-black/42">
-                  Keep the answer rough if you want. The approval draft will stay editable.
-                </p>
+                <div className="text-[11px] font-medium leading-relaxed text-brand-black/42">
+                  Draft is auto-saved locally.
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"

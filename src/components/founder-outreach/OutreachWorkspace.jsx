@@ -446,14 +446,13 @@ const OutreachWorkspace = () => {
       <div className="flex flex-col gap-4 rounded-[20px] border border-brand-black/10 bg-white px-4 py-4 shadow-[0_14px_30px_rgba(27,28,26,0.05)] lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0 max-w-[780px]">
           <p className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-black/45">
-            Founder outreach kit
+            Outbound Campaign
           </p>
           <h1 className="mt-1 text-[1.15rem] font-black tracking-tight-brand text-brand-black sm:text-[1.3rem]">
-            Chat first, approve the brief, then generate the campaign.
+            Founder Outreach Kit
           </h1>
           <p className="mt-1 text-[13px] font-medium leading-relaxed text-brand-black/56">
-            Keep the intake loose. The structured draft appears only when the signal is clear
-            enough to review.
+            Create highly targeted, non-generic outbound campaigns built around your unique offer.
           </p>
         </div>
 
