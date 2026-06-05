@@ -102,6 +102,7 @@ const OutreachIntakeForm = ({
   const [messages, setMessages] = useState([]);
   const messageIdRef = useRef(0);
   const composerRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   const currentQuestion = useMemo(() => getNextOutreachQuestion(draft, mode), [draft, mode]);
   const assumptionSignals = useMemo(() => getOutreachAssumptionSignals(draft), [draft]);
@@ -112,6 +113,10 @@ const OutreachIntakeForm = ({
       composerRef.current?.focus();
     }
   }, [stage, currentQuestion?.key]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, currentQuestion]);
   function pushMessage(role, content, title) {
     setMessages((current) => [
       ...current,
@@ -188,7 +193,7 @@ const OutreachIntakeForm = ({
   }
 
   return (
-    <section className="flex min-h-[620px] flex-col overflow-hidden rounded-[24px] border border-brand-black/10 bg-white shadow-[0_18px_40px_rgba(27,28,26,0.06)]">
+    <section className="flex h-[680px] max-h-[calc(100vh-140px)] flex-col overflow-hidden rounded-[24px] border border-brand-black/10 bg-white shadow-[0_18px_40px_rgba(27,28,26,0.06)]">
       <div className="border-b border-brand-black/8 px-5 py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -252,6 +257,7 @@ const OutreachIntakeForm = ({
               </p>
             </ConversationBubble>
           ) : null}
+          <div ref={messagesEndRef} />
         </div>
 
         {assumptionSignals.length > 0 ? (
